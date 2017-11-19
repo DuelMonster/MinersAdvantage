@@ -1,0 +1,131 @@
+Symbol range map extraction starting
+Processing 43 files
+startProcessing "co\uk\duelmonster\minersadvantage\MinersAdvantage.java" md5: 251dec3e1663667a3c2711e271e2200b
+endProcessing "co\uk\duelmonster\minersadvantage\MinersAdvantage.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\client\ClientFunctions.java" md5: 1a5639d95261bb370be1b431326fe02f
+endProcessing "co\uk\duelmonster\minersadvantage\client\ClientFunctions.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\client\KeyBindings.java" md5: 2f4dd37cfe2324abfd85463825595786
+endProcessing "co\uk\duelmonster\minersadvantage\client\KeyBindings.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\client\config\ConfigGuiFactory.java" md5: 2fac14f075397514b0fa8707892f7b52
+endProcessing "co\uk\duelmonster\minersadvantage\client\config\ConfigGuiFactory.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\client\config\ConfigHandler.java" md5: 42e79790923a13f2fb673d12f7296521
+endProcessing "co\uk\duelmonster\minersadvantage\client\config\ConfigHandler.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\client\gui\GuiConfigMA.java" md5: c2907cf75480115c5e655c78b8c9036c
+endProcessing "co\uk\duelmonster\minersadvantage\client\gui\GuiConfigMA.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\client\gui\GuiNumberField.java" md5: cfec4582dabba47d771774d5c099c82a
+endProcessing "co\uk\duelmonster\minersadvantage\client\gui\GuiNumberField.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\common\Constants.java" md5: 7e45cc70d554ab84d27aae67c65b4553
+endProcessing "co\uk\duelmonster\minersadvantage\common\Constants.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\common\Functions.java" md5: 49bc1b5f0def1d33a82939b3a3416463
+endProcessing "co\uk\duelmonster\minersadvantage\common\Functions.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\common\JsonHelper.java" md5: c819879e69ee0e94e934fdade5464237
+endProcessing "co\uk\duelmonster\minersadvantage\common\JsonHelper.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\common\PacketID.java" md5: 572f10b21831833a4a19a84f6ebff33d
+endProcessing "co\uk\duelmonster\minersadvantage\common\PacketID.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\common\RankAndLevel.java" md5: a7ad34ca91293047ff38152a2181c9e4
+endProcessing "co\uk\duelmonster\minersadvantage\common\RankAndLevel.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\common\Ranking.java" md5: 7e006b05abf12acc63ce96b755264a88
+endProcessing "co\uk\duelmonster\minersadvantage\common\Ranking.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\common\Variables.java" md5: 47fbcfe1e49da9e11d2da653c22684f3
+endProcessing "co\uk\duelmonster\minersadvantage\common\Variables.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\events\ClientEvents.java" md5: 1055d3e83d09159526456bcc2980e937
+endProcessing "co\uk\duelmonster\minersadvantage\events\ClientEvents.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\events\KeyInputEvents.java" md5: 0ec650e7acf22a618a60b9208e9ef3c6
+endProcessing "co\uk\duelmonster\minersadvantage\events\KeyInputEvents.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\events\ServerEvents.java" md5: 47da28b350188085bf73f4df8b50ea7c
+endProcessing "co\uk\duelmonster\minersadvantage\events\ServerEvents.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\events\SharedEvents.java" md5: a55f3000e03c706051bbf4d4097b58b1
+endProcessing "co\uk\duelmonster\minersadvantage\events\SharedEvents.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\handlers\CaptivationHandler.java" md5: 1885fb28e1b44bf92cde521ed9f73f01
+endProcessing "co\uk\duelmonster\minersadvantage\handlers\CaptivationHandler.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\handlers\CropinationHandler.java" md5: 7db4d795116781a652ebcb90ffea0b93
+endProcessing "co\uk\duelmonster\minersadvantage\handlers\CropinationHandler.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\handlers\ExcavationHandler.java" md5: d67fa77665c0ab150d2eab229743d540
+endProcessing "co\uk\duelmonster\minersadvantage\handlers\ExcavationHandler.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\handlers\GodItems.java" md5: c8369c573a789d4750a590ad288b9c9c
+endProcessing "co\uk\duelmonster\minersadvantage\handlers\GodItems.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\handlers\IPacketHandler.java" md5: 4e16c17ffbd7e236be6dae07e149a1cb
+endProcessing "co\uk\duelmonster\minersadvantage\handlers\IPacketHandler.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\handlers\IlluminationHandler.java" md5: eebbd2b7a14579d3ba1ceb0ffd493be4
+endProcessing "co\uk\duelmonster\minersadvantage\handlers\IlluminationHandler.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\handlers\LumbinationHandler.java" md5: a5164558ec8922ae7cc83f8e8d1dfb52
+endProcessing "co\uk\duelmonster\minersadvantage\handlers\LumbinationHandler.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\handlers\PathanationHandler.java" md5: 00e00599a3fa2ffb709d83e2143e47b6
+endProcessing "co\uk\duelmonster\minersadvantage\handlers\PathanationHandler.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\handlers\ShaftanationHandler.java" md5: 3db9e6a5fef1d86e6d289ec65abe13a3
+endProcessing "co\uk\duelmonster\minersadvantage\handlers\ShaftanationHandler.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\handlers\SubstitutionHandler.java" md5: 911e4215c253a75cf5a297be1539e6fe
+endProcessing "co\uk\duelmonster\minersadvantage\handlers\SubstitutionHandler.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\handlers\SyncHandler.java" md5: d2cc078a0ee99b0c2f115855b26d615a
+endProcessing "co\uk\duelmonster\minersadvantage\handlers\SyncHandler.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\handlers\VeinationHandler.java" md5: 78ec57d47596e0a1994c80b40359cd06
+endProcessing "co\uk\duelmonster\minersadvantage\handlers\VeinationHandler.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\packets\PacketBase.java" md5: 69dc46b920bd62c042dbf7cdc09d8fb2
+endProcessing "co\uk\duelmonster\minersadvantage\packets\PacketBase.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\proxies\ClientProxy.java" md5: 1b5e4b9f6e146814417707a52997d2b0
+endProcessing "co\uk\duelmonster\minersadvantage\proxies\ClientProxy.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\proxies\CommonProxy.java" md5: e5f0ff51df8d90470b313d19d7cd520c
+endProcessing "co\uk\duelmonster\minersadvantage\proxies\CommonProxy.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\reversal\ReversalData.java" md5: 2d98723f65fc85e7613376450bc31597
+endProcessing "co\uk\duelmonster\minersadvantage\reversal\ReversalData.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\settings\Settings.java" md5: 95a4c160b817e3a6ddb9c3082f75aca3
+endProcessing "co\uk\duelmonster\minersadvantage\settings\Settings.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\workers\Agent.java" md5: 216dc263ee8c97498f12e6529b34cfce
+endProcessing "co\uk\duelmonster\minersadvantage\workers\Agent.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\workers\AgentProcessor.java" md5: 5028954b9299424f89ce86249373470d
+endProcessing "co\uk\duelmonster\minersadvantage\workers\AgentProcessor.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\workers\CropinationAgent.java" md5: 31086f43cbf4701841890f196d4792aa
+endProcessing "co\uk\duelmonster\minersadvantage\workers\CropinationAgent.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\workers\DropsSpawner.java" md5: 247ecb0bae98da71055aff0cb97dc93d
+endProcessing "co\uk\duelmonster\minersadvantage\workers\DropsSpawner.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\workers\ExcavationAgent.java" md5: 54a0c35ce34c063b0dba65fcd51c0043
+endProcessing "co\uk\duelmonster\minersadvantage\workers\ExcavationAgent.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\workers\LumbinationAgent.java" md5: 3fbaa790deb9507ab9dff602f78206fa
+endProcessing "co\uk\duelmonster\minersadvantage\workers\LumbinationAgent.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\workers\PathanationAgent.java" md5: 42020c1faa22c31f49fe0ea08ca2310e
+endProcessing "co\uk\duelmonster\minersadvantage\workers\PathanationAgent.java"
+
+startProcessing "co\uk\duelmonster\minersadvantage\workers\ShaftanationAgent.java" md5: 99ab35364f72ce8e30b5f2b4099eb8c3
+endProcessing "co\uk\duelmonster\minersadvantage\workers\ShaftanationAgent.java"
+
