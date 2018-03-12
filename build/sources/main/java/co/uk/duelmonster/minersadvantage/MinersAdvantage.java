@@ -2,12 +2,10 @@ package co.uk.duelmonster.minersadvantage;
 
 import org.apache.logging.log4j.Logger;
 
-import co.uk.duelmonster.minersadvantage.client.config.ConfigHandler;
 import co.uk.duelmonster.minersadvantage.common.Constants;
 import co.uk.duelmonster.minersadvantage.handlers.LumbinationHandler;
 import co.uk.duelmonster.minersadvantage.handlers.VeinationHandler;
 import co.uk.duelmonster.minersadvantage.proxies.CommonProxy;
-import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
@@ -30,8 +28,8 @@ public class MinersAdvantage {
 	@Instance(Constants.MOD_ID)
 	public static MinersAdvantage instance;
 	
-	@SidedProxy(clientSide = Constants.PROXY + ".ClientProxy",
-				serverSide = Constants.PROXY + ".CommonProxy")
+	@SidedProxy(clientSide = Constants.PROXY + "ClientProxy",
+				serverSide = Constants.PROXY + "CommonProxy")
 	public static CommonProxy	proxy;
 	public static Logger		logger;
 	
@@ -42,9 +40,7 @@ public class MinersAdvantage {
 		logger = event.getModLog();
 		network = NetworkRegistry.INSTANCE.newSimpleChannel(Constants.CHANNEL);
 		
-		if (proxy.isClient())
-			ConfigHandler.initConfigs(new Configuration(event.getSuggestedConfigurationFile(), true));
-		
+		proxy.initConfig(event.getSuggestedConfigurationFile());
 		proxy.registerHandlers();
 	}
 	

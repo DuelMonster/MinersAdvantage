@@ -29,7 +29,7 @@ public class PathanationAgent extends Agent {
 		addConnectedToQueue(originPos);
 	}
 	
-	// Returns true when Excavation is complete or cancelled
+	// Returns true when Pathanation is complete or cancelled
 	@Override
 	public boolean tick() {
 		if (originPos == null || player == null || !player.isEntityAlive() || processed.size() >= settings.iBlockLimit())
@@ -45,7 +45,7 @@ public class PathanationAgent extends Agent {
 					|| (settings.tpsGuard() && timer.elapsed(TimeUnit.MILLISECONDS) > 40))
 				break;
 			
-			if (heldItem != Functions.getHeldItem(player) || Functions.IsPlayerStarving(player)) {
+			if (Functions.IsPlayerStarving(player)) {
 				bIsComplete = true;
 				break;
 			}

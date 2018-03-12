@@ -4,15 +4,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-
-import com.google.common.base.Stopwatch;
 
 import co.uk.duelmonster.minersadvantage.MinersAdvantage;
 import co.uk.duelmonster.minersadvantage.common.JsonHelper;
 import co.uk.duelmonster.minersadvantage.common.PacketID;
 import co.uk.duelmonster.minersadvantage.common.Variables;
-import co.uk.duelmonster.minersadvantage.packets.PacketBase;
+import co.uk.duelmonster.minersadvantage.packets.NetworkPacket;
 import co.uk.duelmonster.minersadvantage.settings.Settings;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
@@ -27,14 +24,19 @@ public class AgentProcessor {
 	// private HashMap<UUID, ReversalData> reversing = new HashMap<UUID, ReversalData>();
 	// private HashMap<UUID, List<ReversalData>> reversalLog = new HashMap<UUID, List<ReversalData>>();
 	
-	private Stopwatch timer = Stopwatch.createUnstarted();
+	//private Stopwatch	timer = Stopwatch.createUnstarted();
+	private int tickCount = 0;
 	
 	public HashMap<Integer, Agent> getAgentsByID(UUID uuid) {
 		return activeAgents.get(uuid);
 	}
 	
+	/*
+	 * Minecraft's game loop normally runs at a fixed rate of 20 ticks per second, so one tick happens every 0.05 seconds.
+	 * An in-game day lasts exactly 24000 ticks, or 20 minutes.
+	 */
 	public void fireAgentTicks(World world) {
-		timer.start();
+		tickCount++;
 		
 		Iterator<Entry<UUID, HashMap<Integer, Agent>>> allAgents = activeAgents.entrySet().iterator();
 		while (allAgents.hasNext()) {
@@ -43,18 +45,13 @@ public class AgentProcessor {
 			Settings settings = Settings.get(uuid);
 			Variables variables = Variables.get(uuid);
 			
-			if (settings.tpsGuard && timer.elapsed(TimeUnit.MILLISECONDS) > 40) {
-				variables.skipNext = true;
-				break;
-			}
-			
 			Iterator<Entry<Integer, Agent>> playerAgents = allAgentsEntry.getValue().entrySet().iterator();
 			while (playerAgents.hasNext()) {
-				if (settings.tpsGuard && timer.elapsed(TimeUnit.MILLISECONDS) > 40) {
-					variables.skipNext = true;
-					break;
-				}
 				Agent agent = playerAgents.next().getValue();
+				
+				// If the Tick Delay is enabled and the current tick doesn't match the delay count we skip the agent for this player 
+				if (isAgentDelayable(agent) && settings.bEnableTickDelay() && tickCount % settings.iTickDelay() != 0)
+					continue;
 				
 				setCurrentAgent(allAgentsEntry.getKey(), agent);
 				boolean bIsComplete = agent.tick();
@@ -71,8 +68,6 @@ public class AgentProcessor {
 			if (allAgentsEntry.getValue().isEmpty())
 				allAgents.remove();
 		}
-		
-		timer.reset();
 	}
 	
 	public Agent startProcessing(EntityPlayerMP player, Agent agent) {
@@ -142,6 +137,14 @@ public class AgentProcessor {
 		tags.setInteger("ID", PacketID.SyncVariables.value());
 		tags.setString("variables", JsonHelper.gson.toJson(variables));
 		
-		MinersAdvantage.instance.network.sendTo(new PacketBase(tags), agent.player);
+		MinersAdvantage.instance.network.sendTo(new NetworkPacket(tags), agent.player);
+	}
+	
+	private boolean isAgentDelayable(Agent agent) {
+		return (agent instanceof LumbinationAgent)
+				|| (agent instanceof CropinationAgent)
+				|| (agent instanceof ExcavationAgent)
+				|| (agent instanceof PathanationAgent)
+				|| (agent instanceof ShaftanationAgent);
 	}
 }

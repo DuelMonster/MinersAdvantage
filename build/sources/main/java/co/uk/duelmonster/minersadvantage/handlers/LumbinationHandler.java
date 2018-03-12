@@ -1,19 +1,22 @@
 package co.uk.duelmonster.minersadvantage.handlers;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import com.google.gson.JsonObject;
 
 import co.uk.duelmonster.minersadvantage.client.ClientFunctions;
+import co.uk.duelmonster.minersadvantage.common.Constants;
 import co.uk.duelmonster.minersadvantage.common.Functions;
 import co.uk.duelmonster.minersadvantage.common.Variables;
-import co.uk.duelmonster.minersadvantage.packets.PacketBase;
+import co.uk.duelmonster.minersadvantage.packets.NetworkPacket;
+import co.uk.duelmonster.minersadvantage.settings.ConfigHandler;
 import co.uk.duelmonster.minersadvantage.settings.Settings;
 import co.uk.duelmonster.minersadvantage.workers.AgentProcessor;
 import co.uk.duelmonster.minersadvantage.workers.LumbinationAgent;
 import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -30,47 +33,56 @@ public class LumbinationHandler implements IPacketHandler {
 	
 	public static LumbinationHandler instance = new LumbinationHandler();
 	
+	private World			world;
 	private EntityPlayer	player;
 	private Settings		settings;
 	
-	public int	iTreeWidthPlusX	= 0, iTreeWidthMinusX = 0;
-	public int	iTreeWidthPlusZ	= 0, iTreeWidthMinusZ = 0;
+	public int				iTreeWidthPlusX	= 0, iTreeWidthMinusX = 0;
+	public int				iTreeWidthPlusZ	= 0, iTreeWidthMinusZ = 0;
+	public int				iTrunkWidth		= 0, iTrunkTopY = 0;
+	public int				iTreeRootY		= 0;
+	public AxisAlignedBB	trunkArea		= null;
+	public List<BlockPos>	trunkPositions	= new ArrayList<BlockPos>();
 	
 	private static boolean	bLogsGot	= false;
 	private static boolean	bLeavesGot	= false;
 	private static boolean	bAxesGot	= false;
 	
 	@Override
-	public void processClientMessage(PacketBase message, MessageContext context) {
+	public void processClientMessage(NetworkPacket message, MessageContext context) {
 		player = ClientFunctions.getPlayer();
+		world = player.world;
 		settings = Settings.get();
 		
 		Variables.get().IsLumbinating = true;
 	}
 	
 	@Override
-	public void processServerMessage(PacketBase message, MessageContext context) {
+	public void processServerMessage(NetworkPacket message, MessageContext context) {
 		player = context.getServerHandler().player;
 		if (player == null)
 			return;
 		
+		world = player.world;
 		settings = Settings.get(player.getUniqueID());
 		
-		if (message.getTags().getBoolean("cancel")) {
-			player.getServer().addScheduledTask(new Runnable() {
-				@Override
-				public void run() {
-					AgentProcessor.instance.stopProcessing((EntityPlayerMP) player);
-				}
-			});
-			return;
-		}
+		// if (message.getTags().getBoolean("cancel")) {
+		// player.getServer().addScheduledTask(new Runnable() {
+		// @Override
+		// public void run() {
+		// AgentProcessor.instance.stopProcessing((EntityPlayerMP) player);
+		// }
+		// });
+		// return;
+		// }
 		
 		player.getServer().addScheduledTask(new Runnable() {
+			
 			@Override
 			public void run() {
 				AgentProcessor.instance.startProcessing((EntityPlayerMP) player, new LumbinationAgent((EntityPlayerMP) player, message.getTags()));
 			}
+			
 		});
 	}
 	
@@ -78,6 +90,8 @@ public class LumbinationHandler implements IPacketHandler {
 		getLogList();
 		getLeafList();
 		getAxeList();
+		
+		ConfigHandler.save();
 	}
 	
 	private static void getLogList() {
@@ -86,7 +100,7 @@ public class LumbinationHandler implements IPacketHandler {
 			Collection<String> saOreNames = Arrays.asList(OreDictionary.getOreNames());
 			
 			// Get Logs
-			JsonObject lumbinationLogs = Settings.get().lumbinationLogs;
+			JsonObject lumbinationLogs = Settings.get().lumbinationLogs();
 			
 			saOreNames.stream()
 					.filter(log -> log.toLowerCase().startsWith("log"))
@@ -95,9 +109,13 @@ public class LumbinationHandler implements IPacketHandler {
 								.filter(item -> item.getItem() instanceof ItemBlock).forEach(item -> {
 									String sID = item.getItem().getRegistryName().toString().trim();
 									if (!lumbinationLogs.has(sID))
-										lumbinationLogs.add(sID, null);
+										lumbinationLogs.addProperty(sID, "");
 								});
 					});
+			
+			ConfigHandler.setValue(Constants.LUMBINATION_ID, "logs", lumbinationLogs.toString());
+			
+			bLogsGot = true;
 		}
 	}
 	
@@ -107,7 +125,7 @@ public class LumbinationHandler implements IPacketHandler {
 			Collection<String> saOreNames = Arrays.asList(OreDictionary.getOreNames());
 			
 			// Get Leaves
-			JsonObject lumbinationLeaves = Settings.get().lumbinationLeaves;
+			JsonObject lumbinationLeaves = Settings.get().lumbinationLeaves();
 			
 			saOreNames.stream()
 					.filter(leaves -> leaves.toLowerCase().endsWith("leaves"))
@@ -116,9 +134,11 @@ public class LumbinationHandler implements IPacketHandler {
 								.filter(item -> item.getItem() instanceof ItemBlock).forEach(item -> {
 									String sID = item.getItem().getRegistryName().toString().trim();
 									if (!lumbinationLeaves.has(sID))
-										lumbinationLeaves.add(sID, null);
+										lumbinationLeaves.addProperty(sID, "");
 								});
 					});
+			
+			ConfigHandler.setValue(Constants.LUMBINATION_ID, "leaves", lumbinationLeaves.toString());
 			
 			bLeavesGot = true;
 		}
@@ -127,106 +147,35 @@ public class LumbinationHandler implements IPacketHandler {
 	private static void getAxeList() {
 		if (!bAxesGot) {
 			// Get Axes
-			JsonObject lumbinationAxes = Settings.get().lumbinationAxes;
+			JsonObject lumbinationAxes = Settings.get().lumbinationAxes();
 			
 			Item.REGISTRY.forEach(item -> {
 				if (item instanceof ItemAxe)
-					lumbinationAxes.add(item.getRegistryName().toString().trim(), null);
+					lumbinationAxes.addProperty(item.getRegistryName().toString().trim(), "");
 			});
+			
+			ConfigHandler.setValue(Constants.LUMBINATION_ID, "axes", lumbinationAxes.toString());
 			
 			bAxesGot = true;
 		}
 	}
 	
 	public AxisAlignedBB identifyTree(BlockPos oPos, Block block) {
-		World world = player.world;
-		int iTreeMinY = getTreeRoot(oPos, block), iTreeMaxY = oPos.getY();
+		AxisAlignedBB rtrnBB = new AxisAlignedBB(oPos, oPos);
 		
 		if (block.isWood(world, oPos)) {
 			BlockPos leafPos = getLeafPos(oPos);
-			Block leafBlock = world.getBlockState(leafPos).getBlock();
-			
-			int yLevel = leafPos.getY();
-			iTreeMaxY = yLevel;
-			int yLevelPrev = 0;
-			int iLeafRangeX = settings.iLeafRange;
-			int iLeafRangeZ = settings.iLeafRange;
-			
-			for (int yLeaf = yLevel; yLeaf < world.getHeight(); yLeaf++) {
+			if (leafPos != null) { // Leaves were found so treat this as a valid tree.
+				iTreeRootY = getTreeRoot(oPos, block);
+				trunkArea = getTrunkSize(oPos, block);
 				
-				int iWidthPlusX = 0, iWidthMinusX = 0;
-				int iWidthPlusZ = 0, iWidthMinusZ = 0;
-				int iAirCount = 0;
+				rtrnBB = trunkArea
+						.expand(settings.iLeafRange() - 1, settings.iLeafRange(), settings.iLeafRange() - 1)
+						.expand(-(settings.iLeafRange() - 1), 0, -(settings.iLeafRange() - 1));
 				
-				for (int xOffset = -iLeafRangeX; xOffset <= iLeafRangeX; xOffset++) {
-					BlockPos checkPos = new BlockPos(oPos.getX() + xOffset, yLevel, oPos.getZ());
-					Block checkBlock = world.getBlockState(checkPos).getBlock();
-					
-					if (checkBlock.getClass().isInstance(leafBlock)) {
-						if (xOffset < 0)
-							iWidthMinusX++;
-						else if (xOffset > 0)
-							iWidthPlusX++;
-						
-						if (yLeaf != yLevelPrev) {
-							yLevelPrev = yLeaf;
-							iTreeMaxY++;
-						}
-					} else if (xOffset != 0 && checkBlock.isWood(world, checkPos)) {
-						if (xOffset < 0)
-							iWidthMinusX++;
-						else if (xOffset > 0)
-							iWidthPlusX++;
-						
-						iLeafRangeX++;
-					} else
-						iAirCount++;
-				}
-				
-				for (int zOffset = -iLeafRangeZ; zOffset <= iLeafRangeZ; zOffset++) {
-					BlockPos checkPos = new BlockPos(oPos.getX(), yLevel, oPos.getZ() + zOffset);
-					Block checkBlock = world.getBlockState(checkPos).getBlock();
-					
-					if (checkBlock.getClass().isInstance(leafBlock)) {
-						if (zOffset < 0)
-							iWidthMinusZ++;
-						else if (zOffset > 0)
-							iWidthPlusZ++;
-						
-						if (yLeaf != yLevelPrev) {
-							yLevelPrev = yLeaf;
-							iTreeMaxY++;
-						}
-					} else if (zOffset != 0 && checkBlock.isWood(world, checkPos)) {
-						if (zOffset < 0)
-							iWidthMinusZ++;
-						else if (zOffset > 0)
-							iWidthPlusZ++;
-						
-						iLeafRangeZ++;
-					} else
-						iAirCount++;
-				}
-				
-				if (iWidthPlusX > iTreeWidthPlusX)
-					iTreeWidthPlusX = iWidthPlusX;
-				if (iWidthMinusX > iTreeWidthMinusX)
-					iTreeWidthMinusX = iWidthMinusX;
-				if (iWidthPlusZ > iTreeWidthPlusZ)
-					iTreeWidthPlusZ = iWidthPlusZ;
-				if (iWidthMinusZ > iTreeWidthMinusZ)
-					iTreeWidthMinusZ = iWidthMinusZ;
-				
-				yLevelPrev = yLeaf;
-				
-				if (yLeaf > yLevel && getTotalLayerCount() > iLeafRangeX * iLeafRangeZ && iAirCount >= getTotalLayerCount())
-					break;
 			}
 		}
-		
-		return new AxisAlignedBB(
-				oPos.getX() + iTreeWidthPlusX, iTreeMinY, oPos.getZ() + iTreeWidthPlusZ,
-				oPos.getX() - iTreeWidthMinusX, iTreeMaxY, oPos.getZ() - iTreeWidthMinusZ);
+		return rtrnBB;
 	}
 	
 	public BlockPos getLeafPos(BlockPos oPos) {
@@ -237,26 +186,117 @@ public class LumbinationHandler implements IPacketHandler {
 					IBlockState leafState = player.world.getBlockState(leafPos);
 					Block leafBlock = leafState.getBlock();
 					
-					if (leafState.getMaterial() == Material.LEAVES && settings.lumbinationLeaves.has(Functions.getBlockName(leafBlock)))
+					if (leafBlock.isLeaves(leafState, world, leafPos) && settings.lumbinationLeaves().has(Functions.getBlockName(leafBlock)))
 						return leafPos;
 				}
 		return null;
 	}
 	
-	private int getTotalLayerCount() {
-		int iTotalCountX = iTreeWidthPlusX + iTreeWidthMinusX;
-		int iTotalCountZ = iTreeWidthPlusZ + iTreeWidthMinusZ;
-		
-		return iTotalCountX * iTotalCountZ;
-	}
-	
 	private int getTreeRoot(BlockPos oPos, Block block) {
-		for (int y = oPos.getY() - 1; y > 0; y--) {
-			Block checkBlock = player.world.getBlockState(new BlockPos(oPos.getX(), y, oPos.getZ())).getBlock();
-			if (!checkBlockgetClass().isInstance(block))
-				return y + 1;
+		int iRootLevel = oPos.getY();
+		for (int yLevel = oPos.getY() - 1; yLevel > 0; yLevel--) {
+			BlockPos checkPos = new BlockPos(oPos.getX(), yLevel, oPos.getZ());
+			Block checkBlock = player.world.getBlockState(checkPos).getBlock();
+			if (checkBlock.getClass().isInstance(block) || checkBlock.isWood(world, checkPos) || settings.lumbinationLogs().has(Functions.getBlockName(checkBlock)))
+				iRootLevel = yLevel;
+			
+			if (yLevel < iRootLevel)
+				break;
 		}
-		return oPos.getY();
+		return iRootLevel;
 	}
 	
+	private AxisAlignedBB getTrunkSize(BlockPos oPos, Block block) {
+		
+		for (int iPass = 0; iPass < 2; iPass++)
+			for (int yLevel = iTreeRootY; yLevel < world.getHeight(); yLevel++) {
+				int iAirCount = 0;
+				int iLayerPosCount = trunkPositions.size();
+				BlockPos checkPos = new BlockPos(oPos.getX(), yLevel, oPos.getZ());
+				IBlockState checkState = player.world.getBlockState(checkPos);
+				Block checkBlock = checkState.getBlock();
+				
+				if (checkPos.equals(oPos) || checkBlock.getClass().isInstance(block) || checkBlock.isWood(world, checkPos) || settings.lumbinationLogs().has(Functions.getBlockName(checkBlock)))
+					if (!trunkPositions.contains(checkPos)) // && Functions.isPosConnected(trunkPositions, checkPos))
+						trunkPositions.add(checkPos);
+					
+				for (int iLoop = 1; iLoop <= settings.iTrunkRange(); iLoop++) {
+					int iLoopAirLimit = (((iLoop + (iLoop - 1)) * 4) + 4);
+					iAirCount = 0;
+					
+					for (int xOffset = -iLoop; xOffset <= iLoop; xOffset++) {
+						if (xOffset == -iLoop || xOffset == iLoop) {
+							for (int zOffset = -iLoop; zOffset <= iLoop; zOffset++) {
+								checkPos = new BlockPos(oPos.getX() + xOffset, yLevel, oPos.getZ() + zOffset);
+								checkState = player.world.getBlockState(checkPos);
+								checkBlock = checkState.getBlock();
+								
+								if (checkBlock.getClass().isInstance(block)
+										|| checkBlock.isWood(world, checkPos)
+										|| settings.lumbinationLogs().has(Functions.getBlockName(checkBlock))) {
+									
+									if (!trunkPositions.contains(checkPos))
+										trunkPositions.add(checkPos);
+									
+									if (iLoop > iTrunkWidth)
+										iTrunkWidth = iLoop;
+									
+								} else // if (checkBlock.isLeaves(checkState, world, checkPos) &&
+										// settings.lumbinationLeaves().has(Functions.getBlockName(checkBlock)))
+									iAirCount++;
+							}
+						} else {
+							for (int zOffset = -iLoop; zOffset <= iLoop; zOffset++) {
+								if (zOffset == -iLoop || zOffset == iLoop) {
+									checkPos = new BlockPos(oPos.getX() + xOffset, yLevel, oPos.getZ() + zOffset);
+									checkState = player.world.getBlockState(checkPos);
+									checkBlock = checkState.getBlock();
+									
+									if (checkBlock.getClass().isInstance(block)
+											|| checkBlock.isWood(world, checkPos)
+											|| settings.lumbinationLogs().has(Functions.getBlockName(checkBlock))) {
+										
+										if (!trunkPositions.contains(checkPos))
+											trunkPositions.add(checkPos);
+										
+										if (iLoop > iTrunkWidth)
+											iTrunkWidth = iLoop;
+										
+									} else // if (checkBlock.isLeaves(checkState, world, checkPos) ||
+											// settings.lumbinationLeaves().has(Functions.getBlockName(checkBlock)))
+										iAirCount++;
+								}
+							}
+						}
+					}
+					
+					if (!trunkPositions.isEmpty() && yLevel > iTrunkTopY)
+						iTrunkTopY = yLevel;
+					
+					if (iAirCount >= iLoopAirLimit)
+						break;
+					
+				}
+				
+				if (iLayerPosCount == trunkPositions.size())
+					break;
+			}
+		
+		// Identify the top of the Tree trunk
+		trunkPositions.forEach(log -> {
+			if (log.getY() > iTrunkTopY)
+				iTrunkTopY = log.getY();
+		});
+		
+		return new AxisAlignedBB(
+				oPos.getX() + iTrunkWidth, iTreeRootY, oPos.getZ() + iTrunkWidth,
+				oPos.getX() - iTrunkWidth, iTrunkTopY, oPos.getZ() - iTrunkWidth);
+		
+	}
+	
+	public void setPlayer(EntityPlayerMP player) {
+		this.player = player;
+		this.world = player.world;
+		settings = Settings.get(player.getUniqueID());
+	}
 }

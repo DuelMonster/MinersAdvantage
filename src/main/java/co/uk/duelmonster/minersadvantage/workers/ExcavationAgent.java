@@ -15,8 +15,15 @@ import net.minecraft.util.math.BlockPos;
 
 public class ExcavationAgent extends Agent {
 	
+	private boolean bIsSingleLayerToggled = false;
+	
 	public ExcavationAgent(EntityPlayerMP player, NBTTagCompound tags) {
-		super(player, tags, false);
+		super(player, tags, true);
+		
+		this.bIsSingleLayerToggled = Variables.get(player.getUniqueID()).IsSingleLayerToggled;
+		
+		// Add the origin block the queue now that we have all the information.
+		addConnectedToQueue(originPos);
 	}
 	
 	// Returns true when Excavation is complete or cancelled
@@ -35,7 +42,7 @@ public class ExcavationAgent extends Agent {
 					|| (settings.tpsGuard() && timer.elapsed(TimeUnit.MILLISECONDS) > 40))
 				break;
 			
-			if (heldItem != Functions.getHeldItem(player) || Functions.IsPlayerStarving(player)) {
+			if (Functions.IsPlayerStarving(player)) {
 				bIsComplete = true;
 				break;
 			}
@@ -47,8 +54,8 @@ public class ExcavationAgent extends Agent {
 			IBlockState state = world.getBlockState(oPos);
 			Block block = state.getBlock();
 			
-			if (!player.canHarvestBlock(state)) {
-				// Add the non-harvestable blocks to the processed list so that they can be avoided.
+			if (!fakePlayer.canHarvestBlock(state)) {
+				// Avoid the non-harvestable blocks.
 				processed.add(oPos);
 				continue;
 			}
@@ -63,7 +70,7 @@ public class ExcavationAgent extends Agent {
 				world.captureBlockSnapshots = true;
 				world.capturedBlockSnapshots.clear();
 				
-				if (player.interactionManager.tryHarvestBlock(oPos)) {
+				if (fakePlayer.interactionManager.tryHarvestBlock(oPos)) {
 					processBlockSnapshots();
 					
 					SoundType soundtype = block.getSoundType(state, world, oPos, null);
@@ -111,7 +118,7 @@ public class ExcavationAgent extends Agent {
 				break;
 			}
 		
-		if (Variables.get(player.getUniqueID()).IsSingleLayerToggled) {
+		if (bIsSingleLayerToggled) {
 			yStart = 0;
 			yEnd = 0;
 		}
@@ -126,7 +133,7 @@ public class ExcavationAgent extends Agent {
 	public void addToQueue(BlockPos oPos) {
 		IBlockState state = world.getBlockState(oPos);
 		
-		if (player.canHarvestBlock(state)) {
+		if (fakePlayer.canHarvestBlock(state)) {
 			Block block = state.getBlock();
 			int meta = block.getMetaFromState(state);
 			

@@ -1,19 +1,15 @@
 package co.uk.duelmonster.minersadvantage.events;
 
 import co.uk.duelmonster.minersadvantage.MinersAdvantage;
-import co.uk.duelmonster.minersadvantage.client.config.ConfigHandler;
-import co.uk.duelmonster.minersadvantage.common.Constants;
 import co.uk.duelmonster.minersadvantage.common.Functions;
 import co.uk.duelmonster.minersadvantage.common.PacketID;
 import co.uk.duelmonster.minersadvantage.common.Variables;
-import co.uk.duelmonster.minersadvantage.handlers.SubstitutionHandler;
-import co.uk.duelmonster.minersadvantage.packets.PacketBase;
+import co.uk.duelmonster.minersadvantage.packets.NetworkPacket;
 import co.uk.duelmonster.minersadvantage.settings.Settings;
 import co.uk.duelmonster.minersadvantage.workers.AgentProcessor;
 import co.uk.duelmonster.minersadvantage.workers.DropsSpawner;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.item.EntityItem;
@@ -34,21 +30,10 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.UseHoeEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class SharedEvents {
-	
-	@SubscribeEvent
-	public void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
-		if (event.getModID().equals(Constants.MOD_ID)) {
-			ConfigHandler.save();
-			ConfigHandler.initConfigs();
-		}
-	}
 	
 	@SubscribeEvent
 	public void onWorldUnload(WorldEvent.Unload event) {
@@ -123,7 +108,7 @@ public class SharedEvents {
 				tags.setInteger("ID", PacketID.Shaftanate.value());
 			else if (state.getBlock().isWood(world, oPos)
 					&& ((heldItem.getItem() instanceof ItemAxe)
-							|| settings.lumbinationAxes.has(Functions.getItemName(heldItem))))
+							|| settings.lumbinationAxes().has(Functions.getItemName(heldItem))))
 				tags.setInteger("ID", PacketID.Lumbinate.value());
 			else
 				tags.setInteger("ID", PacketID.Excavate.value());
@@ -134,41 +119,14 @@ public class SharedEvents {
 			tags.setInteger("sideHit", Variables.get(player.getUniqueID()).sideHit.getIndex());
 			tags.setInteger("stateID", Block.getStateId(state));
 			
-			MinersAdvantage.instance.network.sendTo(new PacketBase(tags), player);
-		}
-	}
-	
-	@SubscribeEvent
-	@SideOnly(Side.CLIENT)
-	public void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
-		World world = event.getWorld();
-		if (!world.isRemote) // Client Side
-			return;
-		
-		if (!(event.getEntityPlayer() instanceof EntityPlayerSP) || (event.getEntityPlayer() instanceof FakePlayer))
-			return;
-		
-		EntityPlayerSP player = (EntityPlayerSP) event.getEntityPlayer();
-		
-		if (Settings.get().bSubstitutionEnabled && SubstitutionHandler.instance.iOptimalSlot < 0) {
-			BlockPos oPos = event.getPos();
-			IBlockState state = world.getBlockState(oPos);
-			Block block = state.getBlock();
-			
-			if (block == null || Blocks.AIR == block || Blocks.BEDROCK == block)
-				return;
-			
-			SubstitutionHandler.instance.processToolSubtitution(world, player, oPos);
+			MinersAdvantage.instance.network.sendTo(new NetworkPacket(tags), player);
 		}
 	}
 	
 	@SubscribeEvent
 	public void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
 		World world = event.getWorld();
-		if (world.isRemote)
-			return;
-		
-		if (!(event.getEntityPlayer() instanceof EntityPlayerMP) || (event.getEntityPlayer() instanceof FakePlayer))
+		if (world.isRemote || !(event.getEntityPlayer() instanceof EntityPlayerMP) || (event.getEntityPlayer() instanceof FakePlayer))
 			return;
 		
 		EntityPlayerMP player = (EntityPlayerMP) event.getEntityPlayer();
@@ -184,7 +142,7 @@ public class SharedEvents {
 				tags.setInteger("y", oPos.getY());
 				tags.setInteger("z", oPos.getZ());
 				
-				MinersAdvantage.instance.network.sendTo(new PacketBase(tags), player);
+				MinersAdvantage.instance.network.sendTo(new NetworkPacket(tags), player);
 			}
 		}
 	}
@@ -192,10 +150,7 @@ public class SharedEvents {
 	@SubscribeEvent
 	public void onUseHoeEvent(UseHoeEvent event) {
 		World world = event.getWorld();
-		if (world.isRemote)
-			return;
-		
-		if (!(event.getEntityPlayer() instanceof EntityPlayerMP) || (event.getEntityPlayer() instanceof FakePlayer))
+		if (world.isRemote || !(event.getEntityPlayer() instanceof EntityPlayerMP) || (event.getEntityPlayer() instanceof FakePlayer))
 			return;
 		
 		EntityPlayerMP player = (EntityPlayerMP) event.getEntityPlayer();
@@ -210,11 +165,11 @@ public class SharedEvents {
 		if (block == Blocks.DIRT || block == Blocks.GRASS) {
 			tags.setInteger("ID", PacketID.TileFarmland.value());
 			
-			MinersAdvantage.instance.network.sendTo(new PacketBase(tags), player);
+			MinersAdvantage.instance.network.sendTo(new NetworkPacket(tags), player);
 		} else if (block instanceof IPlantable) {
 			tags.setInteger("ID", PacketID.HarvestCrops.value());
 			
-			MinersAdvantage.instance.network.sendTo(new PacketBase(tags), player);
+			MinersAdvantage.instance.network.sendTo(new NetworkPacket(tags), player);
 		}
 	}
 }

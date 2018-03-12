@@ -21,6 +21,7 @@ import net.minecraft.item.ItemSeeds;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 
@@ -29,7 +30,7 @@ public class CropinationAgent extends Agent {
 	private int iHarvestedCount = 0;
 	
 	public CropinationAgent(EntityPlayerMP player, NBTTagCompound tags) {
-		super(player, tags);
+		super(player, tags, false);
 		
 		if (this.packetID == PacketID.TileFarmland) {
 			detectFarmableLandArea();
@@ -40,10 +41,10 @@ public class CropinationAgent extends Agent {
 		}
 	}
 	
-	// Returns true when Excavation is complete or cancelled
+	// Returns true when Cropination is complete or cancelled
 	@Override
 	public boolean tick() {
-		if (originPos == null || player == null || !player.isEntityAlive() || processed.size() >= settings.iBlockLimit)
+		if (originPos == null || player == null || !player.isEntityAlive() || processed.size() >= settings.iBlockLimit())
 			return true;
 		
 		timer.start();
@@ -51,12 +52,12 @@ public class CropinationAgent extends Agent {
 		boolean bIsComplete = false;
 		
 		for (int iQueueCount = 0; queued.size() > 0; iQueueCount++) {
-			if (iQueueCount >= settings.iBreakSpeed
-					|| processed.size() >= settings.iBlockLimit
-					|| (settings.tpsGuard && timer.elapsed(TimeUnit.MILLISECONDS) > 40))
+			if (iQueueCount >= settings.iBlocksPerTick()
+					|| processed.size() >= settings.iBlockLimit()
+					|| (settings.tpsGuard() && timer.elapsed(TimeUnit.MILLISECONDS) > 40))
 				break;
 			
-			if (heldItem != Functions.getHeldItem(player) || Functions.IsPlayerStarving(player)) {
+			if (Functions.IsPlayerStarving(player)) {
 				bIsComplete = true;
 				break;
 			}
@@ -79,7 +80,7 @@ public class CropinationAgent extends Agent {
 				world.capturedBlockSnapshots.clear();
 				
 				if (world.isAirBlock(oPos.up())) {
-					Functions.playSound(world, player, SoundEvents.ITEM_HOE_TILL, oPos);
+					Functions.playSound(world, oPos, SoundEvents.ITEM_HOE_TILL, SoundCategory.PLAYERS, 1.0F, world.rand.nextFloat() + 0.5F);
 					
 					world.setBlockState(oPos, Blocks.FARMLAND.getDefaultState().withProperty(BlockFarmland.MOISTURE, Integer.valueOf(7)), 11);
 					heldItemStack.damageItem(1, player);
@@ -106,8 +107,9 @@ public class CropinationAgent extends Agent {
 					// newState = crop.withAge(crop.getMaxAge());
 					
 				} else if (block instanceof BlockNetherWart) {
-					isFullyGrown = block.getMetaFromState(state) == 3;
-				}
+					isFullyGrown = (block.getMetaFromState(state) == 3);
+				} else
+					isFullyGrown = (block.getMetaFromState(state) >= 6);
 				
 				if (isFullyGrown) {
 					int fortune = EnchantmentHelper.getEnchantmentLevel(Enchantments.FORTUNE, heldItemStack);
@@ -116,7 +118,7 @@ public class CropinationAgent extends Agent {
 					block.getDrops(drops, world, oPos, state, fortune);
 					
 					for (ItemStack item : drops)
-						if (settings.bHarvestSeeds || !(item.getItem() instanceof ItemSeeds))
+						if (settings.bHarvestSeeds() || !(item.getItem() instanceof ItemSeeds))
 							Block.spawnAsEntity(world, oPos, item);
 						
 					iHarvestedCount++;
@@ -124,11 +126,10 @@ public class CropinationAgent extends Agent {
 					world.captureBlockSnapshots = true;
 					world.capturedBlockSnapshots.clear();
 					
-					Functions.playSound(world, player, SoundEvents.ITEM_HOE_TILL, oPos);
 					world.setBlockState(oPos, newState, 11);
 					
 					// Apply Item damage every 4 crops harvested. This makes item damage 1/4 per crop
-					if (iHarvestedCount > 0 && (iHarvestedCount % 4 == 0 || iHarvestedCount >= 64 /* 4 Chunks */)
+					if (iHarvestedCount > 0 && iHarvestedCount % 4 == 0
 							&& heldItem != null && heldItemStack.isItemStackDamageable())
 						heldItemStack.damageItem(1, player);
 					
@@ -139,6 +140,8 @@ public class CropinationAgent extends Agent {
 					
 					processBlockSnapshots();
 				}
+				
+				Functions.playSound(world, oPos, SoundEvents.ITEM_HOE_TILL, SoundCategory.PLAYERS, (isFullyGrown ? 1.0F : 0.25F), world.rand.nextFloat() + 0.5F);
 				
 				addConnectedToQueue(oPos);
 			}
@@ -158,7 +161,7 @@ public class CropinationAgent extends Agent {
 					waterSource.getX() - 4, waterSource.getY(), waterSource.getZ() - 4,
 					waterSource.getX() + 4, waterSource.getY(), waterSource.getZ() + 4);
 		else
-			harvestArea = null;// new AxisAlignedBB(originPos);
+			harvestArea = new AxisAlignedBB(originPos, originPos);
 	}
 	
 	private BlockPos getWaterSource() {
@@ -172,5 +175,14 @@ public class CropinationAgent extends Agent {
 			}
 		
 		return null;
+	}
+	
+	@Override
+	public void addToQueue(BlockPos oPos) {
+		Block block = world.getBlockState(oPos).getBlock();
+		
+		if ((this.packetID == PacketID.TileFarmland && (block instanceof BlockDirt || block instanceof BlockGrass))
+				|| (this.packetID == PacketID.HarvestCrops && (block instanceof BlockCrops || block instanceof BlockNetherWart)))
+			super.addToQueue(oPos);
 	}
 }

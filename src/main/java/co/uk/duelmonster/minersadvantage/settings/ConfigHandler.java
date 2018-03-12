@@ -83,6 +83,8 @@ public class ConfigHandler {
 		settings.setBlocksPerTick(_config.getInt(Functions.localize(Constants.COMMON_ID + ".blocks_per_tick"), Constants.COMMON_ID, Settings.defaults.iBlocksPerTick(), 1, 16, Functions.localize(Constants.COMMON_ID + ".blocks_per_tick.desc")));
 		settings.setEnableTickDelay(_config.getBoolean(Functions.localize(Constants.COMMON_ID + ".enable_tick_delay"), Constants.COMMON_ID, Settings.defaults.bEnableTickDelay(), Functions.localize(Constants.COMMON_ID + ".enable_tick_delay.desc")));
 		settings.setTickDelay(_config.getInt(Functions.localize(Constants.COMMON_ID + ".tick_delay"), Constants.COMMON_ID, Settings.defaults.iTickDelay(), 1, 20, Functions.localize(Constants.COMMON_ID + ".tick_delay.desc")));
+		settings.setBlockRadius(_config.getInt(Functions.localize(Constants.COMMON_ID + ".radius"), Constants.COMMON_ID, Settings.defaults.iBlockRadius(), Constants.MIN_BLOCKRADIUS, Constants.MAX_BLOCKRADIUS, Functions.localize(Constants.COMMON_ID + ".radius.desc")));
+		settings.setBlockLimit(_config.getInt(Functions.localize(Constants.COMMON_ID + ".limit"), Constants.COMMON_ID, Settings.defaults.iBlockLimit(), ((Constants.MIN_BLOCKRADIUS * Constants.MIN_BLOCKRADIUS) * Constants.MIN_BLOCKRADIUS), Constants.MAX_BLOCKLIMIT, Functions.localize(Constants.COMMON_ID + ".limit.desc")));
 		
 		List<String> order = new ArrayList<String>(6);
 		order.add(Functions.localize(Constants.COMMON_ID + ".gather_drops"));
@@ -91,6 +93,8 @@ public class ConfigHandler {
 		order.add(Functions.localize(Constants.COMMON_ID + ".blocks_per_tick"));
 		order.add(Functions.localize(Constants.COMMON_ID + ".enable_tick_delay"));
 		order.add(Functions.localize(Constants.COMMON_ID + ".tick_delay"));
+		order.add(Functions.localize(Constants.COMMON_ID + ".radius"));
+		order.add(Functions.localize(Constants.COMMON_ID + ".limit"));
 		
 		_config.setCategoryPropertyOrder(Constants.COMMON_ID, order);
 	}
@@ -158,8 +162,6 @@ public class ConfigHandler {
 		settings.setExcavationEnabled(_config.getBoolean(Functions.localize(Constants.EXCAVATION_ID + ".enabled"), Constants.EXCAVATION_ID, Settings.defaults.bExcavationEnabled(), Functions.localize(Constants.EXCAVATION_ID + ".enabled.desc")));
 		settings.setToggleMode(_config.getBoolean(Functions.localize(Constants.EXCAVATION_ID + ".toggle_mode"), Constants.EXCAVATION_ID, Settings.defaults.bToggleMode(), Functions.localize(Constants.EXCAVATION_ID + ".toggle_mode.desc")));
 		settings.setIgnoreBlockVariants(_config.getBoolean(Functions.localize(Constants.EXCAVATION_ID + ".ignore_variants"), Constants.EXCAVATION_ID, Settings.defaults.bIgnoreBlockVariants(), Functions.localize(Constants.EXCAVATION_ID + ".ignore_variants.desc")));
-		settings.setBlockRadius(_config.getInt(Functions.localize(Constants.EXCAVATION_ID + ".radius"), Constants.EXCAVATION_ID, Settings.defaults.iBlockRadius(), Constants.MIN_BLOCKRADIUS, Constants.MAX_BLOCKRADIUS, Functions.localize(Constants.EXCAVATION_ID + ".radius.desc")));
-		settings.setBlockLimit(_config.getInt(Functions.localize(Constants.EXCAVATION_ID + ".limit"), Constants.EXCAVATION_ID, Settings.defaults.iBlockLimit(), ((Constants.MIN_BLOCKRADIUS * Constants.MIN_BLOCKRADIUS) * Constants.MIN_BLOCKRADIUS), Constants.MAX_BLOCKLIMIT, Functions.localize(Constants.EXCAVATION_ID + ".limit.desc")));
 		settings.setIsToolWhitelist(_config.getBoolean(Functions.localize(Constants.EXCAVATION_ID + ".is_tool_whitelist"), Constants.EXCAVATION_ID, Settings.defaults.bIsToolWhitelist(), Functions.localize(Constants.EXCAVATION_ID + ".is_tool_whitelist.desc")));
 		settings.setToolBlacklist(JsonHelper.ParseObject(_config.getString(Functions.localize(Constants.EXCAVATION_ID + ".tool_blacklist"), Constants.EXCAVATION_ID, Settings.defaults.toolBlacklist().toString(), Functions.localize(Constants.EXCAVATION_ID + ".tool_blacklist.desc"))));
 		settings.setIsBlockWhitelist(_config.getBoolean(Functions.localize(Constants.EXCAVATION_ID + ".is_block_whitelist"), Constants.EXCAVATION_ID, Settings.defaults.bIsBlockWhitelist(), Functions.localize(Constants.EXCAVATION_ID + ".is_block_whitelist.desc")));
@@ -171,8 +173,6 @@ public class ConfigHandler {
 		order.add(Functions.localize(Constants.EXCAVATION_ID + ".enabled"));
 		order.add(Functions.localize(Constants.EXCAVATION_ID + ".toggle_mode"));
 		order.add(Functions.localize(Constants.EXCAVATION_ID + ".ignore_variants"));
-		order.add(Functions.localize(Constants.EXCAVATION_ID + ".radius"));
-		order.add(Functions.localize(Constants.EXCAVATION_ID + ".limit"));
 		order.add(Functions.localize(Constants.EXCAVATION_ID + ".is_tool_whitelist"));
 		order.add(Functions.localize(Constants.EXCAVATION_ID + ".tool_whitelist"));
 		order.add(Functions.localize(Constants.EXCAVATION_ID + ".is_block_whitelist"));
@@ -185,21 +185,24 @@ public class ConfigHandler {
 	
 	private static void getIlluminationSettings() {
 		settings.setIlluminationEnabled(_config.getBoolean(Functions.localize(Constants.ILLUMINATION_ID + ".enabled"), Constants.ILLUMINATION_ID, Settings.defaults.bIlluminationEnabled(), Functions.localize(Constants.ILLUMINATION_ID + ".enabled.desc")));
+		settings.setUseBlockLight(_config.getBoolean(Functions.localize(Constants.ILLUMINATION_ID + ".use_block_light"), Constants.ILLUMINATION_ID, Settings.defaults.bUseBlockLight(), Functions.localize(Constants.ILLUMINATION_ID + ".use_block_light.desc")));
 		settings.setLowestLightLevel(_config.getInt(Functions.localize(Constants.ILLUMINATION_ID + ".light_level"), Constants.ILLUMINATION_ID, Settings.defaults.iLowestLightLevel(), 0, 16, Functions.localize(Constants.ILLUMINATION_ID + ".light_level.desc")));
 		
 		List<String> order = new ArrayList<String>(2);
 		order.add(Functions.localize(Constants.ILLUMINATION_ID + ".enabled"));
+		order.add(Functions.localize(Constants.ILLUMINATION_ID + ".use_block_light"));
 		order.add(Functions.localize(Constants.ILLUMINATION_ID + ".light_level"));
 		
 		_config.setCategoryPropertyOrder(Constants.ILLUMINATION_ID, order);
 	}
 	
 	private static void getLumbinationSettings() {
-		settings.setLumbinationEnabled(_config.getBoolean(Functions.localize(Constants.LUMBINATION_ID + ".enabled"), Constants.LUMBINATION_ID, settings.bLumbinationEnabled(), Functions.localize(Constants.LUMBINATION_ID + ".enabled.desc")));
-		settings.setChopTreeBelow(_config.getBoolean(Functions.localize(Constants.LUMBINATION_ID + ".chop_below"), Constants.LUMBINATION_ID, settings.bChopTreeBelow(), Functions.localize(Constants.LUMBINATION_ID + ".chop_below.desc")));
-		settings.setDestroyLeaves(_config.getBoolean(Functions.localize(Constants.LUMBINATION_ID + ".destroy_leaves"), Constants.LUMBINATION_ID, settings.bDestroyLeaves(), Functions.localize(Constants.LUMBINATION_ID + ".destroy_leaves.desc")));
-		settings.setLeavesAffectDurability(_config.getBoolean(Functions.localize(Constants.LUMBINATION_ID + ".leaves_affect_durability"), Constants.LUMBINATION_ID, settings.bLeavesAffectDurability(), Functions.localize(Constants.LUMBINATION_ID + ".leaves_affect_durability.desc")));
-		settings.setLeafRange(_config.getInt(Functions.localize(Constants.LUMBINATION_ID + ".leaf_range"), Constants.LUMBINATION_ID, settings.iLeafRange(), 0, Integer.MAX_VALUE, Functions.localize(Constants.LUMBINATION_ID + ".leaf_range.desc")));
+		settings.setLumbinationEnabled(_config.getBoolean(Functions.localize(Constants.LUMBINATION_ID + ".enabled"), Constants.LUMBINATION_ID, Settings.defaults.bLumbinationEnabled(), Functions.localize(Constants.LUMBINATION_ID + ".enabled.desc")));
+		settings.setChopTreeBelow(_config.getBoolean(Functions.localize(Constants.LUMBINATION_ID + ".chop_below"), Constants.LUMBINATION_ID, Settings.defaults.bChopTreeBelow(), Functions.localize(Constants.LUMBINATION_ID + ".chop_below.desc")));
+		settings.setDestroyLeaves(_config.getBoolean(Functions.localize(Constants.LUMBINATION_ID + ".destroy_leaves"), Constants.LUMBINATION_ID, Settings.defaults.bDestroyLeaves(), Functions.localize(Constants.LUMBINATION_ID + ".destroy_leaves.desc")));
+		settings.setLeavesAffectDurability(_config.getBoolean(Functions.localize(Constants.LUMBINATION_ID + ".leaves_affect_durability"), Constants.LUMBINATION_ID, Settings.defaults.bLeavesAffectDurability(), Functions.localize(Constants.LUMBINATION_ID + ".leaves_affect_durability.desc")));
+		settings.setLeafRange(_config.getInt(Functions.localize(Constants.LUMBINATION_ID + ".leaf_range"), Constants.LUMBINATION_ID, Settings.defaults.iLeafRange(), 0, 16, Functions.localize(Constants.LUMBINATION_ID + ".leaf_range.desc")));
+		settings.setTrunkRange(_config.getInt(Functions.localize(Constants.LUMBINATION_ID + ".trunk_range"), Constants.LUMBINATION_ID, Settings.defaults.iTrunkRange(), 8, 128, Functions.localize(Constants.LUMBINATION_ID + ".trunk_range.desc")));
 		settings.setLumbinationLogs(JsonHelper.ParseObject(_config.getString(Functions.localize(Constants.LUMBINATION_ID + ".logs"), Constants.LUMBINATION_ID, Settings.defaults.lumbinationLogs().toString(), Functions.localize(Constants.LUMBINATION_ID + ".logs.desc"))));
 		settings.setLumbinationLeaves(JsonHelper.ParseObject(_config.getString(Functions.localize(Constants.LUMBINATION_ID + ".leaves"), Constants.LUMBINATION_ID, Settings.defaults.lumbinationLeaves().toString(), Functions.localize(Constants.LUMBINATION_ID + ".leaves.desc"))));
 		settings.setLumbinationAxes(JsonHelper.ParseObject(_config.getString(Functions.localize(Constants.LUMBINATION_ID + ".axes"), Constants.LUMBINATION_ID, Settings.defaults.lumbinationAxes().toString(), Functions.localize(Constants.LUMBINATION_ID + ".axes.desc"))));
@@ -210,6 +213,7 @@ public class ConfigHandler {
 		order.add(Functions.localize(Constants.LUMBINATION_ID + ".destroy_leaves"));
 		order.add(Functions.localize(Constants.LUMBINATION_ID + ".leaves_affect_durability"));
 		order.add(Functions.localize(Constants.LUMBINATION_ID + ".leaf_range"));
+		order.add(Functions.localize(Constants.LUMBINATION_ID + ".trunk_range"));
 		order.add(Functions.localize(Constants.LUMBINATION_ID + ".logs"));
 		order.add(Functions.localize(Constants.LUMBINATION_ID + ".leaves"));
 		order.add(Functions.localize(Constants.LUMBINATION_ID + ".axes"));

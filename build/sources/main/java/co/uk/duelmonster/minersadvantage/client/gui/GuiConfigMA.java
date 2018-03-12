@@ -3,8 +3,8 @@ package co.uk.duelmonster.minersadvantage.client.gui;
 import java.util.ArrayList;
 import java.util.List;
 
-import co.uk.duelmonster.minersadvantage.client.config.ConfigHandler;
 import co.uk.duelmonster.minersadvantage.common.Constants;
+import co.uk.duelmonster.minersadvantage.settings.ConfigHandler;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.common.config.ConfigElement;
 import net.minecraftforge.fml.client.config.DummyConfigElement;
@@ -18,7 +18,7 @@ public class GuiConfigMA extends GuiConfig {
 				Constants.MOD_ID,
 				false,
 				false,
-				GuiConfig.getAbridgedConfigPath(ConfigHandler.getConfig().toString()));
+				Constants.MOD_NAME + ".cfg");
 	}
 	
 	/** Compiles a list of config elements */

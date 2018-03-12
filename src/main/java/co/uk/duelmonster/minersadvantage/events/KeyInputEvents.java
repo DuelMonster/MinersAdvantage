@@ -3,12 +3,10 @@ package co.uk.duelmonster.minersadvantage.events;
 import co.uk.duelmonster.minersadvantage.client.ClientFunctions;
 import co.uk.duelmonster.minersadvantage.client.KeyBindings;
 import co.uk.duelmonster.minersadvantage.common.Constants;
-import co.uk.duelmonster.minersadvantage.common.Functions;
 import co.uk.duelmonster.minersadvantage.common.Variables;
 import co.uk.duelmonster.minersadvantage.handlers.IlluminationHandler;
 import co.uk.duelmonster.minersadvantage.settings.ConfigHandler;
 import co.uk.duelmonster.minersadvantage.settings.Settings;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
@@ -28,32 +26,39 @@ public class KeyInputEvents {
 				ClientFunctions.NotifyClient(settings.bCaptivationEnabled(), "Captivation");
 			}
 			
+			if (KeyBindings.cropination.isPressed()) {
+				settings.setCropinationEnabled(!settings.bCropinationEnabled());
+				ConfigHandler.setValue(Constants.CROPINATION_ID, "enabled", settings.bCropinationEnabled());
+				ClientFunctions.NotifyClient(settings.bCropinationEnabled(), "Cropination");
+			}
+			
 			if (KeyBindings.excavation.isPressed()) {
 				settings.setExcavationEnabled(!settings.bExcavationEnabled());
 				ConfigHandler.setValue(Constants.EXCAVATION_ID, "enabled", settings.bExcavationEnabled());
 				ClientFunctions.NotifyClient(settings.bExcavationEnabled(), "Excavation");
 			}
 			
-			EntityPlayer player = ClientFunctions.getPlayer();
-			if (settings.bToggleMode()) {
-				if (KeyBindings.excavation_toggle.isPressed()) {
-					if (variables.IsSingleLayerToggled) {
-						variables.IsSingleLayerToggled = false;
-						Functions.NotifyClient(player, "Excavation Single Layer Toggled: OFF");
-					}
-					
-					variables.IsExcavationToggled = !variables.IsExcavationToggled;
-					Functions.NotifyClient(player, "Excavation Toggled: " + (variables.IsExcavationToggled ? "ON" : "OFF"));
-					
-				} else if (KeyBindings.excavation_layer_only_toggle.isPressed()) {
-					if (variables.IsExcavationToggled) {
-						variables.IsExcavationToggled = false;
-						Functions.NotifyClient(player, "Excavation Toggled: OFF");
-					}
-					
-					variables.IsSingleLayerToggled = !variables.IsSingleLayerToggled;
-					Functions.NotifyClient(player, "Excavation Single Layer Toggled: " + (variables.IsSingleLayerToggled ? "ON" : "OFF"));
+			if (KeyBindings.excavation_toggle.isPressed()) {
+				if (variables.IsSingleLayerToggled) {
+					variables.IsSingleLayerToggled = false;
+					if (settings.bToggleMode())
+						ClientFunctions.NotifyClient(variables.IsSingleLayerToggled, "Excavation Single Layer Toggled:");
 				}
+				
+				variables.IsExcavationToggled = (settings.bToggleMode() ? !variables.IsExcavationToggled : true);
+				if (settings.bToggleMode())
+					ClientFunctions.NotifyClient(variables.IsExcavationToggled, "Excavation Toggled:");
+				
+			} else if (KeyBindings.excavation_layer_only_toggle.isPressed()) {
+				if (variables.IsExcavationToggled) {
+					variables.IsExcavationToggled = false;
+					if (settings.bToggleMode())
+						ClientFunctions.NotifyClient(variables.IsExcavationToggled, "Excavation Toggled:");
+				}
+				
+				variables.IsSingleLayerToggled = (settings.bToggleMode() ? !variables.IsSingleLayerToggled : true);
+				if (settings.bToggleMode())
+					ClientFunctions.NotifyClient(variables.IsSingleLayerToggled, "Excavation Single Layer Toggled:");
 			}
 			
 			if (KeyBindings.illumination.isPressed()) {

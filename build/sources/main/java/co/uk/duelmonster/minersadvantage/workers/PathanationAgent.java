@@ -7,6 +7,7 @@ import co.uk.duelmonster.minersadvantage.settings.Settings;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDirt;
 import net.minecraft.block.BlockGrass;
+import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
@@ -20,19 +21,18 @@ import net.minecraft.util.math.BlockPos;
 public class PathanationAgent extends Agent {
 	
 	public PathanationAgent(EntityPlayerMP player, NBTTagCompound tags) {
-		super(player, tags);
+		super(player, tags, true);
 		
 		setupPath();
 		
-		// Reset the Queue now that we have the harvest area.
-		this.queued.clear();
+		// Add the origin block the queue now that we have all the information.  -  this.queued.clear();
 		addConnectedToQueue(originPos);
 	}
 	
-	// Returns true when Excavation is complete or cancelled
+	// Returns true when Pathanation is complete or cancelled
 	@Override
 	public boolean tick() {
-		if (originPos == null || player == null || !player.isEntityAlive() || processed.size() >= settings.iBlockLimit)
+		if (originPos == null || player == null || !player.isEntityAlive() || processed.size() >= settings.iBlockLimit())
 			return true;
 		
 		timer.start();
@@ -40,12 +40,12 @@ public class PathanationAgent extends Agent {
 		boolean bIsComplete = false;
 		
 		for (int iQueueCount = 0; queued.size() > 0; iQueueCount++) {
-			if (iQueueCount >= settings.iBreakSpeed
-					|| processed.size() >= settings.iBlockLimit
-					|| (settings.tpsGuard && timer.elapsed(TimeUnit.MILLISECONDS) > 40))
+			if (iQueueCount >= settings.iBlocksPerTick()
+					|| processed.size() >= settings.iBlockLimit()
+					|| (settings.tpsGuard() && timer.elapsed(TimeUnit.MILLISECONDS) > 40))
 				break;
 			
-			if (heldItem != Functions.getHeldItem(player) || Functions.IsPlayerStarving(player)) {
+			if (Functions.IsPlayerStarving(player)) {
 				bIsComplete = true;
 				break;
 			}
@@ -72,7 +72,9 @@ public class PathanationAgent extends Agent {
 				world.setBlockState(oPos, Blocks.GRASS_PATH.getDefaultState());// , 11);
 				heldItemStack.damageItem(1, player);
 				
-				spawnProgressParticle(oPos);
+				SoundType soundtype = block.getSoundType(state, world, oPos, null);
+				reportProgessToClient(oPos, soundtype.getHitSound());
+				
 				processBlockSnapshots();
 				addConnectedToQueue(oPos);
 			}
@@ -85,6 +87,14 @@ public class PathanationAgent extends Agent {
 		return (bIsComplete || queued.isEmpty());
 	}
 	
+	@Override
+	public void addToQueue(BlockPos oPos) {
+		Block block = world.getBlockState(oPos).getBlock();
+		
+		if (block instanceof BlockDirt || block instanceof BlockGrass)
+			super.addToQueue(oPos);
+	}
+	
 	private void setupPath() {
 		// Shaft area info
 		Settings settings = Settings.get(player.getUniqueID());
@@ -95,37 +105,37 @@ public class PathanationAgent extends Agent {
 		int zStart = 0;
 		int zEnd = 0;
 		
-		int iLength = settings.iPathLength - 1;
+		int iLength = settings.iPathLength() - 1;
 		
 		// if the ShaftWidth is divisible by 2 we don't want to do anything
-		double dDivision = ((settings.iPathWidth & 1) != 0 ? 0 : 0.5);
+		double dDivision = ((settings.iPathWidth() & 1) != 0 ? 0 : 0.5);
 		
 		EnumFacing direction = player.getAdjustedHorizontalFacing().getOpposite();
 		
 		switch (direction) {
 		case SOUTH: // Positive Z
-			xStart = originPos.getX() + ((int) ((settings.iPathWidth / 2) - dDivision));
-			xEnd = originPos.getX() - (settings.iPathWidth / 2);
+			xStart = originPos.getX() + ((int) ((settings.iPathWidth() / 2) - dDivision));
+			xEnd = originPos.getX() - (settings.iPathWidth() / 2);
 			zStart = originPos.getZ();
 			zEnd = originPos.getZ() - iLength;
 			break;
 		case NORTH: // Negative Z
-			xStart = originPos.getX() - (settings.iPathWidth / 2);
-			xEnd = originPos.getX() + ((int) ((settings.iPathWidth / 2) - dDivision));
+			xStart = originPos.getX() - (settings.iPathWidth() / 2);
+			xEnd = originPos.getX() + ((int) ((settings.iPathWidth() / 2) - dDivision));
 			zStart = originPos.getZ();
 			zEnd = originPos.getZ() + iLength;
 			break;
 		case EAST: // Positive X
 			xStart = originPos.getX();
 			xEnd = originPos.getX() - iLength;
-			zStart = originPos.getZ() + ((int) ((settings.iPathWidth / 2) - dDivision));
-			zEnd = originPos.getZ() - (settings.iPathWidth / 2);
+			zStart = originPos.getZ() + ((int) ((settings.iPathWidth() / 2) - dDivision));
+			zEnd = originPos.getZ() - (settings.iPathWidth() / 2);
 			break;
 		case WEST: // Negative X
 			xStart = originPos.getX();
 			xEnd = originPos.getX() + iLength;
-			zStart = originPos.getZ() - (settings.iPathWidth / 2);
-			zEnd = originPos.getZ() + ((int) ((settings.iPathWidth / 2) - dDivision));
+			zStart = originPos.getZ() - (settings.iPathWidth() / 2);
+			zEnd = originPos.getZ() + ((int) ((settings.iPathWidth() / 2) - dDivision));
 			break;
 		default:
 			break;

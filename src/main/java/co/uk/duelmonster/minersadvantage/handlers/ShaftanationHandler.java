@@ -30,15 +30,15 @@ public class ShaftanationHandler implements IPacketHandler {
 		if (player == null)
 			return;
 		
-		if (message.getTags().getBoolean("cancel")) {
-			player.getServer().addScheduledTask(new Runnable() {
-				@Override
-				public void run() {
-					AgentProcessor.instance.stopProcessing(player);
-				}
-			});
-			return;
-		}
+		//		if (message.getTags().getBoolean("cancel")) {
+		//			player.getServer().addScheduledTask(new Runnable() {
+		//				@Override
+		//				public void run() {
+		//					AgentProcessor.instance.stopProcessing(player);
+		//				}
+		//			});
+		//			return;
+		//		}
 		
 		player.getServer().addScheduledTask(new Runnable() {
 			@Override

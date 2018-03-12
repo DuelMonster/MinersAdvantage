@@ -8,9 +8,11 @@ import org.apache.logging.log4j.Level;
 import com.google.common.base.Stopwatch;
 
 import co.uk.duelmonster.minersadvantage.MinersAdvantage;
+import co.uk.duelmonster.minersadvantage.client.ClientFunctions;
 import co.uk.duelmonster.minersadvantage.common.Functions;
 import co.uk.duelmonster.minersadvantage.common.PacketID;
 import co.uk.duelmonster.minersadvantage.common.Variables;
+import co.uk.duelmonster.minersadvantage.handlers.SubstitutionHandler;
 import co.uk.duelmonster.minersadvantage.packets.NetworkPacket;
 import co.uk.duelmonster.minersadvantage.settings.Settings;
 import net.minecraft.block.Block;
@@ -22,6 +24,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -29,6 +32,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.BlockSnapshot;
+import net.minecraftforge.common.util.FakePlayer;
+import net.minecraftforge.common.util.FakePlayerFactory;
 
 public abstract class Agent {
 	
@@ -37,11 +42,13 @@ public abstract class Agent {
 	
 	public final World			world;
 	public final EntityPlayerMP	player;
+	public final FakePlayer		fakePlayer;
 	public final Settings		settings;
 	
 	public Stopwatch		timer			= Stopwatch.createUnstarted();
 	public ItemStack		heldItemStack	= null;
 	public Item				heldItem		= null;
+	public int				heldItemSlot	= -1;
 	public EnumFacing		sideHit			= EnumFacing.SOUTH;
 	public int				iFeetPos		= 0;
 	public IBlockState		originState		= null;
@@ -79,6 +86,12 @@ public abstract class Agent {
 		
 		this.heldItemStack = Functions.getHeldItemStack(player);
 		this.heldItem = Functions.getHeldItem(player);
+		this.heldItemSlot = player.inventory.currentItem;
+		
+		this.fakePlayer = FakePlayerFactory.get((WorldServer) world, player.getGameProfile());
+		this.fakePlayer.connection = player.connection;
+		if (this.heldItemStack != null)
+			this.fakePlayer.setHeldItem(EnumHand.MAIN_HAND, this.heldItemStack);
 		
 		if (!bOverrideAddConnectedOnInit)
 			addConnectedToQueue(originPos);
@@ -138,6 +151,13 @@ public abstract class Agent {
 	}
 	
 	public void excavateOreVein(IBlockState state, BlockPos oPos) {
+		
+		if (heldItemSlot > -1) {
+			SubstitutionHandler.instance.iPrevSlot = player.inventory.currentItem;
+			player.inventory.currentItem = heldItemSlot;
+			ClientFunctions.syncCurrentPlayItem(player.inventory.currentItem);
+		}
+		
 		// If mine veins is enabled send message back to player from processing.
 		NBTTagCompound tags = new NBTTagCompound();
 		tags.setInteger("ID", PacketID.Veinate.value());

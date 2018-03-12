@@ -9,7 +9,7 @@ import co.uk.duelmonster.minersadvantage.common.Functions;
 import co.uk.duelmonster.minersadvantage.common.JsonHelper;
 import co.uk.duelmonster.minersadvantage.common.PacketID;
 import co.uk.duelmonster.minersadvantage.common.Variables;
-import co.uk.duelmonster.minersadvantage.packets.PacketBase;
+import co.uk.duelmonster.minersadvantage.packets.NetworkPacket;
 import co.uk.duelmonster.minersadvantage.settings.Settings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.network.NetHandlerPlayClient;
@@ -19,6 +19,7 @@ import net.minecraft.network.play.client.CPacketHeldItemChange;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeVersion;
 import net.minecraftforge.common.ForgeVersion.CheckResult;
@@ -50,7 +51,7 @@ public class ClientFunctions {
 		}
 		
 		if (hasChanged)
-			MinersAdvantage.instance.network.sendToServer(new PacketBase(tags));
+			MinersAdvantage.instance.network.sendToServer(new NetworkPacket(tags));
 	}
 	
 	public static Minecraft getMC() {
@@ -108,7 +109,7 @@ public class ClientFunctions {
 			
 			CheckResult verCheck = ForgeVersion.getResult(FMLCommonHandler.instance().findContainerFor(Constants.MOD_ID));
 			if (verCheck.status == Status.OUTDATED)
-				Functions.NotifyClient(getPlayer(), "�7" + Functions.localize("minersadvantage.version.update") + ": v�a" + verCheck.target.toString());
+				Functions.NotifyClient(getPlayer(), TextFormatting.GRAY + Functions.localize("minersadvantage.version.update") + ": " + TextFormatting.GREEN + verCheck.target.toString());
 		}
 	}
 	
@@ -117,5 +118,8 @@ public class ClientFunctions {
 	 */
 	public static void syncCurrentPlayItem(int iSlotIndx) {
 		((NetHandlerPlayClient) FMLCommonHandler.instance().getClientPlayHandler()).sendPacket(new CPacketHeldItemChange(iSlotIndx));
+		// Pause the current Thread to allow the server to catch up and realize that we have changed the slot.
+		// Without this sleep, we can end up with phantom blocks.
+		Functions.sleep(100);
 	}
 }

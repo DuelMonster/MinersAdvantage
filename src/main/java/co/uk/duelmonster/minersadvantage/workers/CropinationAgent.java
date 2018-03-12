@@ -41,7 +41,7 @@ public class CropinationAgent extends Agent {
 		}
 	}
 	
-	// Returns true when Excavation is complete or cancelled
+	// Returns true when Cropination is complete or cancelled
 	@Override
 	public boolean tick() {
 		if (originPos == null || player == null || !player.isEntityAlive() || processed.size() >= settings.iBlockLimit())
@@ -57,7 +57,7 @@ public class CropinationAgent extends Agent {
 					|| (settings.tpsGuard() && timer.elapsed(TimeUnit.MILLISECONDS) > 40))
 				break;
 			
-			if (heldItem != Functions.getHeldItem(player) || Functions.IsPlayerStarving(player)) {
+			if (Functions.IsPlayerStarving(player)) {
 				bIsComplete = true;
 				break;
 			}
@@ -107,8 +107,9 @@ public class CropinationAgent extends Agent {
 					// newState = crop.withAge(crop.getMaxAge());
 					
 				} else if (block instanceof BlockNetherWart) {
-					isFullyGrown = block.getMetaFromState(state) == 3;
-				}
+					isFullyGrown = (block.getMetaFromState(state) == 3);
+				} else
+					isFullyGrown = (block.getMetaFromState(state) >= 6);
 				
 				if (isFullyGrown) {
 					int fortune = EnchantmentHelper.getEnchantmentLevel(Enchantments.FORTUNE, heldItemStack);

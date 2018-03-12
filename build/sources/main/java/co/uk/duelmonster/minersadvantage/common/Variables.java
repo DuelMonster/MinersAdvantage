@@ -58,7 +58,7 @@ public class Variables {
 	public boolean	IsShaftanating	= false;
 	public boolean	IsVeinating		= false;
 	
-	public boolean IsProcessing() {
+	public boolean areAgentsProcessing() {
 		return (IsCropinating ||
 				IsExcavating ||
 				IsLumbinating ||

@@ -1,0 +1,23 @@
+{
+  "minecraft:recipes/decorations/chest": {
+    "criteria": {
+      "has_lots_of_items": "2018-01-24 20:04:25 +0000"
+    },
+    "done": true
+  },
+  "minecraft:story/shiny_gear": {
+    "criteria": {
+      "diamond_leggings": "2018-01-24 20:04:25 +0000",
+      "diamond_helmet": "2018-01-24 20:04:25 +0000",
+      "diamond_chestplate": "2018-01-24 20:04:25 +0000",
+      "diamond_boots": "2018-01-24 20:04:25 +0000"
+    },
+    "done": true
+  },
+  "minecraft:adventure/adventuring_time": {
+    "criteria": {
+      "plains": "2018-01-24 20:04:25 +0000"
+    },
+    "done": false
+  }
+}

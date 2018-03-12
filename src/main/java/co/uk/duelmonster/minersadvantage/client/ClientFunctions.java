@@ -19,6 +19,7 @@ import net.minecraft.network.play.client.CPacketHeldItemChange;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeVersion;
 import net.minecraftforge.common.ForgeVersion.CheckResult;
@@ -108,7 +109,7 @@ public class ClientFunctions {
 			
 			CheckResult verCheck = ForgeVersion.getResult(FMLCommonHandler.instance().findContainerFor(Constants.MOD_ID));
 			if (verCheck.status == Status.OUTDATED)
-				Functions.NotifyClient(getPlayer(), "§7" + Functions.localize("minersadvantage.version.update") + ": v§a" + verCheck.target.toString());
+				Functions.NotifyClient(getPlayer(), TextFormatting.GRAY + Functions.localize("minersadvantage.version.update") + ": " + TextFormatting.GREEN + verCheck.target.toString());
 		}
 	}
 	

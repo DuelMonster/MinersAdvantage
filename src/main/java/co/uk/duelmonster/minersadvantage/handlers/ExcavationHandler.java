@@ -3,7 +3,6 @@ package co.uk.duelmonster.minersadvantage.handlers;
 import org.apache.logging.log4j.Level;
 
 import co.uk.duelmonster.minersadvantage.MinersAdvantage;
-import co.uk.duelmonster.minersadvantage.client.KeyBindings;
 import co.uk.duelmonster.minersadvantage.common.PacketID;
 import co.uk.duelmonster.minersadvantage.common.Variables;
 import co.uk.duelmonster.minersadvantage.packets.NetworkPacket;
@@ -27,8 +26,9 @@ public class ExcavationHandler implements IPacketHandler {
 	public void processClientMessage(NetworkPacket message, MessageContext context) {
 		int ID = message.getTags().getInteger("ID");
 		if (ID == PacketID.Excavate.value()) {
-			if (!Settings.get().bExcavationEnabled() || KeyBindings.excavation_toggle.getKeyCode() == 0 || !KeyBindings.excavation_toggle.isKeyDown())
-				return;
+			// if (!Settings.get().bExcavationEnabled() || KeyBindings.excavation_toggle.getKeyCode() == 0 ||
+			// !KeyBindings.excavation_toggle.isKeyDown())
+			// return;
 			
 			Variables.get().IsExcavating = true;
 		} else if (ID == PacketID.Veinate.value() && Settings.get().bVeinationEnabled()) {
@@ -41,16 +41,6 @@ public class ExcavationHandler implements IPacketHandler {
 		final EntityPlayerMP player = context.getServerHandler().player;
 		if (player == null)
 			return;
-		
-		if (message.getTags().getBoolean("cancel")) {
-			player.getServer().addScheduledTask(new Runnable() {
-				@Override
-				public void run() {
-					AgentProcessor.instance.stopProcessing(player);
-				}
-			});
-			return;
-		}
 		
 		final int iStateID = message.getTags().getInteger("stateID");
 		final IBlockState state = Block.getStateById(iStateID);

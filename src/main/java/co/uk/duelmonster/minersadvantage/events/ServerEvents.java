@@ -50,6 +50,9 @@ public class ServerEvents {
 	public void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
 		if (event.player instanceof EntityPlayerMP) {
 			
+			if (event.player.inventory.currentItem == -1)
+				event.player.inventory.currentItem = 0;
+			
 			NBTTagCompound tags = new NBTTagCompound();
 			tags.setInteger("ID", PacketID.SyncSettings.value());
 			tags.setString("server_settings", JsonHelper.gson.toJson(SettingsServer.serverSettings));

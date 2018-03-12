@@ -6,7 +6,7 @@ import co.uk.duelmonster.minersadvantage.MinersAdvantage;
 import co.uk.duelmonster.minersadvantage.client.KeyBindings;
 import co.uk.duelmonster.minersadvantage.common.PacketID;
 import co.uk.duelmonster.minersadvantage.common.Variables;
-import co.uk.duelmonster.minersadvantage.packets.PacketBase;
+import co.uk.duelmonster.minersadvantage.packets.NetworkPacket;
 import co.uk.duelmonster.minersadvantage.settings.Settings;
 import co.uk.duelmonster.minersadvantage.workers.AgentProcessor;
 import co.uk.duelmonster.minersadvantage.workers.ExcavationAgent;
@@ -24,33 +24,23 @@ public class ExcavationHandler implements IPacketHandler {
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void processClientMessage(PacketBase message, MessageContext context) {
+	public void processClientMessage(NetworkPacket message, MessageContext context) {
 		int ID = message.getTags().getInteger("ID");
 		if (ID == PacketID.Excavate.value()) {
-			if (!Settings.get().bExcavationEnabled || KeyBindings.excavation_toggle.getKeyCode() == 0 || !KeyBindings.excavation_toggle.isKeyDown())
+			if (!Settings.get().bExcavationEnabled() || KeyBindings.excavation_toggle.getKeyCode() == 0 || !KeyBindings.excavation_toggle.isKeyDown())
 				return;
 			
 			Variables.get().IsExcavating = true;
-		} else if (ID == PacketID.Veinate.value() && Settings.get().bVeinationEnabled) {
+		} else if (ID == PacketID.Veinate.value() && Settings.get().bVeinationEnabled()) {
 			Variables.get().IsVeinating = true;
 		}
 	}
 	
 	@Override
-	public void processServerMessage(PacketBase message, MessageContext context) {
+	public void processServerMessage(NetworkPacket message, MessageContext context) {
 		final EntityPlayerMP player = context.getServerHandler().player;
 		if (player == null)
 			return;
-		
-		if (message.getTags().getBoolean("cancel")) {
-			player.getServer().addScheduledTask(new Runnable() {
-				@Override
-				public void run() {
-					AgentProcessor.instance.stopProcessing(player);
-				}
-			});
-			return;
-		}
 		
 		final int iStateID = message.getTags().getInteger("stateID");
 		final IBlockState state = Block.getStateById(iStateID);

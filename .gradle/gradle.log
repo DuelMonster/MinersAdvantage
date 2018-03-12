@@ -1,7 +1,7 @@
-This mapping 'snapshot_20170926' was designed for MC 1.12! Use at your own peril.This mapping 'snapshot_20170926' was designed for MC 1.12! Use at your own peril.
+This mapping 'snapshot_20180310' was designed for MC 1.12! Use at your own peril.This mapping 'snapshot_20180310' was designed for MC 1.12! Use at your own peril.
 
 #################################################
-         ForgeGradle 2.3-SNAPSHOT-3a113e5        
+         ForgeGradle 2.3-SNAPSHOT-c9bb579        
   https://github.com/MinecraftForge/ForgeGradle  
 #################################################
                Powered by MCP unknown               
@@ -28,11 +28,12 @@ This mapping 'snapshot_20170926' was designed for MC 1.12! Use at your own peril
 :testClasses UP-TO-DATE
 :test UP-TO-DATE
 :extractMcpData SKIPPED
-:extractMcpMappings SKIPPED
+:extractMcpMappings
 :getVersionJson
 :extractUserdev UP-TO-DATE
 :genSrgs SKIPPED
 :reobfJar
+:extractAnnotationsJar
 :extractRangemapReplacedMain
 C:\$MC\Mod Source\~MinersAdvantage\Source\build\sources\main\java
 :retromapReplacedMain
@@ -44,4 +45,4 @@ remapping source...
 
 BUILD SUCCESSFUL
 
-Total time: 17.29 secs
+Total time: 28.888 secs

@@ -4,20 +4,25 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
+import net.minecraft.util.text.TextFormatting;
+
 public final class Constants {
 	
 	public final static UUID instanceUID = UUID.randomUUID();
 	
-	public static final String	MOD_ID		= "minersadvantage";
-	public static final String	MOD_NAME	= "MinersAdvantage";
-	public static final String	MOD_VERSION	= "CI_Version";
-	public static final String	MC_VERSION	= "CI_MC_Verssion";
-	public static final String	CHANNEL		= "MA_NET_CHAN";
-	public static final String	FVC_URL		= "http://www.duelmonster.talktalk.net/Minecraft/MinersAdvantage/forge_update.json";
-	public static final String	PROXY		= "co.uk.duelmonster.minersadvantage.proxies";
-	public static final String	GUI_FACTORY	= "co.uk.duelmonster.minersadvantage.client.config.ConfigGuiFactory";
+	public static final String	MOD_ID			= "minersadvantage";
+	public static final String	MOD_NAME		= "MinersAdvantage";
+	public static final String	MOD_NAME_MSG	= TextFormatting.DARK_PURPLE + "[" + Constants.MOD_NAME + "] ";
+	public static final String	MOD_VERSION		= "1.0.0";
+	public static final String	MC_VERSION		= "1.12.2";
+	public static final String	CHANNEL			= "MA_NET_CHAN";
+	public static final String	FVC_URL			= "http://www.duelmonster.talktalk.net/Minecraft/MinersAdvantage/forge_update.json";
+	public static final String	NAMESPACE		= "co.uk.duelmonster.minersadvantage.";
+	public static final String	PROXY			= NAMESPACE + "proxies.";
+	public static final String	GUI_FACTORY		= NAMESPACE + "client.config.ConfigGuiFactory";
 	
 	public static final String	COMMON_ID		= Constants.MOD_ID + ".common";
+	public static final String	SERVER_ID		= Constants.MOD_ID + ".server";
 	public static final String	CAPTIVATION_ID	= Constants.MOD_ID + ".captivation";
 	public static final String	CROPINATION_ID	= Constants.MOD_ID + ".cropination";
 	public static final String	EXCAVATION_ID	= Constants.MOD_ID + ".excavation";
@@ -28,12 +33,12 @@ public final class Constants {
 	public static final String	VEINATION_ID	= Constants.MOD_ID + ".veination";
 	
 	public static final int	MIN_HUNGER		= 1;
-	public static final int	MIN_BLOCKRADIUS	= 9;
-	public static final int	MAX_BLOCKRADIUS	= 16;
-	public static final int	MAX_BLOCKLIMIT	= 4096;
+	public static final int	MIN_BLOCKRADIUS	= 8;
+	public static final int	MAX_BLOCKRADIUS	= 128;
+	public static final int	MAX_BLOCKLIMIT	= (MAX_BLOCKRADIUS * MAX_BLOCKRADIUS) * MAX_BLOCKRADIUS;
 	public static final int	MIN_BREAKSPEED	= 1;
 	public static final int	MAX_BREAKSPEED	= 32;
-	public static final int	MAX_TREE_WIDTH	= 64;
+	public static final int	MAX_TREE_WIDTH	= 128;
 	
 	public static final List<Ranking> RANKING_SILK_TOUCH = new LinkedList<Ranking>();
 	static {

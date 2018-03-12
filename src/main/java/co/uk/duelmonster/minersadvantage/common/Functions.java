@@ -30,6 +30,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.RegistryNamespaced;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.oredict.OreDictionary;
 
@@ -40,11 +41,11 @@ public class Functions {
 	}
 	
 	public static void NotifyClient(EntityPlayer player, String sMsg) {
-		player.sendStatusMessage(new TextComponentString("§5[" + Constants.MOD_NAME + "] §f" + sMsg), false);
+		player.sendStatusMessage(new TextComponentString(Constants.MOD_NAME_MSG + sMsg), false);
 	}
 	
 	public static void NotifyClient(EntityPlayer player, boolean bIsOn, String sFeatureName) {
-		player.sendStatusMessage(new TextComponentString("§5[" + Constants.MOD_NAME + "] §6" + sFeatureName + " " + (bIsOn ? "§aON" : "§cOFF")), false);
+		player.sendStatusMessage(new TextComponentString(Constants.MOD_NAME_MSG + TextFormatting.GOLD + sFeatureName + " " + (bIsOn ? TextFormatting.GREEN + "ON" : TextFormatting.RED + "OFF")), false);
 	}
 	
 	public static ItemStack getHeldItemStack(EntityPlayer player) {
@@ -59,7 +60,7 @@ public class Functions {
 	
 	public static boolean IsPlayerStarving(EntityPlayer player) {
 		if (!Variables.get(player.getUniqueID()).HungerNotified && player.getFoodStats().getFoodLevel() <= Constants.MIN_HUNGER) {
-			NotifyClient(player, "§c" + localize("minersadvantage.hungery") + Constants.MOD_NAME);
+			NotifyClient(player, TextFormatting.RED + localize("minersadvantage.hungery") + Constants.MOD_NAME);
 			Variables.get(player.getUniqueID()).HungerNotified = true;
 		}
 		

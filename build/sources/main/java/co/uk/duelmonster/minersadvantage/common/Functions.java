@@ -8,15 +8,19 @@ import java.util.List;
 import co.uk.duelmonster.minersadvantage.MinersAdvantage;
 import co.uk.duelmonster.minersadvantage.settings.Settings;
 import net.minecraft.block.Block;
-import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.BlockPlanks.EnumType;
+import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityAreaEffectCloud;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.init.MobEffects;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
@@ -26,6 +30,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.RegistryNamespaced;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.oredict.OreDictionary;
 
@@ -36,11 +41,11 @@ public class Functions {
 	}
 	
 	public static void NotifyClient(EntityPlayer player, String sMsg) {
-		player.sendStatusMessage(new TextComponentString("�5[" + Constants.MOD_NAME + "] �f" + sMsg), false);
+		player.sendStatusMessage(new TextComponentString(Constants.MOD_NAME_MSG + sMsg), false);
 	}
 	
 	public static void NotifyClient(EntityPlayer player, boolean bIsOn, String sFeatureName) {
-		player.sendStatusMessage(new TextComponentString("�5[" + Constants.MOD_NAME + "] �6" + sFeatureName + " " + (bIsOn ? "�aON" : "�cOFF")), false);
+		player.sendStatusMessage(new TextComponentString(Constants.MOD_NAME_MSG + TextFormatting.GOLD + sFeatureName + " " + (bIsOn ? TextFormatting.GREEN + "ON" : TextFormatting.RED + "OFF")), false);
 	}
 	
 	public static ItemStack getHeldItemStack(EntityPlayer player) {
@@ -55,7 +60,7 @@ public class Functions {
 	
 	public static boolean IsPlayerStarving(EntityPlayer player) {
 		if (!Variables.get(player.getUniqueID()).HungerNotified && player.getFoodStats().getFoodLevel() <= Constants.MIN_HUNGER) {
-			NotifyClient(player, "�c" + localize("minersadvantage.hungery") + Constants.MOD_NAME);
+			NotifyClient(player, TextFormatting.RED + localize("minersadvantage.hungery") + Constants.MOD_NAME);
 			Variables.get(player.getUniqueID()).HungerNotified = true;
 		}
 		
@@ -94,6 +99,20 @@ public class Functions {
 				entity.getPosition().getZ() >= area.minZ && entity.getPosition().getZ() <= area.maxZ;
 	}
 	
+	public static boolean isPosConnected(List<BlockPos> posList, BlockPos checkPos) {
+		// Ensure we have a direct connection to the current Tree.
+		for (int yOffset = -1; yOffset <= 1; yOffset++)
+			for (int xOffset = -1; xOffset <= 1; xOffset++)
+				for (int zOffset = -1; zOffset <= 1; zOffset++) {
+					BlockPos oConPos = checkPos.add(xOffset, yOffset, zOffset);
+					
+					if (posList.contains(oConPos))
+						return true;
+				}
+			
+		return false;
+	}
+	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static List<Entity> getNearbyEntities(World world, AxisAlignedBB area) {
 		List<Entity> rtrn = new ArrayList();
@@ -112,7 +131,7 @@ public class Functions {
 			
 		}
 		catch (ConcurrentModificationException e) {
-			MinersAdvantage.logger.error("ConcurrentModification Exception: " + getStackTrace());
+			MinersAdvantage.logger.error("ConcurrentModification Exception Avoided..."); //: " + getStackTrace());
 		}
 		catch (Exception ex) {
 			MinersAdvantage.logger.error(ex.getClass().getName() + " Exception: " + getStackTrace());
@@ -122,40 +141,40 @@ public class Functions {
 	
 	public static boolean isItemBlacklisted(ItemStack item) {
 		if (item == null || item.isEmpty())
-			return (false != Settings.get().bIsToolWhitelist);
+			return Settings.get().bIsToolWhitelist();
 		
 		return isItemBlacklisted(item.getItem());
 	}
 	
 	public static boolean isItemBlacklisted(Item item) {
 		if (item == null)
-			return (false != Settings.get().bIsToolWhitelist);
+			return Settings.get().bIsToolWhitelist();
 		
-		if (Settings.get().toolBlacklist.has(Item.REGISTRY.getNameForObject(item).toString()))
-			return (true != Settings.get().bIsToolWhitelist);
+		if (Settings.get().toolBlacklist().has(Item.REGISTRY.getNameForObject(item).toString()))
+			return !Settings.get().bIsToolWhitelist();
 		
 		for (int id : OreDictionary.getOreIDs(new ItemStack(item)))
-			if (Settings.get().toolBlacklist.has(OreDictionary.getOreName(id)))
-				return (true != Settings.get().bIsToolWhitelist);
+			if (Settings.get().toolBlacklist().has(OreDictionary.getOreName(id)))
+				return !Settings.get().bIsToolWhitelist();
 			
-		return (false != Settings.get().bIsToolWhitelist);
+		return Settings.get().bIsToolWhitelist();
 	}
 	
 	public static boolean isBlockBlacklisted(Block block) {
 		if (block == null || block == Blocks.AIR)
-			return (false != Settings.get().bIsBlockWhitelist);
+			return Settings.get().bIsBlockWhitelist();
 		
-		if (Settings.get().blockBlacklist.has(Block.REGISTRY.getNameForObject(block).toString()))
-			return (true != Settings.get().bIsBlockWhitelist);
+		if (Settings.get().blockBlacklist().has(Block.REGISTRY.getNameForObject(block).toString()))
+			return !Settings.get().bIsBlockWhitelist();
 		
 		ItemStack blockStack = new ItemStack(Item.getItemFromBlock(block));
 		
 		if (!blockStack.isEmpty())
 			for (int id : OreDictionary.getOreIDs(blockStack))
-				if (Settings.get().blockBlacklist.has(OreDictionary.getOreName(id)))
-					return (true != Settings.get().bIsBlockWhitelist);
+				if (Settings.get().blockBlacklist().has(OreDictionary.getOreName(id)))
+					return !Settings.get().bIsBlockWhitelist();
 				
-		return (false != Settings.get().bIsBlockWhitelist);
+		return Settings.get().bIsBlockWhitelist();
 	}
 	
 	public static boolean isIdInList(Object oID, ArrayList<String> lumbinationLeaves) {
@@ -190,8 +209,25 @@ public class Functions {
 		return lReturn;
 	}
 	
-	public static void playSound(World world, EntityPlayer player, SoundEvent sound, BlockPos oPos) {
-		world.playSound(player, oPos.getX() + 0.5F, oPos.getY() + 0.5F, oPos.getZ() + 0.5F, sound, SoundCategory.BLOCKS, 2.0F, 1.0F);
+	public static void playSound(World world, BlockPos oPos, SoundEvent sound, SoundCategory soundCategory, float volume, float pitch) {
+		playSound(world, null, oPos, sound, soundCategory, volume, pitch);
+	}
+	
+	public static void playSound(World world, EntityPlayer player, BlockPos oPos, SoundEvent sound, SoundCategory soundCategory, float volume, float pitch) {
+		world.playSound(player, oPos.getX() + 0.5F, oPos.getY() + 0.5F, oPos.getZ() + 0.5F, sound, soundCategory, volume, pitch);
+	}
+	
+	public static void spawnAreaEffectCloud(World world, EntityPlayer player, BlockPos oPos) {
+		EntityAreaEffectCloud entityareaeffectcloud = new EntityAreaEffectCloud(world, oPos.getX() + 0.5D, oPos.getY() + 0.5D, oPos.getZ() + 0.5D);
+		entityareaeffectcloud.setOwner(player);
+		entityareaeffectcloud.setRadius(1.0F);
+		entityareaeffectcloud.setRadiusOnUse(-0.5F);
+		entityareaeffectcloud.setWaitTime(1);
+		entityareaeffectcloud.setDuration(20);
+		entityareaeffectcloud.setRadiusPerTick(-entityareaeffectcloud.getRadius() / entityareaeffectcloud.getDuration());
+		entityareaeffectcloud.addEffect(new PotionEffect(MobEffects.WEAKNESS, 10));
+		
+		world.spawnEntity(entityareaeffectcloud);
 	}
 	
 	/**
@@ -224,10 +260,22 @@ public class Functions {
 		return block.getRegistryName().toString().trim();
 	}
 	
-	public static Object getPropertyValue(IBlockState state, String name) {
-		for (IProperty<?> prop : state.getProperties().keySet())
-			if (prop.getName().equals(name))
-				return state.getValue(prop);
-		return null;
+	public static Object getPropertyValue(IBlockState state, PropertyEnum<EnumType> variant) {
+		//		for (IProperty<?> prop : state.getProperties().keySet())
+		//			if (prop.getName().equals(variant))
+		//				return state.getValue(prop);
+		try {
+			return state.getValue(variant);//.getMetadata();
+		}
+		catch (Exception e) {
+			return null;
+		}
+	}
+	
+	public static void sleep(long millis) {
+		try {
+			Thread.sleep(millis);
+		}
+		catch (InterruptedException e) {}
 	}
 }

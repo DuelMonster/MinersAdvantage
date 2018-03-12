@@ -48,9 +48,11 @@ public class Settings {
 	private boolean	_bGatherDrops		= false;
 	private boolean	_bAutoIlluminate	= true;
 	private boolean	_bMineVeins			= true;
-	private int		_iBlocksPerTick		= 1;
+	private int		_iBlocksPerTick		= 2;
 	private boolean	_bEnableTickDelay	= true;
 	private int		_iTickDelay			= 3;
+	private int		_iBlockRadius		= Constants.MIN_BLOCKRADIUS;
+	private int		_iBlockLimit		= (Constants.MIN_BLOCKRADIUS * Constants.MIN_BLOCKRADIUS) * Constants.MIN_BLOCKRADIUS;
 	
 	// Captivation Settings
 	public boolean		_bCaptivationEnabled	= true;
@@ -70,8 +72,6 @@ public class Settings {
 	private boolean		_bToggleMode			= false;
 	private boolean		_bIsToolWhitelist		= false;
 	private boolean		_bIsBlockWhitelist		= false;
-	private int			_iBlockRadius			= Constants.MIN_BLOCKRADIUS;
-	private int			_iBlockLimit			= (Constants.MIN_BLOCKRADIUS * Constants.MIN_BLOCKRADIUS) * Constants.MIN_BLOCKRADIUS;
 	private int			_iPathWidth				= 3;
 	private int			_iPathLength			= 6;
 	private JsonObject	_toolBlacklist			= new JsonObject();
@@ -79,6 +79,7 @@ public class Settings {
 	
 	// Illumination Settings
 	private boolean	_bIlluminationEnabled	= true;
+	private boolean	_bUseBlockLight			= true;
 	private int		_iLowestLightLevel		= 7;
 	
 	// Lumbination Settings
@@ -86,7 +87,8 @@ public class Settings {
 	private boolean		_bChopTreeBelow				= true;
 	private boolean		_bDestroyLeaves				= true;
 	private boolean		_bLeavesAffectDurability	= false;
-	private int			_iLeafRange					= 3;
+	private int			_iLeafRange					= 6;
+	private int			_iTrunkRange				= 32;
 	private JsonObject	_lumbinationLogs			= new JsonObject();
 	private JsonObject	_lumbinationLeaves			= new JsonObject();
 	private JsonObject	_lumbinationAxes			= new JsonObject();
@@ -244,6 +246,42 @@ public class Settings {
 	 */
 	public void setTickDelay(int _iTickDelay) {
 		this._iTickDelay = _iTickDelay;
+	}
+	
+	/**
+	 * @return iBlockRadius
+	 */
+	public int iBlockRadius() {
+		if (serverOverrides != null && serverOverrides.bEnforceExcavationSettings)
+			return serverOverrides.iBlockRadius();
+		
+		return _iBlockRadius;
+	}
+	
+	/**
+	 * @param _iBlockRadius
+	 *        Sets iBlockRadius
+	 */
+	public void setBlockRadius(int _iBlockRadius) {
+		this._iBlockRadius = _iBlockRadius;
+	}
+	
+	/**
+	 * @return iBlockLimit
+	 */
+	public int iBlockLimit() {
+		if (serverOverrides != null && serverOverrides.bEnforceExcavationSettings)
+			return serverOverrides.iBlockLimit();
+		
+		return _iBlockLimit;
+	}
+	
+	/**
+	 * @param _iBlockLimit
+	 *        Sets iBlockLimit
+	 */
+	public void setBlockLimit(int _iBlockLimit) {
+		this._iBlockLimit = _iBlockLimit;
 	}
 	
 	/**
@@ -484,42 +522,6 @@ public class Settings {
 	}
 	
 	/**
-	 * @return iBlockRadius
-	 */
-	public int iBlockRadius() {
-		if (serverOverrides != null && serverOverrides.bEnforceExcavationSettings)
-			return serverOverrides.iBlockRadius();
-		
-		return _iBlockRadius;
-	}
-	
-	/**
-	 * @param _iBlockRadius
-	 *        Sets iBlockRadius
-	 */
-	public void setBlockRadius(int _iBlockRadius) {
-		this._iBlockRadius = _iBlockRadius;
-	}
-	
-	/**
-	 * @return iBlockLimit
-	 */
-	public int iBlockLimit() {
-		if (serverOverrides != null && serverOverrides.bEnforceExcavationSettings)
-			return serverOverrides.iBlockLimit();
-		
-		return _iBlockLimit;
-	}
-	
-	/**
-	 * @param _iBlockLimit
-	 *        Sets iBlockLimit
-	 */
-	public void setBlockLimit(int _iBlockLimit) {
-		this._iBlockLimit = _iBlockLimit;
-	}
-	
-	/**
 	 * @return iPathWidth
 	 */
 	public int iPathWidth() {
@@ -608,6 +610,25 @@ public class Settings {
 	public void setIlluminationEnabled(boolean _bIlluminationEnabled) {
 		if (serverOverrides == null || !serverOverrides.bOverrideFeatureEnablement)
 			this._bIlluminationEnabled = _bIlluminationEnabled;
+	}
+	
+	/**
+	 * @return bUseBlockLight
+	 */
+	public boolean bUseBlockLight() {
+		if (serverOverrides != null && serverOverrides.bEnforceIlluminationSettings)
+			return false;
+		
+		return _bUseBlockLight;
+	}
+	
+	/**
+	 * @param _bUseBlockLight
+	 *        Sets bUseBlockLight
+	 */
+	public void setUseBlockLight(boolean _bUseBlockLight) {
+		if (serverOverrides == null || !serverOverrides.bEnforceIlluminationSettings)
+			this._bUseBlockLight = _bUseBlockLight;
 	}
 	
 	/**
@@ -717,6 +738,24 @@ public class Settings {
 	 */
 	public void setLeafRange(int _iLeafRange) {
 		this._iLeafRange = _iLeafRange;
+	}
+	
+	/**
+	 * @return iTrunkRange
+	 */
+	public int iTrunkRange() {
+		if (serverOverrides != null && serverOverrides.bEnforceLumbinationSettings)
+			return serverOverrides.iTrunkRange();
+		
+		return _iTrunkRange;
+	}
+	
+	/**
+	 * @param _iTrunkRange
+	 *        Sets iTrunkRange
+	 */
+	public void setTrunkRange(int _iTrunkRange) {
+		this._iTrunkRange = _iTrunkRange;
 	}
 	
 	/**

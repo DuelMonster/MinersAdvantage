@@ -118,19 +118,8 @@ public class ClientEvents {
 			variables.sideHit = mc.objectMouseOver.sideHit;
 		
 		// Cancel the running Excavation agents when player lifts the key binding
-		if (settings.bExcavationEnabled() && !variables.IsExcavationToggled) { // && !variables.IsPlayerAttacking) {
+		if (settings.bExcavationEnabled() && !variables.IsExcavationToggled)
 			GodItems.isWorthy(false);
-			
-			if (variables.IsExcavating && !variables.IsVeinating) {
-				variables.IsExcavating = false;
-				
-				NBTTagCompound tags = new NBTTagCompound();
-				tags.setInteger("ID", PacketID.Excavate.value());
-				tags.setBoolean("cancel", true);
-				
-				MinersAdvantage.instance.network.sendToServer(new NetworkPacket(tags));
-			}
-		}
 		
 		// Fire Captivation if enabled
 		if (settings.bCaptivationEnabled() && !mc.isGamePaused() && mc.inGameHasFocus) {
@@ -141,7 +130,7 @@ public class ClientEvents {
 		}
 		
 		// Switch back to previously held item if Substitution is enabled
-		if (settings.bSubstitutionEnabled() && !variables.IsPlayerAttacking && SubstitutionHandler.instance.bShouldSwitchBack && !variables.areAgentsProcessing()
+		if (settings.bSubstitutionEnabled() && !variables.IsPlayerAttacking && SubstitutionHandler.instance.bShouldSwitchBack // && !variables.areAgentsProcessing()
 				&& SubstitutionHandler.instance.iPrevSlot >= 0 && player.inventory.currentItem != SubstitutionHandler.instance.iPrevSlot) {
 			player.inventory.currentItem = SubstitutionHandler.instance.iPrevSlot;
 			SubstitutionHandler.instance.reset();
@@ -158,7 +147,7 @@ public class ClientEvents {
 		
 		EntityPlayerSP player = (EntityPlayerSP) event.getEntityPlayer();
 		
-		if (Settings.get().bSubstitutionEnabled() && SubstitutionHandler.instance.iOptimalSlot < 0) {
+		if (Settings.get().bSubstitutionEnabled() && (SubstitutionHandler.instance.iOptimalSlot < 0 || player.inventory.currentItem != SubstitutionHandler.instance.iOptimalSlot)) {
 			BlockPos oPos = event.getPos();
 			IBlockState state = world.getBlockState(oPos);
 			Block block = state.getBlock();
@@ -183,7 +172,7 @@ public class ClientEvents {
 			return;
 		
 		if (currentAttackStage == AttackStage.IDLE && SubstitutionHandler.instance.processWeaponSubtitution(player, event.getTarget())) {
-			// Because we are intercepting an attack and switching weapons, we need to cancel the attack and wait a tick to execute it.
+			// Because we are intercepting an attack & switching weapons, we need to cancel the attack & wait a tick to execute it.
 			// This allows the weapon switch to cause the correct damage to the target.
 			currentTarget = (EntityLivingBase) event.getTarget();
 			currentAttackStage = AttackStage.SWITCHED;

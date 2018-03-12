@@ -3,7 +3,7 @@ package co.uk.duelmonster.minersadvantage.handlers;
 import co.uk.duelmonster.minersadvantage.MinersAdvantage;
 import co.uk.duelmonster.minersadvantage.common.Functions;
 import co.uk.duelmonster.minersadvantage.common.PacketID;
-import co.uk.duelmonster.minersadvantage.packets.PacketBase;
+import co.uk.duelmonster.minersadvantage.packets.NetworkPacket;
 import co.uk.duelmonster.minersadvantage.settings.Settings;
 import net.minecraft.block.BlockTorch;
 import net.minecraft.block.state.IBlockState;
@@ -16,12 +16,12 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.BlockSnapshot;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -35,12 +35,12 @@ public class IlluminationHandler implements IPacketHandler {
 	private int			iTorchIndx			= -1;
 	
 	@Override
-	public void processClientMessage(PacketBase message, MessageContext context) {
+	public void processClientMessage(NetworkPacket message, MessageContext context) {
 		// TODO Auto-generated method stub
 	}
 	
 	@Override
-	public void processServerMessage(PacketBase message, MessageContext context) {
+	public void processServerMessage(NetworkPacket message, MessageContext context) {
 		final EntityPlayerMP player = context.getServerHandler().player;
 		if (player == null)
 			return;
@@ -62,11 +62,11 @@ public class IlluminationHandler implements IPacketHandler {
 		if (message.getTags().hasKey("sideHit"))
 			sideHit = EnumFacing.getFront(message.getTags().getInteger("sideHit"));
 		
-		final int iBlockLightLevel = world.getLightFor(EnumSkyBlock.BLOCK, oPos);
+		final int iBlockLightLevel = world.getLightFor((settings.bUseBlockLight() ? EnumSkyBlock.BLOCK : EnumSkyBlock.SKY), oPos);
 		
 		final IBlockState state = world.getBlockState(oPos.down());
 		
-		if ((message.getTags().hasKey("IgnoreLightLevel") || iBlockLightLevel <= settings.iLowestLightLevel)
+		if ((message.getTags().hasKey("IgnoreLightLevel") || iBlockLightLevel <= settings.iLowestLightLevel())
 				&& (world.isAirBlock(oPos) || state.getBlock().isReplaceable(world, oPos))
 				&& (world.getBlockState(oPos.offset(sideHit.getOpposite())).isSideSolid(world, oPos.offset(sideHit.getOpposite()), sideHit) || state.getBlock().canPlaceTorchOnTop(state, world, oPos.down()))) {
 			getTorchSlot(player);
@@ -74,24 +74,24 @@ public class IlluminationHandler implements IPacketHandler {
 			if (iTorchIndx >= 0 && !oPos.equals(lastTorchLocation)) {
 				lastTorchLocation = new BlockPos(oPos);
 				
-				world.captureBlockSnapshots = true;
-				world.capturedBlockSnapshots.clear();
+				// world.captureBlockSnapshots = true;
+				// world.capturedBlockSnapshots.clear();
 				
 				world.setBlockState(oPos, Blocks.TORCH.getDefaultState().withProperty(BlockTorch.FACING, sideHit));
-				Functions.playSound(world, player, SoundEvents.BLOCK_WOOD_HIT, oPos);
+				Functions.playSound(world, oPos, SoundEvents.BLOCK_WOOD_HIT, SoundCategory.BLOCKS, 1.0F, world.rand.nextFloat() + 0.5F);
 				
-				world.captureBlockSnapshots = false;
-				while (world.capturedBlockSnapshots.size() > 0) {
-					BlockSnapshot snap = world.capturedBlockSnapshots.get(0);
-					world.capturedBlockSnapshots.remove(0);
-					
-					world.markAndNotifyBlock(
-							snap.getPos(),
-							world.getChunkFromChunkCoords(snap.getPos().getX() >> 4, snap.getPos().getZ() >> 4),
-							snap.getReplacedBlock(),
-							snap.getCurrentBlock(),
-							snap.getFlag());
-				}
+				// world.captureBlockSnapshots = false;
+				// while (world.capturedBlockSnapshots.size() > 0) {
+				// BlockSnapshot snap = world.capturedBlockSnapshots.get(0);
+				// world.capturedBlockSnapshots.remove(0);
+				//
+				// world.markAndNotifyBlock(
+				// snap.getPos(),
+				// world.getChunkFromChunkCoords(snap.getPos().getX() >> 4, snap.getPos().getZ() >> 4),
+				// snap.getReplacedBlock(),
+				// snap.getCurrentBlock(),
+				// snap.getFlag());
+				// }
 				
 				ItemStack torchStack = player.inventory.decrStackSize(iTorchIndx, 1);
 				
@@ -101,7 +101,7 @@ public class IlluminationHandler implements IPacketHandler {
 				}
 				
 				if (iTorchStackCount == 0)
-					player.sendMessage(new TextComponentString("�5[SuperMiner] �6Illumination: �c" + Functions.localize("superminer.illumination.no_torches")));
+					Functions.NotifyClient(player, TextFormatting.GOLD + "Illumination: " + TextFormatting.WHITE + Functions.localize("superminer.illumination.no_torches"));
 			}
 		}
 	}
@@ -184,7 +184,7 @@ public class IlluminationHandler implements IPacketHandler {
 					tags.setInteger("sideHit", sideHit.getIndex());
 				}
 				
-				MinersAdvantage.instance.network.sendToServer(new PacketBase(tags));
+				MinersAdvantage.instance.network.sendToServer(new NetworkPacket(tags));
 			}
 		}
 	}

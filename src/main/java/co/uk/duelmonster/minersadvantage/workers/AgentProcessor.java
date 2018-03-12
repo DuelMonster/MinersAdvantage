@@ -5,8 +5,6 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.UUID;
 
-import com.google.common.base.Stopwatch;
-
 import co.uk.duelmonster.minersadvantage.MinersAdvantage;
 import co.uk.duelmonster.minersadvantage.common.JsonHelper;
 import co.uk.duelmonster.minersadvantage.common.PacketID;
@@ -26,8 +24,8 @@ public class AgentProcessor {
 	// private HashMap<UUID, ReversalData> reversing = new HashMap<UUID, ReversalData>();
 	// private HashMap<UUID, List<ReversalData>> reversalLog = new HashMap<UUID, List<ReversalData>>();
 	
-	private Stopwatch	timer		= Stopwatch.createUnstarted();
-	private int			tickCount	= 0;
+	//private Stopwatch	timer = Stopwatch.createUnstarted();
+	private int tickCount = 0;
 	
 	public HashMap<Integer, Agent> getAgentsByID(UUID uuid) {
 		return activeAgents.get(uuid);
@@ -39,7 +37,6 @@ public class AgentProcessor {
 	 */
 	public void fireAgentTicks(World world) {
 		tickCount++;
-		timer.start();
 		
 		Iterator<Entry<UUID, HashMap<Integer, Agent>>> allAgents = activeAgents.entrySet().iterator();
 		while (allAgents.hasNext()) {
@@ -71,8 +68,6 @@ public class AgentProcessor {
 			if (allAgentsEntry.getValue().isEmpty())
 				allAgents.remove();
 		}
-		
-		timer.reset();
 	}
 	
 	public Agent startProcessing(EntityPlayerMP player, Agent agent) {

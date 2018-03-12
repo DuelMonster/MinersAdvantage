@@ -36,7 +36,7 @@ public class ShaftanationAgent extends Agent {
 					|| (settings.tpsGuard() && timer.elapsed(TimeUnit.MILLISECONDS) > 40))
 				break;
 			
-			if (heldItem != Functions.getHeldItem(player) || Functions.IsPlayerStarving(player)) {
+			if (Functions.IsPlayerStarving(player)) {
 				bIsComplete = true;
 				break;
 			}
@@ -47,32 +47,31 @@ public class ShaftanationAgent extends Agent {
 			
 			IBlockState state = world.getBlockState(oPos);
 			
-			if (!player.canHarvestBlock(state)) {
-				// Add the non-harvestable blocks to the processed list so that they can be avoided.
-				processed.add(oPos);
+			if (!fakePlayer.canHarvestBlock(state)) {
+				// Avoid the non-harvestable blocks.
 				continue;
 			}
 			
 			// Process the current block if it is valid.
 			if (settings.bMineVeins() && settings.veinationOres().has(state.getBlock().getRegistryName().toString().trim())) {
 				excavateOreVein(state, oPos);
-				processed.add(oPos);
 			} else {
 				world.captureBlockSnapshots = true;
 				world.capturedBlockSnapshots.clear();
 				
-				if (player.interactionManager.tryHarvestBlock(oPos)) {
+				if (fakePlayer.interactionManager.tryHarvestBlock(oPos)) {
 					processBlockSnapshots();
 					
 					SoundType soundtype = state.getBlock().getSoundType(state, world, oPos, null);
 					reportProgessToClient(oPos, soundtype.getBreakSound());
 					
 					autoIlluminate(oPos);
-					addConnectedToQueue(oPos);
 				}
 				
 				processed.add(oPos);
 			}
+			
+			addConnectedToQueue(oPos);
 		}
 		
 		timer.reset();
@@ -132,7 +131,7 @@ public class ShaftanationAgent extends Agent {
 	public void addToQueue(BlockPos oPos) {
 		IBlockState state = world.getBlockState(oPos);
 		
-		if (player.canHarvestBlock(state))
+		if (fakePlayer.canHarvestBlock(state))
 			super.addToQueue(oPos);
 	}
 	

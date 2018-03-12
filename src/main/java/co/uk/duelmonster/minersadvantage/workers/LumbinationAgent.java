@@ -1,5 +1,7 @@
 package co.uk.duelmonster.minersadvantage.workers;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import co.uk.duelmonster.minersadvantage.common.Functions;
@@ -19,18 +21,25 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 
 public class LumbinationAgent extends Agent {
+	
+	private LumbinationHandler oLumbinationHandler = new LumbinationHandler();
 	
 	private BlockPos				originLeafPos		= null;
 	private Block					originLeafBlock		= null;
 	private int						originLeafMeta		= 0;
 	private BlockPlanks.EnumType	originLeafVariant	= null;
 	private BlockPlanks.EnumType	originWoodVariant	= null;
+	private AxisAlignedBB			trunkArea			= null;
+	private List<BlockPos>			trunkPositions		= new ArrayList<BlockPos>();
 	
 	public LumbinationAgent(EntityPlayerMP player, NBTTagCompound tags) {
 		super(player, tags, true);
+		
+		oLumbinationHandler.setPlayer(player);
 		
 		PropertyEnum<EnumType> variant = (originBlock instanceof BlockNewLog ? BlockNewLog.VARIANT : (originBlock instanceof BlockOldLog ? BlockOldLog.VARIANT : null));
 		
@@ -38,8 +47,10 @@ public class LumbinationAgent extends Agent {
 		if (propValue != null)
 			this.originWoodVariant = (BlockPlanks.EnumType) propValue;
 		
-		this.harvestArea = LumbinationHandler.instance.identifyTree(originPos, originBlock);
-		this.originLeafPos = LumbinationHandler.instance.getLeafPos(originPos);
+		this.harvestArea = oLumbinationHandler.identifyTree(originPos, originBlock);
+		this.trunkArea = oLumbinationHandler.trunkArea;
+		this.trunkPositions = oLumbinationHandler.trunkPositions;
+		this.originLeafPos = oLumbinationHandler.getLeafPos(originPos);
 		
 		if (this.originLeafPos != null) {
 			IBlockState state = world.getBlockState(originLeafPos);
@@ -52,12 +63,12 @@ public class LumbinationAgent extends Agent {
 			if (propValue != null)
 				this.originLeafVariant = (BlockPlanks.EnumType) propValue;
 			
-			// Add the origin block the queue now that we have all the information.  -  this.queued.clear();
+			// Add the origin block the queue now that we have all the information. - this.queued.clear();
 			addConnectedToQueue(originPos);
 		}
 	}
 	
-	// Returns true when Excavation is complete or cancelled
+	// Returns true when Lumbination is complete or cancelled
 	@Override
 	public boolean tick() {
 		if (originPos == null || player == null || !player.isEntityAlive() || processed.size() >= settings.iBlockLimit())
@@ -73,7 +84,7 @@ public class LumbinationAgent extends Agent {
 					|| (settings.tpsGuard() && timer.elapsed(TimeUnit.MILLISECONDS) > 40))
 				break;
 			
-			if (heldItem != Functions.getHeldItem(player) || Functions.IsPlayerStarving(player)) {
+			if (Functions.IsPlayerStarving(player)) {
 				bIsComplete = true;
 				break;
 			}
@@ -90,24 +101,24 @@ public class LumbinationAgent extends Agent {
 			world.capturedBlockSnapshots.clear();
 			
 			// Process the current block if it is valid.
-			if (!player.canHarvestBlock(state)) {
-				// Add the non-harvestable blocks to the processed list so that they can be avoided.
+			if (!fakePlayer.canHarvestBlock(state) || (state.getMaterial() == Material.LEAVES && !settings.bDestroyLeaves())) {
+				// Avoid the non-harvestable blocks.
 				processed.add(oPos);
 				continue;
 			} else if (state.getMaterial() == Material.LEAVES && !settings.bLeavesAffectDurability()) {
 				
-				if (block.removedByPlayer(state, world, oPos, player, true)) {
+				if (block.removedByPlayer(state, world, oPos, fakePlayer, true)) {
 					world.playSound(player, oPos, SoundEvents.BLOCK_GRASS_BREAK, SoundCategory.BLOCKS, 1.0F, 1.0F);
 					
 					block.onBlockDestroyedByPlayer(world, oPos, state);
-					block.harvestBlock(this.world, this.player, oPos, state, world.getTileEntity(oPos), heldItemStack.copy());
+					block.harvestBlock(world, fakePlayer, oPos, state, world.getTileEntity(oPos), heldItemStack.copy());
 					
 					reportProgessToClient(oPos, soundtype.getBreakSound());
 				}
 				
 				processBlockSnapshots();
 				addConnectedToQueue(oPos);
-			} else if (player.interactionManager.tryHarvestBlock(oPos)) {
+			} else if (fakePlayer.interactionManager.tryHarvestBlock(oPos)) {
 				reportProgessToClient(oPos, soundtype.getBreakSound());
 				processBlockSnapshots();
 				addConnectedToQueue(oPos);
@@ -132,11 +143,13 @@ public class LumbinationAgent extends Agent {
 		Object checkProp = Functions.getPropertyValue(state, variant);
 		
 		if (checkBlock.getClass().isInstance(originBlock)
-				&& (LumbinationHandler.instance.trunkArea == null || Functions.isWithinArea(oPos, LumbinationHandler.instance.trunkArea))
+				&& (trunkArea == null || Functions.isWithinArea(oPos, trunkArea))
+				&& (trunkPositions == null || Functions.isPosConnected(trunkPositions, oPos))
 				&& ((originWoodVariant != null && checkProp != null && checkProp.equals(originWoodVariant)) || checkMeta == originMeta))
 			super.addToQueue(oPos);
 		
 		if (checkBlock.getClass().isInstance(originLeafBlock)
+				&& settings.bDestroyLeaves()
 				&& (harvestArea == null || Functions.isWithinArea(oPos, harvestArea))
 				&& ((originLeafVariant != null && checkProp != null && checkProp.equals(originLeafVariant)) || checkMeta == originLeafMeta))
 			super.addToQueue(oPos);

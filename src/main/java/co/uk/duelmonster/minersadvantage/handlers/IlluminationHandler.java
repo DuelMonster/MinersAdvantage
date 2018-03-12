@@ -19,10 +19,9 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.BlockSnapshot;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -63,7 +62,7 @@ public class IlluminationHandler implements IPacketHandler {
 		if (message.getTags().hasKey("sideHit"))
 			sideHit = EnumFacing.getFront(message.getTags().getInteger("sideHit"));
 		
-		final int iBlockLightLevel = world.getLightFor(EnumSkyBlock.BLOCK, oPos);
+		final int iBlockLightLevel = world.getLightFor((settings.bUseBlockLight() ? EnumSkyBlock.BLOCK : EnumSkyBlock.SKY), oPos);
 		
 		final IBlockState state = world.getBlockState(oPos.down());
 		
@@ -75,24 +74,24 @@ public class IlluminationHandler implements IPacketHandler {
 			if (iTorchIndx >= 0 && !oPos.equals(lastTorchLocation)) {
 				lastTorchLocation = new BlockPos(oPos);
 				
-				world.captureBlockSnapshots = true;
-				world.capturedBlockSnapshots.clear();
+				// world.captureBlockSnapshots = true;
+				// world.capturedBlockSnapshots.clear();
 				
 				world.setBlockState(oPos, Blocks.TORCH.getDefaultState().withProperty(BlockTorch.FACING, sideHit));
 				Functions.playSound(world, oPos, SoundEvents.BLOCK_WOOD_HIT, SoundCategory.BLOCKS, 1.0F, world.rand.nextFloat() + 0.5F);
 				
-				world.captureBlockSnapshots = false;
-				while (world.capturedBlockSnapshots.size() > 0) {
-					BlockSnapshot snap = world.capturedBlockSnapshots.get(0);
-					world.capturedBlockSnapshots.remove(0);
-					
-					world.markAndNotifyBlock(
-							snap.getPos(),
-							world.getChunkFromChunkCoords(snap.getPos().getX() >> 4, snap.getPos().getZ() >> 4),
-							snap.getReplacedBlock(),
-							snap.getCurrentBlock(),
-							snap.getFlag());
-				}
+				// world.captureBlockSnapshots = false;
+				// while (world.capturedBlockSnapshots.size() > 0) {
+				// BlockSnapshot snap = world.capturedBlockSnapshots.get(0);
+				// world.capturedBlockSnapshots.remove(0);
+				//
+				// world.markAndNotifyBlock(
+				// snap.getPos(),
+				// world.getChunkFromChunkCoords(snap.getPos().getX() >> 4, snap.getPos().getZ() >> 4),
+				// snap.getReplacedBlock(),
+				// snap.getCurrentBlock(),
+				// snap.getFlag());
+				// }
 				
 				ItemStack torchStack = player.inventory.decrStackSize(iTorchIndx, 1);
 				
@@ -102,7 +101,7 @@ public class IlluminationHandler implements IPacketHandler {
 				}
 				
 				if (iTorchStackCount == 0)
-					player.sendMessage(new TextComponentString("§5[SuperMiner] §6Illumination: §c" + Functions.localize("superminer.illumination.no_torches")));
+					Functions.NotifyClient(player, TextFormatting.GOLD + "Illumination: " + TextFormatting.WHITE + Functions.localize("superminer.illumination.no_torches"));
 			}
 		}
 	}

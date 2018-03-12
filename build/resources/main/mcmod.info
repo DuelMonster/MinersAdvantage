@@ -2,7 +2,7 @@
 	"modid": "minersadvantage",
 	"name": "MinersAdvantage",
 	"description": "MinersAdvantage is a reimagening of my previous mod 'SuperMiner'.  It is a rewrite from the ground up that aims to solve all previous issues and to add additional features.",
-	"version": "1.0.0",
+	"version": "1.0.8",
 	"mcversion": "1.12.2",
 	"url": "",
 	"updateUrl": "",

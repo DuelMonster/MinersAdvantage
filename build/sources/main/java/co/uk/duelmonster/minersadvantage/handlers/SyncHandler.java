@@ -2,8 +2,9 @@ package co.uk.duelmonster.minersadvantage.handlers;
 
 import co.uk.duelmonster.minersadvantage.common.JsonHelper;
 import co.uk.duelmonster.minersadvantage.common.Variables;
-import co.uk.duelmonster.minersadvantage.packets.PacketBase;
+import co.uk.duelmonster.minersadvantage.packets.NetworkPacket;
 import co.uk.duelmonster.minersadvantage.settings.Settings;
+import co.uk.duelmonster.minersadvantage.settings.SettingsServer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
@@ -12,7 +13,12 @@ public class SyncHandler implements IPacketHandler {
 	public static SyncHandler instance = new SyncHandler();
 	
 	@Override
-	public void processClientMessage(PacketBase message, MessageContext context) {
+	public void processClientMessage(NetworkPacket message, MessageContext context) {
+		if (message.getTags().hasKey("server_settings")) {
+			String json = message.getTags().getString("server_settings");
+			Settings.get().serverOverrides = JsonHelper.gson.fromJson(json, SettingsServer.class);
+		}
+		
 		if (message.getTags().hasKey("variables")) {
 			String json = message.getTags().getString("variables");
 			Variables variables = JsonHelper.gson.fromJson(json, Variables.class);
@@ -22,7 +28,7 @@ public class SyncHandler implements IPacketHandler {
 	}
 	
 	@Override
-	public void processServerMessage(PacketBase message, MessageContext context) {
+	public void processServerMessage(NetworkPacket message, MessageContext context) {
 		final EntityPlayerMP player = context.getServerHandler().player;
 		if (player == null)
 			return;
