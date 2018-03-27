@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import co.uk.duelmonster.minersadvantage.common.BreakBlockController;
 import co.uk.duelmonster.minersadvantage.common.Functions;
 import co.uk.duelmonster.minersadvantage.handlers.LumbinationHandler;
 import net.minecraft.block.Block;
@@ -79,9 +80,10 @@ public class LumbinationAgent extends Agent {
 		boolean bIsComplete = false;
 		
 		for (int iQueueCount = 0; queued.size() > 0; iQueueCount++) {
-			if (iQueueCount >= settings.iBlocksPerTick()
+			if ((settings.bBreakAtToolSpeeds() && iQueueCount > 0)
+					|| iQueueCount >= settings.iBlocksPerTick()
 					|| processed.size() >= settings.iBlockLimit()
-					|| (settings.tpsGuard() && timer.elapsed(TimeUnit.MILLISECONDS) > 40))
+					|| (!settings.bBreakAtToolSpeeds() && settings.tpsGuard() && timer.elapsed(TimeUnit.MILLISECONDS) > 40))
 				break;
 			
 			if (Functions.IsPlayerStarving(player)) {
@@ -106,7 +108,7 @@ public class LumbinationAgent extends Agent {
 				processed.add(oPos);
 				continue;
 			} else if (state.getMaterial() == Material.LEAVES && !settings.bLeavesAffectDurability()) {
-				
+				// Remove the Leaves without damaging the tool.
 				if (block.removedByPlayer(state, world, oPos, fakePlayer, true)) {
 					world.playSound(player, oPos, SoundEvents.BLOCK_GRASS_BREAK, SoundCategory.BLOCKS, 1.0F, 1.0F);
 					
@@ -118,13 +120,27 @@ public class LumbinationAgent extends Agent {
 				
 				processBlockSnapshots();
 				addConnectedToQueue(oPos);
-			} else if (fakePlayer.interactionManager.tryHarvestBlock(oPos)) {
-				reportProgessToClient(oPos, soundtype.getBreakSound());
-				processBlockSnapshots();
-				addConnectedToQueue(oPos);
+			} else {
+				boolean bBlockHarvested = false;
+				
+				if (settings.bBreakAtToolSpeeds()) {
+					this.breakController = new BreakBlockController(fakePlayer);
+					
+					breakController.onPlayerDamageBlock(oPos, sideHit);
+					if (breakController.bBlockDestroyed)
+						bBlockHarvested = fakePlayer.interactionManager.tryHarvestBlock(oPos);
+					
+				} else
+					bBlockHarvested = fakePlayer.interactionManager.tryHarvestBlock(oPos);
+				
+				if (bBlockHarvested) {
+					reportProgessToClient(oPos, soundtype.getBreakSound());
+					processBlockSnapshots();
+					addConnectedToQueue(oPos);
+					
+					processed.add(oPos);
+				}
 			}
-			
-			processed.add(oPos);
 		}
 		
 		timer.reset();

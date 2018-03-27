@@ -9,6 +9,7 @@ import com.google.common.base.Stopwatch;
 
 import co.uk.duelmonster.minersadvantage.MinersAdvantage;
 import co.uk.duelmonster.minersadvantage.client.ClientFunctions;
+import co.uk.duelmonster.minersadvantage.common.BreakBlockController;
 import co.uk.duelmonster.minersadvantage.common.Functions;
 import co.uk.duelmonster.minersadvantage.common.PacketID;
 import co.uk.duelmonster.minersadvantage.common.Variables;
@@ -16,6 +17,7 @@ import co.uk.duelmonster.minersadvantage.handlers.SubstitutionHandler;
 import co.uk.duelmonster.minersadvantage.packets.NetworkPacket;
 import co.uk.duelmonster.minersadvantage.settings.Settings;
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
@@ -45,17 +47,18 @@ public abstract class Agent {
 	public final FakePlayer		fakePlayer;
 	public final Settings		settings;
 	
-	public Stopwatch		timer			= Stopwatch.createUnstarted();
-	public ItemStack		heldItemStack	= null;
-	public Item				heldItem		= null;
-	public int				heldItemSlot	= -1;
-	public EnumFacing		sideHit			= EnumFacing.SOUTH;
-	public int				iFeetPos		= 0;
-	public IBlockState		originState		= null;
-	public Block			originBlock		= null;
-	public int				originMeta		= 0;
-	public boolean			isRedStone		= false;
-	public AxisAlignedBB	harvestArea		= null;
+	public Stopwatch			timer			= Stopwatch.createUnstarted();
+	public ItemStack			heldItemStack	= null;
+	public Item					heldItem		= null;
+	public int					heldItemSlot	= -1;
+	public EnumFacing			sideHit			= EnumFacing.SOUTH;
+	public int					iFeetPos		= 0;
+	public IBlockState			originState		= null;
+	public Block				originBlock		= null;
+	public int					originMeta		= 0;
+	public boolean				isRedStone		= false;
+	public AxisAlignedBB		harvestArea		= null;
+	public BreakBlockController	breakController	= null;
 	
 	public List<BlockPos>	processed	= new ArrayList<BlockPos>();
 	public List<BlockPos>	queued		= new ArrayList<BlockPos>();
@@ -109,6 +112,7 @@ public abstract class Agent {
 		final IBlockState state = world.getBlockState(oPos);
 		
 		if (state == null || state.getBlock() == Blocks.AIR || state.getBlock() == Blocks.BEDROCK ||
+				state.getMaterial() == Material.WATER || state.getMaterial() == Material.LAVA ||
 				oPos == null || processed.contains(oPos) || queued.contains(oPos) ||
 				(harvestArea != null && !Functions.isWithinArea(oPos, harvestArea)))
 			return;
@@ -190,4 +194,5 @@ public abstract class Agent {
 			
 		}
 	}
+	
 }

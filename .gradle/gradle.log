@@ -1,7 +1,7 @@
 This mapping 'snapshot_20180310' was designed for MC 1.12! Use at your own peril.This mapping 'snapshot_20180310' was designed for MC 1.12! Use at your own peril.
 
 #################################################
-         ForgeGradle 2.3-SNAPSHOT-c9bb579        
+         ForgeGradle 2.3-SNAPSHOT-e7c1878        
   https://github.com/MinecraftForge/ForgeGradle  
 #################################################
                Powered by MCP unknown               
@@ -9,7 +9,7 @@ This mapping 'snapshot_20180310' was designed for MC 1.12! Use at your own peril
          by: Searge, ProfMobius, Fesh0r,         
          R4wk, ZeuX, IngisKahn, bspkrs           
 #################################################
-:clean UP-TO-DATE
+:clean
 :deobfCompileDummyTask
 :deobfProvidedDummyTask
 :sourceApiJava
@@ -28,7 +28,7 @@ This mapping 'snapshot_20180310' was designed for MC 1.12! Use at your own peril
 :testClasses UP-TO-DATE
 :test UP-TO-DATE
 :extractMcpData SKIPPED
-:extractMcpMappings
+:extractMcpMappings SKIPPED
 :getVersionJson
 :extractUserdev UP-TO-DATE
 :genSrgs SKIPPED
@@ -45,4 +45,4 @@ remapping source...
 
 BUILD SUCCESSFUL
 
-Total time: 28.888 secs
+Total time: 32.154 secs

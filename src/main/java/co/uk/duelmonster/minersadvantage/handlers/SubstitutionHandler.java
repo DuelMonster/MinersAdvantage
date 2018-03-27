@@ -66,7 +66,6 @@ public class SubstitutionHandler {
 		block = null;
 	}
 	
-	@SuppressWarnings("unused")
 	public void processToolSubtitution(World _world, EntityPlayerSP _player, BlockPos _pos) {
 		reset();
 		

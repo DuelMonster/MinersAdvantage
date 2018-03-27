@@ -1,29 +1,30 @@
-[21:52:27] [main/INFO]: Setting user: DuelMonster
-[21:52:32] [main/WARN]: Skipping bad option: lastServer:
-[21:52:32] [main/INFO]: LWJGL Version: 2.9.4
-[21:52:37] [main/INFO]: Reloading ResourceManager: Default, FMLFileResourcePack:Forge Mod Loader, FMLFileResourcePack:Minecraft Forge, FMLFileResourcePack:MinersAdvantage
-[21:52:45] [Sound Library Loader/INFO]: Starting up SoundSystem...
-[21:52:45] [Thread-5/INFO]: Initializing LWJGL OpenAL
-[21:52:45] [Thread-5/INFO]: (The LWJGL binding of OpenAL.  For more information, see http://www.lwjgl.org)
-[21:52:45] [Thread-5/INFO]: OpenAL initialized.
-[21:52:45] [Sound Library Loader/INFO]: Sound engine started
-[21:52:51] [main/INFO]: Created: 512x512 textures-atlas
-[21:52:53] [main/WARN]: Skipping bad option: lastServer:
-[21:52:54] [main/INFO]: Narrator library for x64 successfully loaded
-[21:52:55] [Realms Notification Availability checker #1/INFO]: Could not authorize you against Realms server: Invalid session id
-[21:53:05] [Server thread/INFO]: Starting integrated minecraft server version 1.12.2
-[21:53:05] [Server thread/INFO]: Generating keypair
-[21:53:06] [Server thread/INFO]: Loaded 488 advancements
-[21:53:06] [Server thread/INFO]: Preparing start region for level 0
-[21:53:07] [Server thread/INFO]: Preparing spawn area: 32%
-[21:53:08] [Server thread/INFO]: Changing view distance to 12, from 10
-[21:53:10] [Server thread/INFO]: DuelMonster[local:E:350693b9] logged in with entity id 146 at (-208.5247705353933, 73.0, 382.7624402825464)
-[21:53:10] [Server thread/INFO]: DuelMonster joined the game
-[21:53:10] [Server thread/INFO]: Saving and pausing game...
-[21:53:10] [Server thread/INFO]: Saving chunks for level 'New World'/overworld
-[21:53:11] [Server thread/INFO]: Saving chunks for level 'New World'/the_nether
-[21:53:11] [Server thread/INFO]: Saving chunks for level 'New World'/the_end
-[21:53:11] [pool-2-thread-1/WARN]: Couldn't look up profile properties for com.mojang.authlib.GameProfile@5267bb9[id=222f2e47-343f-3f59-9813-05762ffd5413,name=DuelMonster,properties={},legacy=false]
+[20:39:33] [main/INFO]: Setting user: DuelMonster
+[20:39:37] [main/WARN]: Skipping bad option: lastServer:
+[20:39:37] [main/INFO]: LWJGL Version: 2.9.4
+[20:39:42] [main/INFO]: Reloading ResourceManager: Default, FMLFileResourcePack:Forge Mod Loader, FMLFileResourcePack:Minecraft Forge, FMLFileResourcePack:MinersAdvantage
+[20:39:46] [Sound Library Loader/INFO]: Starting up SoundSystem...
+[20:39:46] [Thread-5/INFO]: Initializing LWJGL OpenAL
+[20:39:46] [Thread-5/INFO]: (The LWJGL binding of OpenAL.  For more information, see http://www.lwjgl.org)
+[20:39:46] [Thread-5/INFO]: OpenAL initialized.
+[20:39:47] [Sound Library Loader/INFO]: Sound engine started
+[20:39:53] [main/INFO]: Created: 512x512 textures-atlas
+[20:39:55] [main/WARN]: Skipping bad option: lastServer:
+[20:39:55] [main/INFO]: Narrator library for x64 successfully loaded
+[20:39:57] [Realms Notification Availability checker #1/INFO]: Could not authorize you against Realms server: Invalid session id
+[20:40:03] [Server thread/INFO]: Starting integrated minecraft server version 1.12.2
+[20:40:03] [Server thread/INFO]: Generating keypair
+[20:40:03] [Server thread/INFO]: Loaded 488 advancements
+[20:40:04] [Server thread/INFO]: Preparing start region for level 0
+[20:40:05] [Server thread/INFO]: Preparing spawn area: 41%
+[20:40:05] [Server thread/INFO]: Changing view distance to 12, from 10
+[20:40:07] [Server thread/INFO]: DuelMonster[local:E:547c0c28] logged in with entity id 147 at (-181.40485021648573, 63.0, -162.52780732779215)
+[20:40:07] [Server thread/INFO]: DuelMonster joined the game
+[20:40:08] [Server thread/INFO]: Saving and pausing game...
+[20:40:08] [Server thread/INFO]: Saving chunks for level 'New World'/overworld
+[20:40:08] [Server thread/INFO]: Saving chunks for level 'New World'/the_nether
+[20:40:08] [Server thread/INFO]: Saving chunks for level 'New World'/the_end
+[20:40:08] [main/INFO]: Loaded 81 advancements
+[20:40:08] [pool-2-thread-1/WARN]: Couldn't look up profile properties for com.mojang.authlib.GameProfile@1cb0f0ba[id=222f2e47-343f-3f59-9813-05762ffd5413,name=DuelMonster,properties={},legacy=false]
 com.mojang.authlib.exceptions.AuthenticationException: The client has sent too many requests within a certain amount of time
 	at com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService.makeRequest(YggdrasilAuthenticationService.java:79) ~[YggdrasilAuthenticationService.class:?]
 	at com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService.fillGameProfile(YggdrasilMinecraftSessionService.java:180) [YggdrasilMinecraftSessionService.class:?]
@@ -40,199 +41,132 @@ com.mojang.authlib.exceptions.AuthenticationException: The client has sent too m
 	at com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService.fillProfileProperties(YggdrasilMinecraftSessionService.java:170) [YggdrasilMinecraftSessionService.class:?]
 	at net.minecraft.client.Minecraft.getProfileProperties(Minecraft.java:3190) [Minecraft.class:?]
 	at net.minecraft.client.resources.SkinManager$3.run(SkinManager.java:138) [SkinManager$3.class:?]
-	at java.util.concurrent.Executors$RunnableAdapter.call(Unknown Source) [?:1.8.0_101]
-	at java.util.concurrent.FutureTask.run(Unknown Source) [?:1.8.0_101]
-	at java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source) [?:1.8.0_101]
-	at java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source) [?:1.8.0_101]
-	at java.lang.Thread.run(Unknown Source) [?:1.8.0_101]
-[21:53:11] [main/INFO]: Loaded 57 advancements
-[21:54:02] [Server thread/INFO]: [DuelMonster: Set own game mode to Creative Mode]
-[21:54:02] [main/INFO]: [CHAT] Your game mode has been updated to Creative Mode
-[21:54:57] [Server thread/INFO]: [DuelMonster: Set own game mode to Survival Mode]
-[21:54:57] [main/INFO]: [CHAT] Your game mode has been updated to Survival Mode
-[21:59:11] [Server thread/INFO]: [DuelMonster: Given [Bucket] * 1 to DuelMonster]
-[21:59:11] [main/INFO]: [CHAT] Given [Bucket] * 1 to DuelMonster
-[22:00:30] [Server thread/INFO]: Saving and pausing game...
-[22:00:30] [Server thread/INFO]: Saving chunks for level 'New World'/overworld
-[22:00:30] [Server thread/INFO]: Saving chunks for level 'New World'/the_nether
-[22:00:30] [Server thread/INFO]: Saving chunks for level 'New World'/the_end
-[22:09:34] [Server thread/WARN]: Can't keep up! Did the system time change, or is the server overloaded? Running 325146ms behind, skipping 6502 tick(s)
-[22:09:34] [Server thread/INFO]: Saving and pausing game...
-[22:09:34] [Server thread/INFO]: Saving chunks for level 'New World'/overworld
-[22:09:34] [Server thread/INFO]: Saving chunks for level 'New World'/the_nether
-[22:09:34] [Server thread/INFO]: Saving chunks for level 'New World'/the_end
-[22:10:48] [Server thread/INFO]: Saving and pausing game...
-[22:10:48] [Server thread/INFO]: Saving chunks for level 'New World'/overworld
-[22:10:48] [Server thread/INFO]: Saving chunks for level 'New World'/the_nether
-[22:10:48] [Server thread/INFO]: Saving chunks for level 'New World'/the_end
-[22:12:06] [Server thread/WARN]: Can't keep up! Did the system time change, or is the server overloaded? Running 68506ms behind, skipping 1370 tick(s)
-[22:12:06] [Server thread/INFO]: Saving and pausing game...
-[22:12:06] [Server thread/INFO]: Saving chunks for level 'New World'/overworld
-[22:12:06] [Server thread/INFO]: Saving chunks for level 'New World'/the_nether
-[22:12:06] [Server thread/INFO]: Saving chunks for level 'New World'/the_end
-[22:12:25] [Server thread/INFO]: Saving and pausing game...
-[22:12:25] [Server thread/INFO]: Saving chunks for level 'New World'/overworld
-[22:12:25] [Server thread/INFO]: Saving chunks for level 'New World'/the_nether
-[22:12:25] [Server thread/INFO]: Saving chunks for level 'New World'/the_end
-[22:15:18] [Server thread/WARN]: Can't keep up! Did the system time change, or is the server overloaded? Running 18573ms behind, skipping 371 tick(s)
-[22:15:33] [Server thread/INFO]: DuelMonster lost connection: Timed out
-[22:15:33] [Server thread/INFO]: DuelMonster left the game
-[22:15:33] [Server thread/INFO]: Stopping singleplayer server as player logged out
-[22:15:33] [Server thread/INFO]: Stopping server
-[22:15:33] [Server thread/INFO]: Saving players
-[22:15:33] [Server thread/INFO]: Saving worlds
-[22:15:33] [Server thread/INFO]: Saving chunks for level 'New World'/overworld
-[22:15:33] [Server thread/INFO]: Saving chunks for level 'New World'/the_nether
-[22:15:33] [Server thread/INFO]: Saving chunks for level 'New World'/the_end
-[22:18:44] [Server thread/INFO]: Starting integrated minecraft server version 1.12.2
-[22:18:44] [Server thread/INFO]: Generating keypair
-[22:18:45] [Server thread/INFO]: Loaded 488 advancements
-[22:18:45] [Server thread/INFO]: Preparing start region for level 0
-[22:18:45] [Server thread/INFO]: Changing view distance to 12, from 10
-[22:18:46] [Server thread/INFO]: DuelMonster[local:E:982d7d5a] logged in with entity id 9978 at (-162.2578990548907, 62.0, 90.67992780351517)
-[22:18:46] [Server thread/INFO]: DuelMonster joined the game
-[22:18:46] [Server thread/INFO]: DuelMonster has made the advancement [Ice Bucket Challenge]
-[22:18:46] [Server thread/INFO]: Saving and pausing game...
-[22:18:46] [main/INFO]: [CHAT] DuelMonster has made the advancement [Ice Bucket Challenge]
-[22:18:46] [Server thread/INFO]: Saving chunks for level 'New World'/overworld
-[22:18:46] [main/INFO]: Loaded 63 advancements
-[22:18:47] [Server thread/INFO]: Saving chunks for level 'New World'/the_nether
-[22:18:47] [Server thread/INFO]: Saving chunks for level 'New World'/the_end
-[22:18:47] [Server thread/WARN]: Fetching addPacket for removed entity
-[22:19:31] [Server thread/INFO]: DuelMonster lost connection: Timed out
-[22:19:31] [Server thread/INFO]: DuelMonster left the game
-[22:19:31] [Server thread/INFO]: Stopping singleplayer server as player logged out
-[22:19:31] [Server thread/INFO]: Stopping server
-[22:19:31] [Server thread/INFO]: Saving players
-[22:19:31] [Server thread/INFO]: Saving worlds
-[22:19:31] [Server thread/INFO]: Saving chunks for level 'New World'/overworld
-[22:19:31] [Server thread/INFO]: Saving chunks for level 'New World'/the_nether
-[22:19:31] [Server thread/INFO]: Saving chunks for level 'New World'/the_end
-[22:20:16] [Server thread/INFO]: Starting integrated minecraft server version 1.12.2
-[22:20:16] [Server thread/INFO]: Generating keypair
-[22:20:17] [Server thread/INFO]: Loaded 488 advancements
-[22:20:17] [Server thread/INFO]: Preparing start region for level 0
-[22:20:17] [Server thread/INFO]: Changing view distance to 12, from 10
-[22:20:18] [Server thread/INFO]: DuelMonster[local:E:41db083a] logged in with entity id 10523 at (-162.2578990548907, 62.0, 90.67992780351517)
-[22:20:18] [Server thread/INFO]: DuelMonster joined the game
-[22:20:18] [Server thread/INFO]: Saving and pausing game...
-[22:20:18] [Server thread/INFO]: Saving chunks for level 'New World'/overworld
-[22:20:18] [main/INFO]: Loaded 63 advancements
-[22:20:18] [Server thread/INFO]: Saving chunks for level 'New World'/the_nether
-[22:20:18] [Server thread/INFO]: Saving chunks for level 'New World'/the_end
-[22:20:24] [Server thread/INFO]: Saving and pausing game...
-[22:20:24] [Server thread/INFO]: Saving chunks for level 'New World'/overworld
-[22:20:25] [Server thread/INFO]: Saving chunks for level 'New World'/the_nether
-[22:20:25] [Server thread/INFO]: Saving chunks for level 'New World'/the_end
-[22:21:03] [Server thread/INFO]: Saving and pausing game...
-[22:21:03] [Server thread/INFO]: Saving chunks for level 'New World'/overworld
-[22:21:03] [Server thread/INFO]: Saving chunks for level 'New World'/the_nether
-[22:21:03] [Server thread/INFO]: Saving chunks for level 'New World'/the_end
-[22:21:51] [main/ERROR]: ########## GL ERROR ##########
-[22:21:51] [main/ERROR]: @ Post render
-[22:21:51] [main/ERROR]: 1281: Invalid value
-[22:24:51] [Server thread/INFO]: [DuelMonster: Set own game mode to Creative Mode]
-[22:24:51] [main/INFO]: [CHAT] Your game mode has been updated to Creative Mode
-[22:25:47] [Server thread/INFO]: [DuelMonster: Set own game mode to Survival Mode]
-[22:25:47] [main/INFO]: [CHAT] Your game mode has been updated to Survival Mode
-[22:25:54] [Server thread/INFO]: [DuelMonster: Set own game mode to Creative Mode]
-[22:25:54] [main/INFO]: [CHAT] Your game mode has been updated to Creative Mode
-[22:27:45] [Server thread/INFO]: Saving and pausing game...
-[22:27:45] [Server thread/INFO]: Saving chunks for level 'New World'/overworld
-[22:27:45] [Server thread/INFO]: Saving chunks for level 'New World'/the_nether
-[22:27:45] [Server thread/INFO]: Saving chunks for level 'New World'/the_end
-[22:29:16] [Server thread/INFO]: [DuelMonster: Set own game mode to Survival Mode]
-[22:29:16] [main/INFO]: [CHAT] Your game mode has been updated to Survival Mode
-[22:30:42] [Server thread/INFO]: Saving and pausing game...
-[22:30:42] [Server thread/INFO]: Saving chunks for level 'New World'/overworld
-[22:30:42] [Server thread/INFO]: Saving chunks for level 'New World'/the_nether
-[22:30:42] [Server thread/INFO]: Saving chunks for level 'New World'/the_end
-[22:30:48] [Server thread/INFO]: Stopping server
-[22:30:48] [Server thread/INFO]: Saving players
-[22:30:48] [Server thread/INFO]: DuelMonster lost connection: Disconnected
-[22:30:48] [Server thread/INFO]: DuelMonster left the game
-[22:30:48] [Server thread/INFO]: Stopping singleplayer server as player logged out
-[22:30:48] [Server thread/INFO]: Saving worlds
-[22:30:48] [Server thread/INFO]: Saving chunks for level 'New World'/overworld
-[22:30:48] [Server thread/INFO]: Saving chunks for level 'New World'/the_nether
-[22:30:48] [Server thread/INFO]: Saving chunks for level 'New World'/the_end
-[22:30:53] [Server thread/INFO]: Starting integrated minecraft server version 1.12.2
-[22:30:53] [Server thread/INFO]: Generating keypair
-[22:30:53] [Server thread/INFO]: Loaded 488 advancements
-[22:30:53] [Server thread/INFO]: Preparing start region for level 0
-[22:30:54] [Server thread/INFO]: Changing view distance to 12, from 10
-[22:30:54] [Server thread/INFO]: DuelMonster[local:E:f0b1f204] logged in with entity id 19630 at (-131.01668152172363, 63.0, -81.87369401729146)
-[22:30:54] [Server thread/INFO]: DuelMonster joined the game
-[22:30:55] [main/INFO]: Loaded 64 advancements
-[22:31:35] [main/INFO]: Loaded 65 advancements
-[22:32:12] [main/INFO]: [CHAT] minecraft:observer, minecraft:obsidian
-[22:32:17] [main/INFO]: [CHAT] minecraft:observer, minecraft:obsidian
-[22:32:19] [Server thread/INFO]: [DuelMonster: 1 blocks filled]
-[22:32:19] [main/INFO]: [CHAT] 1 blocks filled
-[22:32:53] [Server thread/INFO]: [DuelMonster: 17506 blocks filled]
-[22:32:53] [main/INFO]: [CHAT] 17506 blocks filled
-[22:33:03] [main/INFO]: [CHAT] Too many blocks in the specified area (67893 > 32768)
-[22:33:45] [main/INFO]: [CHAT] Too many blocks in the specified area (482693 > 32768)
-[22:34:12] [Server thread/INFO]: [DuelMonster: 30259 blocks filled]
-[22:34:12] [main/INFO]: [CHAT] 30259 blocks filled
-[22:34:31] [Server thread/INFO]: [DuelMonster: Set own game mode to Creative Mode]
-[22:34:31] [main/INFO]: [CHAT] Your game mode has been updated to Creative Mode
-[22:35:01] [Server thread/INFO]: [DuelMonster: 29154 blocks filled]
-[22:35:01] [main/INFO]: [CHAT] 29154 blocks filled
-[22:35:21] [main/INFO]: [CHAT] Too many blocks in the specified area (39600 > 32768)
-[22:35:30] [main/INFO]: [CHAT] No blocks filled
-[22:35:42] [main/INFO]: [CHAT] No blocks filled
-[22:35:49] [Server thread/INFO]: [DuelMonster: 3 blocks filled]
-[22:35:49] [main/INFO]: [CHAT] 3 blocks filled
-[22:36:11] [main/INFO]: [CHAT] Too many blocks in the specified area (40400 > 32768)
-[22:36:25] [main/INFO]: [CHAT] Too many blocks in the specified area (39600 > 32768)
-[22:36:52] [Server thread/INFO]: [DuelMonster: 29802 blocks filled]
-[22:36:53] [main/INFO]: [CHAT] 29802 blocks filled
-[22:37:06] [Server thread/INFO]: [DuelMonster: 29502 blocks filled]
-[22:37:06] [main/INFO]: [CHAT] 29502 blocks filled
-[22:37:16] [Server thread/INFO]: [DuelMonster: 9902 blocks filled]
-[22:37:16] [main/INFO]: [CHAT] 9902 blocks filled
-[22:37:37] [Server thread/INFO]: [DuelMonster: 19803 blocks filled]
-[22:37:37] [main/INFO]: [CHAT] 19803 blocks filled
-[22:38:05] [Server thread/INFO]: [DuelMonster: 3 blocks filled]
-[22:38:05] [main/INFO]: [CHAT] 3 blocks filled
-[22:38:15] [Server thread/INFO]: [DuelMonster: 3 blocks filled]
-[22:38:15] [main/INFO]: [CHAT] 3 blocks filled
-[22:38:25] [main/INFO]: [CHAT] No blocks filled
-[22:38:33] [main/INFO]: [CHAT] No blocks filled
-[22:38:48] [Server thread/INFO]: [DuelMonster: 9903 blocks filled]
-[22:38:48] [main/INFO]: [CHAT] 9903 blocks filled
-[22:38:53] [Server thread/INFO]: [DuelMonster: 9900 blocks filled]
-[22:38:53] [main/INFO]: [CHAT] 9900 blocks filled
-[22:38:57] [main/INFO]: [CHAT] No blocks filled
-[22:39:01] [Server thread/INFO]: [DuelMonster: 9801 blocks filled]
-[22:39:01] [main/INFO]: [CHAT] 9801 blocks filled
-[22:40:58] [Server thread/INFO]: Saving and pausing game...
-[22:40:58] [Server thread/INFO]: Saving chunks for level 'New World'/overworld
-[22:40:58] [Server thread/INFO]: Saving chunks for level 'New World'/the_nether
-[22:40:58] [Server thread/INFO]: Saving chunks for level 'New World'/the_end
-[22:41:00] [Server thread/INFO]: Stopping server
-[22:41:00] [Server thread/INFO]: Saving players
-[22:41:00] [Server thread/INFO]: DuelMonster lost connection: Disconnected
-[22:41:00] [Server thread/INFO]: DuelMonster left the game
-[22:41:00] [Server thread/INFO]: Stopping singleplayer server as player logged out
-[22:41:00] [Server thread/INFO]: Saving worlds
-[22:41:00] [Server thread/INFO]: Saving chunks for level 'New World'/overworld
-[22:41:00] [Server thread/INFO]: Saving chunks for level 'New World'/the_nether
-[22:41:00] [Server thread/INFO]: Saving chunks for level 'New World'/the_end
-[22:41:04] [Server thread/INFO]: Starting integrated minecraft server version 1.12.2
-[22:41:04] [Server thread/INFO]: Generating keypair
-[22:41:05] [Server thread/INFO]: Loaded 488 advancements
-[22:41:05] [Server thread/INFO]: Preparing start region for level 0
-[22:41:05] [Server thread/INFO]: Changing view distance to 12, from 10
-[22:41:06] [Server thread/INFO]: DuelMonster[local:E:e68ea1d7] logged in with entity id 22320 at (-92.4902773953087, 65.0, -55.92393345692104)
-[22:41:06] [Server thread/INFO]: DuelMonster joined the game
-[22:41:06] [main/INFO]: Loaded 65 advancements
-[22:41:19] [Server thread/INFO]: [DuelMonster: Set own game mode to Creative Mode]
-[22:41:19] [main/INFO]: [CHAT] Your game mode has been updated to Creative Mode
-[22:41:22] [Server thread/INFO]: [DuelMonster: Set own game mode to Survival Mode]
-[22:41:22] [main/INFO]: [CHAT] Your game mode has been updated to Survival Mode
-[22:47:09] [Server thread/INFO]: Saving and pausing game...
-[22:47:09] [Server thread/INFO]: Saving chunks for level 'New World'/overworld
-[22:47:09] [Server thread/INFO]: Saving chunks for level 'New World'/the_nether
-[22:47:09] [Server thread/INFO]: Saving chunks for level 'New World'/the_end
+	at java.util.concurrent.Executors$RunnableAdapter.call(Unknown Source) [?:1.8.0_161]
+	at java.util.concurrent.FutureTask.run(Unknown Source) [?:1.8.0_161]
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source) [?:1.8.0_161]
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source) [?:1.8.0_161]
+	at java.lang.Thread.run(Unknown Source) [?:1.8.0_161]
+[20:43:15] [Server thread/INFO]: [DuelMonster: Set own game mode to Creative Mode]
+[20:43:15] [main/INFO]: [CHAT] Your game mode has been updated to Creative Mode
+[20:43:52] [Server thread/INFO]: [DuelMonster: Set own game mode to Survival Mode]
+[20:43:52] [main/INFO]: [CHAT] Your game mode has been updated to Survival Mode
+[20:44:25] [Server thread/INFO]: Saving and pausing game...
+[20:44:25] [Server thread/INFO]: Saving chunks for level 'New World'/overworld
+[20:44:25] [Server thread/INFO]: Saving chunks for level 'New World'/the_nether
+[20:44:25] [Server thread/INFO]: Saving chunks for level 'New World'/the_end
+[20:45:50] [Server thread/INFO]: [DuelMonster: Set own game mode to Creative Mode]
+[20:45:50] [main/INFO]: [CHAT] Your game mode has been updated to Creative Mode
+[20:46:24] [Server thread/INFO]: [DuelMonster: Set own game mode to Survival Mode]
+[20:46:24] [main/INFO]: [CHAT] Your game mode has been updated to Survival Mode
+[20:47:00] [Server thread/INFO]: Saving and pausing game...
+[20:47:00] [Server thread/INFO]: Saving chunks for level 'New World'/overworld
+[20:47:00] [Server thread/INFO]: Saving chunks for level 'New World'/the_nether
+[20:47:00] [Server thread/INFO]: Saving chunks for level 'New World'/the_end
+[20:47:14] [Server thread/INFO]: [DuelMonster: Given [Torch] * 64 to DuelMonster]
+[20:47:14] [main/INFO]: [CHAT] Given [Torch] * 64 to DuelMonster
+[20:47:16] [Server thread/INFO]: [DuelMonster: Given [Torch] * 64 to DuelMonster]
+[20:47:16] [main/INFO]: [CHAT] Given [Torch] * 64 to DuelMonster
+[20:47:17] [Server thread/INFO]: [DuelMonster: Given [Torch] * 64 to DuelMonster]
+[20:47:17] [main/INFO]: [CHAT] Given [Torch] * 64 to DuelMonster
+[20:47:18] [Server thread/INFO]: [DuelMonster: Given [Torch] * 64 to DuelMonster]
+[20:47:18] [main/INFO]: [CHAT] Given [Torch] * 64 to DuelMonster
+[20:47:38] [main/INFO]: [CHAT] §5[MinersAdvantage] §6Illumination §aON
+[20:48:53] [Server thread/INFO]: [DuelMonster: Given [Torch] * 64 to DuelMonster]
+[20:48:53] [main/INFO]: [CHAT] Given [Torch] * 64 to DuelMonster
+[20:49:00] [Server thread/INFO]: [DuelMonster: Set own game mode to Creative Mode]
+[20:49:00] [main/INFO]: [CHAT] Your game mode has been updated to Creative Mode
+[20:49:27] [Server thread/INFO]: Saving and pausing game...
+[20:49:27] [Server thread/INFO]: Saving chunks for level 'New World'/overworld
+[20:49:27] [Server thread/INFO]: Saving chunks for level 'New World'/the_nether
+[20:49:27] [Server thread/INFO]: Saving chunks for level 'New World'/the_end
+[21:05:43] [Server thread/INFO]: [DuelMonster: Set own game mode to Survival Mode]
+[21:05:43] [main/INFO]: [CHAT] Your game mode has been updated to Survival Mode
+[21:08:38] [Server thread/INFO]: Saving and pausing game...
+[21:08:38] [Server thread/INFO]: Saving chunks for level 'New World'/overworld
+[21:08:38] [Server thread/INFO]: Saving chunks for level 'New World'/the_nether
+[21:08:38] [Server thread/INFO]: Saving chunks for level 'New World'/the_end
+[21:08:39] [Server thread/INFO]: Saving and pausing game...
+[21:08:39] [Server thread/INFO]: Saving chunks for level 'New World'/overworld
+[21:08:39] [Server thread/INFO]: Saving chunks for level 'New World'/the_nether
+[21:08:39] [Server thread/INFO]: Saving chunks for level 'New World'/the_end
+[21:08:40] [Server thread/INFO]: Saving and pausing game...
+[21:08:40] [Server thread/INFO]: Saving chunks for level 'New World'/overworld
+[21:08:40] [Server thread/INFO]: Saving chunks for level 'New World'/the_nether
+[21:08:40] [Server thread/INFO]: Saving chunks for level 'New World'/the_end
+[21:08:40] [Server thread/INFO]: Saving and pausing game...
+[21:08:40] [Server thread/INFO]: Saving chunks for level 'New World'/overworld
+[21:08:40] [Server thread/INFO]: Saving chunks for level 'New World'/the_nether
+[21:08:40] [Server thread/INFO]: Saving chunks for level 'New World'/the_end
+[21:08:41] [Server thread/INFO]: Saving and pausing game...
+[21:08:41] [Server thread/INFO]: Saving chunks for level 'New World'/overworld
+[21:08:41] [Server thread/INFO]: Saving chunks for level 'New World'/the_nether
+[21:08:41] [Server thread/INFO]: Saving chunks for level 'New World'/the_end
+[21:08:41] [Server thread/INFO]: Saving and pausing game...
+[21:08:41] [Server thread/INFO]: Saving chunks for level 'New World'/overworld
+[21:08:41] [Server thread/INFO]: Saving chunks for level 'New World'/the_nether
+[21:08:41] [Server thread/INFO]: Saving chunks for level 'New World'/the_end
+[21:08:55] [Server thread/INFO]: [DuelMonster: Set own game mode to Creative Mode]
+[21:08:55] [main/INFO]: [CHAT] Your game mode has been updated to Creative Mode
+[21:10:25] [Server thread/INFO]: [DuelMonster: Set own game mode to Survival Mode]
+[21:10:25] [main/INFO]: [CHAT] Your game mode has been updated to Survival Mode
+[21:17:06] [main/INFO]: [CHAT] 'c#' is not a valid number
+[21:17:11] [Server thread/INFO]: [DuelMonster: Set own game mode to Creative Mode]
+[21:17:11] [main/INFO]: [CHAT] Your game mode has been updated to Creative Mode
+[21:17:55] [Server thread/INFO]: [DuelMonster: Set own game mode to Survival Mode]
+[21:17:55] [main/INFO]: [CHAT] Your game mode has been updated to Survival Mode
+[21:18:22] [Server thread/INFO]: Saving and pausing game...
+[21:18:22] [Server thread/INFO]: Saving chunks for level 'New World'/overworld
+[21:18:23] [Server thread/INFO]: Saving chunks for level 'New World'/the_nether
+[21:18:23] [Server thread/INFO]: Saving chunks for level 'New World'/the_end
+[21:18:23] [Server thread/WARN]: Can't keep up! Did the system time change, or is the server overloaded? Running 4893ms behind, skipping 97 tick(s)
+[21:18:37] [Server thread/INFO]: Saving and pausing game...
+[21:18:37] [Server thread/INFO]: Saving chunks for level 'New World'/overworld
+[21:18:37] [Server thread/INFO]: Saving chunks for level 'New World'/the_nether
+[21:18:37] [Server thread/INFO]: Saving chunks for level 'New World'/the_end
+[21:18:39] [Server thread/INFO]: Stopping server
+[21:18:39] [Server thread/INFO]: Saving players
+[21:18:39] [Server thread/INFO]: DuelMonster lost connection: Disconnected
+[21:18:39] [Server thread/INFO]: DuelMonster left the game
+[21:18:39] [Server thread/INFO]: Stopping singleplayer server as player logged out
+[21:18:39] [Server thread/INFO]: Saving worlds
+[21:18:39] [Server thread/INFO]: Saving chunks for level 'New World'/overworld
+[21:18:39] [Server thread/INFO]: Saving chunks for level 'New World'/the_nether
+[21:18:39] [Server thread/INFO]: Saving chunks for level 'New World'/the_end
+[21:18:46] [Server thread/INFO]: Starting integrated minecraft server version 1.12.2
+[21:18:46] [Server thread/INFO]: Generating keypair
+[21:18:47] [Server thread/INFO]: Loaded 488 advancements
+[21:18:47] [Server thread/INFO]: Preparing start region for level 0
+[21:18:48] [Server thread/INFO]: Changing view distance to 12, from 10
+[21:18:48] [Server thread/INFO]: DuelMonster[local:E:fe3bdff1] logged in with entity id 24941 at (-6.7367023145159175, 65.0, -155.51459302400036)
+[21:18:48] [Server thread/INFO]: DuelMonster joined the game
+[21:18:49] [Server thread/INFO]: Saving and pausing game...
+[21:18:49] [Server thread/INFO]: Saving chunks for level 'New World'/overworld
+[21:18:49] [main/INFO]: Loaded 81 advancements
+[21:18:49] [Server thread/INFO]: Saving chunks for level 'New World'/the_nether
+[21:18:49] [Server thread/INFO]: Saving chunks for level 'New World'/the_end
+[21:18:50] [Server thread/INFO]: Saving and pausing game...
+[21:18:50] [Server thread/INFO]: Saving chunks for level 'New World'/overworld
+[21:18:51] [Server thread/INFO]: Saving chunks for level 'New World'/the_nether
+[21:18:51] [Server thread/INFO]: Saving chunks for level 'New World'/the_end
+[21:18:51] [Server thread/INFO]: Saving and pausing game...
+[21:18:51] [Server thread/INFO]: Saving chunks for level 'New World'/overworld
+[21:18:51] [Server thread/INFO]: Saving chunks for level 'New World'/the_nether
+[21:18:51] [Server thread/INFO]: Saving chunks for level 'New World'/the_end
+[21:22:37] [Server thread/INFO]: [DuelMonster: Set own game mode to Creative Mode]
+[21:22:37] [main/INFO]: [CHAT] Your game mode has been updated to Creative Mode
+[21:23:01] [Server thread/INFO]: Saving and pausing game...
+[21:23:01] [Server thread/INFO]: Saving chunks for level 'New World'/overworld
+[21:23:01] [Server thread/INFO]: Saving chunks for level 'New World'/the_nether
+[21:23:01] [Server thread/INFO]: Saving chunks for level 'New World'/the_end
+[21:23:02] [Server thread/INFO]: Stopping server
+[21:23:02] [Server thread/INFO]: Saving players
+[21:23:02] [Server thread/INFO]: DuelMonster lost connection: Disconnected
+[21:23:02] [Server thread/INFO]: DuelMonster left the game
+[21:23:02] [Server thread/INFO]: Stopping singleplayer server as player logged out
+[21:23:02] [Server thread/INFO]: Saving worlds
+[21:23:02] [Server thread/INFO]: Saving chunks for level 'New World'/overworld
+[21:23:02] [Server thread/INFO]: Saving chunks for level 'New World'/the_nether
+[21:23:02] [Server thread/INFO]: Saving chunks for level 'New World'/the_end
+[21:23:04] [main/INFO]: Stopping!
+[21:23:04] [main/INFO]: SoundSystem shutting down...
+[21:23:04] [main/WARN]: Author: Paul Lamb, www.paulscode.com

@@ -2,6 +2,7 @@ package co.uk.duelmonster.minersadvantage.workers;
 
 import java.util.concurrent.TimeUnit;
 
+import co.uk.duelmonster.minersadvantage.common.BreakBlockController;
 import co.uk.duelmonster.minersadvantage.common.Functions;
 import co.uk.duelmonster.minersadvantage.settings.Settings;
 import net.minecraft.block.SoundType;
@@ -31,9 +32,10 @@ public class ShaftanationAgent extends Agent {
 		boolean bIsComplete = false;
 		
 		for (int iQueueCount = 0; queued.size() > 0; iQueueCount++) {
-			if (iQueueCount >= settings.iBlocksPerTick()
+			if ((settings.bBreakAtToolSpeeds() && iQueueCount > 0)
+					|| iQueueCount >= settings.iBlocksPerTick()
 					|| processed.size() >= settings.iBlockLimit()
-					|| (settings.tpsGuard() && timer.elapsed(TimeUnit.MILLISECONDS) > 40))
+					|| (!settings.bBreakAtToolSpeeds() && settings.tpsGuard() && timer.elapsed(TimeUnit.MILLISECONDS) > 40))
 				break;
 			
 			if (Functions.IsPlayerStarving(player)) {
@@ -49,29 +51,42 @@ public class ShaftanationAgent extends Agent {
 			
 			if (!fakePlayer.canHarvestBlock(state)) {
 				// Avoid the non-harvestable blocks.
+				processed.add(oPos);
 				continue;
 			}
 			
 			// Process the current block if it is valid.
 			if (settings.bMineVeins() && settings.veinationOres().has(state.getBlock().getRegistryName().toString().trim())) {
+				processed.add(oPos);
 				excavateOreVein(state, oPos);
 			} else {
 				world.captureBlockSnapshots = true;
 				world.capturedBlockSnapshots.clear();
 				
-				if (fakePlayer.interactionManager.tryHarvestBlock(oPos)) {
+				boolean bBlockHarvested = false;
+				
+				if (settings.bBreakAtToolSpeeds()) {
+					this.breakController = new BreakBlockController(fakePlayer);
+					breakController.onPlayerDamageBlock(oPos, sideHit);
+					if (breakController.bBlockDestroyed)
+						bBlockHarvested = fakePlayer.interactionManager.tryHarvestBlock(oPos);
+					
+				} else
+					bBlockHarvested = fakePlayer.interactionManager.tryHarvestBlock(oPos);
+				
+				if (bBlockHarvested) {
 					processBlockSnapshots();
 					
 					SoundType soundtype = state.getBlock().getSoundType(state, world, oPos, null);
 					reportProgessToClient(oPos, soundtype.getBreakSound());
 					
 					autoIlluminate(oPos);
+					
+					addConnectedToQueue(oPos);
+					
+					processed.add(oPos);
 				}
-				
-				processed.add(oPos);
 			}
-			
-			addConnectedToQueue(oPos);
 		}
 		
 		timer.reset();

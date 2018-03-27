@@ -24,7 +24,7 @@ public class AgentProcessor {
 	// private HashMap<UUID, ReversalData> reversing = new HashMap<UUID, ReversalData>();
 	// private HashMap<UUID, List<ReversalData>> reversalLog = new HashMap<UUID, List<ReversalData>>();
 	
-	//private Stopwatch	timer = Stopwatch.createUnstarted();
+	// private Stopwatch timer = Stopwatch.createUnstarted();
 	private int tickCount = 0;
 	
 	public HashMap<Integer, Agent> getAgentsByID(UUID uuid) {
@@ -32,8 +32,8 @@ public class AgentProcessor {
 	}
 	
 	/*
-	 * Minecraft's game loop normally runs at a fixed rate of 20 ticks per second, so one tick happens every 0.05 seconds.
-	 * An in-game day lasts exactly 24000 ticks, or 20 minutes.
+	 * Minecraft's game loop normally runs at a fixed rate of 20 ticks per second, so one tick happens every 0.05
+	 * seconds. An in-game day lasts exactly 24000 ticks, or 20 minutes.
 	 */
 	public void fireAgentTicks(World world) {
 		tickCount++;
@@ -49,8 +49,9 @@ public class AgentProcessor {
 			while (playerAgents.hasNext()) {
 				Agent agent = playerAgents.next().getValue();
 				
-				// If the Tick Delay is enabled and the current tick doesn't match the delay count we skip the agent for this player 
-				if (isAgentDelayable(agent) && settings.bEnableTickDelay() && tickCount % settings.iTickDelay() != 0)
+				// If the Tick Delay is enabled and the current tick doesn't match the delay count we skip the agent for
+				// this player
+				if (!settings.bBreakAtToolSpeeds() && isAgentDelayable(agent) && settings.bEnableTickDelay() && tickCount % settings.iTickDelay() != 0)
 					continue;
 				
 				setCurrentAgent(allAgentsEntry.getKey(), agent);

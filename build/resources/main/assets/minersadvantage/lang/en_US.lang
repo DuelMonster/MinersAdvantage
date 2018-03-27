@@ -18,6 +18,8 @@ minersadvantage.common.radius=Block Radius
 minersadvantage.common.radius.desc=The Radius of blocks to check for connected blocks.
 minersadvantage.common.limit=Block Limit
 minersadvantage.common.limit.desc=The Maximum number of blocks allowed to be mined.
+minersadvantage.common.break_at_tool_speeds=Break Blocks at Tool Speeds
+minersadvantage.common.break_at_tool_speeds.desc=Breaks blocks at the speed of the tool being used.
 
 minersadvantage.server.override_client=Override Client Feature Enablement
 minersadvantage.server.override_client.desc=When enabled, the Server side enabled features will take precedence over the Client config.  Meaning the MinersAdvantage features that are disabled within the Server config will be disabled for all Players regardless of their Client side configs.

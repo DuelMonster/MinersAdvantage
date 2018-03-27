@@ -130,11 +130,12 @@ public class ClientEvents {
 		}
 		
 		// Switch back to previously held item if Substitution is enabled
-		if (settings.bSubstitutionEnabled() && !variables.IsPlayerAttacking && SubstitutionHandler.instance.bShouldSwitchBack // && !variables.areAgentsProcessing()
+		if (settings.bSubstitutionEnabled() && !variables.IsPlayerAttacking && SubstitutionHandler.instance.bShouldSwitchBack
+		// && !variables.areAgentsProcessing()
 				&& SubstitutionHandler.instance.iPrevSlot >= 0 && player.inventory.currentItem != SubstitutionHandler.instance.iPrevSlot) {
 			player.inventory.currentItem = SubstitutionHandler.instance.iPrevSlot;
-			SubstitutionHandler.instance.reset();
 			ClientFunctions.syncCurrentPlayItem(player.inventory.currentItem);
+			SubstitutionHandler.instance.reset();
 		}
 	}
 	
@@ -147,7 +148,10 @@ public class ClientEvents {
 		
 		EntityPlayerSP player = (EntityPlayerSP) event.getEntityPlayer();
 		
-		if (Settings.get().bSubstitutionEnabled() && (SubstitutionHandler.instance.iOptimalSlot < 0 || player.inventory.currentItem != SubstitutionHandler.instance.iOptimalSlot)) {
+		if (Settings.get().bSubstitutionEnabled()) {
+			// && (SubstitutionHandler.instance.iOptimalSlot < 0 || player.inventory.currentItem !=
+			// SubstitutionHandler.instance.iOptimalSlot)) {
+			
 			BlockPos oPos = event.getPos();
 			IBlockState state = world.getBlockState(oPos);
 			Block block = state.getBlock();
@@ -172,7 +176,8 @@ public class ClientEvents {
 			return;
 		
 		if (currentAttackStage == AttackStage.IDLE && SubstitutionHandler.instance.processWeaponSubtitution(player, event.getTarget())) {
-			// Because we are intercepting an attack & switching weapons, we need to cancel the attack & wait a tick to execute it.
+			// Because we are intercepting an attack & switching weapons, we need to cancel the attack & wait a tick to
+			// execute it.
 			// This allows the weapon switch to cause the correct damage to the target.
 			currentTarget = (EntityLivingBase) event.getTarget();
 			currentAttackStage = AttackStage.SWITCHED;

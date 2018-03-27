@@ -53,6 +53,7 @@ public class Settings {
 	private int		_iTickDelay			= 3;
 	private int		_iBlockRadius		= Constants.MIN_BLOCKRADIUS;
 	private int		_iBlockLimit		= (Constants.MIN_BLOCKRADIUS * Constants.MIN_BLOCKRADIUS) * Constants.MIN_BLOCKRADIUS;
+	private boolean	_bBreakAtToolSpeeds	= false;
 	
 	// Captivation Settings
 	public boolean		_bCaptivationEnabled	= true;
@@ -134,7 +135,7 @@ public class Settings {
 	
 	/**
 	 * @param _tpsGuard
-	 *        Sets tpsGuard
+	 *            Sets tpsGuard
 	 */
 	public void set_tpsGuard(boolean _tpsGuard) {
 		this._tpsGuard = _tpsGuard;
@@ -152,7 +153,7 @@ public class Settings {
 	
 	/**
 	 * @param _bGatherDrops
-	 *        Sets bGatherDrops
+	 *            Sets bGatherDrops
 	 */
 	public void setGatherDrops(boolean _bGatherDrops) {
 		this._bGatherDrops = _bGatherDrops;
@@ -170,7 +171,7 @@ public class Settings {
 	
 	/**
 	 * @param _bAutoIlluminate
-	 *        Sets bAutoIlluminate
+	 *            Sets bAutoIlluminate
 	 */
 	public void setAutoIlluminate(boolean _bAutoIlluminate) {
 		this._bAutoIlluminate = _bAutoIlluminate;
@@ -188,7 +189,7 @@ public class Settings {
 	
 	/**
 	 * @param _bMineVeins
-	 *        Sets bMineVeins
+	 *            Sets bMineVeins
 	 */
 	public void setMineVeins(boolean _bMineVeins) {
 		this._bMineVeins = _bMineVeins;
@@ -206,7 +207,7 @@ public class Settings {
 	
 	/**
 	 * @param _iBlocksPerTick
-	 *        Sets iBlocksPerTick
+	 *            Sets iBlocksPerTick
 	 */
 	public void setBlocksPerTick(int _iBlocksPerTick) {
 		this._iBlocksPerTick = _iBlocksPerTick;
@@ -224,7 +225,7 @@ public class Settings {
 	
 	/**
 	 * @param _bEnableTickDelay
-	 *        Sets bEnableTickDelay
+	 *            Sets bEnableTickDelay
 	 */
 	public void setEnableTickDelay(boolean _bEnableTickDelay) {
 		this._bEnableTickDelay = _bEnableTickDelay;
@@ -242,7 +243,7 @@ public class Settings {
 	
 	/**
 	 * @param _iTickDelay
-	 *        Sets iTickDelay
+	 *            Sets iTickDelay
 	 */
 	public void setTickDelay(int _iTickDelay) {
 		this._iTickDelay = _iTickDelay;
@@ -252,7 +253,7 @@ public class Settings {
 	 * @return iBlockRadius
 	 */
 	public int iBlockRadius() {
-		if (serverOverrides != null && serverOverrides.bEnforceExcavationSettings)
+		if (serverOverrides != null && serverOverrides.bEnforceCommonSettings)
 			return serverOverrides.iBlockRadius();
 		
 		return _iBlockRadius;
@@ -260,7 +261,7 @@ public class Settings {
 	
 	/**
 	 * @param _iBlockRadius
-	 *        Sets iBlockRadius
+	 *            Sets iBlockRadius
 	 */
 	public void setBlockRadius(int _iBlockRadius) {
 		this._iBlockRadius = _iBlockRadius;
@@ -270,7 +271,7 @@ public class Settings {
 	 * @return iBlockLimit
 	 */
 	public int iBlockLimit() {
-		if (serverOverrides != null && serverOverrides.bEnforceExcavationSettings)
+		if (serverOverrides != null && serverOverrides.bEnforceCommonSettings)
 			return serverOverrides.iBlockLimit();
 		
 		return _iBlockLimit;
@@ -278,10 +279,28 @@ public class Settings {
 	
 	/**
 	 * @param _iBlockLimit
-	 *        Sets iBlockLimit
+	 *            Sets iBlockLimit
 	 */
 	public void setBlockLimit(int _iBlockLimit) {
 		this._iBlockLimit = _iBlockLimit;
+	}
+	
+	/**
+	 * @return iBlockLimit
+	 */
+	public boolean bBreakAtToolSpeeds() {
+		if (serverOverrides != null && serverOverrides.bEnforceCommonSettings)
+			return serverOverrides.bBreakAtToolSpeeds();
+		
+		return _bBreakAtToolSpeeds;
+	}
+	
+	/**
+	 * @param _bBreakAtToolSpeeds
+	 *            Sets bBreakAtToolSpeeds
+	 */
+	public void setBreakAtToolSpeeds(boolean _bBreakAtToolSpeeds) {
+		this._bBreakAtToolSpeeds = _bBreakAtToolSpeeds;
 	}
 	
 	/**
@@ -296,7 +315,7 @@ public class Settings {
 	
 	/**
 	 * @param _bCaptivationEnabled
-	 *        Sets bCaptivationEnabled
+	 *            Sets bCaptivationEnabled
 	 */
 	public void setCaptivationEnabled(boolean _bCaptivationEnabled) {
 		if (serverOverrides == null || !serverOverrides.bOverrideFeatureEnablement)
@@ -315,7 +334,7 @@ public class Settings {
 	
 	/**
 	 * @param _bAllowInGUI
-	 *        Sets bAllowInGUI
+	 *            Sets bAllowInGUI
 	 */
 	public void setAllowInGUI(boolean _bAllowInGUI) {
 		this._bAllowInGUI = _bAllowInGUI;
@@ -333,7 +352,7 @@ public class Settings {
 	
 	/**
 	 * @param _bIsWhitelist
-	 *        Sets bIsWhitelist
+	 *            Sets bIsWhitelist
 	 */
 	public void setIsWhitelist(boolean _bIsWhitelist) {
 		this._bIsWhitelist = _bIsWhitelist;
@@ -351,7 +370,7 @@ public class Settings {
 	
 	/**
 	 * @param _radiusHorizontal
-	 *        Sets radiusHorizontal
+	 *            Sets radiusHorizontal
 	 */
 	public void setRadiusHorizontal(double _radiusHorizontal) {
 		this._radiusHorizontal = _radiusHorizontal;
@@ -369,7 +388,7 @@ public class Settings {
 	
 	/**
 	 * @param _radiusVertical
-	 *        Sets radiusVertical
+	 *            Sets radiusVertical
 	 */
 	public void setRadiusVertical(double _radiusVertical) {
 		this._radiusVertical = _radiusVertical;
@@ -387,7 +406,7 @@ public class Settings {
 	
 	/**
 	 * @param _captivationBlacklist
-	 *        Sets captivationBlacklist
+	 *            Sets captivationBlacklist
 	 */
 	public void setCaptivationBlacklist(JsonObject _captivationBlacklist) {
 		this._captivationBlacklist = _captivationBlacklist;
@@ -405,7 +424,7 @@ public class Settings {
 	
 	/**
 	 * @param _bCropinationEnabled
-	 *        Sets bCropinationEnabled
+	 *            Sets bCropinationEnabled
 	 */
 	public void setCropinationEnabled(boolean _bCropinationEnabled) {
 		if (serverOverrides == null || !serverOverrides.bOverrideFeatureEnablement)
@@ -424,7 +443,7 @@ public class Settings {
 	
 	/**
 	 * @param _bHarvestSeeds
-	 *        Sets bHarvestSeeds
+	 *            Sets bHarvestSeeds
 	 */
 	public void setHarvestSeeds(boolean _bHarvestSeeds) {
 		this._bHarvestSeeds = _bHarvestSeeds;
@@ -442,7 +461,7 @@ public class Settings {
 	
 	/**
 	 * @param _bExcavationEnabled
-	 *        Sets bExcavationEnabled
+	 *            Sets bExcavationEnabled
 	 */
 	public void setExcavationEnabled(boolean _bExcavationEnabled) {
 		if (serverOverrides == null || !serverOverrides.bOverrideFeatureEnablement)
@@ -461,7 +480,7 @@ public class Settings {
 	
 	/**
 	 * @param _bIgnoreBlockVariants
-	 *        Sets bIgnoreBlockVariants
+	 *            Sets bIgnoreBlockVariants
 	 */
 	public void setIgnoreBlockVariants(boolean _bIgnoreBlockVariants) {
 		this._bIgnoreBlockVariants = _bIgnoreBlockVariants;
@@ -479,7 +498,7 @@ public class Settings {
 	
 	/**
 	 * @param _bToggleMode
-	 *        Sets bToggleMode
+	 *            Sets bToggleMode
 	 */
 	public void setToggleMode(boolean _bToggleMode) {
 		this._bToggleMode = _bToggleMode;
@@ -497,7 +516,7 @@ public class Settings {
 	
 	/**
 	 * @param _bIsToolWhitelist
-	 *        Sets bIsToolWhitelist
+	 *            Sets bIsToolWhitelist
 	 */
 	public void setIsToolWhitelist(boolean _bIsToolWhitelist) {
 		this._bIsToolWhitelist = _bIsToolWhitelist;
@@ -515,7 +534,7 @@ public class Settings {
 	
 	/**
 	 * @param _bIsBlockWhitelist
-	 *        Sets bIsBlockWhitelist
+	 *            Sets bIsBlockWhitelist
 	 */
 	public void setIsBlockWhitelist(boolean _bIsBlockWhitelist) {
 		this._bIsBlockWhitelist = _bIsBlockWhitelist;
@@ -533,7 +552,7 @@ public class Settings {
 	
 	/**
 	 * @param _iPathWidth
-	 *        Sets iPathWidth
+	 *            Sets iPathWidth
 	 */
 	public void setPathWidth(int _iPathWidth) {
 		this._iPathWidth = _iPathWidth;
@@ -551,7 +570,7 @@ public class Settings {
 	
 	/**
 	 * @param _iPathLength
-	 *        Sets iPathLength
+	 *            Sets iPathLength
 	 */
 	public void setPathLength(int _iPathLength) {
 		this._iPathLength = _iPathLength;
@@ -569,7 +588,7 @@ public class Settings {
 	
 	/**
 	 * @param _toolBlacklist
-	 *        Sets toolBlacklist
+	 *            Sets toolBlacklist
 	 */
 	public void setToolBlacklist(JsonObject _toolBlacklist) {
 		this._toolBlacklist = _toolBlacklist;
@@ -587,7 +606,7 @@ public class Settings {
 	
 	/**
 	 * @param _blockBlacklist
-	 *        Sets blockBlacklist
+	 *            Sets blockBlacklist
 	 */
 	public void setBlockBlacklist(JsonObject _blockBlacklist) {
 		this._blockBlacklist = _blockBlacklist;
@@ -605,7 +624,7 @@ public class Settings {
 	
 	/**
 	 * @param _bIlluminationEnabled
-	 *        Sets bIlluminationEnabled
+	 *            Sets bIlluminationEnabled
 	 */
 	public void setIlluminationEnabled(boolean _bIlluminationEnabled) {
 		if (serverOverrides == null || !serverOverrides.bOverrideFeatureEnablement)
@@ -624,7 +643,7 @@ public class Settings {
 	
 	/**
 	 * @param _bUseBlockLight
-	 *        Sets bUseBlockLight
+	 *            Sets bUseBlockLight
 	 */
 	public void setUseBlockLight(boolean _bUseBlockLight) {
 		if (serverOverrides == null || !serverOverrides.bEnforceIlluminationSettings)
@@ -643,7 +662,7 @@ public class Settings {
 	
 	/**
 	 * @param _iLowestLightLevel
-	 *        Sets iLowestLightLevel
+	 *            Sets iLowestLightLevel
 	 */
 	public void setLowestLightLevel(int _iLowestLightLevel) {
 		this._iLowestLightLevel = _iLowestLightLevel;
@@ -661,7 +680,7 @@ public class Settings {
 	
 	/**
 	 * @param _bLumbinationEnabled
-	 *        Sets bLumbinationEnabled
+	 *            Sets bLumbinationEnabled
 	 */
 	public void setLumbinationEnabled(boolean _bLumbinationEnabled) {
 		if (serverOverrides == null || !serverOverrides.bOverrideFeatureEnablement)
@@ -680,7 +699,7 @@ public class Settings {
 	
 	/**
 	 * @param _bChopTreeBelow
-	 *        Sets bChopTreeBelow
+	 *            Sets bChopTreeBelow
 	 */
 	public void setChopTreeBelow(boolean _bChopTreeBelow) {
 		this._bChopTreeBelow = _bChopTreeBelow;
@@ -698,7 +717,7 @@ public class Settings {
 	
 	/**
 	 * @param _bDestroyLeaves
-	 *        Sets bDestroyLeaves
+	 *            Sets bDestroyLeaves
 	 */
 	public void setDestroyLeaves(boolean _bDestroyLeaves) {
 		this._bDestroyLeaves = _bDestroyLeaves;
@@ -716,7 +735,7 @@ public class Settings {
 	
 	/**
 	 * @param _bLeavesAffectDurability
-	 *        Sets bLeavesAffectDurability
+	 *            Sets bLeavesAffectDurability
 	 */
 	public void setLeavesAffectDurability(boolean _bLeavesAffectDurability) {
 		this._bLeavesAffectDurability = _bLeavesAffectDurability;
@@ -734,7 +753,7 @@ public class Settings {
 	
 	/**
 	 * @param _iLeafRange
-	 *        Sets iLeafRange
+	 *            Sets iLeafRange
 	 */
 	public void setLeafRange(int _iLeafRange) {
 		this._iLeafRange = _iLeafRange;
@@ -752,7 +771,7 @@ public class Settings {
 	
 	/**
 	 * @param _iTrunkRange
-	 *        Sets iTrunkRange
+	 *            Sets iTrunkRange
 	 */
 	public void setTrunkRange(int _iTrunkRange) {
 		this._iTrunkRange = _iTrunkRange;
@@ -770,7 +789,7 @@ public class Settings {
 	
 	/**
 	 * @param _lumbinationLogs
-	 *        Sets lumbinationLogs
+	 *            Sets lumbinationLogs
 	 */
 	public void setLumbinationLogs(JsonObject _lumbinationLogs) {
 		this._lumbinationLogs = _lumbinationLogs;
@@ -788,7 +807,7 @@ public class Settings {
 	
 	/**
 	 * @param _lumbinationLeaves
-	 *        Sets lumbinationLeaves
+	 *            Sets lumbinationLeaves
 	 */
 	public void setLumbinationLeaves(JsonObject _lumbinationLeaves) {
 		this._lumbinationLeaves = _lumbinationLeaves;
@@ -806,7 +825,7 @@ public class Settings {
 	
 	/**
 	 * @param _lumbinationAxes
-	 *        Sets lumbinationAxes
+	 *            Sets lumbinationAxes
 	 */
 	public void setLumbinationAxes(JsonObject _lumbinationAxes) {
 		this._lumbinationAxes = _lumbinationAxes;
@@ -824,7 +843,7 @@ public class Settings {
 	
 	/**
 	 * @param _bShaftanationEnabled
-	 *        Sets bShaftanationEnabled
+	 *            Sets bShaftanationEnabled
 	 */
 	public void setShaftanationEnabled(boolean _bShaftanationEnabled) {
 		if (serverOverrides == null || !serverOverrides.bOverrideFeatureEnablement)
@@ -843,7 +862,7 @@ public class Settings {
 	
 	/**
 	 * @param _iShaftLength
-	 *        Sets iShaftLength
+	 *            Sets iShaftLength
 	 */
 	public void setShaftLength(int _iShaftLength) {
 		this._iShaftLength = _iShaftLength;
@@ -861,7 +880,7 @@ public class Settings {
 	
 	/**
 	 * @param _iShaftHeight
-	 *        Sets iShaftHeight
+	 *            Sets iShaftHeight
 	 */
 	public void setShaftHeight(int _iShaftHeight) {
 		this._iShaftHeight = _iShaftHeight;
@@ -879,7 +898,7 @@ public class Settings {
 	
 	/**
 	 * @param _iShaftWidth
-	 *        Sets iShaftWidth
+	 *            Sets iShaftWidth
 	 */
 	public void setShaftWidth(int _iShaftWidth) {
 		this._iShaftWidth = _iShaftWidth;
@@ -897,7 +916,7 @@ public class Settings {
 	
 	/**
 	 * @param _bSubstitutionEnabled
-	 *        Sets bSubstitutionEnabled
+	 *            Sets bSubstitutionEnabled
 	 */
 	public void setSubstitutionEnabled(boolean _bSubstitutionEnabled) {
 		if (serverOverrides == null || !serverOverrides.bOverrideFeatureEnablement)
@@ -916,7 +935,7 @@ public class Settings {
 	
 	/**
 	 * @param _bSwitchBack
-	 *        Sets bSwitchBack
+	 *            Sets bSwitchBack
 	 */
 	public void setSwitchBack(boolean _bSwitchBack) {
 		this._bSwitchBack = _bSwitchBack;
@@ -934,7 +953,7 @@ public class Settings {
 	
 	/**
 	 * @param _bFavourSilkTouch
-	 *        Sets bFavourSilkTouch
+	 *            Sets bFavourSilkTouch
 	 */
 	public void setFavourSilkTouch(boolean _bFavourSilkTouch) {
 		this._bFavourSilkTouch = _bFavourSilkTouch;
@@ -952,7 +971,7 @@ public class Settings {
 	
 	/**
 	 * @param _bFavourFortune
-	 *        Sets bFavourFortune
+	 *            Sets bFavourFortune
 	 */
 	public void setFavourFortune(boolean _bFavourFortune) {
 		this._bFavourFortune = _bFavourFortune;
@@ -970,7 +989,7 @@ public class Settings {
 	
 	/**
 	 * @param _bIgnoreIfValidTool
-	 *        Sets bIgnoreIfValidTool
+	 *            Sets bIgnoreIfValidTool
 	 */
 	public void setIgnoreIfValidTool(boolean _bIgnoreIfValidTool) {
 		this._bIgnoreIfValidTool = _bIgnoreIfValidTool;
@@ -988,7 +1007,7 @@ public class Settings {
 	
 	/**
 	 * @param _bIgnorePassiveMobs
-	 *        Sets bIgnorePassiveMobs
+	 *            Sets bIgnorePassiveMobs
 	 */
 	public void setIgnorePassiveMobs(boolean _bIgnorePassiveMobs) {
 		this._bIgnorePassiveMobs = _bIgnorePassiveMobs;
@@ -1006,7 +1025,7 @@ public class Settings {
 	
 	/**
 	 * @param _bVeinationEnabled
-	 *        Sets bVeinationEnabled
+	 *            Sets bVeinationEnabled
 	 */
 	public void setVeinationEnabled(boolean _bVeinationEnabled) {
 		if (serverOverrides == null || !serverOverrides.bOverrideFeatureEnablement)
@@ -1025,7 +1044,7 @@ public class Settings {
 	
 	/**
 	 * @param _veinationOres
-	 *        Sets veinationOres
+	 *            Sets veinationOres
 	 */
 	public void setVeinationOres(JsonObject _veinationOres) {
 		this._veinationOres = _veinationOres;
