@@ -64,7 +64,7 @@ public abstract class Agent {
 	public List<BlockPos>	queued		= new ArrayList<BlockPos>();
 	
 	public Agent(EntityPlayerMP player, NBTTagCompound tags, boolean bOverrideAddConnectedOnInit) {
-		this.world = player.world;
+		this.world = player.worldObj;
 		this.player = player;
 		this.iFeetPos = (int) player.getEntityBoundingBox().minY;
 		this.settings = Settings.get(player.getUniqueID());

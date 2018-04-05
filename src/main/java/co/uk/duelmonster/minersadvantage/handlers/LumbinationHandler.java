@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import com.google.gson.JsonObject;
 
@@ -23,6 +25,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemAxe;
 import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -58,7 +61,7 @@ public class LumbinationHandler implements IPacketHandler {
 	}
 	
 	@Override
-	public void processServerMessage(NetworkPacket message, MessageContext context) {
+	public void processServerMessage(final NetworkPacket message, MessageContext context) {
 		player = context.getServerHandler().player;
 		if (player == null)
 			return;
@@ -100,17 +103,33 @@ public class LumbinationHandler implements IPacketHandler {
 			Collection<String> saOreNames = Arrays.asList(OreDictionary.getOreNames());
 			
 			// Get Logs
-			JsonObject lumbinationLogs = Settings.get().lumbinationLogs();
+			final JsonObject lumbinationLogs = Settings.get().lumbinationLogs();
 			
 			saOreNames.stream()
-					.filter(log -> log.toLowerCase().startsWith("log"))
-					.forEach(log -> {
-						OreDictionary.getOres(log).stream()
-								.filter(item -> item.getItem() instanceof ItemBlock).forEach(item -> {
-									String sID = item.getItem().getRegistryName().toString().trim();
-									if (!lumbinationLogs.has(sID))
-										lumbinationLogs.addProperty(sID, "");
-								});
+					.filter(new Predicate<String>() {
+						@Override
+						public boolean test(String log) {
+							return log.toLowerCase().startsWith("log");
+						}
+					})
+					.forEach(new Consumer<String>() {
+						@Override
+						public void accept(String log) {
+							OreDictionary.getOres(log).stream()
+									.filter(new Predicate<ItemStack>() {
+										@Override
+										public boolean test(ItemStack item) {
+											return item.getItem() instanceof ItemBlock;
+										}
+									}).forEach(new Consumer<ItemStack>() {
+										@Override
+										public void accept(ItemStack item) {
+											String sID = item.getItem().getRegistryName().toString().trim();
+											if (!lumbinationLogs.has(sID))
+												lumbinationLogs.addProperty(sID, "");
+										}
+									});
+						}
 					});
 			
 			ConfigHandler.setValue(Constants.LUMBINATION_ID, "logs", lumbinationLogs.toString());
@@ -125,17 +144,33 @@ public class LumbinationHandler implements IPacketHandler {
 			Collection<String> saOreNames = Arrays.asList(OreDictionary.getOreNames());
 			
 			// Get Leaves
-			JsonObject lumbinationLeaves = Settings.get().lumbinationLeaves();
+			final JsonObject lumbinationLeaves = Settings.get().lumbinationLeaves();
 			
 			saOreNames.stream()
-					.filter(leaves -> leaves.toLowerCase().endsWith("leaves"))
-					.forEach(leaves -> {
-						OreDictionary.getOres(leaves).stream()
-								.filter(item -> item.getItem() instanceof ItemBlock).forEach(item -> {
-									String sID = item.getItem().getRegistryName().toString().trim();
-									if (!lumbinationLeaves.has(sID))
-										lumbinationLeaves.addProperty(sID, "");
-								});
+					.filter(new Predicate<String>() {
+						@Override
+						public boolean test(String leaves) {
+							return leaves.toLowerCase().endsWith("leaves");
+						}
+					})
+					.forEach(new Consumer<String>() {
+						@Override
+						public void accept(String leaves) {
+							OreDictionary.getOres(leaves).stream()
+									.filter(new Predicate<ItemStack>() {
+										@Override
+										public boolean test(ItemStack item) {
+											return item.getItem() instanceof ItemBlock;
+										}
+									}).forEach(new Consumer<ItemStack>() {
+										@Override
+										public void accept(ItemStack item) {
+											String sID = item.getItem().getRegistryName().toString().trim();
+											if (!lumbinationLeaves.has(sID))
+												lumbinationLeaves.addProperty(sID, "");
+										}
+									});
+						}
 					});
 			
 			ConfigHandler.setValue(Constants.LUMBINATION_ID, "leaves", lumbinationLeaves.toString());
@@ -147,11 +182,14 @@ public class LumbinationHandler implements IPacketHandler {
 	private static void getAxeList() {
 		if (!bAxesGot) {
 			// Get Axes
-			JsonObject lumbinationAxes = Settings.get().lumbinationAxes();
+			final JsonObject lumbinationAxes = Settings.get().lumbinationAxes();
 			
-			Item.REGISTRY.forEach(item -> {
-				if (item instanceof ItemAxe)
-					lumbinationAxes.addProperty(item.getRegistryName().toString().trim(), "");
+			Item.REGISTRY.forEach(new Consumer<Item>() {
+				@Override
+				public void accept(Item item) {
+					if (item instanceof ItemAxe)
+						lumbinationAxes.addProperty(item.getRegistryName().toString().trim(), "");
+				}
 			});
 			
 			ConfigHandler.setValue(Constants.LUMBINATION_ID, "axes", lumbinationAxes.toString());
@@ -285,9 +323,12 @@ public class LumbinationHandler implements IPacketHandler {
 			}
 		
 		// Identify the top of the Tree trunk
-		trunkPositions.forEach(log -> {
-			if (log.getY() > iTrunkTopY)
-				iTrunkTopY = log.getY();
+		trunkPositions.forEach(new Consumer<BlockPos>() {
+			@Override
+			public void accept(BlockPos log) {
+				if (log.getY() > iTrunkTopY)
+					iTrunkTopY = log.getY();
+			}
 		});
 		
 		return new AxisAlignedBB(

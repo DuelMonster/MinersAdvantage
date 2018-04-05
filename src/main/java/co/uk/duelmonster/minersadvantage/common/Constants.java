@@ -13,8 +13,8 @@ public final class Constants {
 	public static final String	MOD_ID			= "minersadvantage";
 	public static final String	MOD_NAME		= "MinersAdvantage";
 	public static final String	MOD_NAME_MSG	= TextFormatting.DARK_PURPLE + "[" + Constants.MOD_NAME + "] ";
-	public static final String	MOD_VERSION		= "1.0.0";
-	public static final String	MC_VERSION		= "1.12.2";
+	public static final String	MOD_VERSION		= "1.0.14";
+	public static final String	MC_VERSION		= "1.10.2";
 	public static final String	CHANNEL			= "MA_NET_CHAN";
 	public static final String	FVC_URL			= "http://www.duelmonster.talktalk.net/Minecraft/MinersAdvantage/forge_update.json";
 	public static final String	NAMESPACE		= "co.uk.duelmonster.minersadvantage.";

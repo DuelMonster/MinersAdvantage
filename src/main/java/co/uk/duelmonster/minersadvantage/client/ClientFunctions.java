@@ -59,7 +59,7 @@ public class ClientFunctions {
 	}
 	
 	public static EntityPlayer getPlayer() {
-		return getMC().player;
+		return getMC().thePlayer;
 	}
 	
 	public static boolean isAttacking() {

@@ -25,20 +25,20 @@ public class ShaftanationHandler implements IPacketHandler {
 	}
 	
 	@Override
-	public void processServerMessage(NetworkPacket message, MessageContext context) {
+	public void processServerMessage(final NetworkPacket message, MessageContext context) {
 		final EntityPlayerMP player = context.getServerHandler().player;
 		if (player == null)
 			return;
-		
-		//		if (message.getTags().getBoolean("cancel")) {
-		//			player.getServer().addScheduledTask(new Runnable() {
-		//				@Override
-		//				public void run() {
-		//					AgentProcessor.instance.stopProcessing(player);
-		//				}
-		//			});
-		//			return;
-		//		}
+			
+		// if (message.getTags().getBoolean("cancel")) {
+		// player.getServer().addScheduledTask(new Runnable() {
+		// @Override
+		// public void run() {
+		// AgentProcessor.instance.stopProcessing(player);
+		// }
+		// });
+		// return;
+		// }
 		
 		player.getServer().addScheduledTask(new Runnable() {
 			@Override
