@@ -10,6 +10,7 @@ import net.minecraft.block.BlockDirt;
 import net.minecraft.block.BlockFarmland;
 import net.minecraft.block.BlockGrass;
 import net.minecraft.block.BlockNetherWart;
+import net.minecraft.block.IGrowable;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -24,6 +25,7 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.common.IPlantable;
 
 public class CropinationAgent extends Agent {
 	
@@ -73,6 +75,7 @@ public class CropinationAgent extends Agent {
 				if (!(block instanceof BlockDirt || block instanceof BlockGrass)) {
 					// Add the non-harvestable blocks to the processed list so that they can be avoided.
 					processed.add(oPos);
+					iQueueCount--;
 					continue;
 				}
 				
@@ -89,29 +92,21 @@ public class CropinationAgent extends Agent {
 					addConnectedToQueue(oPos);
 				}
 			} else if (this.packetID == PacketID.HarvestCrops) {
-				if (!(block instanceof BlockCrops || block instanceof BlockNetherWart)) {
-					// Add the non-harvestable blocks to the processed list so that they can be avoided.
-					processed.add(oPos);
-					continue;
-				}
-				
 				boolean isFullyGrown = false;
 				
-				IBlockState newState = block.getDefaultState();
+				if (block instanceof BlockCrops)
+					isFullyGrown = ((BlockCrops) block).isMaxAge(state);
 				
-				if (block instanceof BlockCrops) {
-					BlockCrops crop = (BlockCrops) block;
-					isFullyGrown = crop.isMaxAge(state);
-					
-					// !! DEBUG USE ONLY !!
-					// newState = crop.withAge(crop.getMaxAge());
-					
-				} else if (block instanceof BlockNetherWart) {
+				else if (block instanceof BlockNetherWart)
 					isFullyGrown = (block.getMetaFromState(state) == 3);
-				} else
+				
+				else if (block instanceof IGrowable || block instanceof IPlantable)
 					isFullyGrown = (block.getMetaFromState(state) >= 6);
 				
 				if (isFullyGrown) {
+					
+					IBlockState newState = block.getDefaultState();
+					
 					int fortune = EnchantmentHelper.getEnchantmentLevel(Enchantments.FORTUNE, heldItemStack);
 					
 					NonNullList<ItemStack> drops = NonNullList.create();
@@ -139,10 +134,13 @@ public class CropinationAgent extends Agent {
 					}
 					
 					processBlockSnapshots();
+					
+					Functions.playSound(world, oPos, SoundEvents.ITEM_HOE_TILL, SoundCategory.PLAYERS, 1.0F, world.rand.nextFloat() + 0.5F);
+				} else {
+					// Minus one from the queue count so that the current position is not included in the block per tick
+					// limit
+					iQueueCount--;
 				}
-				
-				Functions.playSound(world, oPos, SoundEvents.ITEM_HOE_TILL, SoundCategory.PLAYERS, (isFullyGrown ? 1.0F : 0.25F), world.rand.nextFloat() + 0.5F);
-				
 				addConnectedToQueue(oPos);
 			}
 			
@@ -179,10 +177,13 @@ public class CropinationAgent extends Agent {
 	
 	@Override
 	public void addToQueue(BlockPos oPos) {
-		Block block = world.getBlockState(oPos).getBlock();
+		IBlockState state = world.getBlockState(oPos);
+		Block block = state.getBlock();
 		
-		if ((this.packetID == PacketID.TileFarmland && (block instanceof BlockDirt || block instanceof BlockGrass))
-				|| (this.packetID == PacketID.HarvestCrops && (block instanceof BlockCrops || block instanceof BlockNetherWart)))
+		if (this.packetID == PacketID.TileFarmland && (block instanceof BlockDirt || block instanceof BlockGrass))
+			super.addToQueue(oPos);
+		
+		else if (this.packetID == PacketID.HarvestCrops && (block instanceof IGrowable || block instanceof IPlantable || block instanceof BlockCrops || block instanceof BlockNetherWart))
 			super.addToQueue(oPos);
 	}
 }

@@ -130,8 +130,8 @@ public class ClientEvents {
 		}
 		
 		// Switch back to previously held item if Substitution is enabled
-		if (settings.bSubstitutionEnabled() && !variables.IsPlayerAttacking && SubstitutionHandler.instance.bShouldSwitchBack
-		// && !variables.areAgentsProcessing()
+		if (settings.bSubstitutionEnabled() && !variables.IsPlayerAttacking
+				&& SubstitutionHandler.instance.bShouldSwitchBack && SubstitutionHandler.instance.bCurrentlySwitched
 				&& SubstitutionHandler.instance.iPrevSlot >= 0 && player.inventory.currentItem != SubstitutionHandler.instance.iPrevSlot) {
 			player.inventory.currentItem = SubstitutionHandler.instance.iPrevSlot;
 			ClientFunctions.syncCurrentPlayItem(player.inventory.currentItem);
@@ -148,9 +148,8 @@ public class ClientEvents {
 		
 		EntityPlayerSP player = (EntityPlayerSP) event.getEntityPlayer();
 		
-		if (Settings.get().bSubstitutionEnabled()) {
-			// && (SubstitutionHandler.instance.iOptimalSlot < 0 || player.inventory.currentItem !=
-			// SubstitutionHandler.instance.iOptimalSlot)) {
+		if (Settings.get().bSubstitutionEnabled() && !SubstitutionHandler.instance.bCurrentlySwitched) {
+			// && player.inventory.currentItem != SubstitutionHandler.instance.iOptimalSlot) {
 			
 			BlockPos oPos = event.getPos();
 			IBlockState state = world.getBlockState(oPos);

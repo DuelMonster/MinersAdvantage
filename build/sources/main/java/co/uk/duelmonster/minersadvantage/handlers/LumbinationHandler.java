@@ -169,9 +169,11 @@ public class LumbinationHandler implements IPacketHandler {
 				iTreeRootY = getTreeRoot(oPos, block);
 				trunkArea = getTrunkSize(oPos, block);
 				
+				int iLeafRangeIncrease = settings.iLeafRange() / 2;
+				
 				rtrnBB = trunkArea
-						.expand(settings.iLeafRange() - 1, settings.iLeafRange(), settings.iLeafRange() - 1)
-						.expand(-(settings.iLeafRange() - 1), 0, -(settings.iLeafRange() - 1));
+						.expand(iLeafRangeIncrease, settings.iLeafRange(), iLeafRangeIncrease)
+						.expand(-iLeafRangeIncrease, 0, -iLeafRangeIncrease);
 				
 			}
 		}

@@ -9,6 +9,9 @@ import co.uk.duelmonster.minersadvantage.settings.Settings;
 import co.uk.duelmonster.minersadvantage.workers.AgentProcessor;
 import co.uk.duelmonster.minersadvantage.workers.DropsSpawner;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockCrops;
+import net.minecraft.block.BlockNetherWart;
+import net.minecraft.block.IGrowable;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
@@ -166,7 +169,7 @@ public class SharedEvents {
 			tags.setInteger("ID", PacketID.TileFarmland.value());
 			
 			MinersAdvantage.instance.network.sendTo(new NetworkPacket(tags), player);
-		} else if (block instanceof IPlantable) {
+		} else if (block instanceof IGrowable || block instanceof IPlantable || block instanceof BlockCrops || block instanceof BlockNetherWart) {
 			tags.setInteger("ID", PacketID.HarvestCrops.value());
 			
 			MinersAdvantage.instance.network.sendTo(new NetworkPacket(tags), player);

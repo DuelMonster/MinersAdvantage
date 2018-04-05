@@ -37,6 +37,7 @@ public class SubstitutionHandler {
 	private Settings		settings	= null;
 	
 	public boolean			bShouldSwitchBack	= false;
+	public boolean			bCurrentlySwitched	= false;
 	public int				iPrevSlot			= -1;
 	public int				iOptimalSlot		= -1;
 	private int				iOptimalRankIndx	= -1;
@@ -53,12 +54,15 @@ public class SubstitutionHandler {
 		world = null;
 		player = null;
 		settings = null;
+		
 		bShouldSwitchBack = false;
+		bCurrentlySwitched = false;
 		iPrevSlot = -1;
 		iOptimalSlot = -1;
 		iOptimalRankIndx = -1;
 		iOptimalDigSpeed = -1;
 		oOptimalRank = null;
+		
 		rankings = Constants.RANKING_DEFAULT;
 		rankingMap = new HashMap<Integer, RankAndLevel>();
 		oPos = null;
@@ -67,7 +71,7 @@ public class SubstitutionHandler {
 	}
 	
 	public void processToolSubtitution(World _world, EntityPlayerSP _player, BlockPos _pos) {
-		reset();
+		this.reset();
 		
 		this.world = _world;
 		this.player = _player;
@@ -157,6 +161,7 @@ public class SubstitutionHandler {
 		if (iOptimalSlot >= 0 && iOptimalSlot != iPrevSlot) {
 			iPrevSlot = inventory.currentItem;
 			bShouldSwitchBack = settings.bSwitchBack();
+			bCurrentlySwitched = true;
 			inventory.currentItem = iOptimalSlot;
 			ClientFunctions.syncCurrentPlayItem(iOptimalSlot);
 		}
