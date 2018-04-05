@@ -39,9 +39,9 @@ public class DropsSpawner {
 						if (entity != null && entity instanceof EntityItem) {
 							
 							if (Settings.get().bGatherDrops() && spawnPos != null)
-								entity = new EntityItem(world, spawnPos.getX() + 0.5D, spawnPos.getY() + 0.5D, spawnPos.getZ() + 0.5D, ((EntityItem) entity).getItem());
+								entity = new EntityItem(world, spawnPos.getX() + 0.5D, spawnPos.getY() + 0.5D, spawnPos.getZ() + 0.5D, ((EntityItem) entity).getEntityItem());
 							
-							world.spawnEntity(entity);
+							world.spawnEntityInWorld(entity);
 							
 						}
 					}
@@ -50,7 +50,7 @@ public class DropsSpawner {
 					if (recordedXPCount > 0) {
 						EntityXPOrb entity = new EntityXPOrb(world, spawnPos.getX() + 0.5D, spawnPos.getY() + 0.5D, spawnPos.getZ() + 0.5D, recordedXPCount);
 						
-						world.spawnEntity(entity);
+						world.spawnEntityInWorld(entity);
 						recordedXPCount = 0;
 					}
 					

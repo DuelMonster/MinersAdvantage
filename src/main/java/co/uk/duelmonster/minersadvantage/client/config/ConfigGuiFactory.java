@@ -15,17 +15,18 @@ public class ConfigGuiFactory implements IModGuiFactory {
 	public void initialize(Minecraft minecraftInstance) {}
 	
 	@Override
+	public Class<? extends GuiScreen> mainConfigGuiClass() {
+		return GuiConfigMA.class;
+	}
+	
+	@Override
 	public Set<RuntimeOptionCategoryElement> runtimeGuiCategories() {
 		return null;
 	}
 	
+	@SuppressWarnings("deprecation")
 	@Override
-	public GuiScreen createConfigGui(GuiScreen pGUI) {
-		return new GuiConfigMA(pGUI);
-	}
-	
-	@Override
-	public boolean hasConfigGui() {
-		return true;
+	public RuntimeOptionGuiHandler getHandlerFor(RuntimeOptionCategoryElement element) {
+		return null;
 	}
 }

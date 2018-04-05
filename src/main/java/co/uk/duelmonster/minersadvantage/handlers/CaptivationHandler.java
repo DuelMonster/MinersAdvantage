@@ -21,16 +21,16 @@ public class CaptivationHandler implements IPacketHandler {
 	
 	@Override
 	public void processServerMessage(NetworkPacket message, MessageContext context) {
-		final EntityPlayerMP player = context.getServerHandler().player;
+		final EntityPlayerMP player = context.getServerHandler().playerEntity;
 		if (player == null)
 			return;
 		
 		Settings settings = Settings.get(player.getUniqueID());
 		
-		AxisAlignedBB captivateArea = player.getEntityBoundingBox().grow(settings.radiusHorizontal(), settings.radiusVertical(), settings.radiusHorizontal());
+		AxisAlignedBB captivateArea = player.getEntityBoundingBox().expand(settings.radiusHorizontal(), settings.radiusVertical(), settings.radiusHorizontal());
 		
-		if (player.world != null) {
-			List<Entity> localDrops = Functions.getNearbyEntities(player.world, captivateArea);
+		if (player.worldObj != null) {
+			List<Entity> localDrops = Functions.getNearbyEntities(player.worldObj, captivateArea);
 			if (localDrops != null && !localDrops.isEmpty()) {
 				for (Entity entity : localDrops) {
 					if (entity instanceof EntityItem) {
@@ -38,8 +38,8 @@ public class CaptivationHandler implements IPacketHandler {
 						
 						if (!eItem.cannotPickup()
 								&& (settings.captivationBlacklist() == null
-										|| settings.captivationBlacklist().size() == 0
-										|| !settings.captivationBlacklist().has(eItem.getItem().getItem().getRegistryName().toString().trim())))
+										|| settings.captivationBlacklist().getAsJsonArray().size() == 0
+										|| !settings.captivationBlacklist().has(eItem.getEntityItem().getItem().getRegistryName().toString().trim())))
 							entity.onCollideWithPlayer(player);
 						
 					} else if (entity instanceof EntityXPOrb)

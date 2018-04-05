@@ -41,7 +41,7 @@ public class IlluminationHandler implements IPacketHandler {
 	
 	@Override
 	public void processServerMessage(NetworkPacket message, MessageContext context) {
-		final EntityPlayerMP player = context.getServerHandler().player;
+		final EntityPlayerMP player = context.getServerHandler().playerEntity;
 		if (player == null)
 			return;
 		
@@ -95,7 +95,7 @@ public class IlluminationHandler implements IPacketHandler {
 				
 				ItemStack torchStack = player.inventory.decrStackSize(iTorchIndx, 1);
 				
-				if (torchStack.getCount() <= 0) {
+				if (torchStack.stackSize <= 0) {
 					lastTorchLocation = null;
 					iTorchStackCount--;
 				}
@@ -112,8 +112,8 @@ public class IlluminationHandler implements IPacketHandler {
 		iTorchIndx = -1;
 		
 		// Locate the players torches
-		for (int i = 0; i < player.inventory.mainInventory.size(); i++) {
-			ItemStack stack = player.inventory.mainInventory.get(i);
+		for (int i = 0; i < player.inventory.mainInventory.length; i++) {
+			ItemStack stack = player.inventory.mainInventory[i];
 			if (stack != null && stack.getItem().equals(Item.getItemFromBlock(Blocks.TORCH))) {
 				iTorchStackCount++;
 				iTorchIndx = Functions.getSlotFromInventory(player, stack);
@@ -121,8 +121,8 @@ public class IlluminationHandler implements IPacketHandler {
 		}
 		
 		if (iTorchIndx == -1) {
-			for (int i = 0; i < player.inventory.offHandInventory.size(); i++) {
-				ItemStack stack = player.inventory.offHandInventory.get(i);
+			for (int i = 0; i < player.inventory.offHandInventory.length; i++) {
+				ItemStack stack = player.inventory.offHandInventory[i];
 				if (stack != null && stack.getItem().equals(Item.getItemFromBlock(Blocks.TORCH))) {
 					iTorchStackCount++;
 					iTorchIndx = Functions.getSlotFromInventory(player, stack);
@@ -135,7 +135,7 @@ public class IlluminationHandler implements IPacketHandler {
 	public static void PlaceTorch(Minecraft mc, EntityPlayer player) {
 		if (mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == RayTraceResult.Type.BLOCK) {
 			BlockPos oPos = mc.objectMouseOver.getBlockPos();
-			if (mc.world.getBlockState(oPos).getBlock() != Blocks.TORCH) {
+			if (mc.theWorld.getBlockState(oPos).getBlock() != Blocks.TORCH) {
 				EnumFacing sideHit = mc.objectMouseOver.sideHit;
 				BlockPos oSidePos = mc.objectMouseOver.getBlockPos();
 				
@@ -164,15 +164,15 @@ public class IlluminationHandler implements IPacketHandler {
 				tags.setInteger("ID", PacketID.Illuminate.value());
 				tags.setBoolean("IgnoreLightLevel", true);
 				
-				IBlockState state = mc.world.getBlockState(oPos);
-				IBlockState stateDown = mc.world.getBlockState(oPos.down());
+				IBlockState state = mc.theWorld.getBlockState(oPos);
+				IBlockState stateDown = mc.theWorld.getBlockState(oPos.down());
 				
-				if (state.getBlock().isReplaceable(mc.world, oPos) && stateDown.getBlock().canPlaceTorchOnTop(stateDown, mc.world, oPos.down())) {
+				if (state.getBlock().isReplaceable(mc.theWorld, oPos) && stateDown.getBlock().canPlaceTorchOnTop(stateDown, mc.theWorld, oPos.down())) {
 					tags.setInteger("x", oPos.getX());
 					tags.setInteger("y", oPos.getY());
 					tags.setInteger("z", oPos.getZ());
 					tags.setInteger("sideHit", EnumFacing.UP.getIndex());
-				} else if (mc.world.isAirBlock(oSidePos) && (state.isSideSolid(mc.world, oPos, sideHit) || state.getBlock().canPlaceTorchOnTop(state, mc.world, oPos))) {
+				} else if (mc.theWorld.isAirBlock(oSidePos) && (state.isSideSolid(mc.theWorld, oPos, sideHit) || state.getBlock().canPlaceTorchOnTop(state, mc.theWorld, oPos))) {
 					tags.setInteger("x", oSidePos.getX());
 					tags.setInteger("y", oSidePos.getY());
 					tags.setInteger("z", oSidePos.getZ());

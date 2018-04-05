@@ -65,8 +65,8 @@ public class ClientEvents {
 		event.setCanceled(settings.bCaptivationEnabled()
 				&& settings.bIsWhitelist()
 				&& settings.captivationBlacklist() != null
-				&& settings.captivationBlacklist().size() > 0
-				&& settings.captivationBlacklist().has(event.getItem().getItem().getItem().getRegistryName().toString().trim()));
+				&& settings.captivationBlacklist().getAsJsonArray().size() > 0
+				&& settings.captivationBlacklist().has(event.getItem().getEntityItem().getItem().getRegistryName().toString().trim()));
 	}
 	
 	@SubscribeEvent

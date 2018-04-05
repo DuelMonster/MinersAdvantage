@@ -54,7 +54,7 @@ public class LumbinationHandler implements IPacketHandler {
 	@Override
 	public void processClientMessage(NetworkPacket message, MessageContext context) {
 		player = ClientFunctions.getPlayer();
-		world = player.world;
+		world = player.worldObj;
 		settings = Settings.get();
 		
 		Variables.get().IsLumbinating = true;
@@ -62,11 +62,11 @@ public class LumbinationHandler implements IPacketHandler {
 	
 	@Override
 	public void processServerMessage(final NetworkPacket message, MessageContext context) {
-		player = context.getServerHandler().player;
+		player = context.getServerHandler().playerEntity;
 		if (player == null)
 			return;
 		
-		world = player.world;
+		world = player.worldObj;
 		settings = Settings.get(player.getUniqueID());
 		
 		// if (message.getTags().getBoolean("cancel")) {
@@ -219,11 +219,11 @@ public class LumbinationHandler implements IPacketHandler {
 	}
 	
 	public BlockPos getLeafPos(BlockPos oPos) {
-		for (int yLeaf = oPos.getY(); yLeaf < player.world.getHeight(); yLeaf++)
+		for (int yLeaf = oPos.getY(); yLeaf < player.worldObj.getHeight(); yLeaf++)
 			for (int xLeaf = -1; xLeaf < 1; xLeaf++)
 				for (int zLeaf = -1; zLeaf < 1; zLeaf++) {
 					BlockPos leafPos = new BlockPos(oPos.getX() + xLeaf, yLeaf, oPos.getZ() + zLeaf);
-					IBlockState leafState = player.world.getBlockState(leafPos);
+					IBlockState leafState = player.worldObj.getBlockState(leafPos);
 					Block leafBlock = leafState.getBlock();
 					
 					if (leafBlock.isLeaves(leafState, world, leafPos) && settings.lumbinationLeaves().has(Functions.getBlockName(leafBlock)))
@@ -236,7 +236,7 @@ public class LumbinationHandler implements IPacketHandler {
 		int iRootLevel = oPos.getY();
 		for (int yLevel = oPos.getY() - 1; yLevel > 0; yLevel--) {
 			BlockPos checkPos = new BlockPos(oPos.getX(), yLevel, oPos.getZ());
-			Block checkBlock = player.world.getBlockState(checkPos).getBlock();
+			Block checkBlock = player.worldObj.getBlockState(checkPos).getBlock();
 			if (checkBlock.getClass().isInstance(block) || checkBlock.isWood(world, checkPos) || settings.lumbinationLogs().has(Functions.getBlockName(checkBlock)))
 				iRootLevel = yLevel;
 			
@@ -253,7 +253,7 @@ public class LumbinationHandler implements IPacketHandler {
 				int iAirCount = 0;
 				int iLayerPosCount = trunkPositions.size();
 				BlockPos checkPos = new BlockPos(oPos.getX(), yLevel, oPos.getZ());
-				IBlockState checkState = player.world.getBlockState(checkPos);
+				IBlockState checkState = player.worldObj.getBlockState(checkPos);
 				Block checkBlock = checkState.getBlock();
 				
 				if (checkPos.equals(oPos) || checkBlock.getClass().isInstance(block) || checkBlock.isWood(world, checkPos) || settings.lumbinationLogs().has(Functions.getBlockName(checkBlock)))
@@ -268,7 +268,7 @@ public class LumbinationHandler implements IPacketHandler {
 						if (xOffset == -iLoop || xOffset == iLoop) {
 							for (int zOffset = -iLoop; zOffset <= iLoop; zOffset++) {
 								checkPos = new BlockPos(oPos.getX() + xOffset, yLevel, oPos.getZ() + zOffset);
-								checkState = player.world.getBlockState(checkPos);
+								checkState = player.worldObj.getBlockState(checkPos);
 								checkBlock = checkState.getBlock();
 								
 								if (checkBlock.getClass().isInstance(block)
@@ -289,7 +289,7 @@ public class LumbinationHandler implements IPacketHandler {
 							for (int zOffset = -iLoop; zOffset <= iLoop; zOffset++) {
 								if (zOffset == -iLoop || zOffset == iLoop) {
 									checkPos = new BlockPos(oPos.getX() + xOffset, yLevel, oPos.getZ() + zOffset);
-									checkState = player.world.getBlockState(checkPos);
+									checkState = player.worldObj.getBlockState(checkPos);
 									checkBlock = checkState.getBlock();
 									
 									if (checkBlock.getClass().isInstance(block)
@@ -339,7 +339,7 @@ public class LumbinationHandler implements IPacketHandler {
 	
 	public void setPlayer(EntityPlayerMP player) {
 		this.player = player;
-		this.world = player.world;
+		this.world = player.worldObj;
 		settings = Settings.get(player.getUniqueID());
 	}
 }

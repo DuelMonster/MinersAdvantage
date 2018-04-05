@@ -110,7 +110,7 @@ public class CropinationAgent extends Agent {
 					int fortune = EnchantmentHelper.getEnchantmentLevel(Enchantments.FORTUNE, heldItemStack);
 					
 					NonNullList<ItemStack> drops = NonNullList.create();
-					block.getDrops(drops, world, oPos, state, fortune);
+					drops = (NonNullList<ItemStack>) block.getDrops(world, oPos, state, fortune);
 					
 					for (ItemStack item : drops)
 						if (settings.bHarvestSeeds() || !(item.getItem() instanceof ItemSeeds))

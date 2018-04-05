@@ -147,7 +147,7 @@ public class NetworkPacket implements IMessage {
 	public static class ServerHandler implements IMessageHandler<NetworkPacket, NetworkPacket> {
 		@Override
 		public NetworkPacket onMessage(NetworkPacket message, MessageContext context) {
-			final EntityPlayerMP player = context.getServerHandler().player;
+			final EntityPlayerMP player = context.getServerHandler().playerEntity;
 			
 			PacketID pID = PacketID.valueOf(message.tags.getInteger("ID"));
 			

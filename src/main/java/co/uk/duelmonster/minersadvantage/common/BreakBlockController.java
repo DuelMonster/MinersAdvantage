@@ -43,7 +43,7 @@ public class BreakBlockController {
 	private boolean		isHittingBlock;
 	
 	public BreakBlockController(EntityPlayerMP player) {
-		this.world = player.world;
+		this.world = player.worldObj;
 		this.player = player;
 		// this.connection = player.connection;
 		
@@ -127,7 +127,7 @@ public class BreakBlockController {
 	 * Called when the player is hitting a block with an item.
 	 */
 	public boolean clickBlock(BlockPos loc, EnumFacing face) {
-		if (heldItemStack.isEmpty() || !world.getWorldBorder().contains(loc))
+		if (heldItemStack.stackSize <= 0 || !world.getWorldBorder().contains(loc))
 			return false;
 		
 		if (!this.isHittingBlock || !this.isHittingPosition(loc)) {
@@ -160,10 +160,10 @@ public class BreakBlockController {
 	}
 	
 	public boolean onPlayerDestroyBlock(BlockPos pos) {
-		if (this.heldItemStack.isEmpty())
+		if (this.heldItemStack.stackSize <= 0)
 			return false;
 		
-		if (!this.heldItemStack.isEmpty() && this.heldItem.onBlockStartBreak(this.heldItemStack, pos, player))
+		if (this.heldItemStack.stackSize > 0 && this.heldItem.onBlockStartBreak(this.heldItemStack, pos, player))
 			return false;
 		
 		IBlockState iblockstate = world.getBlockState(pos);
@@ -180,12 +180,12 @@ public class BreakBlockController {
 			
 			ItemStack copyBeforeUse = this.heldItemStack.copy();
 			
-			if (!this.heldItemStack.isEmpty()) {
+			if (this.heldItemStack.stackSize > 0) {
 				this.heldItemStack.onBlockDestroyed(world, iblockstate, pos, player);
 				
-				if (this.heldItemStack.isEmpty()) {
+				if (this.heldItemStack.stackSize <= 0) {
 					net.minecraftforge.event.ForgeEventFactory.onPlayerDestroyItem(player, copyBeforeUse, EnumHand.MAIN_HAND);
-					player.setHeldItem(EnumHand.MAIN_HAND, ItemStack.EMPTY);
+					player.setHeldItem(EnumHand.MAIN_HAND, null);
 				}
 			}
 		}
@@ -200,7 +200,7 @@ public class BreakBlockController {
 	}
 	
 	private boolean isHittingPosition(BlockPos pos) {
-		return pos.equals(this.currentBlockPos) && !heldItemStack.isEmpty();
+		return pos.equals(this.currentBlockPos) && heldItemStack.stackSize > 0;
 	}
 	
 	// player reach distance = 4F

@@ -32,6 +32,7 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.oredict.OreDictionary;
 
 public class Functions {
@@ -41,16 +42,16 @@ public class Functions {
 	}
 	
 	public static void NotifyClient(EntityPlayer player, String sMsg) {
-		player.sendStatusMessage(new TextComponentString(Constants.MOD_NAME_MSG + sMsg), false);
+		FMLClientHandler.instance().getClient().ingameGUI.getChatGUI().printChatMessage(new TextComponentString(Constants.MOD_NAME_MSG + sMsg));
 	}
 	
 	public static void NotifyClient(EntityPlayer player, boolean bIsOn, String sFeatureName) {
-		player.sendStatusMessage(new TextComponentString(Constants.MOD_NAME_MSG + TextFormatting.GOLD + sFeatureName + " " + (bIsOn ? TextFormatting.GREEN + "ON" : TextFormatting.RED + "OFF")), false);
+		FMLClientHandler.instance().getClient().ingameGUI.getChatGUI().printChatMessage(new TextComponentString(Constants.MOD_NAME_MSG + TextFormatting.GOLD + sFeatureName + " " + (bIsOn ? TextFormatting.GREEN + "ON" : TextFormatting.RED + "OFF")));
 	}
 	
 	public static ItemStack getHeldItemStack(EntityPlayer player) {
 		ItemStack heldItem = player.getHeldItem(EnumHand.MAIN_HAND);
-		return (heldItem == null || heldItem.isEmpty()) ? null : heldItem;
+		return (heldItem == null || heldItem.stackSize <= 0) ? null : heldItem;
 	}
 	
 	public static Item getHeldItem(EntityPlayer player) {
@@ -131,7 +132,7 @@ public class Functions {
 			
 		}
 		catch (ConcurrentModificationException e) {
-			MinersAdvantage.logger.error("ConcurrentModification Exception Avoided..."); //: " + getStackTrace());
+			MinersAdvantage.logger.error("ConcurrentModification Exception Avoided..."); // : " + getStackTrace());
 		}
 		catch (Exception ex) {
 			MinersAdvantage.logger.error(ex.getClass().getName() + " Exception: " + getStackTrace());
@@ -140,7 +141,7 @@ public class Functions {
 	}
 	
 	public static boolean isItemBlacklisted(ItemStack item) {
-		if (item == null || item.isEmpty())
+		if (item == null || item.stackSize <= 0)
 			return Settings.get().bIsToolWhitelist();
 		
 		return isItemBlacklisted(item.getItem());
@@ -169,7 +170,7 @@ public class Functions {
 		
 		ItemStack blockStack = new ItemStack(Item.getItemFromBlock(block));
 		
-		if (!blockStack.isEmpty())
+		if (blockStack.stackSize > 0)
 			for (int id : OreDictionary.getOreIDs(blockStack))
 				if (Settings.get().blockBlacklist().has(OreDictionary.getOreName(id)))
 					return !Settings.get().bIsBlockWhitelist();
@@ -227,15 +228,15 @@ public class Functions {
 		entityareaeffectcloud.setRadiusPerTick(-entityareaeffectcloud.getRadius() / entityareaeffectcloud.getDuration());
 		entityareaeffectcloud.addEffect(new PotionEffect(MobEffects.WEAKNESS, 10));
 		
-		world.spawnEntity(entityareaeffectcloud);
+		world.spawnEntityInWorld(entityareaeffectcloud);
 	}
 	
 	/**
 	 * Finds the stack or an equivalent one in the main inventory
 	 */
 	public static int getSlotFromInventory(EntityPlayer player, ItemStack stack) {
-		for (int i = 0; i < player.inventory.mainInventory.size(); ++i)
-			if (!player.inventory.mainInventory.get(i).isEmpty() && stackEqualExact(stack, player.inventory.mainInventory.get(i)))
+		for (int i = 0; i < player.inventory.mainInventory.length; ++i)
+			if (player.inventory.mainInventory[i].stackSize > 0 && stackEqualExact(stack, player.inventory.mainInventory[i]))
 				return i;
 			
 		return -1;
@@ -261,11 +262,11 @@ public class Functions {
 	}
 	
 	public static Object getPropertyValue(IBlockState state, PropertyEnum<EnumType> variant) {
-		//		for (IProperty<?> prop : state.getProperties().keySet())
-		//			if (prop.getName().equals(variant))
-		//				return state.getValue(prop);
+		// for (IProperty<?> prop : state.getProperties().keySet())
+		// if (prop.getName().equals(variant))
+		// return state.getValue(prop);
 		try {
-			return state.getValue(variant);//.getMetadata();
+			return state.getValue(variant);// .getMetadata();
 		}
 		catch (Exception e) {
 			return null;

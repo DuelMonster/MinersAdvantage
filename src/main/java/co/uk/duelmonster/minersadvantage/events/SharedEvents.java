@@ -91,7 +91,7 @@ public class SharedEvents {
 			return;
 		
 		ItemStack heldItem = player.getHeldItem(EnumHand.MAIN_HAND);
-		if (heldItem.isEmpty())
+		if (heldItem.stackSize <= 0)
 			return;
 		
 		if (Functions.isItemBlacklisted(heldItem) ||

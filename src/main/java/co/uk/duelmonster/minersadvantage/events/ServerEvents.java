@@ -28,7 +28,7 @@ public class ServerEvents {
 		if (null == server)
 			return;
 		
-		List<EntityPlayerMP> players = server.getPlayerList().getPlayers();
+		List<EntityPlayerMP> players = server.getPlayerList().getPlayerList();
 		if (players != null && !players.isEmpty()) {
 			for (EntityPlayerMP player : players) {
 				Variables vars = Variables.get(player.getUniqueID());
@@ -38,7 +38,7 @@ public class ServerEvents {
 						vars.skipNext = false;
 						return;
 					} else {
-						AgentProcessor.instance.fireAgentTicks(player.world);
+						AgentProcessor.instance.fireAgentTicks(player.worldObj);
 						AgentProcessor.instance.setCurrentAgent(player.getUniqueID(), null);
 					}
 				}

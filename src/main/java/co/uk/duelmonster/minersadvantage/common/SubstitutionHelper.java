@@ -29,7 +29,7 @@ public class SubstitutionHelper {
 	static {
 		ItemStack tempEmpty;
 		try {
-			tempEmpty = ItemStack.EMPTY;
+			tempEmpty = null;
 		}
 		catch (NoSuchFieldError err) {
 			tempEmpty = null;
@@ -39,35 +39,35 @@ public class SubstitutionHelper {
 	}
 	
 	private static void fakeItemForPlayer(ItemStack itemstack) {
-		prevHeldItem = mc.player.inventory.getStackInSlot(mc.player.inventory.currentItem);
-		mc.player.inventory.setInventorySlotContents(mc.player.inventory.currentItem, itemstack);
+		prevHeldItem = mc.thePlayer.inventory.getStackInSlot(mc.thePlayer.inventory.currentItem);
+		mc.thePlayer.inventory.setInventorySlotContents(mc.thePlayer.inventory.currentItem, itemstack);
 		if (!isItemStackEmpty(prevHeldItem)) {
-			mc.player.getAttributeMap().removeAttributeModifiers(prevHeldItem.getAttributeModifiers(EntityEquipmentSlot.MAINHAND));
+			mc.thePlayer.getAttributeMap().removeAttributeModifiers(prevHeldItem.getAttributeModifiers(EntityEquipmentSlot.MAINHAND));
 		}
 		if (!isItemStackEmpty(itemstack)) {
-			mc.player.getAttributeMap().applyAttributeModifiers(itemstack.getAttributeModifiers(EntityEquipmentSlot.MAINHAND));
+			mc.thePlayer.getAttributeMap().applyAttributeModifiers(itemstack.getAttributeModifiers(EntityEquipmentSlot.MAINHAND));
 		}
 	}
 	
 	public static boolean isItemStackEmpty(ItemStack itemstack) {
 		if (EMPTY_ITEMSTACK == null)
 			return itemstack == null;
-		return itemstack.isEmpty();
+		return itemstack.stackSize <= 0;
 	}
 	
 	public static double getFullItemStackDamage(ItemStack itemStack, EntityLivingBase entity) {
 		fakeItemForPlayer(itemStack);
-		double damage = mc.player.getEntityAttribute(
+		double damage = mc.thePlayer.getEntityAttribute(
 				SharedMonsterAttributes.ATTACK_DAMAGE).getAttributeValue();
 		
 		double enchDamage = EnchantmentHelper.getModifierForCreature(itemStack, entity.getCreatureAttribute());
 		
 		if (damage > 0.0D || enchDamage > 0.0D) {
-			boolean critical = mc.player.fallDistance > 0.0F
-					&& !mc.player.onGround && !mc.player.isOnLadder()
-					&& !mc.player.isInWater()
-					&& !mc.player.isPotionActive(Potion.getPotionFromResourceLocation("blindness"))
-					&& !mc.player.isRiding();
+			boolean critical = mc.thePlayer.fallDistance > 0.0F
+					&& !mc.thePlayer.onGround && !mc.thePlayer.isOnLadder()
+					&& !mc.thePlayer.isInWater()
+					&& !mc.thePlayer.isPotionActive(Potion.getPotionFromResourceLocation("blindness"))
+					&& !mc.thePlayer.isRiding();
 			
 			if (critical && damage > 0) {
 				
@@ -128,14 +128,14 @@ public class SubstitutionHelper {
 	}
 	
 	private static void unFakeItemForPlayer() {
-		ItemStack fakedStack = mc.player.inventory.getStackInSlot(mc.player.inventory.currentItem);
-		mc.player.inventory.setInventorySlotContents(mc.player.inventory.currentItem, prevHeldItem);
+		ItemStack fakedStack = mc.thePlayer.inventory.getStackInSlot(mc.thePlayer.inventory.currentItem);
+		mc.thePlayer.inventory.setInventorySlotContents(mc.thePlayer.inventory.currentItem, prevHeldItem);
 		if (!isItemStackEmpty(fakedStack)) {
-			mc.player.getAttributeMap().removeAttributeModifiers(
+			mc.thePlayer.getAttributeMap().removeAttributeModifiers(
 					fakedStack.getAttributeModifiers(EntityEquipmentSlot.MAINHAND));
 		}
 		if (!isItemStackEmpty(prevHeldItem)) {
-			mc.player.getAttributeMap().applyAttributeModifiers(
+			mc.thePlayer.getAttributeMap().applyAttributeModifiers(
 					prevHeldItem.getAttributeModifiers(EntityEquipmentSlot.MAINHAND));
 		}
 	}

@@ -178,13 +178,13 @@ public class SubstitutionHandler {
 	private float getToolSpeed(ItemStack tool) {
 		float f = 1.0F;
 		
-		if (!tool.isEmpty())
-			f *= tool.getDestroySpeed(state);
+		if (tool.stackSize > 0)
+			f *= tool.getStrVsBlock(state);
 		
 		if (f > 1.0F) {
 			int i = EnchantmentHelper.getEfficiencyModifier(player);
 			
-			if (i > 0 && !tool.isEmpty()) {
+			if (i > 0 && tool.stackSize > 0) {
 				f += i * i + 1;
 			}
 		}
@@ -261,8 +261,8 @@ public class SubstitutionHandler {
 			return (newDamage > oldDamage);
 		} else {
 			
-			int oldHits = (oldDamage == 0 ? Integer.MAX_VALUE : MathHelper.ceil(target.getMaxHealth() / oldDamage));
-			int newHits = (newDamage == 0 ? Integer.MAX_VALUE : MathHelper.ceil(target.getMaxHealth() / newDamage));
+			int oldHits = (oldDamage == 0 ? Integer.MAX_VALUE : MathHelper.ceiling_double_int(target.getMaxHealth() / oldDamage));
+			int newHits = (newDamage == 0 ? Integer.MAX_VALUE : MathHelper.ceiling_double_int(target.getMaxHealth() / newDamage));
 			
 			if (newHits != oldHits)
 				return (newHits < oldHits);
