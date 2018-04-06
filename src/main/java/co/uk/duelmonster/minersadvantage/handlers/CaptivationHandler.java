@@ -3,6 +3,7 @@ package co.uk.duelmonster.minersadvantage.handlers;
 import java.util.List;
 
 import co.uk.duelmonster.minersadvantage.common.Functions;
+import co.uk.duelmonster.minersadvantage.common.JsonHelper;
 import co.uk.duelmonster.minersadvantage.packets.NetworkPacket;
 import co.uk.duelmonster.minersadvantage.settings.Settings;
 import net.minecraft.entity.Entity;
@@ -38,7 +39,7 @@ public class CaptivationHandler implements IPacketHandler {
 						
 						if (!eItem.cannotPickup()
 								&& (settings.captivationBlacklist() == null
-										|| settings.captivationBlacklist().getAsJsonArray().size() == 0
+										|| JsonHelper.size(settings.captivationBlacklist()) == 0
 										|| !settings.captivationBlacklist().has(eItem.getEntityItem().getItem().getRegistryName().toString().trim())))
 							entity.onCollideWithPlayer(player);
 						

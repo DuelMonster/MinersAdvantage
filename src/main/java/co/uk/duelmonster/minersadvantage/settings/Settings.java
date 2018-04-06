@@ -61,7 +61,7 @@ public class Settings {
 	public boolean		_bIsWhitelist			= false;
 	public double		_radiusHorizontal		= 16;
 	public double		_radiusVertical			= 16;
-	public JsonObject	_captivationBlacklist	= JsonHelper.ParseObject("{\"" + Items.ROTTEN_FLESH.getUnlocalizedName() + "\":\"\"}");
+	public JsonObject	_captivationBlacklist	= JsonHelper.ParseObject("{\"" + Items.ROTTEN_FLESH.getRegistryName().toString().trim() + "\":\"\"}");
 	
 	// Cropination Settings
 	private boolean	_bCropinationEnabled	= true;

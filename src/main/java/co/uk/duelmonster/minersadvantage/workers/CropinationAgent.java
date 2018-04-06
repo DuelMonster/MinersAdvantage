@@ -4,6 +4,7 @@ import java.util.concurrent.TimeUnit;
 
 import co.uk.duelmonster.minersadvantage.common.Functions;
 import co.uk.duelmonster.minersadvantage.common.PacketID;
+import co.uk.duelmonster.minersadvantage.compatibility.NonNullList;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockCrops;
 import net.minecraft.block.BlockDirt;
@@ -21,7 +22,6 @@ import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemSeeds;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;

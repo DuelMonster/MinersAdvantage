@@ -6,7 +6,6 @@ import net.minecraft.block.BlockStructure;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -205,6 +204,8 @@ public class BreakBlockController {
 	
 	// player reach distance = 4F
 	public float getBlockReachDistance() {
-		return ((float) player.getEntityAttribute(EntityPlayer.REACH_DISTANCE).getAttributeValue()) - 0.5F;
+		final net.minecraft.entity.ai.attributes.IAttribute REACH_DISTANCE = new net.minecraft.entity.ai.attributes.RangedAttribute(null, "generic.reachDistance", 5.0D, 0.0D, 1024.0D).setShouldWatch(true);
+		
+		return ((float) player.getEntityAttribute(REACH_DISTANCE).getAttributeValue()) - 0.5F;
 	}
 }

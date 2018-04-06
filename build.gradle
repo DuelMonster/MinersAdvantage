@@ -24,7 +24,7 @@ compileJava {
 minecraft {
     version = "1.10.2-12.18.3.2185"
     mappings = "snapshot_20161111"
-    runDir = "debug"
+    runDir = "debug_1.10.2"
 }
 
 dependencies { }
