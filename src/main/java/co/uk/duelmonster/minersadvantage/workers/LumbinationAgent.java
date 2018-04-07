@@ -152,8 +152,12 @@ public class LumbinationAgent extends Agent {
 		BlockPlanks.EnumType checkVariant = null;
 		
 		if (checkBlock.getClass().isInstance(originBlock))
-			checkVariant = ((BlockWood) checkBlock).getWoodType(checkMeta);
-		else if (checkBlock.getClass().isInstance(originLeafBlock))
+			if (checkBlock instanceof BlockOldLog)
+				checkVariant = BlockPlanks.EnumType.byMetadata((checkMeta & 3) % 4);
+			else if (checkBlock instanceof BlockNewLog)
+				checkVariant = BlockPlanks.EnumType.byMetadata((checkMeta & 3) + 4);
+			
+		if (checkBlock.getClass().isInstance(originLeafBlock))
 			checkVariant = ((BlockLeaves) checkBlock).getWoodType(checkMeta);
 		
 		if (checkBlock.getClass().isInstance(originBlock)

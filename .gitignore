@@ -13,3 +13,5 @@ hs_err_pid*
 /.gradle/
 /build/
 /debug/
+
+debug_1\.10\.2/

@@ -210,8 +210,8 @@ public class LumbinationHandler implements IPacketHandler {
 				int iLeafRangeIncrease = settings.iLeafRange() / 2;
 				
 				rtrnBB = trunkArea
-						.expand(iLeafRangeIncrease, settings.iLeafRange(), iLeafRangeIncrease)
-						.expand(-iLeafRangeIncrease, 0, -iLeafRangeIncrease);
+						.expand(iLeafRangeIncrease, settings.iLeafRange(), iLeafRangeIncrease);
+				// .expand(-iLeafRangeIncrease, 0, -iLeafRangeIncrease);
 				
 			}
 		}
