@@ -39,7 +39,7 @@ public class DropsSpawner {
 						if (entity != null && entity instanceof EntityItem) {
 							
 							if (Settings.get().bGatherDrops() && spawnPos != null)
-								entity = new EntityItem(world, spawnPos.getX() + 0.5D, spawnPos.getY() + 0.5D, spawnPos.getZ() + 0.5D, ((EntityItem) entity).getItem());
+								entity = new EntityItem(world, spawnPos.getX() + 0.5D, spawnPos.getY() + 0.5D, spawnPos.getZ() + 0.5D, ((EntityItem) entity).getEntityItem());
 							
 							world.spawnEntity(entity);
 							

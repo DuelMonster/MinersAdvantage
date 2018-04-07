@@ -8,9 +8,8 @@ import co.uk.duelmonster.minersadvantage.common.BreakBlockController;
 import co.uk.duelmonster.minersadvantage.common.Functions;
 import co.uk.duelmonster.minersadvantage.handlers.LumbinationHandler;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockNewLeaf;
+import net.minecraft.block.BlockLeaves;
 import net.minecraft.block.BlockNewLog;
-import net.minecraft.block.BlockOldLeaf;
 import net.minecraft.block.BlockOldLog;
 import net.minecraft.block.BlockPlanks;
 import net.minecraft.block.BlockPlanks.EnumType;
@@ -58,11 +57,8 @@ public class LumbinationAgent extends Agent {
 			this.originLeafBlock = state.getBlock();
 			this.originLeafMeta = originLeafBlock.getMetaFromState(state);
 			
-			variant = (originLeafBlock instanceof BlockNewLeaf ? BlockNewLeaf.VARIANT : (originLeafBlock instanceof BlockOldLeaf ? BlockOldLeaf.VARIANT : null));
-			
-			propValue = Functions.getPropertyValue(state, variant);
-			if (propValue != null)
-				this.originLeafVariant = (BlockPlanks.EnumType) propValue;
+			if (originLeafBlock instanceof BlockLeaves)
+				this.originLeafVariant = ((BlockLeaves) originLeafBlock).getWoodType(this.originLeafMeta);
 			
 			// Add the origin block the queue now that we have all the information. - this.queued.clear();
 			addConnectedToQueue(originPos);
@@ -153,21 +149,27 @@ public class LumbinationAgent extends Agent {
 		IBlockState state = world.getBlockState(oPos);
 		Block checkBlock = state.getBlock();
 		int checkMeta = checkBlock.getMetaFromState(state);
+		BlockPlanks.EnumType checkVariant = null;
 		
-		PropertyEnum<EnumType> variant = (checkBlock instanceof BlockNewLog ? BlockNewLog.VARIANT : (checkBlock instanceof BlockOldLog ? BlockOldLog.VARIANT : (checkBlock instanceof BlockNewLeaf ? BlockNewLeaf.VARIANT : (checkBlock instanceof BlockOldLeaf ? BlockOldLeaf.VARIANT : null))));
-		
-		Object checkProp = Functions.getPropertyValue(state, variant);
+		if (checkBlock.getClass().isInstance(originBlock))
+			if (checkBlock instanceof BlockOldLog)
+				checkVariant = BlockPlanks.EnumType.byMetadata((checkMeta & 3) % 4);
+			else if (checkBlock instanceof BlockNewLog)
+				checkVariant = BlockPlanks.EnumType.byMetadata((checkMeta & 3) + 4);
+			
+		if (checkBlock.getClass().isInstance(originLeafBlock))
+			checkVariant = ((BlockLeaves) checkBlock).getWoodType(checkMeta);
 		
 		if (checkBlock.getClass().isInstance(originBlock)
 				&& (trunkArea == null || Functions.isWithinArea(oPos, trunkArea))
 				&& (trunkPositions == null || Functions.isPosConnected(trunkPositions, oPos))
-				&& ((originWoodVariant != null && checkProp != null && checkProp.equals(originWoodVariant)) || checkMeta == originMeta))
+				&& ((originWoodVariant != null && checkVariant != null && checkVariant.equals(originWoodVariant)) || checkMeta == originMeta))
 			super.addToQueue(oPos);
 		
 		if (checkBlock.getClass().isInstance(originLeafBlock)
 				&& settings.bDestroyLeaves()
 				&& (harvestArea == null || Functions.isWithinArea(oPos, harvestArea))
-				&& ((originLeafVariant != null && checkProp != null && checkProp.equals(originLeafVariant)) || checkMeta == originLeafMeta))
+				&& ((originLeafVariant != null && checkVariant != null && checkVariant.equals(originLeafVariant)) || checkMeta == originLeafMeta))
 			super.addToQueue(oPos);
 	}
 	

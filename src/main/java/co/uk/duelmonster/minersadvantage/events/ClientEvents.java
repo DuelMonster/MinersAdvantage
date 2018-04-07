@@ -4,6 +4,7 @@ import co.uk.duelmonster.minersadvantage.MinersAdvantage;
 import co.uk.duelmonster.minersadvantage.client.ClientFunctions;
 import co.uk.duelmonster.minersadvantage.client.KeyBindings;
 import co.uk.duelmonster.minersadvantage.common.Constants;
+import co.uk.duelmonster.minersadvantage.common.JsonHelper;
 import co.uk.duelmonster.minersadvantage.common.PacketID;
 import co.uk.duelmonster.minersadvantage.common.Variables;
 import co.uk.duelmonster.minersadvantage.handlers.GodItems;
@@ -65,8 +66,8 @@ public class ClientEvents {
 		event.setCanceled(settings.bCaptivationEnabled()
 				&& settings.bIsWhitelist()
 				&& settings.captivationBlacklist() != null
-				&& settings.captivationBlacklist().size() > 0
-				&& settings.captivationBlacklist().has(event.getItem().getItem().getItem().getRegistryName().toString().trim()));
+				&& JsonHelper.size(settings.captivationBlacklist()) > 0
+				&& settings.captivationBlacklist().has(event.getItem().getEntityItem().getItem().getRegistryName().toString().trim()));
 	}
 	
 	@SubscribeEvent

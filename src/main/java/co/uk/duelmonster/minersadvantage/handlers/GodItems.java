@@ -63,7 +63,7 @@ public class GodItems {
 		if (null == server)
 			return;
 		
-		World world = server.getWorld(player.dimension);
+		World world = server.worldServerForDimension(player.dimension);
 		
 		iGivenCount++;
 		

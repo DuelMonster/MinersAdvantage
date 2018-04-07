@@ -41,7 +41,7 @@ public class IlluminationHandler implements IPacketHandler {
 	
 	@Override
 	public void processServerMessage(NetworkPacket message, MessageContext context) {
-		final EntityPlayerMP player = context.getServerHandler().player;
+		final EntityPlayerMP player = context.getServerHandler().playerEntity;
 		if (player == null)
 			return;
 		

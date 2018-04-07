@@ -3,6 +3,7 @@ package co.uk.duelmonster.minersadvantage.handlers;
 import java.util.List;
 
 import co.uk.duelmonster.minersadvantage.common.Functions;
+import co.uk.duelmonster.minersadvantage.common.JsonHelper;
 import co.uk.duelmonster.minersadvantage.packets.NetworkPacket;
 import co.uk.duelmonster.minersadvantage.settings.Settings;
 import net.minecraft.entity.Entity;
@@ -21,13 +22,13 @@ public class CaptivationHandler implements IPacketHandler {
 	
 	@Override
 	public void processServerMessage(NetworkPacket message, MessageContext context) {
-		final EntityPlayerMP player = context.getServerHandler().player;
+		final EntityPlayerMP player = context.getServerHandler().playerEntity;
 		if (player == null)
 			return;
 		
 		Settings settings = Settings.get(player.getUniqueID());
 		
-		AxisAlignedBB captivateArea = player.getEntityBoundingBox().grow(settings.radiusHorizontal(), settings.radiusVertical(), settings.radiusHorizontal());
+		AxisAlignedBB captivateArea = player.getEntityBoundingBox().expand(settings.radiusHorizontal(), settings.radiusVertical(), settings.radiusHorizontal());
 		
 		if (player.world != null) {
 			List<Entity> localDrops = Functions.getNearbyEntities(player.world, captivateArea);
@@ -38,8 +39,8 @@ public class CaptivationHandler implements IPacketHandler {
 						
 						if (!eItem.cannotPickup()
 								&& (settings.captivationBlacklist() == null
-										|| settings.captivationBlacklist().size() == 0
-										|| !settings.captivationBlacklist().has(eItem.getItem().getItem().getRegistryName().toString().trim())))
+										|| JsonHelper.size(settings.captivationBlacklist()) == 0
+										|| !settings.captivationBlacklist().has(eItem.getEntityItem().getItem().getRegistryName().toString().trim())))
 							entity.onCollideWithPlayer(player);
 						
 					} else if (entity instanceof EntityXPOrb)

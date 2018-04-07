@@ -32,6 +32,10 @@ public class JsonHelper {
 		return false;
 	}
 	
+	public static int size(JsonObject json) {
+		return json.entrySet().size();
+	}
+	
 	public static JsonArray GetArray(JsonObject json, String key) {
 		if (json == null)
 			return new JsonArray();

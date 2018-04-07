@@ -1,48 +1,6 @@
-This mapping 'snapshot_20180310' was designed for MC 1.12! Use at your own peril.This mapping 'snapshot_20180310' was designed for MC 1.12! Use at your own peril.
+This mapping 'snapshot_20161220' was designed for MC 1.11! Use at your own peril.This mapping 'snapshot_20161220' was designed for MC 1.11! Use at your own peril.
 
-#################################################
-         ForgeGradle 2.3-SNAPSHOT-27b9d44        
-  https://github.com/MinecraftForge/ForgeGradle  
-#################################################
-                 Powered by MCP                  
-             http://modcoderpack.com             
-     by: Searge, ProfMobius, R4wk, ZeuX          
-     Fesh0r, IngisKahn, bspkrs, LexManos         
-#################################################
-:clean
-:deobfCompileDummyTask
-:deobfProvidedDummyTask
-:sourceApiJava
-:compileApiJava UP-TO-DATE
-:processApiResources UP-TO-DATE
-:apiClasses UP-TO-DATE
-:sourceMainJava
-:compileJava
-:processResources
-:classes
-:deobfJar
-:jar
-:sourceTestJava
-:compileTestJava UP-TO-DATE
-:processTestResources UP-TO-DATE
-:testClasses UP-TO-DATE
-:test UP-TO-DATE
-:extractMcpData SKIPPED
-:extractMcpMappings SKIPPED
-:getVersionJson
-:extractUserdev UP-TO-DATE
-:genSrgs SKIPPED
-:reobfJar
-:extractAnnotationsJar
-:extractRangemapReplacedMain
-C:\$MC\Mod Source\~MinersAdvantage\Source\build\sources\main\java
-:retromapReplacedMain
-remapping source...
-:sourceJar
-:assemble
-:check UP-TO-DATE
-:build
 
-BUILD SUCCESSFUL
+CONFIGURE SUCCESSFUL
 
-Total time: 26.574 secs
+Total time: 4.977 secs

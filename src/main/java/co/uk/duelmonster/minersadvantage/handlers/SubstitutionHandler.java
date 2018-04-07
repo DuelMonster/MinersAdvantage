@@ -3,7 +3,9 @@ package co.uk.duelmonster.minersadvantage.handlers;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import co.uk.duelmonster.minersadvantage.client.ClientFunctions;
 import co.uk.duelmonster.minersadvantage.common.Constants;
@@ -80,7 +82,7 @@ public class SubstitutionHandler {
 		this.state = world.getBlockState(oPos);
 		this.block = state.getBlock();
 		
-		InventoryPlayer inventory = player.inventory;
+		final InventoryPlayer inventory = player.inventory;
 		
 		boolean silkTouchable = block.canSilkHarvest(world, oPos, state, player);
 		
@@ -136,25 +138,31 @@ public class SubstitutionHandler {
 			rankings = Constants.RANKING_DEFAULT;
 		
 		// Identify the most optimal tool for the job
-		rankings.forEach(rank -> {
-			rankingMap.entrySet().forEach(rankedSlot -> {
-				
-				RankAndLevel rankAndLevel = rankedSlot.getValue();
-				int iCurrentRankIndx = rankings.size() - rankings.indexOf(rank);
-				float iCurrentToolSpeed = getToolSpeed(inventory.getStackInSlot(rankAndLevel.SlotID));
-				
-				if (iOptimalDigSpeed < iCurrentToolSpeed ||
-						(iOptimalDigSpeed <= iCurrentToolSpeed && iOptimalRankIndx <= iCurrentRankIndx && rankAndLevel.rank.ordinal() == rank.ordinal() &&
-								(oOptimalRank == null ||
-										(rankAndLevel.rank.ordinal() >= oOptimalRank.rank.ordinal() &&
-												rankAndLevel.Level_1 > oOptimalRank.Level_1 &&
-												(rankAndLevel.Level_2 == -1 || rankAndLevel.Level_2 > oOptimalRank.Level_2))))) {
-					iOptimalSlot = rankAndLevel.SlotID;
-					iOptimalRankIndx = iCurrentRankIndx;
-					oOptimalRank = rankAndLevel;
-					iOptimalDigSpeed = iCurrentToolSpeed;
-				}
-			});
+		rankings.forEach(new Consumer<Ranking>() {
+			@Override
+			public void accept(final Ranking rank) {
+				rankingMap.entrySet().forEach(new Consumer<Entry<Integer, RankAndLevel>>() {
+					@Override
+					public void accept(Entry<Integer, RankAndLevel> rankedSlot) {
+						
+						RankAndLevel rankAndLevel = rankedSlot.getValue();
+						int iCurrentRankIndx = rankings.size() - rankings.indexOf(rank);
+						float iCurrentToolSpeed = getToolSpeed(inventory.getStackInSlot(rankAndLevel.SlotID));
+						
+						if (iOptimalDigSpeed < iCurrentToolSpeed ||
+								(iOptimalDigSpeed <= iCurrentToolSpeed && iOptimalRankIndx <= iCurrentRankIndx && rankAndLevel.rank.ordinal() == rank.ordinal() &&
+										(oOptimalRank == null ||
+												(rankAndLevel.rank.ordinal() >= oOptimalRank.rank.ordinal() &&
+														rankAndLevel.Level_1 > oOptimalRank.Level_1 &&
+														(rankAndLevel.Level_2 == -1 || rankAndLevel.Level_2 > oOptimalRank.Level_2))))) {
+							iOptimalSlot = rankAndLevel.SlotID;
+							iOptimalRankIndx = iCurrentRankIndx;
+							oOptimalRank = rankAndLevel;
+							iOptimalDigSpeed = iCurrentToolSpeed;
+						}
+					}
+				});
+			}
 		});
 		
 		// Substitute the Players current item with the most optimal tool for the job
@@ -171,7 +179,7 @@ public class SubstitutionHandler {
 		float f = 1.0F;
 		
 		if (!tool.isEmpty())
-			f *= tool.getDestroySpeed(state);
+			f *= tool.getStrVsBlock(state);
 		
 		if (f > 1.0F) {
 			int i = EnchantmentHelper.getEfficiencyModifier(player);

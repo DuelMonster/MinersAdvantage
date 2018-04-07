@@ -28,4 +28,15 @@ public class ConfigGuiFactory implements IModGuiFactory {
 	public boolean hasConfigGui() {
 		return true;
 	}
+	
+	@Override
+	public Class<? extends GuiScreen> mainConfigGuiClass() {
+		return null;
+	}
+	
+	@SuppressWarnings("deprecation")
+	@Override
+	public RuntimeOptionGuiHandler getHandlerFor(RuntimeOptionCategoryElement element) {
+		return null;
+	}
 }
