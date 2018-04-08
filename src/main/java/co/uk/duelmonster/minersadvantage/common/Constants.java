@@ -13,13 +13,27 @@ public final class Constants {
 	public static final String	MOD_ID			= "minersadvantage";
 	public static final String	MOD_NAME		= "MinersAdvantage";
 	public static final String	MOD_NAME_MSG	= TextFormatting.DARK_PURPLE + "[" + Constants.MOD_NAME + "] ";
-	public static final String	MOD_VERSION		= "1.0.0";
-	public static final String	MC_VERSION		= "1.12.2";
-	public static final String	CHANNEL			= "MA_NET_CHAN";
-	public static final String	FVC_URL			= "http://www.duelmonster.talktalk.net/Minecraft/MinersAdvantage/forge_update.json";
-	public static final String	NAMESPACE		= "co.uk.duelmonster.minersadvantage.";
-	public static final String	PROXY			= NAMESPACE + "proxies.";
-	public static final String	GUI_FACTORY		= NAMESPACE + "client.config.ConfigGuiFactory";
+	
+	// This number is incremented every time we remove deprecated code or make major changes, never reset
+	public static final int majorVersion = 1;
+	// This number is incremented every minecraft release, never reset
+	public static final int minorVersion = 3;
+	// This number is incremented every time new features are added, never reset
+	public static final int revisionVersion = 14;
+	// This number is incremented every time a release is built, and never reset
+	public static final int buildVersion = 189;
+	
+	// This is the full version number of our mod
+	public static final String MOD_VERSION = majorVersion + "." + minorVersion + "." + revisionVersion + "." + buildVersion;
+	
+	// This is the minecraft version we're building for
+	public static final String MC_VERSION = "1.12.2";
+	
+	public static final String	CHANNEL		= "MA_NET_CHAN";
+	public static final String	FVC_URL		= "http://www.duelmonster.talktalk.net/Minecraft/MinersAdvantage/forge_update.json";
+	public static final String	NAMESPACE	= "co.uk.duelmonster.minersadvantage.";
+	public static final String	PROXY		= NAMESPACE + "proxies.";
+	public static final String	GUI_FACTORY	= NAMESPACE + "client.config.ConfigGuiFactory";
 	
 	public static final String	COMMON_ID		= Constants.MOD_ID + ".common";
 	public static final String	SERVER_ID		= Constants.MOD_ID + ".server";

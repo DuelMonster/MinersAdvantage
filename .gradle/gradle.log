@@ -9,7 +9,11 @@ This mapping 'snapshot_20180310' was designed for MC 1.12! Use at your own peril
      by: Searge, ProfMobius, R4wk, ZeuX          
      Fesh0r, IngisKahn, bspkrs, LexManos         
 #################################################
+:versionCheck
+==================================================
+  Mod Version = 1.12.2-1.3.14.190
+==================================================
 
-CONFIGURE SUCCESSFUL
+BUILD SUCCESSFUL
 
-Total time: 2.883 secs
+Total time: 6.241 secs
