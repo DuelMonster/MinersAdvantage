@@ -1,4 +1,5 @@
 @echo off
 cls
-del /Q/F/S .\~Release\*.*
-Call gradlew clean curseforge
+rem del /Q/F/S .\~Release\*.*
+rem Call gradlew clean curseforge
+Call gradlew clean release
