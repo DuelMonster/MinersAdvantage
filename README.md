@@ -45,7 +45,6 @@ Some of these additions are as follows:
     - ores that can be harvested,
     - etc, etc.
 
-***
 ## Backstory
 <details open><summary>The re-development process has taken much longer than anticipated due to unforeseen IRL circumstances.</summary>
   
@@ -63,7 +62,6 @@ My work life is being affected and I have had to have a lot of time off for hosp
 So I guess what I'm really trying to say here is, if you find an issue with MinersAdvantage, please be patient with me.  I will get around to looking into any issues and, will do my best to reply to each and every message.
 </details>
 
-***
 ## MinersAdvantage component List:
 <details><summary><strong>Captivation</strong> - Automatically pickup items and XP orbs. <em>[Magnet mode]</em></summary>
   
@@ -201,14 +199,10 @@ Features:
 - Customizable Ore blocks list.
 </details>
 
-***
-
 ## Reviews/Spotlights:
 <details><summary><em>*None Yet*</em></summary>
 
 </details>
-
-***
 
 ## FAQ:
 
