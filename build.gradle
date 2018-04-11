@@ -8,11 +8,15 @@ buildscript {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
     }
 }
+
+plugins {
+	id 'com.matthewprenger.cursegradle' version '1.0.8'
+}
+
 apply plugin: 'net.minecraftforge.gradle.forge'
 //Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 //======================================================================================================\\
 
-version = "1.0.14"
 group = "co.uk.duelmonster.minersadvantage" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "MinersAdvantage"
 
@@ -25,9 +29,63 @@ minecraft {
     version = "1.10.2-12.18.3.2185"
     mappings = "snapshot_20161111"
     runDir = "debug_1.10.2"
+    
+    makeObfSourceJar = false // an Srg named sources jar is made by default. disabled because we do this ourselves.
 }
 
+//======================================================================================================\\
+
+String mod_major    = "0";
+String mod_minor    = "0";
+String mod_revision = "0";
+String mod_build    = "0";
+
+String versionJavaPrefix = "public static final int";
+
+File versionFile = file("src/main/java/${group.replace('.','/')}/common/Constants.java")
+versionFile.eachLine{ String sLine ->
+    sLine = sLine.trim();
+    if (sLine.startsWith(versionJavaPrefix)) {
+        sLine = sLine.substring(versionJavaPrefix.length(), sLine.length() - 1);
+        sLine = sLine.replace("Version", "").replace('=', '').replaceAll("  ", " ").trim();
+        String[] parts = sLine.split(" ");
+
+             if (parts[0].equals("major"))    mod_major    = parts[parts.length - 1];
+        else if (parts[0].equals("minor"))    mod_minor    = parts[parts.length - 1];
+        else if (parts[0].equals("revision")) mod_revision = parts[parts.length - 1];
+        else if (parts[0].equals("build"))    mod_build    = (parts[parts.length - 1].toInteger() + 1).toString()
+    }
+}
+
+String curseId			= "";
+String curseForgeApiKey	= "";
+String modsioApiKey		= "";
+
+def userGradleScript = file("../${System.getProperty("user.name")}.properties") 
+if (userGradleScript.exists()) { 
+	//apply from: userGradleScript 
+	userGradleScript.withReader {
+		// Load User Specific Settings.
+		def props = new Properties()
+		props.load(it)
+		
+		curseId				= props['curseId'].toString()
+		curseForgeApiKey	= props['curseForgeApiKey'].toString()
+		modsioApiKey		= props['modsioApiKey'].toString()
+	}
+}
+
+//======================================================================================================\\
+
+println "===================================================================================================="
+println "  Building $archivesBaseName Version = ${minecraft.version}-$mod_major.$mod_minor.$mod_revision.$mod_build"
+println "===================================================================================================="
+
+//======================================================================================================\\
+
 dependencies { }
+
+version = "$mod_major.$mod_minor.$mod_revision.$mod_build"
 
 processResources {
     // this will ensure that this task is redone when the versions change.
@@ -46,11 +104,77 @@ processResources {
     }
 }
 
+version = "${minecraft.version}-$mod_major.$mod_minor.$mod_revision.$mod_build"
+
+task srcJar(type: Jar) {
+	from sourceSets.main.java
+	classifier = 'src'
+}
+
 task deobfJar(type: Jar) {
 	from sourceSets.main.output
-    appendix = 'deobf'
+    classifier = 'deobf'
 }
- 
+
 artifacts {
-	archives deobfJar
+	archives srcJar, deobfJar
+}
+
+task updateBuildNumber << {
+    def output = "";
+    def crlf = "\r\n";
+
+    versionFile.eachLine{ String sLine ->
+        if (sLine.matches("^	public static final int buildVersion = [\\d]+;\$"))
+            sLine = "	public static final int buildVersion = ${mod_build};";
+        if (sLine.matches('^	public static final String MC_VERSION = "[^\\"]+";'))
+            sLine = "	public static final String MC_VERSION = \"${minecraft.version}\";";
+        output += (sLine + crlf);
+    }
+    versionFile.write(output);
+}
+
+task release(type: Copy) {
+	dependsOn build
+	finalizedBy updateBuildNumber
+	
+	from('build/libs') { include '*.jar' }
+	into "../~Releases/"
+
+	doLast {
+		println "===================================================================================================="
+		println "  $archivesBaseName release built successfully:  " + file("../~Releases/")
+		println "===================================================================================================="
+	}
+}
+
+tasks.curseforge.onlyIf { curseForgeApiKey }
+tasks.curseforge.dependsOn release
+
+curseforge {
+	apiKey = curseForgeApiKey
+
+	project {
+		id = curseId
+		
+		changelogType = 'markdown'
+		changelog 	  = file('ChangeLog.md')
+		
+		releaseType = 'release'
+		
+		addGameVersion minecraft.version
+
+		mainArtifact jar
+		addArtifact  srcJar
+		addArtifact  deobfJar
+	}
+}
+
+task APIKeyTest << {
+	println "===================================================================================================="
+	println "  CurseForge Id: " + (curseId != '' ? curseId : "!! NOT FOUND !!")
+	println "  CurseForge API Key: " + (curseForgeApiKey != '' ? curseForgeApiKey : "!! NOT FOUND !!")
+	println "----------------------------------------------------------------------------------------------------"
+	println "  mods.io API Key: " + (modsioApiKey != '' ? modsioApiKey : "!! NOT FOUND !!")
+	println "===================================================================================================="
 }
