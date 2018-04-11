@@ -12,12 +12,11 @@ This decision has resulted in the birth of:  **MinersAdvantage**
 
 ***
 
-<p align="center">**Be So Kind and Support Me, help me pay for Stuffs and Ensure I can continue to Update my Mods...**
+<p align="center">**Be So Kind and Support Me, help me pay for Stuffs and Ensure I can continue to Update my Mods...**</p>
 
 [![](http://i.imgur.com/CAJuExT.png) **Support me via Patreon**](https://www.patreon.com/DuelMonster)
 or
 [![](https://www.paypalobjects.com/en_GB/i/btn/btn_donate_SM.gif) **via Paypal**](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=9VMJMWCLDM4DE)
-</p>
 
 ***
 
