@@ -1,5 +1,6 @@
 <p align="center"><img src="/src/main/resources/MinersAdvantage_Banner.png"/></p>
 
+## Overview
 **MinersAdvantage** is a re-imagining of my previous mod 'SuperMiner'. It is a rewrite from the ground up that aims to solve all previous issues and to add additional features.
 
 The original collection of components are still here however, they have just had minor name changes. All components have been re-developed from scratch, with the intention of greatly improving your Minecraft experience and to continue to make life easier...
@@ -19,7 +20,7 @@ or
 [![](https://www.paypalobjects.com/en_GB/i/btn/btn_donate_SM.gif) **via Paypal**](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=9VMJMWCLDM4DE)
 
 ***
-
+## Details
 **MAJOR** improvements in the way that blocks are harvested have been made in order to cure a very **nasty** bug that exists in SuperMiner which causes the client and/or server to crash. Due to the way SuperMiner was developed, it wasn't possible to solve the issue without a complete rewriting of the base code. There were also other areas that had become stagnant and difficult to improve upon.
 
 During this re-development I took the opportunity to add some additional features that were either on my personal todo list or had been suggested by some of SuperMiners users.
@@ -45,6 +46,7 @@ Some of these additions are as follows:
     - etc, etc.
 
 ***
+## Backstory
 The re-development process has taken much longer than anticipated due to unforeseen IRL circumstances.  I was on track and hoping to have released v1.0.0 back in November, but my daughter was taken into hospital on the 19th of October 2017 with suspected diabetes.  I spent five days in hospital with her ( *day and night* ) before we were allowed to return home again.
 
 She was diagnosed with Type 1 Diabetes and is now totally dependent on Insulin injections.  The next few months were spent learning all we could about managing her diabetes; carb counting, the effects of and how to treat high and low blood sugars, dealing with mood swings and numerous other things.  We have had to buy quite a few gadgets and things to make life easier and my wife has done a wonderful job of creating low carb recipes, a blood sugar/insulin dose recording spreadsheet and various other time saving bits and bobs.
@@ -59,9 +61,9 @@ My work life is being affected and I have had to have a lot of time off for hosp
 So I guess what I'm really trying to say here is, if you find an issue with MinersAdvantage, please be patient with me.  I will get around to looking into any issues and, will do my best to reply to each and every message.
 
 ***
-**MinersAdvantage** component List:
-
-**Captivation** - Automatically pickup items and XP orbs. *[Magnet mode]*
+## MinersAdvantage component List:
+<details><summary><strong>Captivation</strong> - Automatically pickup items and XP orbs. <em>[Magnet mode]</em></summary>
+  
 Captivation is a magnet mode mod that not only picks up items within a specified range but will also pick up any XP Orbs as well. The magnetic range is defaulted to a 16 block radius of the player in both horizontal and vertical axis. The range is user definable.
 
 Comes with a configurable Whitelist / Blacklist. This list allows you to tell Captivation which items it should collect or which it should ignore. By using the "Is Whitelist" configuration option you can tell Captivation to treat the "Item IDs" list as a Whitelist (True) or a Blacklist (False). Default is True (Whitelist).
@@ -72,8 +74,9 @@ Features:
 - Customizable Horizontal radius.
 - Customizable Vertical radius.
 - Customizable Whitelist / Blacklist.
-
-**Cropination** - makes Farming easier and the Hoe more useful.
+</details>
+  
+<details><summary><strong>Cropination</strong> - makes Farming easier and the Hoe more useful.</summary>
 
 **Auto Hoe:** It is now really easy to till your land ready for crop growing. Just right click the dirt/grass with your Hoe as normal and Cropination will automagically till the ground for you. Only the areas that are in range of a water source are tilled. If no water source is found, the Hoe will just act as normal.
 
@@ -84,8 +87,9 @@ Features:
 - Automatically till an area of dirt that has a valid water source.
 - Automatically harvest mature crops and replant.
 - Optionalanly "Harvest Seeds".
+</details>
 
-**Excavation** - Digs a big hole by breaking connected blocks, of the same type, within the specified range.
+<details><summary><strong>Excavation</strong> - Digs a big hole by breaking connected blocks, of the same type, within the specified range.</summary>
 
 Excavation allows you to dig/mine big holes by breaking a single block. All blocks of the same type will be mined within the specified range. This range is user definable to allow you to fine tune the amount of land you want to harvest.
 You are required to hold down a key while mining in order for it to work. Default button is the Grave key - ' **\`** '
@@ -121,8 +125,9 @@ Features:
 - Optional Stone variation detection.  Default is True.
 - Works with Illumination to light the shaft.
 - Works with Veination to mine the ore veins that intersect the shaft.
+</details>
 
-**Illumination** - Automatically lights up the area while you mine.
+<details><summary><strong>Illumination</strong> - Automatically lights up the area while you mine.</summary>
 
 Illumination has been designed to allow you to mine away and not worry about lighting the area as you go. It checks the light level at your feet while you are breaking blocks and places a torch if the light level falls below the defined light level.
 
@@ -134,8 +139,9 @@ Features:
 
 - Customizable Lowest Light Level.
 - Torch placement keybind.  Default button is 'V'.
+</details>
 
-**Lumbination** - Chop down entire trees.
+<details><summary><strong>Lumbination</strong> - Chop down entire trees.</summary>
 
 Lumbination allows you to chop down an entire tree just like you would in real life.  It intelligently tries to identify the whole tree based on the size of the trunk and it's branches.
 You can define whether or not the whole tree will be chopped down when chopping it higher than the bottom block. The default is no, which will leave any blocks below the chopping point.
@@ -144,8 +150,9 @@ Features:
 - Customizable Tools list.
 - Customizable Wood blocks list.
 - Customizable Leaf blocks list.
+</details>
 
-**Shaftanation** - Dig yourself a mine shaft.
+<details><summary><strong>Shaftanation</strong> - Dig yourself a mine shaft.</summary>
 
 Shaftanation was created to make strip mining quicker and easier by digging a mine shaft automagically.
 Once the shaft is dug, all you need to do is to take a walk and collect the Ores.
@@ -165,8 +172,9 @@ Features:
 - Customizable Shaft Length - Limit of between 4 & 128.
 - Works with Illumination to light the shaft.
 - Works with Veination to mine the ore veins that intersect the shaft.
+</details>
 
-**Substitution** - Automatically select the correct tool while you mine.
+<details><summary><strong>Substitution</strong> - Automatically select the correct tool while you mine.</summary>
 
 Substitution will automatically switch to the best tool when you start breaking a block and by default will switch back to the previously held item after you're done.
 Only those tools that are in your hotbar inventory slots will be used. The quickest/best tool will be selected based on the block being attacked and the best enchantments.
@@ -178,8 +186,9 @@ Features:
 - Optional: Favour a SilkTouch tool over any other tool.
 - Optional: Ignore other tools when deciding to substitute if the current Tool is valid for the block.
 - Optional: Ignore Passive Mobs when deciding to substitute to a weapon.
+</details>
 
-**Veination** - Mine an entire vein of ore.
+<details><summary><strong>Veination</strong> - Mine an entire vein of ore.</summary>
 
 Veination allows you to mine entire veins of ore.
 There is no need to hold a button in order for the vein to be mined, it will be done automatically for you.
@@ -187,40 +196,51 @@ There is no need to hold a button in order for the vein to be mined, it will be 
 Features:
 - Customizable Tools list.
 - Customizable Ore blocks list.
+</details>
 
 ***
-**Reviews/Spotlights:** *None Yet*
+
+## Reviews/Spotlights:
+<details><summary><em>*None Yet*</em></summary>
+
+</details>
 
 ***
-**FAQ:**
 
-*How do I install your mod?*
+## FAQ:
+
+<details><summary><em>How do I install your mod?</em></summary>
+  
 - Download and install Minecraft Forge
 - Download MinersAdvantage.
 - Place the mod jar file into the mods folder of your Minecraft installation.
 - Start Minecraft.
 
 **NOTE:** MinersAdvantage must be installed on both Client and Server in order to work correctly.
+</details>
 
-*Can I use your mod within my mod pack?*
-
+<details><summary><em>Can I use your mod within my mod pack?</em></summary>
+  
 I give my _**full permission**_ to include MinersAdvantage in any mod pack, as long as the following conditions are met:
 - Ensure you provide a link to MinerAdvantage.
 - Properly credit me as the author - DuelMonster
 - You mustn't make any money off of your mod pack.
 - Be sure to remove these mods from your pack if I specifically request it.
+</details>
 
-*Where can I find the source code for your mod?*
-- The source is avaliable under GNU Lesser General Public License v3.0 and can be found within my GitHub repository.
+<details><summary><em>Where can I find the source code for your mod?</em></summary>
+  
+The source is avaliable under GNU Lesser General Public License v3.0 and can be found within my GitHub repository.
 
 [**GitHub.com/DuelMonster/MinersAdvantage**](https://github.com/DuelMonster/MinersAdvantage)
+</details>
 
-*How do I compile the Source?*
-
+<details><summary><em>How do I compile the Source?</em></summary>
+  
 [**Compiling MinersAdvantage**](/SETUP.md)
+</details>
 
-*How do I report an issue or contribute to the project?*
-
+<details><summary><em>How do I report an issue or contribute to the project?</em></summary>
+  
 [**Contributing MinersAdvantage**](/SETUP.md#contributing)
-
-***
+</details>
