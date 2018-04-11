@@ -83,7 +83,7 @@ Features:
 **Excavation** - Digs a big hole by breaking connected blocks, of the same type, within the specified range.
 
 Excavation allows you to dig/mine big holes by breaking a single block. All blocks of the same type will be mined within the specified range. This range is user definable to allow you to fine tune the amount of land you want to harvest.
-You are required to hold down a key while mining in order for it to work. Default button is the Grave key - ' **`** '
+You are required to hold down a key while mining in order for it to work. Default button is the Grave key - ' **\`** '
 There is a Tools list that can be defined so that you can restrict Excavation to only work with the specified tool(s). It is defaulted to an empty list, which allows all tools and items in your hand or just your hand.
 
 If you have Illumination enabled and the 'Auto Illuminate' option is switched on (default is on), then Excavation will tell Illumination to place torches on the lowest level of the hole so you don't have to.
@@ -95,7 +95,7 @@ It uses the same block limit and radius to determine the area to excavate but wi
 
 **Pathanation:** This feature allows you to automatically path an area using the Path block.
 
-When holding the Excavation toggle key (default Grave ' ` ') and right clicking Grass ( or Dirt ) using a shovel, a path will be produced in the direction you are facing. Unlike the vanilla mechanic MinersAdvantage allows you to turn Dirt into Path blocks as well as Grass.
+When holding the Excavation toggle key (default Grave ' \` ') and right clicking Grass ( or Dirt ) using a shovel, a path will be produced in the direction you are facing. Unlike the vanilla mechanic MinersAdvantage allows you to turn Dirt into Path blocks as well as Grass.
 The 'Path Width' and 'Path Length' can be adjusted using the MinersAdvantage configuration.
 Width has a minimum of 1 block and maximum of 16 blocks.
 Length has a minimum of 3 blocks and maximum of 64 blocks.
@@ -210,8 +210,12 @@ I give my _**full permission**_ to include MinersAdvantage in any mod pack, as l
 
 [**GitHub.com/DuelMonster/MinersAdvantage**](https://github.com/DuelMonster/MinersAdvantage)
 
-**How do I compile the Source?**
+*How do I compile the Source?*
 
 [**Compiling MinersAdvantage**](/SETUP.md)
+
+*How do I report an issue or contribute to the project?*
+
+[**Contributing MinersAdvantage**](/SETUP.md#contributing)
 
 ***
