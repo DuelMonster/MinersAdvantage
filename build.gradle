@@ -30,7 +30,7 @@ minecraft {
     mappings = "snapshot_20180310"
     runDir = "debug"
     
-	makeObfSourceJar = false // an Srg named sources jar is made by default. disabled because we do this ourselves.
+    makeObfSourceJar = false // an Srg named sources jar is made by default. disabled because we do this ourselves.
 }
 
 //======================================================================================================\\
