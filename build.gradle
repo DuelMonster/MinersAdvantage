@@ -157,8 +157,8 @@ curseforge {
 	project {
 		id = curseId
 		
-		changelogType = 'markdown'
-		changelog 	  = file('ChangeLog.md')
+		//changelogType = 'markdown'
+		//changelog 	  = file('ChangeLog.md')
 		
 		releaseType = 'release'
 		
