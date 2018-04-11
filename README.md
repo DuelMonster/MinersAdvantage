@@ -1,3 +1,4 @@
+![](http://cf.way2muchnoise.eu/versions/For%20MC_291972_all.svg) ![](http://cf.way2muchnoise.eu/full_291972_Downloads.svg)
 ## Overview
 **MinersAdvantage** is a re-imagining of my previous mod 'SuperMiner'. It is a rewrite from the ground up that aims to solve all previous issues and to add additional features.
 
