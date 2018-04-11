@@ -6,7 +6,7 @@ The original collection of components are still here however, they have just had
 
 *My original inspiration was fueled by several well known mods; namely - VeinMiner, TreeCapitator, AutoSwitch & NEI's Magent Mode. My thanks and admiration still go out to their respective developers and I shall be forever grateful to them for inspiring me to develop my own mods.*
 
-Although the components and features list are, near enough, identical to SuperMiner, I felt that rather than releasing a new version, it warranted a complete name change due to the fact that only around 95% of the original code remains.
+Although the components and features list are, near enough, identical to SuperMiner, I felt that rather than releasing a new version, it warranted a complete name change due to the fact that only around 5% of the original code remains.
 
 This decision has resulted in the birth of:
 <p align="center"><img src="/src/main/resources/MinersAdvantage_Banner.png"/></p>
