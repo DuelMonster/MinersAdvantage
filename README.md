@@ -1,3 +1,5 @@
+<p align="center"><img src="/src/main/resources/MinersAdvantage_Banner.png"/></p>
+
 **MinersAdvantage** is a re-imagining of my previous mod 'SuperMiner'. It is a rewrite from the ground up that aims to solve all previous issues and to add additional features.
 
 The original collection of components are still here however, they have just had minor name changes. All components have been re-developed from scratch, with the intention of greatly improving your Minecraft experience and to continue to make life easier...
