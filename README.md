@@ -47,9 +47,11 @@ Some of these additions are as follows:
 
 ***
 ## Backstory
-The re-development process has taken much longer than anticipated due to unforeseen IRL circumstances.  I was on track and hoping to have released v1.0.0 back in November, but my daughter was taken into hospital on the 19th of October 2017 with suspected diabetes.  I spent five days in hospital with her ( *day and night* ) before we were allowed to return home again.
+<details open><summary>The re-development process has taken much longer than anticipated due to unforeseen IRL circumstances.</summary>
+  
+I was on track and hoping to have released v1 of MinersAdvantage back in November, but my daughter was taken into hospital on the 19th of October 2017 with suspected diabetes.  I spent five days in hospital with her ( *day and night* ) before we were allowed to return home again.
 
-She was diagnosed with Type 1 Diabetes and is now totally dependent on Insulin injections.  The next few months were spent learning all we could about managing her diabetes; carb counting, the effects of and how to treat high and low blood sugars, dealing with mood swings and numerous other things.  We have had to buy quite a few gadgets and things to make life easier and my wife has done a wonderful job of creating low carb recipes, a blood sugar/insulin dose recording spreadsheet and various other time saving bits and bobs.
+She was diagnosed with Type 1 Diabetes and is now totally dependent on Insulin.  The next few months were spent learning all we could about managing her diabetes; carb counting, the effects of and how to treat high and low blood sugars, dealing with mood swings and numerous other things.  We have had to buy quite a few gadgets and things to make life easier and my wife has done a wonderful job of creating low carb recipes, a blood sugar/insulin dose recording spreadsheet and various other time saving bits and bobs.
 It's been a difficult time for us all mentally, emotionally and physically.  Her being so young ( *3 years at time of diagnosis* ) has also had it's issues with regards to what she eats, dealing with finger pricking and injections, having to treat highs or lows in the night, and trying to keep her calm and content.
 
 She has now been fitted with an Insulin Pump which is slowly making life a little easier, but comes with more learning and tweaking.  So far her sugar levels have been so much better.
@@ -59,6 +61,7 @@ My wife and I are absolutely shattered and could do with a break from it all, bu
 My work life is being affected and I have had to have a lot of time off for hospital visits, illness ( *both myself and family *) and various other reasons.  My manager has been great and very supportive about it all, but the bosses higher up are starting to get a bit annoyed with it and have started questioning my commitment to the company.  I don't need that added stress on top of the already heavy emotional baggage I'm carrying.
 
 So I guess what I'm really trying to say here is, if you find an issue with MinersAdvantage, please be patient with me.  I will get around to looking into any issues and, will do my best to reply to each and every message.
+</details>
 
 ***
 ## MinersAdvantage component List:
