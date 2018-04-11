@@ -57,7 +57,7 @@ She has now been fitted with an Insulin Pump which is slowly making life a littl
 
 My wife and I are absolutely shattered and could do with a break from it all, but that's not going to happen for many years; not until our daughter is able to manage her diabetes herself.  Until then we must persevere and be strong for our little princess.  It has become a full time job for my wife, but it is taking it's toll on her.  I help out as much as I can when I'm not at work, but I do wish I could be with them 24 hours a day.
 
-My work life is being affected and I have had to have a lot of time off for hospital visits, illness ( *both myself and family *) and various other reasons.  My manager has been great and very supportive about it all, but the bosses higher up are starting to get a bit annoyed with it and have started questioning my commitment to the company.  I don't need that added stress on top of the already heavy emotional baggage I'm carrying.
+My work life is being affected and I have had to have a lot of time off for hospital visits, illness ( *both myself and family* ) and various other reasons.  My manager has been great and very supportive about it all, but the bosses higher up are starting to get a bit annoyed with it and have started questioning my commitment to the company.  I don't need that added stress on top of the already heavy emotional baggage I'm carrying.
 
 So I guess what I'm really trying to say here is, if you find an issue with MinersAdvantage, please be patient with me.  I will get around to looking into any issues and, will do my best to reply to each and every message.
 </details>
