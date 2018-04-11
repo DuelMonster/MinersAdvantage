@@ -17,3 +17,5 @@ hs_err_pid*
 debug_1\.10\.2/
 
 debug_1\.11\.2/
+
+bin/
