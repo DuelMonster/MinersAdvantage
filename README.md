@@ -10,6 +10,17 @@ Although the components and features list are, near enough, identical to SuperMi
 
 This decision has resulted in the birth of:  **MinersAdvantage**
 
+***
+
+<p align="center">**Be So Kind and Support Me, help me pay for Stuffs and Ensure I can continue to Update my Mods...**
+
+[![](http://i.imgur.com/CAJuExT.png) **Support me via Patreon**](https://www.patreon.com/DuelMonster)
+or
+[![](https://www.paypalobjects.com/en_GB/i/btn/btn_donate_SM.gif) **via Paypal**](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=9VMJMWCLDM4DE)
+</p>
+
+***
+
 **MAJOR** improvements in the way that blocks are harvested have been made in order to cure a very **nasty** bug that exists in SuperMiner which causes the client and/or server to crash. Due to the way SuperMiner was developed, it wasn't possible to solve the issue without a complete rewriting of the base code. There were also other areas that had become stagnant and difficult to improve upon.
 
 During this re-development I took the opportunity to add some additional features that were either on my personal todo list or had been suggested by some of SuperMiners users.
@@ -47,13 +58,6 @@ My wife and I are absolutely shattered and could do with a break from it all, bu
 My work life is being affected and I have had to have a lot of time off for hospital visits, illness ( *both myself and family *) and various other reasons.  My manager has been great and very supportive about it all, but the bosses higher up are starting to get a bit annoyed with it and have started questioning my commitment to the company.  I don't need that added stress on top of the already heavy emotional baggage I'm carrying.
 
 So I guess what I'm really trying to say here is, if you find an issue with MinersAdvantage, please be patient with me.  I will get around to looking into any issues and, will do my best to reply to each and every message.
-
-***
-**Be So Kind and Support Me, help me pay for Stuffs and Ensure I can continue to Update my Mods...**
-
-[![](http://i.imgur.com/CAJuExT.png) **Support me via Patreon**](https://www.patreon.com/DuelMonster)
-or
-[![](https://www.paypalobjects.com/en_GB/i/btn/btn_donate_SM.gif) **via Paypal**](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=9VMJMWCLDM4DE)
 
 ***
 **MinersAdvantage** component List:
