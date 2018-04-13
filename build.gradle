@@ -57,9 +57,9 @@ versionFile.eachLine{ String sLine ->
     }
 }
 
-String curseId			= "";
-String curseForgeApiKey	= "";
-String modsioApiKey		= "";
+String curseId			= '291972';
+String curseForgeApiKey	= '';
+String modsioApiKey		= '';
 
 def userGradleScript = file("../${System.getProperty("user.name")}.properties") 
 if (userGradleScript.exists()) { 
