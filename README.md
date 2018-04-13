@@ -1,4 +1,4 @@
-![](http://cf.way2muchnoise.eu/versions/For%20MC_291972_all.svg) ![](http://cf.way2muchnoise.eu/full_291972_Downloads.svg)
+![](http://cf.way2muchnoise.eu/versions/For%20MC_291972_all.svg) ![](http://cf.way2muchnoise.eu/full_291972_Downloads.svg) [![Build Status](https://travis-ci.org/DuelMonster/MinersAdvantage.svg?branch=MC_1.12.2)](https://travis-ci.org/DuelMonster/MinersAdvantage)
 ## Overview
 **MinersAdvantage** is a re-imagining of my previous mod 'SuperMiner'. It is a rewrite from the ground up that aims to solve all previous issues and to add additional features.
 
