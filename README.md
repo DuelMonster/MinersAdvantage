@@ -234,10 +234,10 @@ The source is avaliable under GNU Lesser General Public License v3.0 and can be 
 
 <details><summary><em>How do I compile the Source?</em></summary>
   
-[**Compiling MinersAdvantage**](/SETUP.md)
+[**Compiling MinersAdvantage**](/.github/CONTRIBUTING.md)
 </details>
 
 <details><summary><em>How do I report an issue or contribute to the project?</em></summary>
   
-[**Contributing MinersAdvantage**](/SETUP.md#contributing)
+[**Contributing MinersAdvantage**](/.github/CONTRIBUTING.md#contributing)
 </details>
