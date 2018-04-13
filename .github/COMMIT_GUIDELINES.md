@@ -4,9 +4,9 @@ The format of commit messages are very important.  It helps to produce **more
 readable messages** that are easy to follow when looking through the **project history**.  But also,
 these commit messages will be used to **generate the change log** at somepoint in the near future.
 
-The commit message formatting can be added using a typical git workflow or through the use of a CLI
+<!-- The commit message formatting can be added using a typical git workflow or through the use of a CLI
 wizard ([Commitizen](https://github.com/commitizen/cz-cli)). To use the wizard, run `yarn run commit`
-in your terminal after staging your changes in git.
+in your terminal after staging your changes in git. -->
 
 ### Commit Message Format
 Each commit message consists of a **header**, a **body** and a **footer**.  The header has a special
