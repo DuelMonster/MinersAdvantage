@@ -115,7 +115,7 @@ public class LumbinationAgent extends Agent {
 					block.onBlockDestroyedByPlayer(world, oPos, state);
 					block.harvestBlock(world, fakePlayer, oPos, state, world.getTileEntity(oPos), heldItemStack.copy());
 					
-					reportProgessToClient(oPos, soundtype.getBreakSound());
+					reportProgessToClient(oPos, block, soundtype.getBreakSound());
 				}
 				
 				processBlockSnapshots();
@@ -134,7 +134,7 @@ public class LumbinationAgent extends Agent {
 					bBlockHarvested = fakePlayer.interactionManager.tryHarvestBlock(oPos);
 				
 				if (bBlockHarvested) {
-					reportProgessToClient(oPos, soundtype.getBreakSound());
+					reportProgessToClient(oPos, block, soundtype.getBreakSound());
 					processBlockSnapshots();
 					addConnectedToQueue(oPos);
 					

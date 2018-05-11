@@ -90,7 +90,7 @@ public class ExcavationAgent extends Agent {
 					processBlockSnapshots();
 					
 					SoundType soundtype = block.getSoundType(state, world, oPos, null);
-					reportProgessToClient(oPos, soundtype.getBreakSound());
+					reportProgessToClient(oPos, block, soundtype.getBreakSound());
 					
 					autoIlluminate(oPos);
 					addConnectedToQueue(oPos);

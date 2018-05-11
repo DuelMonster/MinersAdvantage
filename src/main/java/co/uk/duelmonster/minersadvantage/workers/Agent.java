@@ -17,14 +17,19 @@ import co.uk.duelmonster.minersadvantage.handlers.SubstitutionHandler;
 import co.uk.duelmonster.minersadvantage.packets.NetworkPacket;
 import co.uk.duelmonster.minersadvantage.settings.Settings;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockFalling;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.play.server.SPacketBlockChange;
+import net.minecraft.network.play.server.SPacketEffect;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
@@ -182,11 +187,11 @@ public abstract class Agent {
 		return !processed.contains(oPos) && queued.contains(oPos) && (harvestArea == null || Functions.isWithinArea(oPos, harvestArea));
 	}
 	
-	public void reportProgessToClient(BlockPos oPos) {
-		reportProgessToClient(oPos, SoundEvents.BLOCK_STONE_BREAK);
+	public void reportProgessToClient(BlockPos oPos, Block block) {
+		reportProgessToClient(oPos, block, SoundEvents.BLOCK_STONE_BREAK);
 	}
 	
-	public void reportProgessToClient(BlockPos oPos, SoundEvent soundType) {
+	public void reportProgessToClient(BlockPos oPos, Block block, SoundEvent soundType) {
 		if (world instanceof WorldServer) {
 			
 			Functions.playSound(world, oPos, soundType, SoundCategory.BLOCKS, 1.0F, 1.0F);
@@ -195,4 +200,25 @@ public abstract class Agent {
 		}
 	}
 	
+	public boolean HarvestBlock(BlockPos oPos) {
+		
+		boolean bResult = fakePlayer.interactionManager.tryHarvestBlock(oPos);
+		player.connection.sendPacket(new SPacketBlockChange(world, oPos));
+		
+		final int range = 20;
+		IBlockState state = world.getBlockState(oPos);
+		
+		List<EntityPlayerMP> localPlayers = world.getEntitiesWithinAABB(EntityPlayerMP.class, new AxisAlignedBB(oPos.add(-range, -range, -range), oPos.add(range, range, range)));
+		
+		SPacketEffect packet = new SPacketEffect(2001, oPos, Block.getStateId(state), false);
+		for (Entity entity : localPlayers)
+			((EntityPlayerMP) entity).connection.sendPacket(packet);
+		
+		Block blockAbove = Functions.getBlockFromWorld(world, oPos.up());
+		if (blockAbove instanceof BlockFalling && HarvestBlock(oPos.up()))
+			for (Entity entity : localPlayers)
+				Functions.spawnAreaEffectCloud(world, (EntityPlayer) entity, oPos);
+			
+		return bResult;
+	}
 }

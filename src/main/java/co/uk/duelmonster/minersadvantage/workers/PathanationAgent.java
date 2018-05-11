@@ -25,7 +25,7 @@ public class PathanationAgent extends Agent {
 		
 		setupPath();
 		
-		// Add the origin block the queue now that we have all the information.  -  this.queued.clear();
+		// Add the origin block the queue now that we have all the information. - this.queued.clear();
 		addConnectedToQueue(originPos);
 	}
 	
@@ -73,7 +73,7 @@ public class PathanationAgent extends Agent {
 				heldItemStack.damageItem(1, player);
 				
 				SoundType soundtype = block.getSoundType(state, world, oPos, null);
-				reportProgessToClient(oPos, soundtype.getHitSound());
+				reportProgessToClient(oPos, block, soundtype.getHitSound());
 				
 				processBlockSnapshots();
 				addConnectedToQueue(oPos);
