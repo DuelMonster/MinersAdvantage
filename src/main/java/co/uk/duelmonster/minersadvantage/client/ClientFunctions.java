@@ -12,8 +12,8 @@ import co.uk.duelmonster.minersadvantage.common.Variables;
 import co.uk.duelmonster.minersadvantage.packets.NetworkPacket;
 import co.uk.duelmonster.minersadvantage.settings.Settings;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.network.NetHandlerPlayClient;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.play.client.CPacketHeldItemChange;
 import net.minecraft.util.SoundCategory;
@@ -58,7 +58,7 @@ public class ClientFunctions {
 		return FMLClientHandler.instance().getClient();
 	}
 	
-	public static EntityPlayer getPlayer() {
+	public static EntityPlayerSP getPlayer() {
 		return getMC().player;
 	}
 	
@@ -118,6 +118,8 @@ public class ClientFunctions {
 	 */
 	public static void syncCurrentPlayItem(int iSlotIndx) {
 		((NetHandlerPlayClient) FMLCommonHandler.instance().getClientPlayHandler()).sendPacket(new CPacketHeldItemChange(iSlotIndx));
+		getPlayer().openContainer.detectAndSendChanges();
+		
 		// Pause the current Thread to allow the server to catch up and realize that we have changed the slot.
 		// Without this sleep, we can end up with phantom blocks.
 		Functions.sleep(100);

@@ -38,10 +38,10 @@ public class SubstitutionHandler {
 	
 	public boolean			bShouldSwitchBack	= false;
 	public boolean			bCurrentlySwitched	= false;
-	public int				iPrevSlot			= -1;
-	public int				iOptimalSlot		= -1;
-	private int				iOptimalRankIndx	= -1;
-	private float			iOptimalDigSpeed	= -1;
+	public int				iPrevSlot			= -99;
+	public int				iOptimalSlot		= -99;
+	private int				iOptimalRankIndx	= -99;
+	private float			iOptimalDigSpeed	= -99;
 	private RankAndLevel	oOptimalRank		= null;
 	
 	private List<Ranking>					rankings	= Constants.RANKING_DEFAULT;
@@ -57,10 +57,10 @@ public class SubstitutionHandler {
 		
 		bShouldSwitchBack = false;
 		bCurrentlySwitched = false;
-		iPrevSlot = -1;
-		iOptimalSlot = -1;
-		iOptimalRankIndx = -1;
-		iOptimalDigSpeed = -1;
+		iPrevSlot = -99;
+		iOptimalSlot = -99;
+		iOptimalRankIndx = -99;
+		iOptimalDigSpeed = -99;
 		oOptimalRank = null;
 		
 		rankings = Constants.RANKING_DEFAULT;
@@ -159,6 +159,8 @@ public class SubstitutionHandler {
 		
 		// Substitute the Players current item with the most optimal tool for the job
 		if (iOptimalSlot >= 0 && iOptimalSlot != iPrevSlot) {
+			System.out.println("Switching slot to (" + SubstitutionHandler.instance.iPrevSlot + ")");
+			
 			iPrevSlot = inventory.currentItem;
 			bShouldSwitchBack = settings.bSwitchBack();
 			bCurrentlySwitched = true;

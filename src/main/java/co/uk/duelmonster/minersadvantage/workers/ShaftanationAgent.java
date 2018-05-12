@@ -71,10 +71,9 @@ public class ShaftanationAgent extends Agent {
 					this.breakController = new BreakBlockController(fakePlayer);
 					breakController.onPlayerDamageBlock(oPos, sideHit);
 					if (breakController.bBlockDestroyed)
-						bBlockHarvested = fakePlayer.interactionManager.tryHarvestBlock(oPos);
+						bBlockHarvested = HarvestBlock(oPos);
 					
 				} else
-					// bBlockHarvested = fakePlayer.interactionManager.tryHarvestBlock(oPos);
 					bBlockHarvested = HarvestBlock(oPos);
 				
 				if (bBlockHarvested) {

@@ -81,10 +81,10 @@ public class ExcavationAgent extends Agent {
 					
 					breakController.onPlayerDamageBlock(oPos, sideHit);
 					if (breakController.bBlockDestroyed)
-						bBlockHarvested = fakePlayer.interactionManager.tryHarvestBlock(oPos);
+						bBlockHarvested = HarvestBlock(oPos);
 					
 				} else
-					bBlockHarvested = fakePlayer.interactionManager.tryHarvestBlock(oPos);
+					bBlockHarvested = HarvestBlock(oPos);
 				
 				if (bBlockHarvested) {
 					processBlockSnapshots();
