@@ -159,7 +159,7 @@ public class SubstitutionHandler {
 		
 		// Substitute the Players current item with the most optimal tool for the job
 		if (iOptimalSlot >= 0 && iOptimalSlot != iPrevSlot) {
-			System.out.println("Switching slot to (" + SubstitutionHandler.instance.iPrevSlot + ")");
+			//System.out.println("Switching to Optimal slot ( " + iOptimalSlot + " )");
 			
 			iPrevSlot = inventory.currentItem;
 			bShouldSwitchBack = settings.bSwitchBack();

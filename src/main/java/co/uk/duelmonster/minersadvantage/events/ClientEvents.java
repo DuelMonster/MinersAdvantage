@@ -141,29 +141,17 @@ public class ClientEvents {
 		}
 		
 		// Switch back to previously held item if Substitution is enabled
-		if (settings.bSubstitutionEnabled() && !variables.IsPlayerAttacking
+		if (settings.bSubstitutionEnabled() && (!variables.IsPlayerAttacking || variables.IsVeinating)
 				&& SubstitutionHandler.instance.bShouldSwitchBack && SubstitutionHandler.instance.bCurrentlySwitched
 				&& SubstitutionHandler.instance.iPrevSlot >= 0 && player.inventory.currentItem != SubstitutionHandler.instance.iPrevSlot) {
 			
-			System.out.println("Switching slot to (" + SubstitutionHandler.instance.iPrevSlot + ")");
+			//System.out.println("Switching to Previous to ( " + SubstitutionHandler.instance.iPrevSlot + " )");
 			
 			player.inventory.currentItem = SubstitutionHandler.instance.iPrevSlot;
 			ClientFunctions.syncCurrentPlayItem(player.inventory.currentItem);
 			SubstitutionHandler.instance.reset();
 		}
 	}
-	
-	// @SubscribeEvent
-	// @SideOnly(Side.CLIENT)
-	// public void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
-	// World world = event.getWorld();
-	// if (!world.isRemote || !(event.getEntityPlayer() instanceof EntityPlayerSP) || (event.getEntityPlayer()
-	// instanceof FakePlayer))
-	// return;
-	//
-	// EntityPlayerSP player = (EntityPlayerSP) event.getEntityPlayer();
-	//
-	// }
 	
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
