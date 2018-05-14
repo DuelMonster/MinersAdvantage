@@ -79,7 +79,8 @@ public class ShaftanationAgent extends Agent {
 				if (bBlockHarvested) {
 					processBlockSnapshots();
 					
-					reportProgessToClient(oPos, block.getSoundType(state, world, oPos, null));
+					SoundType soundtype = block.getSoundType(state, world, oPos, null);
+					reportProgessToClient(oPos, soundtype.getBreakSound());
 					
 					autoIlluminate(oPos);
 					
