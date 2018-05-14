@@ -26,7 +26,9 @@ public enum PacketID {
 	
 	TileFarmland(10),
 	
-	HarvestCrops(11);
+	HarvestCrops(11),
+	
+	AboutAgents(12);
 	
 	private final int value;
 	

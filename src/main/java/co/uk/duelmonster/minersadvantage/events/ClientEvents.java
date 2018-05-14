@@ -145,7 +145,7 @@ public class ClientEvents {
 				&& SubstitutionHandler.instance.bShouldSwitchBack && SubstitutionHandler.instance.bCurrentlySwitched
 				&& SubstitutionHandler.instance.iPrevSlot >= 0 && player.inventory.currentItem != SubstitutionHandler.instance.iPrevSlot) {
 			
-			//System.out.println("Switching to Previous to ( " + SubstitutionHandler.instance.iPrevSlot + " )");
+			// System.out.println("Switching to Previous to ( " + SubstitutionHandler.instance.iPrevSlot + " )");
 			
 			player.inventory.currentItem = SubstitutionHandler.instance.iPrevSlot;
 			ClientFunctions.syncCurrentPlayItem(player.inventory.currentItem);
@@ -167,8 +167,7 @@ public class ClientEvents {
 		
 		if (currentAttackStage == AttackStage.IDLE && SubstitutionHandler.instance.processWeaponSubtitution(player, event.getTarget())) {
 			// Because we are intercepting an attack & switching weapons, we need to cancel the attack & wait a tick to
-			// execute it.
-			// This allows the weapon switch to cause the correct damage to the target.
+			// execute it. This allows the weapon switch to cause the correct damage to the target.
 			currentTarget = (EntityLivingBase) event.getTarget();
 			currentAttackStage = AttackStage.SWITCHED;
 			event.setCanceled(true);
