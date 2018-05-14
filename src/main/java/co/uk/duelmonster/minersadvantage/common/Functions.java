@@ -131,7 +131,7 @@ public class Functions {
 			
 		}
 		catch (ConcurrentModificationException e) {
-			MinersAdvantage.logger.error("ConcurrentModification Exception Avoided..."); //: " + getStackTrace());
+			MinersAdvantage.logger.error("ConcurrentModification Exception Avoided..."); // : " + getStackTrace());
 		}
 		catch (Exception ex) {
 			MinersAdvantage.logger.error(ex.getClass().getName() + " Exception: " + getStackTrace());
@@ -260,12 +260,16 @@ public class Functions {
 		return block.getRegistryName().toString().trim();
 	}
 	
+	public static Block getBlockFromWorld(World world, BlockPos oPos) {
+		return world.getBlockState(oPos).getBlock();
+	}
+	
 	public static Object getPropertyValue(IBlockState state, PropertyEnum<EnumType> variant) {
-		//		for (IProperty<?> prop : state.getProperties().keySet())
-		//			if (prop.getName().equals(variant))
-		//				return state.getValue(prop);
+		// for (IProperty<?> prop : state.getProperties().keySet())
+		// if (prop.getName().equals(variant))
+		// return state.getValue(prop);
 		try {
-			return state.getValue(variant);//.getMetadata();
+			return state.getValue(variant);// .getMetadata();
 		}
 		catch (Exception e) {
 			return null;

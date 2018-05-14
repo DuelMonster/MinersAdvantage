@@ -24,14 +24,25 @@ public class ExcavationHandler implements IPacketHandler {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void processClientMessage(NetworkPacket message, MessageContext context) {
-		int ID = message.getTags().getInteger("ID");
+		NBTTagCompound tags = message.getTags();
+		int ID = tags.getInteger("ID");
+		
 		if (ID == PacketID.Excavate.value()) {
-			// if (!Settings.get().bExcavationEnabled() || KeyBindings.excavation_toggle.getKeyCode() == 0 ||
-			// !KeyBindings.excavation_toggle.isKeyDown())
-			// return;
 			
 			Variables.get().IsExcavating = true;
+			
 		} else if (ID == PacketID.Veinate.value() && Settings.get().bVeinationEnabled()) {
+			
+			if (tags.getBoolean("doSubstitution")) {
+				EntityPlayerSP player = ClientFunctions.getPlayer();
+				BlockPos oPos = new BlockPos(
+						tags.getInteger("x"),
+						tags.getInteger("y"),
+						tags.getInteger("z"));
+				
+				SubstitutionHandler.instance.processToolSubtitution(player.world, player, oPos);
+			}
+			
 			Variables.get().IsVeinating = true;
 		}
 	}
@@ -46,7 +57,7 @@ public class ExcavationHandler implements IPacketHandler {
 		final IBlockState state = Block.getStateById(iStateID);
 		
 		if (state == null || state.getBlock() == Blocks.AIR)
-			MinersAdvantage.logger.log(Level.INFO, "Invalid BlockState ID recieved from message packet. [ " + iStateID + " ]");
+			MinersAdvantage.logger.log(Level.INFO, "Invalid BlockState ID recieved from Excavation packet. [ " + iStateID + " ]");
 		
 		player.getServer().addScheduledTask(new Runnable() {
 			@Override

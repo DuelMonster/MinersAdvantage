@@ -1,12 +1,16 @@
 package co.uk.duelmonster.minersadvantage.events;
 
+import co.uk.duelmonster.minersadvantage.MinersAdvantage;
 import co.uk.duelmonster.minersadvantage.client.ClientFunctions;
 import co.uk.duelmonster.minersadvantage.client.KeyBindings;
 import co.uk.duelmonster.minersadvantage.common.Constants;
+import co.uk.duelmonster.minersadvantage.common.PacketID;
 import co.uk.duelmonster.minersadvantage.common.Variables;
 import co.uk.duelmonster.minersadvantage.handlers.IlluminationHandler;
+import co.uk.duelmonster.minersadvantage.packets.NetworkPacket;
 import co.uk.duelmonster.minersadvantage.settings.ConfigHandler;
 import co.uk.duelmonster.minersadvantage.settings.Settings;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
@@ -93,6 +97,13 @@ public class KeyInputEvents {
 				settings.setVeinationEnabled(!settings.bVeinationEnabled());
 				ConfigHandler.setValue(Constants.VEINATION_ID, "enabled", settings.bVeinationEnabled());
 				ClientFunctions.NotifyClient(settings.bVeinationEnabled(), "Veination");
+			}
+			
+			if (KeyBindings.aboutAgents.isPressed()) {
+				NBTTagCompound tags = new NBTTagCompound();
+				tags.setInteger("ID", PacketID.AboutAgents.value());
+				
+				MinersAdvantage.instance.network.sendToServer(new NetworkPacket(tags));
 			}
 			
 			ConfigHandler.save();

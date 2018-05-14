@@ -1,4 +1,4 @@
-![](http://cf.way2muchnoise.eu/versions/For%20MC_291972_all.svg) ![](http://cf.way2muchnoise.eu/full_291972_Downloads.svg)
+![](http://cf.way2muchnoise.eu/versions/For%20MC_291972_all.svg) ![](http://cf.way2muchnoise.eu/full_291972_Downloads.svg) [![Build Status](https://travis-ci.org/DuelMonster/MinersAdvantage.svg?branch=MC_1.12.2)](https://travis-ci.org/DuelMonster/MinersAdvantage)
 ## Overview
 **MinersAdvantage** is a re-imagining of my previous mod 'SuperMiner'. It is a rewrite from the ground up that aims to solve all previous issues and to add additional features.
 
@@ -6,7 +6,7 @@ The original collection of components are still here however, they have just had
 
 *My original inspiration was fueled by several well known mods; namely - VeinMiner, TreeCapitator, AutoSwitch & NEI's Magent Mode. My thanks and admiration still go out to their respective developers and I shall be forever grateful to them for inspiring me to develop my own mods.*
 
-Although the components and features list are, near enough, identical to SuperMiner, I felt that rather than releasing a new version, it warranted a complete name change due to the fact that only around 95% of the original code remains.
+Although the components and features list are, near enough, identical to SuperMiner, I felt that rather than releasing a new version, it warranted a complete name change due to the fact that only around 5% of the original code remains.
 
 This decision has resulted in the birth of:
 <p align="center"><img src="/src/main/resources/MinersAdvantage_Banner.png"/></p>
@@ -234,10 +234,10 @@ The source is avaliable under GNU Lesser General Public License v3.0 and can be 
 
 <details><summary><em>How do I compile the Source?</em></summary>
   
-[**Compiling MinersAdvantage**](/SETUP.md)
+[**Compiling MinersAdvantage**](/.github/CONTRIBUTING.md)
 </details>
 
 <details><summary><em>How do I report an issue or contribute to the project?</em></summary>
   
-[**Contributing MinersAdvantage**](/SETUP.md#contributing)
+[**Contributing MinersAdvantage**](/.github/CONTRIBUTING.md#contributing)
 </details>

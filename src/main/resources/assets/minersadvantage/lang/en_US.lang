@@ -1,5 +1,6 @@
 minersadvantage.version.update=An Update is available
 minersadvantage.hungry=You are too hungry to use 
+minersadvantage.about.agents=Abort Processes 
 
 minersadvantage.common.config.tooltip=Common configuration for MinersAdvantage
 minersadvantage.common.gather_drops=Gather Drops

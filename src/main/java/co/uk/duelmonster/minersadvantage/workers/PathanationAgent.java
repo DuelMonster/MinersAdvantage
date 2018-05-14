@@ -25,7 +25,7 @@ public class PathanationAgent extends Agent {
 		
 		setupPath();
 		
-		// Add the origin block the queue now that we have all the information.  -  this.queued.clear();
+		// Add the origin block the queue now that we have all the information. - this.queued.clear();
 		addConnectedToQueue(originPos);
 	}
 	
