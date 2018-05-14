@@ -16,6 +16,7 @@ import co.uk.duelmonster.minersadvantage.handlers.PathanationHandler;
 import co.uk.duelmonster.minersadvantage.handlers.ShaftanationHandler;
 import co.uk.duelmonster.minersadvantage.handlers.SyncHandler;
 import co.uk.duelmonster.minersadvantage.settings.Settings;
+import co.uk.duelmonster.minersadvantage.workers.AgentProcessor;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -135,6 +136,9 @@ public class NetworkPacket implements IMessage {
 					}
 					break;
 				
+				case AboutAgents:
+					rtrnPacket = new NetworkPacket(message.tags);
+					
 				default:
 					break;
 				}

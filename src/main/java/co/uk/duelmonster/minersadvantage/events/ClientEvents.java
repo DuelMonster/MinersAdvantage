@@ -17,7 +17,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityMob;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
@@ -27,7 +26,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
@@ -72,12 +70,12 @@ public class ClientEvents {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void onClientTick(TickEvent.ClientTickEvent event) {
-		if (!TickEvent.Phase.END.equals(event.phase))
+		if (!TickEvent.Phase.START.equals(event.phase))
 			return;
 		
 		Minecraft mc = ClientFunctions.getMC();
-		EntityPlayer player = ClientFunctions.getPlayer();
-		if (player == null) // || mc.playerController.isInCreativeMode()
+		EntityPlayerSP player = ClientFunctions.getPlayer();
+		if (player == null || mc.playerController.isInCreativeMode())
 			return;
 		
 		// If an entity was attacked last tick and weapon was switched, we attack now.
@@ -113,10 +111,6 @@ public class ClientEvents {
 			MinersAdvantage.instance.network.sendToServer(new NetworkPacket(tags));
 		}
 		
-		// Record the block face being attacked
-		if (variables.IsPlayerAttacking && mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == RayTraceResult.Type.BLOCK)
-			variables.sideHit = mc.objectMouseOver.sideHit;
-		
 		// Cancel the running Excavation agents when player lifts the key binding
 		if (settings.bExcavationEnabled() && !variables.IsExcavationToggled)
 			GodItems.isWorthy(false);
@@ -129,36 +123,33 @@ public class ClientEvents {
 			MinersAdvantage.instance.network.sendToServer(new NetworkPacket(tags));
 		}
 		
+		if (variables.IsPlayerAttacking && mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == RayTraceResult.Type.BLOCK) {
+			// Record the block face being attacked
+			variables.sideHit = mc.objectMouseOver.sideHit;
+			
+			if (Settings.get().bSubstitutionEnabled() && !SubstitutionHandler.instance.bCurrentlySwitched) {
+				World world = player.getEntityWorld();
+				BlockPos oPos = mc.objectMouseOver.getBlockPos();
+				IBlockState state = world.getBlockState(oPos);
+				Block block = state.getBlock();
+				
+				if (block == null || Blocks.AIR == block || Blocks.BEDROCK == block)
+					return;
+				
+				SubstitutionHandler.instance.processToolSubtitution(world, player, oPos);
+			}
+		}
+		
 		// Switch back to previously held item if Substitution is enabled
-		if (settings.bSubstitutionEnabled() && !variables.IsPlayerAttacking
+		if (settings.bSubstitutionEnabled() && (!variables.IsPlayerAttacking || variables.IsVeinating)
 				&& SubstitutionHandler.instance.bShouldSwitchBack && SubstitutionHandler.instance.bCurrentlySwitched
 				&& SubstitutionHandler.instance.iPrevSlot >= 0 && player.inventory.currentItem != SubstitutionHandler.instance.iPrevSlot) {
+			
+			// System.out.println("Switching to Previous to ( " + SubstitutionHandler.instance.iPrevSlot + " )");
+			
 			player.inventory.currentItem = SubstitutionHandler.instance.iPrevSlot;
 			ClientFunctions.syncCurrentPlayItem(player.inventory.currentItem);
 			SubstitutionHandler.instance.reset();
-		}
-	}
-	
-	@SubscribeEvent
-	@SideOnly(Side.CLIENT)
-	public void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
-		World world = event.getWorld();
-		if (!world.isRemote || !(event.getEntityPlayer() instanceof EntityPlayerSP) || (event.getEntityPlayer() instanceof FakePlayer))
-			return;
-		
-		EntityPlayerSP player = (EntityPlayerSP) event.getEntityPlayer();
-		
-		if (Settings.get().bSubstitutionEnabled() && !SubstitutionHandler.instance.bCurrentlySwitched) {
-			// && player.inventory.currentItem != SubstitutionHandler.instance.iOptimalSlot) {
-			
-			BlockPos oPos = event.getPos();
-			IBlockState state = world.getBlockState(oPos);
-			Block block = state.getBlock();
-			
-			if (block == null || Blocks.AIR == block || Blocks.BEDROCK == block)
-				return;
-			
-			SubstitutionHandler.instance.processToolSubtitution(world, player, oPos);
 		}
 	}
 	
@@ -176,8 +167,7 @@ public class ClientEvents {
 		
 		if (currentAttackStage == AttackStage.IDLE && SubstitutionHandler.instance.processWeaponSubtitution(player, event.getTarget())) {
 			// Because we are intercepting an attack & switching weapons, we need to cancel the attack & wait a tick to
-			// execute it.
-			// This allows the weapon switch to cause the correct damage to the target.
+			// execute it. This allows the weapon switch to cause the correct damage to the target.
 			currentTarget = (EntityLivingBase) event.getTarget();
 			currentAttackStage = AttackStage.SWITCHED;
 			event.setCanceled(true);

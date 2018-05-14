@@ -8,23 +8,26 @@ import org.apache.logging.log4j.Level;
 import com.google.common.base.Stopwatch;
 
 import co.uk.duelmonster.minersadvantage.MinersAdvantage;
-import co.uk.duelmonster.minersadvantage.client.ClientFunctions;
 import co.uk.duelmonster.minersadvantage.common.BreakBlockController;
 import co.uk.duelmonster.minersadvantage.common.Functions;
 import co.uk.duelmonster.minersadvantage.common.PacketID;
 import co.uk.duelmonster.minersadvantage.common.Variables;
-import co.uk.duelmonster.minersadvantage.handlers.SubstitutionHandler;
 import co.uk.duelmonster.minersadvantage.packets.NetworkPacket;
 import co.uk.duelmonster.minersadvantage.settings.Settings;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockFalling;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.play.server.SPacketBlockChange;
+import net.minecraft.network.play.server.SPacketEffect;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
@@ -156,12 +159,6 @@ public abstract class Agent {
 	
 	public void excavateOreVein(IBlockState state, BlockPos oPos) {
 		
-		if (heldItemSlot > -1) {
-			SubstitutionHandler.instance.iPrevSlot = player.inventory.currentItem;
-			player.inventory.currentItem = heldItemSlot;
-			ClientFunctions.syncCurrentPlayItem(player.inventory.currentItem);
-		}
-		
 		// If mine veins is enabled send message back to player from processing.
 		NBTTagCompound tags = new NBTTagCompound();
 		tags.setInteger("ID", PacketID.Veinate.value());
@@ -170,6 +167,7 @@ public abstract class Agent {
 		tags.setInteger("z", oPos.getZ());
 		tags.setInteger("sideHit", Variables.get(player.getUniqueID()).sideHit.getIndex());
 		tags.setInteger("stateID", Block.getStateId(state));
+		tags.setBoolean("doSubstitution", true);
 		
 		MinersAdvantage.instance.network.sendTo(new NetworkPacket(tags), player);
 	}
@@ -195,4 +193,25 @@ public abstract class Agent {
 		}
 	}
 	
+	public boolean HarvestBlock(BlockPos oPos) {
+		
+		boolean bResult = fakePlayer.interactionManager.tryHarvestBlock(oPos);
+		player.connection.sendPacket(new SPacketBlockChange(world, oPos));
+		
+		final int range = 20;
+		IBlockState state = world.getBlockState(oPos);
+		
+		List<EntityPlayerMP> localPlayers = world.getEntitiesWithinAABB(EntityPlayerMP.class, new AxisAlignedBB(oPos.add(-range, -range, -range), oPos.add(range, range, range)));
+		
+		SPacketEffect packet = new SPacketEffect(2001, oPos, Block.getStateId(state), false);
+		for (Entity entity : localPlayers)
+			((EntityPlayerMP) entity).connection.sendPacket(packet);
+		
+		Block blockAbove = Functions.getBlockFromWorld(world, oPos.up());
+		if (blockAbove instanceof BlockFalling && HarvestBlock(oPos.up()))
+			for (Entity entity : localPlayers)
+				Functions.spawnAreaEffectCloud(world, (EntityPlayer) entity, oPos);
+			
+		return bResult;
+	}
 }

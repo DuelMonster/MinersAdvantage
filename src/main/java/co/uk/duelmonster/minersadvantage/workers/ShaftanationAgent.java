@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 import co.uk.duelmonster.minersadvantage.common.BreakBlockController;
 import co.uk.duelmonster.minersadvantage.common.Functions;
 import co.uk.duelmonster.minersadvantage.settings.Settings;
+import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -48,6 +49,7 @@ public class ShaftanationAgent extends Agent {
 				continue;
 			
 			IBlockState state = world.getBlockState(oPos);
+			Block block = state.getBlock();
 			
 			if (!fakePlayer.canHarvestBlock(state)) {
 				// Avoid the non-harvestable blocks.
@@ -69,15 +71,15 @@ public class ShaftanationAgent extends Agent {
 					this.breakController = new BreakBlockController(fakePlayer);
 					breakController.onPlayerDamageBlock(oPos, sideHit);
 					if (breakController.bBlockDestroyed)
-						bBlockHarvested = fakePlayer.interactionManager.tryHarvestBlock(oPos);
+						bBlockHarvested = HarvestBlock(oPos);
 					
 				} else
-					bBlockHarvested = fakePlayer.interactionManager.tryHarvestBlock(oPos);
+					bBlockHarvested = HarvestBlock(oPos);
 				
 				if (bBlockHarvested) {
 					processBlockSnapshots();
 					
-					SoundType soundtype = state.getBlock().getSoundType(state, world, oPos, null);
+					SoundType soundtype = block.getSoundType(state, world, oPos, null);
 					reportProgessToClient(oPos, soundtype.getBreakSound());
 					
 					autoIlluminate(oPos);
