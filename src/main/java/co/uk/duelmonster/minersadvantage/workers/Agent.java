@@ -180,11 +180,11 @@ public abstract class Agent {
 		return !processed.contains(oPos) && queued.contains(oPos) && (harvestArea == null || Functions.isWithinArea(oPos, harvestArea));
 	}
 	
-	public void reportProgessToClient(BlockPos oPos, Block block) {
-		reportProgessToClient(oPos, block, SoundEvents.BLOCK_STONE_BREAK);
+	public void reportProgessToClient(BlockPos oPos) {
+		reportProgessToClient(oPos, SoundEvents.BLOCK_STONE_BREAK);
 	}
 	
-	public void reportProgessToClient(BlockPos oPos, Block block, SoundEvent soundType) {
+	public void reportProgessToClient(BlockPos oPos, SoundEvent soundType) {
 		if (world instanceof WorldServer) {
 			
 			Functions.playSound(world, oPos, soundType, SoundCategory.BLOCKS, 1.0F, 1.0F);

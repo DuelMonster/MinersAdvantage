@@ -73,7 +73,7 @@ public class PathanationAgent extends Agent {
 				heldItemStack.damageItem(1, player);
 				
 				SoundType soundtype = block.getSoundType(state, world, oPos, null);
-				reportProgessToClient(oPos, block, soundtype.getHitSound());
+				reportProgessToClient(oPos, soundtype.getHitSound());
 				
 				processBlockSnapshots();
 				addConnectedToQueue(oPos);
