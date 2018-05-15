@@ -24,7 +24,7 @@ public class PathanationHandler implements IPacketHandler {
 	}
 	
 	@Override
-	public void processServerMessage(NetworkPacket message, MessageContext context) {
+	public void processServerMessage(final NetworkPacket message, MessageContext context) {
 		final EntityPlayerMP player = context.getServerHandler().player;
 		if (player == null)
 			return;
