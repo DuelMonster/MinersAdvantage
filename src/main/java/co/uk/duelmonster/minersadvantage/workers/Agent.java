@@ -99,8 +99,70 @@ public abstract class Agent {
 		if (this.heldItemStack != null)
 			this.fakePlayer.setHeldItem(EnumHand.MAIN_HAND, this.heldItemStack);
 		
+		setupHarvestArea();
+		
 		if (!bOverrideAddConnectedOnInit)
 			addConnectedToQueue(originPos);
+	}
+	
+	private void setupHarvestArea() {
+		// Shaft area info
+		int xStart = 0;
+		int xEnd = 0;
+		int yBottom = iFeetPos;
+		int yTop = iFeetPos + (settings.iBlockRadius() - 1);
+		int zStart = 0;
+		int zEnd = 0;
+		
+		// if the ShaftWidth is divisible by 2 we don't want to do anything
+		double dDivision = ((settings.iBlockRadius() & 1) != 0 ? 0 : 0.5);
+		
+		int iHalfRadius = ((int) ((settings.iBlockRadius() / 2) - dDivision));
+		
+		xStart = originPos.getX() + iHalfRadius;
+		xEnd = originPos.getX() - iHalfRadius;
+		yTop = originPos.getY() + iHalfRadius;
+		yBottom = originPos.getY() - iHalfRadius;
+		zStart = originPos.getZ() + iHalfRadius;
+		zEnd = originPos.getZ() - iHalfRadius;
+		
+		switch (sideHit) {
+		case SOUTH: // Positive Z
+			zStart = originPos.getZ();
+			zEnd = originPos.getZ() - (settings.iBlockRadius() - 1);
+			break;
+		case NORTH: // Negative Z
+			xStart = originPos.getX() - iHalfRadius;
+			xEnd = originPos.getX() + iHalfRadius;
+			zStart = originPos.getZ();
+			zEnd = originPos.getZ() + (settings.iBlockRadius() - 1);
+			break;
+		case EAST: // Positive X
+			xStart = originPos.getX();
+			xEnd = originPos.getX() - (settings.iBlockRadius() - 1);
+			break;
+		case WEST: // Negative X
+			xStart = originPos.getX();
+			xEnd = originPos.getX() + (settings.iBlockRadius() - 1);
+			zStart = originPos.getZ() - iHalfRadius;
+			zEnd = originPos.getZ() + iHalfRadius;
+			break;
+		case UP:
+			yTop = originPos.getY();
+			yBottom = originPos.getY() - (settings.iBlockRadius() - 1);
+			break;
+		case DOWN:
+			yTop = originPos.getY();
+			yBottom = originPos.getY() + (settings.iBlockRadius() - 1);
+			break;
+		default:
+			break;
+		}
+		
+		harvestArea = new AxisAlignedBB(
+				xStart, yBottom, zStart,
+				xEnd, yTop, zEnd);
+		
 	}
 	
 	public void addConnectedToQueue(BlockPos oPos) {
