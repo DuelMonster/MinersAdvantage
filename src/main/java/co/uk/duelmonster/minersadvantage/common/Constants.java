@@ -21,7 +21,7 @@ public final class Constants {
 	// This number is incremented every time new features are added, never reset
 	public static final int revisionVersion = 15;
 	// This number is incremented every time a release is built, and never reset
-	public static final int buildVersion = 190;
+	public static final int buildVersion = 192;
 	
 	// This is the full version number of our mod
 	public static final String MOD_VERSION = majorVersion + "." + minorVersion + "." + revisionVersion + "." + buildVersion;
@@ -46,13 +46,14 @@ public final class Constants {
 	public static final String	SUBSTITUTION_ID	= Constants.MOD_ID + ".substitution";
 	public static final String	VEINATION_ID	= Constants.MOD_ID + ".veination";
 	
-	public static final int	MIN_HUNGER		= 1;
-	public static final int	MIN_BLOCKRADIUS	= 8;
-	public static final int	MAX_BLOCKRADIUS	= 128;
-	public static final int	MAX_BLOCKLIMIT	= (MAX_BLOCKRADIUS * MAX_BLOCKRADIUS) * MAX_BLOCKRADIUS;
-	public static final int	MIN_BREAKSPEED	= 1;
-	public static final int	MAX_BREAKSPEED	= 32;
-	public static final int	MAX_TREE_WIDTH	= 128;
+	public static final int	MIN_HUNGER			= 1;
+	public static final int	DEFAULT_BLOCKRADIUS	= 8;
+	public static final int	MIN_BLOCKRADIUS		= 2;
+	public static final int	MAX_BLOCKRADIUS		= 128;
+	public static final int	MAX_BLOCKLIMIT		= (MAX_BLOCKRADIUS * MAX_BLOCKRADIUS) * MAX_BLOCKRADIUS;
+	public static final int	MIN_BREAKSPEED		= 1;
+	public static final int	MAX_BREAKSPEED		= 32;
+	public static final int	MAX_TREE_WIDTH		= 128;
 	
 	public static final List<Ranking> RANKING_SILK_TOUCH = new LinkedList<Ranking>();
 	static {

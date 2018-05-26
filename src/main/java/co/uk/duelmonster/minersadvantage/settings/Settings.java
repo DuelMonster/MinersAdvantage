@@ -51,7 +51,7 @@ public class Settings {
 	private int		_iBlocksPerTick		= 2;
 	private boolean	_bEnableTickDelay	= true;
 	private int		_iTickDelay			= 3;
-	private int		_iBlockRadius		= Constants.MIN_BLOCKRADIUS;
+	private int		_iBlockRadius		= Constants.DEFAULT_BLOCKRADIUS;
 	private int		_iBlockLimit		= (Constants.MIN_BLOCKRADIUS * Constants.MIN_BLOCKRADIUS) * Constants.MIN_BLOCKRADIUS;
 	private boolean	_bBreakAtToolSpeeds	= false;
 	

@@ -99,7 +99,7 @@ public class KeyInputEvents {
 				ClientFunctions.NotifyClient(settings.bVeinationEnabled(), "Veination");
 			}
 			
-			if (KeyBindings.aboutAgents.isPressed()) {
+			if (KeyBindings.abortAgents.isPressed()) {
 				NBTTagCompound tags = new NBTTagCompound();
 				tags.setInteger("ID", PacketID.AboutAgents.value());
 				

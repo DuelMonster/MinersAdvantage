@@ -4,7 +4,6 @@ import java.util.concurrent.TimeUnit;
 
 import co.uk.duelmonster.minersadvantage.common.BreakBlockController;
 import co.uk.duelmonster.minersadvantage.common.Functions;
-import co.uk.duelmonster.minersadvantage.settings.Settings;
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
@@ -98,7 +97,6 @@ public class ShaftanationAgent extends Agent {
 	
 	private void setupShaft() {
 		// Shaft area info
-		Settings settings = Settings.get(player.getUniqueID());
 		int xStart = 0;
 		int xEnd = 0;
 		int yBottom = iFeetPos;
