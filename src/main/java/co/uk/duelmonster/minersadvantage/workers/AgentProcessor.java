@@ -87,19 +87,22 @@ public class AgentProcessor {
 	
 	public void stopProcessing(EntityPlayerMP player) {
 		UUID uid = player.getUniqueID();
-		Iterator<Entry<Integer, Agent>> playerAgents = activeAgents.get(uid).entrySet().iterator();
 		
-		while (playerAgents.hasNext()) {
+		if (activeAgents.containsKey(uid)) {
+			Iterator<Entry<Integer, Agent>> playerAgents = activeAgents.get(uid).entrySet().iterator();
 			
-			Agent agent = playerAgents.next().getValue();
+			while (playerAgents.hasNext()) {
+				
+				Agent agent = playerAgents.next().getValue();
+				
+				DropsSpawner.spawnDrops(player.world, agent.originPos);
+				
+				reportAgentCompletionToClient(agent, Variables.get(uid));
+				playerAgents.remove();
+			}
 			
-			DropsSpawner.spawnDrops(player.world, agent.originPos);
-			
-			reportAgentCompletionToClient(agent, Variables.get(uid));
-			playerAgents.remove();
+			activeAgents.remove(uid);
 		}
-		
-		activeAgents.remove(uid);
 	}
 	
 	public Agent getCurrentAgent(UUID uid) {
