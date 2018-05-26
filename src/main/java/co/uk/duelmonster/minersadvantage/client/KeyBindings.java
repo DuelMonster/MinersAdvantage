@@ -22,7 +22,7 @@ public class KeyBindings {
 	public static final KeyBinding	substitution					= new KeyBinding(Constants.MOD_ID + ".substitution.enabled.desc", Keyboard.KEY_NUMPAD6, Constants.MOD_NAME);
 	public static final KeyBinding	veination						= new KeyBinding(Constants.MOD_ID + ".veination.enabled.desc", Keyboard.KEY_NUMPAD7, Constants.MOD_NAME);
 	public static final KeyBinding	cropination						= new KeyBinding(Constants.MOD_ID + ".cropination.enabled.desc", Keyboard.KEY_NUMPAD8, Constants.MOD_NAME);
-	public static final KeyBinding	aboutAgents						= new KeyBinding(Constants.MOD_ID + ".abort.agents", Keyboard.KEY_DELETE, Constants.MOD_NAME);
+	public static final KeyBinding	abortAgents						= new KeyBinding(Constants.MOD_ID + ".abort.agents", Keyboard.KEY_DELETE, Constants.MOD_NAME);
 	
 	public static void registerKeys() {
 		// Register the KeyBindings to the ClientRegistry
@@ -38,7 +38,7 @@ public class KeyBindings {
 		ClientRegistry.registerKeyBinding(substitution);
 		ClientRegistry.registerKeyBinding(veination);
 		ClientRegistry.registerKeyBinding(cropination);
-		ClientRegistry.registerKeyBinding(aboutAgents);
+		ClientRegistry.registerKeyBinding(abortAgents);
 	}
 	
 }
