@@ -27,6 +27,8 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.OreDictionary;
 
 public class LumbinationHandler implements IPacketHandler {
@@ -49,6 +51,7 @@ public class LumbinationHandler implements IPacketHandler {
 	private static boolean	bAxesGot	= false;
 	
 	@Override
+	@SideOnly(Side.CLIENT)
 	public void processClientMessage(NetworkPacket message, MessageContext context) {
 		player = ClientFunctions.getPlayer();
 		world = player.world;

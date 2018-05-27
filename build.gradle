@@ -57,7 +57,7 @@ versionFile.eachLine{ String sLine ->
     }
 }
 
-String curseId			= '291972';
+String curseId			= '';
 String curseForgeApiKey	= '';
 String modsioApiKey		= '';
 
@@ -135,9 +135,10 @@ task updateBuildNumber << {
 }
 
 task release(type: Copy) {
+	dependsOn updateBuildNumber
 	dependsOn build
-	finalizedBy updateBuildNumber
-	
+	tasks.findByName('build').mustRunAfter 'updateBuildNumber'
+
 	from('build/libs') { include '*.jar' }
 	into "../~Releases/"
 
