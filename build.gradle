@@ -57,9 +57,9 @@ versionFile.eachLine{ String sLine ->
     }
 }
 
-String curseId			= "";
-String curseForgeApiKey	= "";
-String modsioApiKey		= "";
+String curseId			= '';
+String curseForgeApiKey	= '';
+String modsioApiKey		= '';
 
 def userGradleScript = file("../${System.getProperty("user.name")}.properties") 
 if (userGradleScript.exists()) { 
@@ -135,9 +135,10 @@ task updateBuildNumber << {
 }
 
 task release(type: Copy) {
+	dependsOn updateBuildNumber
 	dependsOn build
-	finalizedBy updateBuildNumber
-	
+	tasks.findByName('build').mustRunAfter 'updateBuildNumber'
+
 	from('build/libs') { include '*.jar' }
 	into "../~Releases/"
 
