@@ -9,7 +9,7 @@ The original collection of components are still here however, they have just had
 Although the components and features list are, near enough, identical to SuperMiner, I felt that rather than releasing a new version, it warranted a complete name change due to the fact that only around 5% of the original code remains.
 
 This decision has resulted in the birth of:
-<p align="center"><img src="/src/main/resources/MinersAdvantage_Banner.png"/></p>
+<p align="center"><img src="https://github.com/DuelMonster/MinersAdvantage/raw/MC_1.12.2/src/main/resources/MinersAdvantage_Banner.png"/></p>
 
 ***
 
@@ -234,10 +234,10 @@ The source is avaliable under GNU Lesser General Public License v3.0 and can be 
 
 <details><summary><em>How do I compile the Source?</em></summary>
   
-[**Compiling MinersAdvantage**](/.github/CONTRIBUTING.md)
+[**Compiling MinersAdvantage**](https://github.com/DuelMonster/MinersAdvantage/blob/MC_1.12.2/.github/CONTRIBUTING.md)
 </details>
 
 <details><summary><em>How do I report an issue or contribute to the project?</em></summary>
   
-[**Contributing MinersAdvantage**](/.github/CONTRIBUTING.md#contributing)
+[**Contributing MinersAdvantage**](https://github.com/DuelMonster/MinersAdvantage/blob/MC_1.12.2/.github/CONTRIBUTING.md#contributing)
 </details>
