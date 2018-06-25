@@ -1,5 +1,6 @@
 package co.uk.duelmonster.minersadvantage.workers;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import co.uk.duelmonster.minersadvantage.common.Functions;
@@ -21,7 +22,6 @@ import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemSeeds;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -109,8 +109,7 @@ public class CropinationAgent extends Agent {
 					
 					int fortune = EnchantmentHelper.getEnchantmentLevel(Enchantments.FORTUNE, heldItemStack);
 					
-					NonNullList<ItemStack> drops = NonNullList.create();
-					drops = (NonNullList<ItemStack>) block.getDrops(world, oPos, state, fortune);
+					List<ItemStack> drops = block.getDrops(world, oPos, state, fortune);
 					
 					for (ItemStack item : drops)
 						if (settings.bHarvestSeeds() || !(item.getItem() instanceof ItemSeeds))
