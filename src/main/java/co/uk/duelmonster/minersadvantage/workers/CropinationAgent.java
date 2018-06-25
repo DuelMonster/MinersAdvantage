@@ -1,10 +1,10 @@
 package co.uk.duelmonster.minersadvantage.workers;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import co.uk.duelmonster.minersadvantage.common.Functions;
 import co.uk.duelmonster.minersadvantage.common.PacketID;
-import co.uk.duelmonster.minersadvantage.compatibility.NonNullList;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockCrops;
 import net.minecraft.block.BlockDirt;
@@ -109,8 +109,7 @@ public class CropinationAgent extends Agent {
 					
 					int fortune = EnchantmentHelper.getEnchantmentLevel(Enchantments.FORTUNE, heldItemStack);
 					
-					NonNullList<ItemStack> drops = NonNullList.create();
-					drops = (NonNullList<ItemStack>) block.getDrops(world, oPos, state, fortune);
+					List<ItemStack> drops = block.getDrops(world, oPos, state, fortune);
 					
 					for (ItemStack item : drops)
 						if (settings.bHarvestSeeds() || !(item.getItem() instanceof ItemSeeds))
