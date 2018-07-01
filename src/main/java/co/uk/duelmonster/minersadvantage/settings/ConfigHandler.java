@@ -209,7 +209,7 @@ public class ConfigHandler {
 		settings.setTrunkRange(_config.getInt(Functions.localize(Constants.LUMBINATION_ID + ".trunk_range"), Constants.LUMBINATION_ID, Settings.defaults.iTrunkRange(), 8, 128, Functions.localize(Constants.LUMBINATION_ID + ".trunk_range.desc")));
 		settings.setLumbinationLogs(JsonHelper.ParseObject(_config.getString(Functions.localize(Constants.LUMBINATION_ID + ".logs"), Constants.LUMBINATION_ID, Settings.defaults.lumbinationLogs().toString(), Functions.localize(Constants.LUMBINATION_ID + ".logs.desc"))));
 		settings.setLumbinationLeaves(JsonHelper.ParseObject(_config.getString(Functions.localize(Constants.LUMBINATION_ID + ".leaves"), Constants.LUMBINATION_ID, Settings.defaults.lumbinationLeaves().toString(), Functions.localize(Constants.LUMBINATION_ID + ".leaves.desc"))));
-		settings.setLumbinationAxes(JsonHelper.ParseObject(_config.getStringList(Functions.localize(Constants.LUMBINATION_ID + ".axes"), Constants.LUMBINATION_ID, Settings.defaults.lumbinationAxes().toString(), Functions.localize(Constants.LUMBINATION_ID + ".axes.desc"))));
+		settings.setLumbinationAxes(JsonHelper.ParseObject(_config.getString(Functions.localize(Constants.LUMBINATION_ID + ".axes"), Constants.LUMBINATION_ID, Settings.defaults.lumbinationAxes().toString(), Functions.localize(Constants.LUMBINATION_ID + ".axes.desc"))));
 		
 		List<String> order = new ArrayList<String>(8);
 		order.add(Functions.localize(Constants.LUMBINATION_ID + ".enabled"));
