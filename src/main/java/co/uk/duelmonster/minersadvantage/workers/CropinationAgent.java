@@ -86,7 +86,15 @@ public class CropinationAgent extends Agent {
 					Functions.playSound(world, oPos, SoundEvents.ITEM_HOE_TILL, SoundCategory.PLAYERS, 1.0F, world.rand.nextFloat() + 0.5F);
 					
 					world.setBlockState(oPos, Blocks.FARMLAND.getDefaultState().withProperty(BlockFarmland.MOISTURE, Integer.valueOf(7)), 11);
-					heldItemStack.damageItem(1, player);
+					
+					if (heldItem != null && heldItemStack.isItemStackDamageable()) {
+						heldItemStack.damageItem(1, player);
+						
+						if (heldItemStack.getMaxDamage() <= 0) {
+							player.inventory.removeStackFromSlot(player.inventory.currentItem);
+							player.openContainer.detectAndSendChanges();
+						}
+					}
 					
 					processBlockSnapshots();
 					addConnectedToQueue(oPos);
@@ -125,12 +133,13 @@ public class CropinationAgent extends Agent {
 					
 					// Apply Item damage every 4 crops harvested. This makes item damage 1/4 per crop
 					if (iHarvestedCount > 0 && iHarvestedCount % 4 == 0
-							&& heldItem != null && heldItemStack.isItemStackDamageable())
+							&& heldItem != null && heldItemStack.isItemStackDamageable()) {
 						heldItemStack.damageItem(1, player);
-					
-					if (heldItemStack.getMaxDamage() <= 0) {
-						player.inventory.removeStackFromSlot(player.inventory.currentItem);
-						player.openContainer.detectAndSendChanges();
+						
+						if (heldItemStack.getMaxDamage() <= 0) {
+							player.inventory.removeStackFromSlot(player.inventory.currentItem);
+							player.openContainer.detectAndSendChanges();
+						}
 					}
 					
 					processBlockSnapshots();
