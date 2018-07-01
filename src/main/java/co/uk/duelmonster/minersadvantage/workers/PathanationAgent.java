@@ -70,7 +70,15 @@ public class PathanationAgent extends Agent {
 				world.playSound(player, oPos, SoundEvents.ITEM_SHOVEL_FLATTEN, SoundCategory.BLOCKS, 1.0F, 1.0F);
 				
 				world.setBlockState(oPos, Blocks.GRASS_PATH.getDefaultState());// , 11);
-				heldItemStack.damageItem(1, player);
+				
+				if (heldItem != null && heldItemStack.isItemStackDamageable()) {
+					heldItemStack.damageItem(1, player);
+					
+					if (heldItemStack.getMaxDamage() <= 0) {
+						player.inventory.removeStackFromSlot(player.inventory.currentItem);
+						player.openContainer.detectAndSendChanges();
+					}
+				}
 				
 				SoundType soundtype = block.getSoundType(state, world, oPos, null);
 				reportProgessToClient(oPos, soundtype.getHitSound());
