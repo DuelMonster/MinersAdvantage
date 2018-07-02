@@ -13,7 +13,51 @@
          by: Searge, ProfMobius, Fesh0r,         
          R4wk, ZeuX, IngisKahn, bspkrs           
 #################################################
+:clean
+:deobfCompileDummyTask
+:deobfProvidedDummyTask
+:sourceApiJava
+:compileApiJava UP-TO-DATE
+:processApiResources UP-TO-DATE
+:apiClasses UP-TO-DATE
+:sourceMainJava
+:compileJavawarning: [options] bootstrap class path not set in conjunction with -source 1.6
+1 warning
 
-CONFIGURE SUCCESSFUL
+:processResources
+:classes
+:deobfJar
+:jar
+:sourceTestJava
+:compileTestJava UP-TO-DATE
+:processTestResources UP-TO-DATE
+:testClasses UP-TO-DATE
+:test UP-TO-DATE
+:extractMcpData SKIPPED
+:extractMcpMappings SKIPPED
+:getVersionJson
+:extractUserdev UP-TO-DATE
+:genSrgs SKIPPED
+:reobfJar
+:srcJar
+:curseforge291972
+Invalid cookie header: "Set-Cookie: AWSALB=sM3T7mNQRHtHOLM7+rQpAfnwbI3ly8/Lb15DqOANkBFrG+3e03QwWf81uqMsW7x8uPHy40PLi2TIEKMK+eFsYWSOIeNqYhweVTFpplNyspoEv9RPeuceOrhZfibQ; Expires=Mon, 09 Jul 2018 19:43:06 GMT; Path=/". Invalid 'expires' attribute: Mon, 09 Jul 2018 19:43:06 GMT
+Invalid cookie header: "Set-Cookie: AWSALB=2HOl3xiJqQY9W5QLIOaykxdQ+nCQcglIbfflTlpIET1yW6svxGYZbO/nn9/VGaWHRbQ2EwM66R2yUT78/bUGglTKur+4VP9gFB+Zi9SdTbZyT2a/IzwsdIFkT2ck; Expires=Mon, 09 Jul 2018 19:43:08 GMT; Path=/". Invalid 'expires' attribute: Mon, 09 Jul 2018 19:43:08 GMT
+Uploaded C:\$MC\Mod Source\~MinersAdvantage\Source\build\libs\MinersAdvantage-1.10.2-1.1.15.195.jar to CurseForge Project: 291972, with ID: 2578716
+Invalid cookie header: "Set-Cookie: AWSALB=1NYuka0V3EW+IBr009X78lzdmgid1ikIvFxfKZcpLoSLwtUnbbwgr/NuWD3LY3vAPSJmPt8PbYy6qirH1KfAjXBd4RTFnfHkXYyGNUW59lct879YiYXRbA2ECUXD; Expires=Mon, 09 Jul 2018 19:43:09 GMT; Path=/". Invalid 'expires' attribute: Mon, 09 Jul 2018 19:43:09 GMT
+Uploaded C:\$MC\Mod Source\~MinersAdvantage\Source\build\libs\MinersAdvantage-1.10.2-1.1.15.195-src.jar to CurseForge Project: 291972, with ID: 2578717
+Invalid cookie header: "Set-Cookie: AWSALB=S1t+/M3/Rcs8pFHTDttsGqf/nWMpP2NIUx1IRFCXdlmiX8RgOmGtVx0niYqGh6gfeXZYyQW5kd2/NCcZZLWKvFOtTWI04DmvpCkelzQ/9jMselFtk6q9Ls+4cxdD; Expires=Mon, 09 Jul 2018 19:43:10 GMT; Path=/". Invalid 'expires' attribute: Mon, 09 Jul 2018 19:43:10 GMT
+Uploaded C:\$MC\Mod Source\~MinersAdvantage\Source\build\libs\MinersAdvantage-1.10.2-1.1.15.195-deobf.jar to CurseForge Project: 291972, with ID: 2578718
+:updateBuildNumber
+:assemble
+:check UP-TO-DATE
+:build
+:release
+====================================================================================================
+  MinersAdvantage release built successfully:  C:\$MC\Mod Source\~MinersAdvantage\~Releases
+====================================================================================================
+:curseforge
 
-Total time: 1.822 secs
+BUILD SUCCESSFUL
+
+Total time: 30.923 secs
