@@ -71,7 +71,7 @@ public class PathanationAgent extends Agent {
 				
 				world.setBlockState(oPos, Blocks.GRASS_PATH.getDefaultState());// , 11);
 				
-				if (heldItem != null && heldItemStack.isItemStackDamageable()) {
+				if (heldItemStack != null && heldItemStack.isItemStackDamageable()) {
 					heldItemStack.damageItem(1, player);
 					
 					if (heldItemStack.getMaxDamage() <= 0) {
