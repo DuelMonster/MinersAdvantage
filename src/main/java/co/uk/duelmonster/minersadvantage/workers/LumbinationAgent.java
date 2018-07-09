@@ -109,7 +109,12 @@ public class LumbinationAgent extends Agent {
 					world.playSound(player, oPos, SoundEvents.BLOCK_GRASS_BREAK, SoundCategory.BLOCKS, 1.0F, 1.0F);
 					
 					block.onBlockDestroyedByPlayer(world, oPos, state);
-					block.harvestBlock(world, fakePlayer, oPos, state, world.getTileEntity(oPos), heldItemStack.copy());
+					block.harvestBlock(world,
+							fakePlayer,
+							oPos,
+							state,
+							world.getTileEntity(oPos),
+							(heldItemStack != null ? heldItemStack.copy() : null));
 					
 					reportProgessToClient(oPos, soundtype.getBreakSound());
 				}
