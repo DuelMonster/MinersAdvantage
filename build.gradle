@@ -132,12 +132,15 @@ task updateBuildNumber << {
         output += (sLine + crlf);
     }
     versionFile.write(output);
+
+	println "===================================================================================================="
+	println "  Updated Build Number: ${mod_build};"
+	println "===================================================================================================="
 }
+updateBuildNumber.finalizedBy build
 
 task release(type: Copy) {
 	dependsOn updateBuildNumber
-	dependsOn build
-	tasks.findByName('build').mustRunAfter 'updateBuildNumber'
 
 	from('build/libs') { include '*.jar' }
 	into "../~Releases/"
