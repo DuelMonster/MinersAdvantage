@@ -132,7 +132,7 @@ public class CropinationAgent extends Agent {
 					
 					// Apply Item damage every 4 crops harvested. This makes item damage 1/4 per crop
 					if (iHarvestedCount > 0 && iHarvestedCount % 4 == 0
-							&& heldItem != null && heldItemStack.isItemStackDamageable()) {
+							&& heldItemStack != null && heldItemStack.isItemStackDamageable()) {
 						heldItemStack.damageItem(1, player);
 						
 						if (heldItemStack.getMaxDamage() <= 0) {
