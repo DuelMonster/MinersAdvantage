@@ -132,12 +132,15 @@ task updateBuildNumber << {
         output += (sLine + crlf);
     }
     versionFile.write(output);
+
+	println "===================================================================================================="
+	println "  Updated Build Number: ${mod_build};"
+	println "===================================================================================================="
 }
+updateBuildNumber.finalizedBy build
 
 task release(type: Copy) {
 	dependsOn updateBuildNumber
-	dependsOn build
-	tasks.findByName('build').mustRunAfter 'updateBuildNumber'
 
 	from('build/libs') { include '*.jar' }
 	into "../~Releases/"
@@ -152,22 +155,24 @@ task release(type: Copy) {
 tasks.curseforge.onlyIf { curseForgeApiKey }
 tasks.curseforge.dependsOn release
 
-curseforge {
-	apiKey = curseForgeApiKey
+if (curseForgeApiKey != '') {
+	curseforge {
+		apiKey = curseForgeApiKey
 
-	project {
-		id = curseId
-		
-		//changelogType = 'markdown'
-		//changelog 	  = file('ChangeLog.md')
-		
-		releaseType = 'release'
-		
-		addGameVersion minecraft.version
+		project {
+			id = curseId
 
-		mainArtifact jar
-		addArtifact  srcJar
-		addArtifact  deobfJar
+			//changelogType = 'markdown'
+			//changelog 	  = file('ChangeLog.md')
+
+			releaseType = 'release'
+
+			addGameVersion minecraft.version
+
+			mainArtifact jar
+			addArtifact  srcJar
+			addArtifact  deobfJar
+		}
 	}
 }
 
