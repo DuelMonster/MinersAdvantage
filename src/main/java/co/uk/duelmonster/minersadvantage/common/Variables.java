@@ -66,4 +66,8 @@ public class Variables {
 				IsShaftanating ||
 				IsVeinating);
 	}
+	
+	public boolean IsInToggleMode() {
+		return this.IsExcavationToggled || this.IsSingleLayerToggled;
+	}
 }
