@@ -88,7 +88,7 @@ public class NetworkPacket implements IMessage {
 				case Veinate:
 					boolean isOreVein = settings.bVeinationEnabled() && settings.veinationOres().has(state.getBlock().getRegistryName().toString().trim());
 					
-					if (isOreVein || settings.bExcavationEnabled() && (KeyBindings.excavation_toggle.isKeyDown() || KeyBindings.excavation_layer_only_toggle.isKeyDown())) {
+					if (isOreVein || settings.bExcavationEnabled() && ((settings.bToggleMode() && variables.IsInToggleMode()) || (KeyBindings.excavation_toggle.isKeyDown() || KeyBindings.excavation_layer_only_toggle.isKeyDown()))) {
 						if (isOreVein)
 							message.tags.setInteger("ID", PacketID.Veinate.value());
 						
