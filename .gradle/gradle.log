@@ -2,7 +2,7 @@ This mapping 'snapshot_20161220' was designed for MC 1.11! Use at your own peril
 
 ========================================================================================================================================================================================================
 
-  Building MinersAdvantage Version = 1.11.2-1.2.16.200  Building MinersAdvantage Version = 1.11.2-1.2.16.200
+  Building MinersAdvantage Version = 1.11.2-1.2.17.200  Building MinersAdvantage Version = 1.11.2-1.2.17.200
 
 ========================================================================================================================================================================================================
 
@@ -15,7 +15,56 @@ This mapping 'snapshot_20161220' was designed for MC 1.11! Use at your own peril
          by: Searge, ProfMobius, Fesh0r,         
          R4wk, ZeuX, IngisKahn, bspkrs           
 #################################################
+:clean
+:deobfCompileDummyTask
+:deobfProvidedDummyTask
+:sourceApiJava
+:compileApiJava UP-TO-DATE
+:processApiResources UP-TO-DATE
+:apiClasses UP-TO-DATE
+:sourceMainJava
+:compileJavawarning: [options] bootstrap class path not set in conjunction with -source 1.6
+Note: C:\$MC\Mod Source\~MinersAdvantage\Source\build\sources\main\java\co\uk\duelmonster\minersadvantage\client\config\ConfigGuiFactory.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+1 warning
 
-CONFIGURE SUCCESSFUL
+:processResources
+:classes
+:deobfJar
+:jar
+:extractMcpData SKIPPED
+:extractMcpMappings SKIPPED
+:getVersionJson
+:extractUserdev UP-TO-DATE
+:genSrgs SKIPPED
+:reobfJar
+:srcJar
+:curseforge291972
+Invalid cookie header: "Set-Cookie: AWSALB=S1IWqKe8iz4AWrPke8eQnv/kR8Kt+fAlcQDO5v0kzI7ImHwkaT4ZQWg3HR24/ldFlekwQguCuhiBF5soRIHhv/CtiWXafQgyNbJ0NIXc6jUIRZHPJU86xDM+1z5D; Expires=Fri, 20 Jul 2018 22:02:10 GMT; Path=/". Invalid 'expires' attribute: Fri, 20 Jul 2018 22:02:10 GMT
+Invalid cookie header: "Set-Cookie: AWSALB=sZLNzdrdGy+ain4QT+UVkF+gvLEhRXWRluxtbP7P1zQfqJx1qyE7ojxb3hWJJjBGHBlesyexMZTddiSi/s1DafqrMlvzW/MuH4BakLQxRh17cC97xMM+IefLC+qJ; Expires=Fri, 20 Jul 2018 22:02:19 GMT; Path=/". Invalid 'expires' attribute: Fri, 20 Jul 2018 22:02:19 GMT
+Uploaded C:\$MC\Mod Source\~MinersAdvantage\Source\build\libs\MinersAdvantage-1.11.2-1.2.17.200.jar to CurseForge Project: 291972, with ID: 2582514
+Invalid cookie header: "Set-Cookie: AWSALB=dOTfWOBGIMncxQa8DgAQs2wuztcv3Zrx0NdNmVre/FbKHdV80ldEeELKcUIZrlQFG4kCY4qyk8PetQ5H0llDtqcWGBpZN7GOCNYAyDVHZHakLCxsTEeM2xUcrBlw; Expires=Fri, 20 Jul 2018 22:02:26 GMT; Path=/". Invalid 'expires' attribute: Fri, 20 Jul 2018 22:02:26 GMT
+Uploaded C:\$MC\Mod Source\~MinersAdvantage\Source\build\libs\MinersAdvantage-1.11.2-1.2.17.200-src.jar to CurseForge Project: 291972, with ID: 2582515
+Invalid cookie header: "Set-Cookie: AWSALB=VC0SXcD8zHDFBiwLsMt3lgqGVViPbpWI8YHcmUyk8mabNdCWM3yXU6A/Vt8bXj/uqxpQXe/jo1/5PbzPE8TipC6BIN32ZtiNqJi67L3Gr1pwFwudDZFR335f+a+4; Expires=Fri, 20 Jul 2018 22:04:47 GMT; Path=/". Invalid 'expires' attribute: Fri, 20 Jul 2018 22:04:47 GMT
+Uploaded C:\$MC\Mod Source\~MinersAdvantage\Source\build\libs\MinersAdvantage-1.11.2-1.2.17.200-deobf.jar to CurseForge Project: 291972, with ID: 2582516
+:updateBuildNumber
+====================================================================================================
+  Updated Build Number: 200;
+====================================================================================================
+:sourceTestJava
+:compileTestJava UP-TO-DATE
+:processTestResources UP-TO-DATE
+:testClasses UP-TO-DATE
+:test UP-TO-DATE
+:assemble
+:check UP-TO-DATE
+:build
+:release
+====================================================================================================
+  MinersAdvantage release built successfully:  C:\$MC\Mod Source\~MinersAdvantage\~Releases
+====================================================================================================
+:curseforge
 
-Total time: 15.751 secs
+BUILD SUCCESSFUL
+
+Total time: 2 mins 57.2 secs
