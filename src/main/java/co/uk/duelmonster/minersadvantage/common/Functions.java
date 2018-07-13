@@ -122,16 +122,22 @@ public class Functions {
 				return null;
 			
 			for (Object o : list) {
+				if (o != null) {
 				Entity e = (Entity) o;
-				if (!e.isDead && (e instanceof EntityItem || e instanceof EntityXPOrb))// && isEntityWithinArea(e,
-																						// area))
+					
+					if (!e.isDead && (e instanceof EntityItem || e instanceof EntityXPOrb))
+						// && isEntityWithinArea(e, area))
 					rtrn.add(e);
+			}
 			}
 			return rtrn;
 			
 		}
 		catch (ConcurrentModificationException e) {
-			MinersAdvantage.logger.error("ConcurrentModification Exception Avoided..."); // : " + getStackTrace());
+			MinersAdvantage.logger.error("ConcurrentModification Exception Avoided...");
+		}
+		catch (IllegalStateException e) {
+			MinersAdvantage.logger.error("IllegalStateException Exception Avoided...");
 		}
 		catch (Exception ex) {
 			MinersAdvantage.logger.error(ex.getClass().getName() + " Exception: " + getStackTrace());
