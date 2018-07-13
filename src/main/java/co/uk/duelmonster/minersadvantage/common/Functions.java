@@ -122,16 +122,22 @@ public class Functions {
 				return null;
 			
 			for (Object o : list) {
-				Entity e = (Entity) o;
-				if (!e.isDead && (e instanceof EntityItem || e instanceof EntityXPOrb))// && isEntityWithinArea(e,
-																						// area))
-					rtrn.add(e);
+				if (o != null) {
+					Entity e = (Entity) o;
+					
+					if (!e.isDead && (e instanceof EntityItem || e instanceof EntityXPOrb))
+						// && isEntityWithinArea(e, area))
+						rtrn.add(e);
+				}
 			}
 			return rtrn;
 			
 		}
 		catch (ConcurrentModificationException e) {
-			MinersAdvantage.logger.error("ConcurrentModification Exception Avoided..."); // : " + getStackTrace());
+			MinersAdvantage.logger.error("ConcurrentModification Exception Avoided...");
+		}
+		catch (IllegalStateException e) {
+			MinersAdvantage.logger.error("IllegalStateException Exception Avoided...");
 		}
 		catch (Exception ex) {
 			MinersAdvantage.logger.error(ex.getClass().getName() + " Exception: " + getStackTrace());
@@ -218,16 +224,18 @@ public class Functions {
 	}
 	
 	public static void spawnAreaEffectCloud(World world, EntityPlayer player, BlockPos oPos) {
-		EntityAreaEffectCloud entityareaeffectcloud = new EntityAreaEffectCloud(world, oPos.getX() + 0.5D, oPos.getY() + 0.5D, oPos.getZ() + 0.5D);
-		entityareaeffectcloud.setOwner(player);
-		entityareaeffectcloud.setRadius(1.0F);
-		entityareaeffectcloud.setRadiusOnUse(-0.5F);
-		entityareaeffectcloud.setWaitTime(1);
-		entityareaeffectcloud.setDuration(20);
-		entityareaeffectcloud.setRadiusPerTick(-entityareaeffectcloud.getRadius() / entityareaeffectcloud.getDuration());
-		entityareaeffectcloud.addEffect(new PotionEffect(MobEffects.WEAKNESS, 10));
-		
-		world.spawnEntity(entityareaeffectcloud);
+		if (!Settings.get().bDisableParticleEffects()) {
+			EntityAreaEffectCloud entityareaeffectcloud = new EntityAreaEffectCloud(world, oPos.getX() + 0.5D, oPos.getY() + 0.5D, oPos.getZ() + 0.5D);
+			entityareaeffectcloud.setOwner(player);
+			entityareaeffectcloud.setRadius(1.0F);
+			entityareaeffectcloud.setRadiusOnUse(-0.5F);
+			entityareaeffectcloud.setWaitTime(1);
+			entityareaeffectcloud.setDuration(20);
+			entityareaeffectcloud.setRadiusPerTick(-entityareaeffectcloud.getRadius() / entityareaeffectcloud.getDuration());
+			entityareaeffectcloud.addEffect(new PotionEffect(MobEffects.WEAKNESS, 10));
+			
+			world.spawnEntity(entityareaeffectcloud);
+		}
 	}
 	
 	/**

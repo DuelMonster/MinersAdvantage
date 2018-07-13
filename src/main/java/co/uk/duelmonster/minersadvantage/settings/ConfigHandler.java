@@ -83,11 +83,12 @@ public class ConfigHandler {
 		settings.setBlocksPerTick(_config.getInt(Functions.localize(Constants.COMMON_ID + ".blocks_per_tick"), Constants.COMMON_ID, Settings.defaults.iBlocksPerTick(), 1, 16, Functions.localize(Constants.COMMON_ID + ".blocks_per_tick.desc")));
 		settings.setEnableTickDelay(_config.getBoolean(Functions.localize(Constants.COMMON_ID + ".enable_tick_delay"), Constants.COMMON_ID, Settings.defaults.bEnableTickDelay(), Functions.localize(Constants.COMMON_ID + ".enable_tick_delay.desc")));
 		settings.setTickDelay(_config.getInt(Functions.localize(Constants.COMMON_ID + ".tick_delay"), Constants.COMMON_ID, Settings.defaults.iTickDelay(), 1, 20, Functions.localize(Constants.COMMON_ID + ".tick_delay.desc")));
+		settings.setBlockRadius(_config.getInt(Functions.localize(Constants.COMMON_ID + ".radius"), Constants.COMMON_ID, Settings.defaults.iBlockRadius(), Constants.MIN_BLOCKRADIUS, Constants.MAX_BLOCKRADIUS, Functions.localize(Constants.COMMON_ID + ".radius.desc")));
+		settings.setBlockLimit(_config.getInt(Functions.localize(Constants.COMMON_ID + ".limit"), Constants.COMMON_ID, Settings.defaults.iBlockLimit(), ((Constants.MIN_BLOCKRADIUS * Constants.MIN_BLOCKRADIUS) * Constants.MIN_BLOCKRADIUS), Constants.MAX_BLOCKLIMIT, Functions.localize(Constants.COMMON_ID + ".limit.desc")));
 		// settings.setBreakAtToolSpeeds(_config.getBoolean(Functions.localize(Constants.COMMON_ID +
 		// ".break_at_tool_speeds"), Constants.COMMON_ID, Settings.defaults.bBreakAtToolSpeeds(),
 		// Functions.localize(Constants.COMMON_ID + ".break_at_tool_speeds.desc")));
-		settings.setBlockRadius(_config.getInt(Functions.localize(Constants.COMMON_ID + ".radius"), Constants.COMMON_ID, Settings.defaults.iBlockRadius(), Constants.MIN_BLOCKRADIUS, Constants.MAX_BLOCKRADIUS, Functions.localize(Constants.COMMON_ID + ".radius.desc")));
-		settings.setBlockLimit(_config.getInt(Functions.localize(Constants.COMMON_ID + ".limit"), Constants.COMMON_ID, Settings.defaults.iBlockLimit(), ((Constants.MIN_BLOCKRADIUS * Constants.MIN_BLOCKRADIUS) * Constants.MIN_BLOCKRADIUS), Constants.MAX_BLOCKLIMIT, Functions.localize(Constants.COMMON_ID + ".limit.desc")));
+		settings.setDisableParticleEffects(_config.getBoolean(Functions.localize(Constants.COMMON_ID + ".disable_particle_effects"), Constants.COMMON_ID, Settings.defaults.bDisableParticleEffects(), Functions.localize(Constants.COMMON_ID + ".disable_particle_effects.desc")));
 		
 		List<String> order = new ArrayList<String>(6);
 		order.add(Functions.localize(Constants.COMMON_ID + ".gather_drops"));
@@ -96,9 +97,10 @@ public class ConfigHandler {
 		order.add(Functions.localize(Constants.COMMON_ID + ".enable_tick_delay"));
 		order.add(Functions.localize(Constants.COMMON_ID + ".tick_delay"));
 		order.add(Functions.localize(Constants.COMMON_ID + ".blocks_per_tick"));
-		// order.add(Functions.localize(Constants.COMMON_ID + ".break_at_tool_speeds"));
 		order.add(Functions.localize(Constants.COMMON_ID + ".radius"));
 		order.add(Functions.localize(Constants.COMMON_ID + ".limit"));
+		// order.add(Functions.localize(Constants.COMMON_ID + ".break_at_tool_speeds"));
+		order.add(Functions.localize(Constants.COMMON_ID + ".disable_particle_effects"));
 		
 		_config.setCategoryPropertyOrder(Constants.COMMON_ID, order);
 	}
