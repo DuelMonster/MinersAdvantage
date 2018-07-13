@@ -7,11 +7,15 @@ import co.uk.duelmonster.minersadvantage.events.ServerEvents;
 import co.uk.duelmonster.minersadvantage.events.SharedEvents;
 import co.uk.duelmonster.minersadvantage.packets.NetworkPacket;
 import co.uk.duelmonster.minersadvantage.settings.ConfigHandler;
+import net.minecraft.client.particle.ParticleManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.relauncher.Side;
 
 public class CommonProxy {
+	
+	public ParticleManager	maParticleManager;
+	public ParticleManager	origParticleManager;
 	
 	public boolean isClient() {
 		return false;

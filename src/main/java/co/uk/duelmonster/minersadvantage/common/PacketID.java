@@ -28,7 +28,7 @@ public enum PacketID {
 	
 	HarvestCrops(11),
 	
-	AboutAgents(12);
+	AbortAgents(12);
 	
 	private final int value;
 	
