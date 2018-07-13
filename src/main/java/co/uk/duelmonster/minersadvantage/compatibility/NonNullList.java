@@ -29,6 +29,7 @@ public class NonNullList<E> extends AbstractList<E> {
 		return new NonNullList<E>(Arrays.asList((E[]) aobject), fill);
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static <E> NonNullList<E> from(E defaultElementIn, E... elements) {
 		return new NonNullList<E>(Arrays.asList(elements), defaultElementIn);
 	}

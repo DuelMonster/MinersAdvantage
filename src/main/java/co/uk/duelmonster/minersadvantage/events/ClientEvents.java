@@ -3,6 +3,7 @@ package co.uk.duelmonster.minersadvantage.events;
 import co.uk.duelmonster.minersadvantage.MinersAdvantage;
 import co.uk.duelmonster.minersadvantage.client.ClientFunctions;
 import co.uk.duelmonster.minersadvantage.client.KeyBindings;
+import co.uk.duelmonster.minersadvantage.client.MAParticleManager;
 import co.uk.duelmonster.minersadvantage.common.Constants;
 import co.uk.duelmonster.minersadvantage.common.PacketID;
 import co.uk.duelmonster.minersadvantage.common.Variables;
@@ -24,9 +25,11 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.FakePlayer;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -53,6 +56,21 @@ public class ClientEvents {
 	@SubscribeEvent
 	public void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
 		ClientFunctions.doJoinWorldEventStuff();
+	}
+	
+	@SideOnly(Side.CLIENT)
+	@SubscribeEvent(priority = EventPriority.LOWEST)
+	public void onEntityJoinWorldEvent(EntityJoinWorldEvent e) {
+		if (e.getEntity() == ClientFunctions.getPlayer()) {
+			Minecraft mc = ClientFunctions.getMC();
+			MinersAdvantage.proxy.maParticleManager = new MAParticleManager(e.getWorld(), mc.renderEngine);
+			
+			if (MinersAdvantage.proxy.origParticleManager == null || (MinersAdvantage.proxy.origParticleManager != mc.effectRenderer && MinersAdvantage.proxy.origParticleManager != MinersAdvantage.proxy.maParticleManager))
+				MinersAdvantage.proxy.origParticleManager = mc.effectRenderer;
+			
+			// if (Settings.get().bDisableParticleEffects())
+			mc.effectRenderer = MinersAdvantage.proxy.maParticleManager;
+		}
 	}
 	
 	@SubscribeEvent

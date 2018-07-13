@@ -136,7 +136,7 @@ public class NetworkPacket implements IMessage {
 					}
 					break;
 				
-				case AboutAgents:
+				case AbortAgents:
 					rtrnPacket = new NetworkPacket(message.tags);
 					
 				default:
@@ -198,6 +198,9 @@ public class NetworkPacket implements IMessage {
 				case Substitution:
 					break;
 				
+				case AbortAgents:
+					AgentProcessor.instance.stopProcessing(player);
+					
 				default:
 					break;
 				}

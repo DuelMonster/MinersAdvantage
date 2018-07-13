@@ -5,6 +5,8 @@ import java.util.UUID;
 
 import com.google.gson.JsonObject;
 
+import co.uk.duelmonster.minersadvantage.MinersAdvantage;
+import co.uk.duelmonster.minersadvantage.client.ClientFunctions;
 import co.uk.duelmonster.minersadvantage.common.Constants;
 import co.uk.duelmonster.minersadvantage.common.JsonHelper;
 import net.minecraft.init.Items;
@@ -44,16 +46,17 @@ public class Settings {
 	private transient String history = null;
 	
 	// Common Settings
-	private boolean	_tpsGuard			= true;
-	private boolean	_bGatherDrops		= false;
-	private boolean	_bAutoIlluminate	= true;
-	private boolean	_bMineVeins			= true;
-	private int		_iBlocksPerTick		= 2;
-	private boolean	_bEnableTickDelay	= true;
-	private int		_iTickDelay			= 3;
-	private int		_iBlockRadius		= Constants.DEFAULT_BLOCKRADIUS;
-	private int		_iBlockLimit		= (Constants.MIN_BLOCKRADIUS * Constants.MIN_BLOCKRADIUS) * Constants.MIN_BLOCKRADIUS;
-	private boolean	_bBreakAtToolSpeeds	= false;
+	private boolean	_tpsGuard					= true;
+	private boolean	_bGatherDrops				= false;
+	private boolean	_bAutoIlluminate			= true;
+	private boolean	_bMineVeins					= true;
+	private int		_iBlocksPerTick				= 2;
+	private boolean	_bEnableTickDelay			= true;
+	private int		_iTickDelay					= 3;
+	private int		_iBlockRadius				= Constants.DEFAULT_BLOCKRADIUS;
+	private int		_iBlockLimit				= (Constants.MIN_BLOCKRADIUS * Constants.MIN_BLOCKRADIUS) * Constants.MIN_BLOCKRADIUS;
+	private boolean	_bBreakAtToolSpeeds			= false;
+	private boolean	_bDisableParticleEffects	= false;
 	
 	// Captivation Settings
 	public boolean		_bCaptivationEnabled	= true;
@@ -301,6 +304,30 @@ public class Settings {
 	 */
 	public void setBreakAtToolSpeeds(boolean _bBreakAtToolSpeeds) {
 		this._bBreakAtToolSpeeds = _bBreakAtToolSpeeds;
+	}
+	
+	/**
+	 * @return iBlockLimit
+	 */
+	public boolean bDisableParticleEffects() {
+		if (serverOverrides != null && serverOverrides.bEnforceCommonSettings)
+			return serverOverrides.bDisableParticleEffects();
+		
+		return _bDisableParticleEffects;
+	}
+	
+	/**
+	 * @param _bDisableParticleEffects
+	 *            Sets bDisableParticleEffects
+	 */
+	public void setDisableParticleEffects(boolean _bDisableParticleEffects) {
+		this._bDisableParticleEffects = _bDisableParticleEffects;
+		
+		if (MinersAdvantage.proxy.origParticleManager != null && MinersAdvantage.proxy.maParticleManager != null)
+			if (this.bDisableParticleEffects())
+				ClientFunctions.getMC().effectRenderer = MinersAdvantage.proxy.maParticleManager;
+			else
+				ClientFunctions.getMC().effectRenderer = MinersAdvantage.proxy.origParticleManager;
 	}
 	
 	/**

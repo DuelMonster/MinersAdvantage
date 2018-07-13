@@ -101,7 +101,7 @@ public class KeyInputEvents {
 			
 			if (KeyBindings.abortAgents.isPressed()) {
 				NBTTagCompound tags = new NBTTagCompound();
-				tags.setInteger("ID", PacketID.AboutAgents.value());
+				tags.setInteger("ID", PacketID.AbortAgents.value());
 				
 				MinersAdvantage.instance.network.sendToServer(new NetworkPacket(tags));
 			}
