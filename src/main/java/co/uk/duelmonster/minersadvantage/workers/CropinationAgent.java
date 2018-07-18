@@ -120,10 +120,25 @@ public class CropinationAgent extends Agent {
 					NonNullList<ItemStack> drops = NonNullList.create();
 					block.getDrops(drops, world, oPos, state, fortune);
 					
-					for (ItemStack item : drops)
-						if (settings.bHarvestSeeds() || !(item.getItem() instanceof ItemSeeds))
+					NonNullList<ItemStack> plantables = NonNullList.create();
+					
+					for (ItemStack item : drops) {
+						if (item.getItem() instanceof IPlantable)
+							plantables.add(item);
+						else
 							Block.spawnAsEntity(world, oPos, item);
-						
+					}
+					
+					boolean bReplanted = false;
+					for (ItemStack plantable : plantables) {
+						if (!bReplanted) {
+							plantable.setCount(plantable.getCount() - 1);
+							bReplanted = true;
+						}
+						if (plantable.getCount() > 0 && (settings.bHarvestSeeds() || !(plantable.getItem() instanceof ItemSeeds)))
+							Block.spawnAsEntity(world, oPos, plantable);
+					}
+					
 					iHarvestedCount++;
 					
 					world.captureBlockSnapshots = true;
