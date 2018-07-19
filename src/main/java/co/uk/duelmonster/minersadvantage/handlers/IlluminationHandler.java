@@ -74,24 +74,8 @@ public class IlluminationHandler implements IPacketHandler {
 			if (iTorchIndx >= 0 && !oPos.equals(lastTorchLocation)) {
 				lastTorchLocation = new BlockPos(oPos);
 				
-				// world.captureBlockSnapshots = true;
-				// world.capturedBlockSnapshots.clear();
-				
 				world.setBlockState(oPos, Blocks.TORCH.getDefaultState().withProperty(BlockTorch.FACING, sideHit));
 				Functions.playSound(world, oPos, SoundEvents.BLOCK_WOOD_HIT, SoundCategory.BLOCKS, 1.0F, world.rand.nextFloat() + 0.5F);
-				
-				// world.captureBlockSnapshots = false;
-				// while (world.capturedBlockSnapshots.size() > 0) {
-				// BlockSnapshot snap = world.capturedBlockSnapshots.get(0);
-				// world.capturedBlockSnapshots.remove(0);
-				//
-				// world.markAndNotifyBlock(
-				// snap.getPos(),
-				// world.getChunkFromChunkCoords(snap.getPos().getX() >> 4, snap.getPos().getZ() >> 4),
-				// snap.getReplacedBlock(),
-				// snap.getCurrentBlock(),
-				// snap.getFlag());
-				// }
 				
 				ItemStack torchStack = player.inventory.decrStackSize(iTorchIndx, 1);
 				
