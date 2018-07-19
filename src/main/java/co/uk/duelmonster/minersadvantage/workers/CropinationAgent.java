@@ -117,11 +117,12 @@ public class CropinationAgent extends Agent {
 					
 					int fortune = EnchantmentHelper.getEnchantmentLevel(Enchantments.FORTUNE, heldItemStack);
 					
+					// Get Block drops
 					NonNullList<ItemStack> drops = NonNullList.create();
 					block.getDrops(drops, world, oPos, state, fortune);
 					
+					// Identify the plantable drops and spawn the non-plantable drops
 					NonNullList<ItemStack> plantables = NonNullList.create();
-					
 					for (ItemStack item : drops) {
 						if (item.getItem() instanceof IPlantable)
 							plantables.add(item);
@@ -129,15 +130,25 @@ public class CropinationAgent extends Agent {
 							Block.spawnAsEntity(world, oPos, item);
 					}
 					
+					// Decrease the plantable drops by one to simulate replanting
 					boolean bReplanted = false;
+					ItemSeeds oSeeds = null;
 					for (ItemStack plantable : plantables) {
 						if (!bReplanted) {
+							if (plantable.getItem() instanceof ItemSeeds)
+								oSeeds = (ItemSeeds) plantable.getItem();
+							
 							plantable.setCount(plantable.getCount() - 1);
 							bReplanted = true;
 						}
 						if (plantable.getCount() > 0 && (settings.bHarvestSeeds() || !(plantable.getItem() instanceof ItemSeeds)))
 							Block.spawnAsEntity(world, oPos, plantable);
 					}
+					
+					// If seed harvesting is disabled and current crop requires seeds, check players inventory for
+					// matching seed stacks and decrease one to simulate replanting
+					if (!settings.bHarvestSeeds() && oSeeds != null)
+						decreaseSeedsInInventory(oSeeds);
 					
 					iHarvestedCount++;
 					
@@ -209,5 +220,30 @@ public class CropinationAgent extends Agent {
 		
 		else if (this.packetID == PacketID.HarvestCrops && (block instanceof IGrowable || block instanceof IPlantable || block instanceof BlockCrops || block instanceof BlockNetherWart))
 			super.addToQueue(oPos);
+	}
+	
+	private void decreaseSeedsInInventory(ItemSeeds oSeeds) {
+		ItemStack stack = null;
+		
+		// Locate the players seeds in the main inventory
+		for (int i = 0; i < player.inventory.mainInventory.size(); i++) {
+			stack = player.inventory.mainInventory.get(i);
+			if (stack != null && stack.getItem().equals(oSeeds))
+				break;
+		}
+		
+		if (stack == null) {
+			// Seeds not found in the main inventory check the off hand inventory
+			for (int i = 0; i < player.inventory.offHandInventory.size(); i++) {
+				stack = player.inventory.offHandInventory.get(i);
+				if (stack != null && stack.getItem().equals(oSeeds))
+					break;
+			}
+		}
+		
+		// If seeds were found then decrease the size of the stack by one
+		if (stack != null && stack.getCount() > 0)
+			player.inventory.decrStackSize(Functions.getSlotFromInventory(player, stack), 1);
+		
 	}
 }
