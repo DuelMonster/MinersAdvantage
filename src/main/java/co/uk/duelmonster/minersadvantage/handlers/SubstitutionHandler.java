@@ -158,8 +158,8 @@ public class SubstitutionHandler {
 		});
 		
 		// Substitute the Players current item with the most optimal tool for the job
-		if (iOptimalSlot >= 0 && iOptimalSlot != iPrevSlot) {
-			//System.out.println("Switching to Optimal slot ( " + iOptimalSlot + " )");
+		if (iOptimalSlot >= 0 && iOptimalSlot != inventory.currentItem) {
+			// System.out.println("Switching to Optimal slot ( " + iOptimalSlot + " )");
 			
 			iPrevSlot = inventory.currentItem;
 			bShouldSwitchBack = settings.bSwitchBack();
@@ -234,7 +234,7 @@ public class SubstitutionHandler {
 		}
 		
 		// Substitute the Players current item with the most optimal tool for the job
-		if (iOptimalSlot >= 0 && iOptimalSlot != iPrevSlot) {
+		if (iOptimalSlot >= 0 && iOptimalSlot != inventory.currentItem) {
 			bShouldSwitchBack = false;
 			inventory.currentItem = iOptimalSlot;
 			ClientFunctions.syncCurrentPlayItem(iOptimalSlot);
