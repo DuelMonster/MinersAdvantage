@@ -5,3 +5,4 @@ fix: Substitution gets stuck on current optimal item when changing held item man
 fix: Captivation default value has incorrect item id
 style: remove old unused commented code
 refactor: move captivation trigger above isInCreativeMode check
+refactor: add isEmpty to JsonHelper
