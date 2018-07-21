@@ -10,6 +10,7 @@ import co.uk.duelmonster.minersadvantage.client.ClientFunctions;
 import co.uk.duelmonster.minersadvantage.common.Constants;
 import co.uk.duelmonster.minersadvantage.common.JsonHelper;
 import net.minecraft.init.Items;
+import net.minecraft.item.Item;
 
 public class Settings {
 	
@@ -64,7 +65,7 @@ public class Settings {
 	public boolean		_bIsWhitelist			= false;
 	public double		_radiusHorizontal		= 16;
 	public double		_radiusVertical			= 16;
-	public JsonObject	_captivationBlacklist	= JsonHelper.ParseObject("{\"" + Items.ROTTEN_FLESH.getRegistryName().toString().trim() + "\":\"\"}");
+	public JsonObject	_captivationBlacklist	= new JsonObject();
 	
 	// Cropination Settings
 	private boolean	_bCropinationEnabled	= true;
@@ -427,6 +428,9 @@ public class Settings {
 	public JsonObject captivationBlacklist() {
 		if (serverOverrides != null && serverOverrides.bEnforceCaptivationSettings)
 			return serverOverrides.captivationBlacklist();
+		
+		if (JsonHelper.isEmpty(_captivationBlacklist))
+			_captivationBlacklist.addProperty(Item.REGISTRY.getNameForObject(Items.ROTTEN_FLESH).toString().trim(), "");
 		
 		return _captivationBlacklist;
 	}
