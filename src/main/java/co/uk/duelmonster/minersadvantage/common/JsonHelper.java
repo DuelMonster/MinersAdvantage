@@ -36,6 +36,10 @@ public class JsonHelper {
 		return json.entrySet().size();
 	}
 	
+	public static boolean isEmpty(JsonObject json) {
+		return json.entrySet().size() <= 0;
+	}
+	
 	public static JsonArray GetArray(JsonObject json, String key) {
 		if (json == null)
 			return new JsonArray();
