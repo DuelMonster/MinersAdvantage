@@ -5,6 +5,7 @@ import co.uk.duelmonster.minersadvantage.client.ClientFunctions;
 import co.uk.duelmonster.minersadvantage.client.KeyBindings;
 import co.uk.duelmonster.minersadvantage.client.MAParticleManager;
 import co.uk.duelmonster.minersadvantage.common.Constants;
+import co.uk.duelmonster.minersadvantage.common.JsonHelper;
 import co.uk.duelmonster.minersadvantage.common.PacketID;
 import co.uk.duelmonster.minersadvantage.common.Variables;
 import co.uk.duelmonster.minersadvantage.handlers.GodItems;
@@ -81,7 +82,7 @@ public class ClientEvents {
 		event.setCanceled(settings.bCaptivationEnabled()
 				&& settings.bIsWhitelist()
 				&& settings.captivationBlacklist() != null
-				&& settings.captivationBlacklist().getAsJsonArray().size() > 0
+				&& JsonHelper.size(settings.captivationBlacklist()) > 0
 				&& settings.captivationBlacklist().has(event.getItem().getEntityItem().getItem().getRegistryName().toString().trim()));
 	}
 	
@@ -93,7 +94,21 @@ public class ClientEvents {
 		
 		Minecraft mc = ClientFunctions.getMC();
 		EntityPlayerSP player = ClientFunctions.getPlayer();
-		if (player == null || mc.playerController.isInCreativeMode())
+		if (player == null)
+			return;
+		
+		Settings settings = Settings.get();
+		Variables variables = Variables.get();
+		
+		// Fire Captivation if enabled
+		if (settings.bCaptivationEnabled() && !mc.isGamePaused() && mc.inGameHasFocus) {
+			NBTTagCompound tags = new NBTTagCompound();
+			tags.setInteger("ID", PacketID.Captivate.value());
+			
+			MinersAdvantage.instance.network.sendToServer(new NetworkPacket(tags));
+		}
+		
+		if (mc.playerController.isInCreativeMode())
 			return;
 		
 		// If an entity was attacked last tick and weapon was switched, we attack now.
@@ -110,8 +125,6 @@ public class ClientEvents {
 		if (iTickCount <= 0)
 			return;
 		
-		Settings settings = Settings.get();
-		Variables variables = Variables.get();
 		if (!settings.bToggleMode())
 			variables.IsExcavationToggled = KeyBindings.excavation_toggle.isKeyDown();
 		variables.IsShaftanationToggled = KeyBindings.shaftanation_toggle.isKeyDown();
@@ -132,14 +145,6 @@ public class ClientEvents {
 		// Cancel the running Excavation agents when player lifts the key binding
 		if (settings.bExcavationEnabled() && !variables.IsExcavationToggled)
 			GodItems.isWorthy(false);
-		
-		// Fire Captivation if enabled
-		if (settings.bCaptivationEnabled() && !mc.isGamePaused() && mc.inGameHasFocus) {
-			NBTTagCompound tags = new NBTTagCompound();
-			tags.setInteger("ID", PacketID.Captivate.value());
-			
-			MinersAdvantage.instance.network.sendToServer(new NetworkPacket(tags));
-		}
 		
 		if (variables.IsPlayerAttacking && mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == RayTraceResult.Type.BLOCK) {
 			// Record the block face being attacked

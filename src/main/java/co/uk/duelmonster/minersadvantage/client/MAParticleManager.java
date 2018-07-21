@@ -18,19 +18,7 @@ public class MAParticleManager extends ParticleManager {
 	
 	@Override
 	public void addEffect(Particle effect) {
-		if (Settings.get().bDisableParticleEffects() && !(effect instanceof ParticleDigging))
+		if (!Settings.get().bDisableParticleEffects() || !(effect instanceof ParticleDigging))
 			super.addEffect(effect);
 	}
-	
-	// @Override
-	// public Particle spawnEffectParticle(int particleId, double xCoord, double yCoord, double zCoord, double xSpeed, double ySpeed, double zSpeed, int... parameters) {
-	// if (Settings.get().bDisableParticleEffects()
-	// && (particleId == EnumParticleTypes.FOOTSTEP.getParticleID()
-	// || particleId == EnumParticleTypes.BLOCK_CRACK.getParticleID()
-	// || particleId == EnumParticleTypes.ITEM_CRACK.getParticleID()
-	// || particleId == EnumParticleTypes.BLOCK_DUST.getParticleID()))
-	// return null;
-	// return super.spawnEffectParticle(particleId, xCoord, yCoord, zCoord, xSpeed, ySpeed, zSpeed, parameters);
-	// }
-	
 }
