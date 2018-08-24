@@ -1,3 +1,4 @@
+Down port from 1.12.2 branch.
 fix: unable to use block harvesting features when swapping between Overworld and Nether without logging out and back in again.
 fix: NullPointerException in Lumbination caused when chopping a tree on dedicated server.
 refactor: Separated config sub categories into their own classes.
