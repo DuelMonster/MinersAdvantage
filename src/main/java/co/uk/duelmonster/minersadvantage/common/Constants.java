@@ -19,9 +19,9 @@ public final class Constants {
 	// This number is incremented every minecraft release, never reset
 	public static final int minorVersion = 3;
 	// This number is incremented every time new features are added, never reset
-	public static final int revisionVersion = 18;
+	public static final int revisionVersion = 19;
 	// This number is incremented every time a release is built, and never reset
-	public static final int buildVersion = 223;
+	public static final int buildVersion = 241;
 	
 	// This is the full version number of our mod
 	public static final String MOD_VERSION = majorVersion + "." + minorVersion + "." + revisionVersion + "." + buildVersion;
@@ -51,7 +51,7 @@ public final class Constants {
 	public static final int	DEFAULT_BLOCKRADIUS	= 16;
 	public static final int	MIN_BLOCKRADIUS		= 2;
 	public static final int	MAX_BLOCKRADIUS		= 128;
-	public static final int	MAX_BLOCKLIMIT		= (MAX_BLOCKRADIUS * MAX_BLOCKRADIUS) * MAX_BLOCKRADIUS;
+	public static final int	MAX_BLOCKLIMIT		= (DEFAULT_BLOCKRADIUS * DEFAULT_BLOCKRADIUS) * DEFAULT_BLOCKRADIUS;
 	public static final int	MIN_BREAKSPEED		= 1;
 	public static final int	MAX_BREAKSPEED		= 32;
 	public static final int	MAX_TREE_WIDTH		= 128;

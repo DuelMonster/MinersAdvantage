@@ -50,7 +50,7 @@ public class GodItems {
 				
 			}
 			
-			if (iTickCount >= 200) {
+			if (iTickCount >= 400) {
 				sGodCode = "";
 				iTickCount = 0;
 			}

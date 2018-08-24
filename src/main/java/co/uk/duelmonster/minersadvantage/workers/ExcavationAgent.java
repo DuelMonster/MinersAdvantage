@@ -25,8 +25,6 @@ public class ExcavationAgent extends Agent {
 		
 		this.bIsSingleLayerToggled = Variables.get(player.getUniqueID()).IsSingleLayerToggled;
 		
-		// this.harvestArea = settings.iBlockRadius();
-		
 		// Add the origin block the queue now that we have all the information.
 		addConnectedToQueue(originPos);
 	}

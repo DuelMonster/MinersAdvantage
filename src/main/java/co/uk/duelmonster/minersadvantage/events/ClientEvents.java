@@ -150,7 +150,7 @@ public class ClientEvents {
 			// Record the block face being attacked
 			variables.sideHit = mc.objectMouseOver.sideHit;
 			
-			if (MAConfig.get().substitution.bEnabled() && !SubstitutionHandler.instance.bCurrentlySwitched) {
+			if (settings.substitution.bEnabled() && !SubstitutionHandler.instance.bCurrentlySwitched) {
 				World world = player.getEntityWorld();
 				BlockPos oPos = mc.objectMouseOver.getBlockPos();
 				IBlockState state = world.getBlockState(oPos);
