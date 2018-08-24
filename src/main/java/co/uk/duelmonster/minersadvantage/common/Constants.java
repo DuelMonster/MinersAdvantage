@@ -19,9 +19,9 @@ public final class Constants {
 	// This number is incremented every minecraft release, never reset
 	public static final int minorVersion = 1;
 	// This number is incremented every time new features are added, never reset
-	public static final int revisionVersion = 18;
+	public static final int revisionVersion = 19;
 	// This number is incremented every time a release is built, and never reset
-	public static final int buildVersion = 199;
+	public static final int buildVersion = 209;
 	
 	// This is the full version number of our mod
 	public static final String MOD_VERSION = majorVersion + "." + minorVersion + "." + revisionVersion + "." + buildVersion;
@@ -40,6 +40,7 @@ public final class Constants {
 	public static final String	CAPTIVATION_ID	= Constants.MOD_ID + ".captivation";
 	public static final String	CROPINATION_ID	= Constants.MOD_ID + ".cropination";
 	public static final String	EXCAVATION_ID	= Constants.MOD_ID + ".excavation";
+	public static final String	PATHANATION_ID	= Constants.MOD_ID + ".pathanation";
 	public static final String	ILLUMINATION_ID	= Constants.MOD_ID + ".illumination";
 	public static final String	LUMBINATION_ID	= Constants.MOD_ID + ".lumbination";
 	public static final String	SHAFTANATION_ID	= Constants.MOD_ID + ".shaftanation";
@@ -47,10 +48,10 @@ public final class Constants {
 	public static final String	VEINATION_ID	= Constants.MOD_ID + ".veination";
 	
 	public static final int	MIN_HUNGER			= 1;
-	public static final int	DEFAULT_BLOCKRADIUS	= 8;
+	public static final int	DEFAULT_BLOCKRADIUS	= 16;
 	public static final int	MIN_BLOCKRADIUS		= 2;
 	public static final int	MAX_BLOCKRADIUS		= 128;
-	public static final int	MAX_BLOCKLIMIT		= (MAX_BLOCKRADIUS * MAX_BLOCKRADIUS) * MAX_BLOCKRADIUS;
+	public static final int	MAX_BLOCKLIMIT		= (DEFAULT_BLOCKRADIUS * DEFAULT_BLOCKRADIUS) * DEFAULT_BLOCKRADIUS;
 	public static final int	MIN_BREAKSPEED		= 1;
 	public static final int	MAX_BREAKSPEED		= 32;
 	public static final int	MAX_TREE_WIDTH		= 128;

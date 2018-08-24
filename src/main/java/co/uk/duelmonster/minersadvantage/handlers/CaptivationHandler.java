@@ -2,10 +2,11 @@ package co.uk.duelmonster.minersadvantage.handlers;
 
 import java.util.List;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import co.uk.duelmonster.minersadvantage.common.Functions;
-import co.uk.duelmonster.minersadvantage.common.JsonHelper;
+import co.uk.duelmonster.minersadvantage.config.MAConfig;
 import co.uk.duelmonster.minersadvantage.packets.NetworkPacket;
-import co.uk.duelmonster.minersadvantage.settings.Settings;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.item.EntityXPOrb;
@@ -26,9 +27,9 @@ public class CaptivationHandler implements IPacketHandler {
 		if (player == null)
 			return;
 		
-		Settings settings = Settings.get(player.getUniqueID());
+		MAConfig settings = MAConfig.get(player.getUniqueID());
 		
-		AxisAlignedBB captivateArea = player.getEntityBoundingBox().expand(settings.radiusHorizontal(), settings.radiusVertical(), settings.radiusHorizontal());
+		AxisAlignedBB captivateArea = player.getEntityBoundingBox().expand(settings.captivation.radiusHorizontal(), settings.captivation.radiusVertical(), settings.captivation.radiusHorizontal());
 		
 		if (player.worldObj != null) {
 			List<Entity> localDrops = Functions.getNearbyEntities(player.worldObj, captivateArea);
@@ -38,9 +39,9 @@ public class CaptivationHandler implements IPacketHandler {
 						EntityItem eItem = (EntityItem) entity;
 						
 						if (!eItem.cannotPickup()
-								&& (settings.captivationBlacklist() == null
-										|| JsonHelper.size(settings.captivationBlacklist()) == 0
-										|| !settings.captivationBlacklist().has(eItem.getEntityItem().getItem().getRegistryName().toString().trim())))
+								&& (settings.captivation.blacklist() == null
+										|| settings.captivation.blacklist().length == 0
+										|| !ArrayUtils.contains(settings.captivation.blacklist(), eItem.getEntityItem().getItem().getRegistryName().toString().trim())))
 							entity.onCollideWithPlayer(player);
 						
 					} else if (entity instanceof EntityXPOrb)

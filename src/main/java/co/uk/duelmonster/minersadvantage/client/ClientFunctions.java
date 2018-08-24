@@ -9,8 +9,8 @@ import co.uk.duelmonster.minersadvantage.common.Functions;
 import co.uk.duelmonster.minersadvantage.common.JsonHelper;
 import co.uk.duelmonster.minersadvantage.common.PacketID;
 import co.uk.duelmonster.minersadvantage.common.Variables;
+import co.uk.duelmonster.minersadvantage.config.MAConfig;
 import co.uk.duelmonster.minersadvantage.packets.NetworkPacket;
-import co.uk.duelmonster.minersadvantage.settings.Settings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.network.NetHandlerPlayClient;
@@ -38,7 +38,7 @@ public class ClientFunctions {
 		NBTTagCompound tags = new NBTTagCompound();
 		tags.setInteger("ID", PacketID.SyncSettings.value());
 		
-		Settings settings = Settings.get();
+		MAConfig settings = MAConfig.get();
 		if (settings.hasChanged()) {
 			tags.setString("settings", JsonHelper.gson.toJson(settings));
 			hasChanged = true;

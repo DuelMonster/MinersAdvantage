@@ -7,7 +7,7 @@ import java.util.List;
 
 import co.uk.duelmonster.minersadvantage.MinersAdvantage;
 import co.uk.duelmonster.minersadvantage.common.Functions;
-import co.uk.duelmonster.minersadvantage.settings.Settings;
+import co.uk.duelmonster.minersadvantage.config.MAConfig;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.item.EntityXPOrb;
@@ -38,7 +38,7 @@ public class DropsSpawner {
 					for (Entity entity : dropsClone) {
 						if (entity != null && entity instanceof EntityItem) {
 							
-							if (Settings.get().bGatherDrops() && spawnPos != null)
+							if (MAConfig.get().common.bGatherDrops() && spawnPos != null)
 								entity = new EntityItem(world, spawnPos.getX() + 0.5D, spawnPos.getY() + 0.5D, spawnPos.getZ() + 0.5D, ((EntityItem) entity).getEntityItem());
 							
 							world.spawnEntityInWorld(entity);

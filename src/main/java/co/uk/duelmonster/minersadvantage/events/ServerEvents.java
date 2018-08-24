@@ -6,8 +6,8 @@ import co.uk.duelmonster.minersadvantage.MinersAdvantage;
 import co.uk.duelmonster.minersadvantage.common.JsonHelper;
 import co.uk.duelmonster.minersadvantage.common.PacketID;
 import co.uk.duelmonster.minersadvantage.common.Variables;
+import co.uk.duelmonster.minersadvantage.config.MAServerConfig;
 import co.uk.duelmonster.minersadvantage.packets.NetworkPacket;
-import co.uk.duelmonster.minersadvantage.settings.SettingsServer;
 import co.uk.duelmonster.minersadvantage.workers.AgentProcessor;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
@@ -48,14 +48,14 @@ public class ServerEvents {
 	
 	@SubscribeEvent
 	public void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-		if (event.player instanceof EntityPlayerMP) {
+		if (event.player instanceof EntityPlayerMP && MAServerConfig.serverSettings != null) {
 			
 			if (event.player.inventory.currentItem == -1)
 				event.player.inventory.currentItem = 0;
 			
 			NBTTagCompound tags = new NBTTagCompound();
 			tags.setInteger("ID", PacketID.SyncSettings.value());
-			tags.setString("server_settings", JsonHelper.gson.toJson(SettingsServer.serverSettings));
+			tags.setString("server_settings", JsonHelper.gson.toJson(MAServerConfig.serverSettings));
 			
 			MinersAdvantage.instance.network.sendTo(new NetworkPacket(tags), (EntityPlayerMP) event.player);
 		}

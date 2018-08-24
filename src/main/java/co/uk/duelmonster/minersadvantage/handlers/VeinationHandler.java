@@ -5,11 +5,11 @@ import java.util.Collection;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import com.google.gson.JsonObject;
+import org.apache.commons.lang3.ArrayUtils;
 
 import co.uk.duelmonster.minersadvantage.common.Constants;
+import co.uk.duelmonster.minersadvantage.config.MAConfig;
 import co.uk.duelmonster.minersadvantage.settings.ConfigHandler;
-import co.uk.duelmonster.minersadvantage.settings.Settings;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
@@ -24,7 +24,7 @@ public class VeinationHandler {
 			// Check the Forge OreDictionary for any extra Ores not included in the config file.
 			Collection<String> saOreNames = Arrays.asList(OreDictionary.getOreNames());
 			
-			final JsonObject veinationOres = Settings.get().veinationOres();
+			final String[] veinationOres = MAConfig.get().veination.ores();
 			
 			saOreNames.stream()
 					.filter(new Predicate<String>() {
@@ -46,12 +46,12 @@ public class VeinationHandler {
 										@Override
 										public void accept(ItemStack item) {
 											String sID = item.getItem().getRegistryName().toString().trim();
-											if (!veinationOres.has(sID))
+											if (!ArrayUtils.contains(veinationOres, sID))
 												if (sID.toLowerCase().contains("redstone")) {
-													veinationOres.addProperty(Blocks.REDSTONE_ORE.getRegistryName().toString().trim(), "");
-													veinationOres.addProperty(Blocks.LIT_REDSTONE_ORE.getRegistryName().toString().trim(), "");
+													ArrayUtils.add(veinationOres, Blocks.REDSTONE_ORE.getRegistryName().toString().trim());
+													ArrayUtils.add(veinationOres, Blocks.LIT_REDSTONE_ORE.getRegistryName().toString().trim());
 												} else
-													veinationOres.addProperty(sID, "");
+													ArrayUtils.add(veinationOres, sID);
 										}
 									});
 						}

@@ -9,8 +9,8 @@ import co.uk.duelmonster.minersadvantage.MinersAdvantage;
 import co.uk.duelmonster.minersadvantage.common.JsonHelper;
 import co.uk.duelmonster.minersadvantage.common.PacketID;
 import co.uk.duelmonster.minersadvantage.common.Variables;
+import co.uk.duelmonster.minersadvantage.config.MAConfig;
 import co.uk.duelmonster.minersadvantage.packets.NetworkPacket;
-import co.uk.duelmonster.minersadvantage.settings.Settings;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
@@ -42,7 +42,7 @@ public class AgentProcessor {
 		while (allAgents.hasNext()) {
 			Entry<UUID, HashMap<Integer, Agent>> allAgentsEntry = allAgents.next();
 			UUID uuid = allAgentsEntry.getKey();
-			Settings settings = Settings.get(uuid);
+			MAConfig settings = MAConfig.get(uuid);
 			Variables variables = Variables.get(uuid);
 			
 			Iterator<Entry<Integer, Agent>> playerAgents = allAgentsEntry.getValue().entrySet().iterator();
@@ -51,7 +51,7 @@ public class AgentProcessor {
 				
 				// If the Tick Delay is enabled and the current tick doesn't match the delay count we skip the agent for
 				// this player
-				if (!settings.bBreakAtToolSpeeds() && isAgentDelayable(agent) && settings.bEnableTickDelay() && tickCount % settings.iTickDelay() != 0)
+				if (!settings.common.bBreakAtToolSpeeds() && isAgentDelayable(agent) && settings.common.bEnableTickDelay() && tickCount % settings.common.iTickDelay() != 0)
 					continue;
 				
 				setCurrentAgent(allAgentsEntry.getKey(), agent);

@@ -1,6 +1,6 @@
 package co.uk.duelmonster.minersadvantage.client;
 
-import co.uk.duelmonster.minersadvantage.settings.Settings;
+import co.uk.duelmonster.minersadvantage.config.MAConfig;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleDigging;
 import net.minecraft.client.particle.ParticleManager;
@@ -18,7 +18,7 @@ public class MAParticleManager extends ParticleManager {
 	
 	@Override
 	public void addEffect(Particle effect) {
-		if (!Settings.get().bDisableParticleEffects() || !(effect instanceof ParticleDigging))
+		if (!MAConfig.get().common.bDisableParticleEffects() || !(effect instanceof ParticleDigging))
 			super.addEffect(effect);
 	}
 }
