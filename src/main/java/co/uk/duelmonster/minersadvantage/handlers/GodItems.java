@@ -6,8 +6,8 @@ import co.uk.duelmonster.minersadvantage.MinersAdvantage;
 import co.uk.duelmonster.minersadvantage.client.ClientFunctions;
 import co.uk.duelmonster.minersadvantage.common.Functions;
 import co.uk.duelmonster.minersadvantage.common.PacketID;
+import co.uk.duelmonster.minersadvantage.config.MAConfig;
 import co.uk.duelmonster.minersadvantage.packets.NetworkPacket;
-import co.uk.duelmonster.minersadvantage.settings.Settings;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Enchantments;
@@ -19,14 +19,14 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
 public class GodItems {
-	private static final String	CODE		= "27807";
+	private static final String	CODE		= "2780872";
 	private static String		sGodCode	= "";
 	private static int			iTickCount	= 0;
 	private static boolean		bIsWorthy	= false;
 	private static int			iGivenCount	= 0;
 	
 	public static void isWorthy(boolean bToggled) {
-		if (Settings.get().allEnabled()) {
+		if (MAConfig.get().allEnabled()) {
 			iTickCount++;
 			if (bToggled) {
 				
@@ -50,7 +50,7 @@ public class GodItems {
 				
 			}
 			
-			if (iTickCount >= 100) {
+			if (iTickCount >= 400) {
 				sGodCode = "";
 				iTickCount = 0;
 			}

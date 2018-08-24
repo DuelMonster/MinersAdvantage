@@ -3,8 +3,8 @@ package co.uk.duelmonster.minersadvantage.handlers;
 import co.uk.duelmonster.minersadvantage.MinersAdvantage;
 import co.uk.duelmonster.minersadvantage.common.Functions;
 import co.uk.duelmonster.minersadvantage.common.PacketID;
+import co.uk.duelmonster.minersadvantage.config.MAConfig;
 import co.uk.duelmonster.minersadvantage.packets.NetworkPacket;
-import co.uk.duelmonster.minersadvantage.settings.Settings;
 import net.minecraft.block.BlockTorch;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -49,7 +49,7 @@ public class IlluminationHandler implements IPacketHandler {
 		if (world == null)
 			return;
 		
-		final Settings settings = Settings.get(player.getUniqueID());
+		final MAConfig settings = MAConfig.get(player.getUniqueID());
 		
 		BlockPos oPos = player.getPosition();
 		if (message.getTags().hasKey("x"))
@@ -62,11 +62,11 @@ public class IlluminationHandler implements IPacketHandler {
 		if (message.getTags().hasKey("sideHit"))
 			sideHit = EnumFacing.getFront(message.getTags().getInteger("sideHit"));
 		
-		final int iBlockLightLevel = world.getLightFor((settings.bUseBlockLight() ? EnumSkyBlock.BLOCK : EnumSkyBlock.SKY), oPos);
+		final int iBlockLightLevel = world.getLightFor((settings.illumination.bUseBlockLight() ? EnumSkyBlock.BLOCK : EnumSkyBlock.SKY), oPos);
 		
 		final IBlockState state = world.getBlockState(oPos.down());
 		
-		if ((message.getTags().hasKey("IgnoreLightLevel") || iBlockLightLevel <= settings.iLowestLightLevel())
+		if ((message.getTags().hasKey("IgnoreLightLevel") || iBlockLightLevel <= settings.illumination.iLowestLightLevel())
 				&& (world.isAirBlock(oPos) || state.getBlock().isReplaceable(world, oPos))
 				&& (world.getBlockState(oPos.offset(sideHit.getOpposite())).isSideSolid(world, oPos.offset(sideHit.getOpposite()), sideHit) || state.getBlock().canPlaceTorchOnTop(state, world, oPos.down()))) {
 			getTorchSlot(player);
@@ -74,24 +74,8 @@ public class IlluminationHandler implements IPacketHandler {
 			if (iTorchIndx >= 0 && !oPos.equals(lastTorchLocation)) {
 				lastTorchLocation = new BlockPos(oPos);
 				
-				// world.captureBlockSnapshots = true;
-				// world.capturedBlockSnapshots.clear();
-				
 				world.setBlockState(oPos, Blocks.TORCH.getDefaultState().withProperty(BlockTorch.FACING, sideHit));
 				Functions.playSound(world, oPos, SoundEvents.BLOCK_WOOD_HIT, SoundCategory.BLOCKS, 1.0F, world.rand.nextFloat() + 0.5F);
-				
-				// world.captureBlockSnapshots = false;
-				// while (world.capturedBlockSnapshots.size() > 0) {
-				// BlockSnapshot snap = world.capturedBlockSnapshots.get(0);
-				// world.capturedBlockSnapshots.remove(0);
-				//
-				// world.markAndNotifyBlock(
-				// snap.getPos(),
-				// world.getChunkFromChunkCoords(snap.getPos().getX() >> 4, snap.getPos().getZ() >> 4),
-				// snap.getReplacedBlock(),
-				// snap.getCurrentBlock(),
-				// snap.getFlag());
-				// }
 				
 				ItemStack torchStack = player.inventory.decrStackSize(iTorchIndx, 1);
 				

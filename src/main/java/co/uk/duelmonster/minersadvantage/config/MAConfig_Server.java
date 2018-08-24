@@ -1,22 +1,22 @@
-package co.uk.duelmonster.minersadvantage.settings;
+package co.uk.duelmonster.minersadvantage.config;
 
-public class SettingsServer extends Settings {
+// Server Override Settings
+public class MAConfig_Server {
 	
-	public static SettingsServer	serverSettings	= new SettingsServer();
-	public static SettingsServer	defaults		= new SettingsServer();
+	// ====================================================================================================
+	// = Config variables
+	// ====================================================================================================
 	
 	public boolean	bOverrideFeatureEnablement		= false;
 	public boolean	bEnforceCommonSettings			= false;
 	public boolean	bEnforceCaptivationSettings		= false;
 	public boolean	bEnforceCropinationSettings		= false;
 	public boolean	bEnforceExcavationSettings		= false;
+	public boolean	bEnforcePathanationSettings		= false;
 	public boolean	bEnforceIlluminationSettings	= false;
 	public boolean	bEnforceLumbinationSettings		= false;
 	public boolean	bEnforceShaftanationSettings	= false;
 	public boolean	bEnforceSubstitutionSettings	= false;
 	public boolean	bEnforceVeinationSettings		= false;
 	
-	public static SettingsServer get() {
-		return serverSettings;
-	}
 }

@@ -5,8 +5,11 @@ import java.util.Arrays;
 import java.util.ConcurrentModificationException;
 import java.util.List;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import co.uk.duelmonster.minersadvantage.MinersAdvantage;
-import co.uk.duelmonster.minersadvantage.settings.Settings;
+import co.uk.duelmonster.minersadvantage.config.MAConfig;
+import co.uk.duelmonster.minersadvantage.config.MAConfig_Excavation;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockPlanks.EnumType;
 import net.minecraft.block.properties.PropertyEnum;
@@ -147,40 +150,44 @@ public class Functions {
 	
 	public static boolean isItemBlacklisted(ItemStack item) {
 		if (item == null || item.isEmpty())
-			return Settings.get().bIsToolWhitelist();
+			return MAConfig.get().excavation.bIsToolWhitelist();
 		
 		return isItemBlacklisted(item.getItem());
 	}
 	
 	public static boolean isItemBlacklisted(Item item) {
-		if (item == null)
-			return Settings.get().bIsToolWhitelist();
+		MAConfig_Excavation excavation = MAConfig.get().excavation;
 		
-		if (Settings.get().toolBlacklist().has(Item.REGISTRY.getNameForObject(item).toString()))
-			return !Settings.get().bIsToolWhitelist();
+		if (item == null)
+			return excavation.bIsToolWhitelist();
+		
+		if (ArrayUtils.contains(excavation.toolBlacklist(), Item.REGISTRY.getNameForObject(item).toString()))
+			return !excavation.bIsToolWhitelist();
 		
 		for (int id : OreDictionary.getOreIDs(new ItemStack(item)))
-			if (Settings.get().toolBlacklist().has(OreDictionary.getOreName(id)))
-				return !Settings.get().bIsToolWhitelist();
+			if (ArrayUtils.contains(excavation.toolBlacklist(), OreDictionary.getOreName(id)))
+				return !excavation.bIsToolWhitelist();
 			
-		return Settings.get().bIsToolWhitelist();
+		return excavation.bIsToolWhitelist();
 	}
 	
 	public static boolean isBlockBlacklisted(Block block) {
-		if (block == null || block == Blocks.AIR)
-			return Settings.get().bIsBlockWhitelist();
+		MAConfig_Excavation excavation = MAConfig.get().excavation;
 		
-		if (Settings.get().blockBlacklist().has(Block.REGISTRY.getNameForObject(block).toString()))
-			return !Settings.get().bIsBlockWhitelist();
+		if (block == null || block == Blocks.AIR)
+			return excavation.bIsBlockWhitelist();
+		
+		if (ArrayUtils.contains(excavation.blockBlacklist(), Block.REGISTRY.getNameForObject(block).toString()))
+			return !excavation.bIsBlockWhitelist();
 		
 		ItemStack blockStack = new ItemStack(Item.getItemFromBlock(block));
 		
 		if (!blockStack.isEmpty())
 			for (int id : OreDictionary.getOreIDs(blockStack))
-				if (Settings.get().blockBlacklist().has(OreDictionary.getOreName(id)))
-					return !Settings.get().bIsBlockWhitelist();
+				if (ArrayUtils.contains(excavation.blockBlacklist(), OreDictionary.getOreName(id)))
+					return !excavation.bIsBlockWhitelist();
 				
-		return Settings.get().bIsBlockWhitelist();
+		return excavation.bIsBlockWhitelist();
 	}
 	
 	public static boolean isIdInList(Object oID, ArrayList<String> lumbinationLeaves) {
@@ -224,7 +231,7 @@ public class Functions {
 	}
 	
 	public static void spawnAreaEffectCloud(World world, EntityPlayer player, BlockPos oPos) {
-		if (!Settings.get().bDisableParticleEffects()) {
+		if (!MAConfig.get().common.bDisableParticleEffects()) {
 			EntityAreaEffectCloud entityareaeffectcloud = new EntityAreaEffectCloud(world, oPos.getX() + 0.5D, oPos.getY() + 0.5D, oPos.getZ() + 0.5D);
 			entityareaeffectcloud.setOwner(player);
 			entityareaeffectcloud.setRadius(1.0F);

@@ -47,7 +47,7 @@ public class CropinationAgent extends Agent {
 	// Returns true when Cropination is complete or cancelled
 	@Override
 	public boolean tick() {
-		if (originPos == null || player == null || !player.isEntityAlive() || processed.size() >= settings.iBlockLimit())
+		if (originPos == null || player == null || !player.isEntityAlive() || processed.size() >= settings.common.iBlockLimit())
 			return true;
 		
 		timer.start();
@@ -55,9 +55,9 @@ public class CropinationAgent extends Agent {
 		boolean bIsComplete = false;
 		
 		for (int iQueueCount = 0; queued.size() > 0; iQueueCount++) {
-			if (iQueueCount >= settings.iBlocksPerTick()
-					|| processed.size() >= settings.iBlockLimit()
-					|| (settings.tpsGuard() && timer.elapsed(TimeUnit.MILLISECONDS) > 40))
+			if (iQueueCount >= settings.common.iBlocksPerTick()
+					|| processed.size() >= settings.common.iBlockLimit()
+					|| (settings.common.tpsGuard() && timer.elapsed(TimeUnit.MILLISECONDS) > 40))
 				break;
 			
 			if (Functions.IsPlayerStarving(player)) {
@@ -141,13 +141,13 @@ public class CropinationAgent extends Agent {
 							plantable.setCount(plantable.getCount() - 1);
 							bReplanted = true;
 						}
-						if (plantable.getCount() > 0 && (settings.bHarvestSeeds() || !(plantable.getItem() instanceof ItemSeeds)))
+						if (plantable.getCount() > 0 && (settings.cropination.bHarvestSeeds() || !(plantable.getItem() instanceof ItemSeeds)))
 							Block.spawnAsEntity(world, oPos, plantable);
 					}
 					
 					// If seed harvesting is disabled and current crop requires seeds, check players inventory for
 					// matching seed stacks and decrease one to simulate replanting
-					if (!settings.bHarvestSeeds() && oSeeds != null)
+					if (!settings.cropination.bHarvestSeeds() && oSeeds != null)
 						decreaseSeedsInInventory(oSeeds);
 					
 					iHarvestedCount++;

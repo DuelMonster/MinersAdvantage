@@ -8,12 +8,15 @@ import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.Map.Entry;
+import java.util.function.Consumer;
 
 import org.apache.logging.log4j.Level;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -25,6 +28,31 @@ public class JsonHelper {
 	
 	public static JsonObject ParseObject(String json) {
 		return new JsonParser().parse(json).getAsJsonObject();
+	}
+	
+	public static JsonObject ParseObject(String[] stringList) {
+		String sValues = null;
+		for (String sVal : stringList)
+			sValues += ", \"" + sVal + "\":\"\"";
+		
+		return (sValues == null ? new JsonObject() : JsonHelper.ParseObject("{" + sValues.replaceFirst(", ", "") + "}"));
+	}
+	
+	public static String[] toStringList(JsonObject json) {
+		String[] sResults = {};
+		if (json.entrySet().size() > 0) {
+			final String[] sValues = new String[json.entrySet().size()];
+			
+			json.entrySet().forEach(new Consumer<Entry<String, JsonElement>>() {
+				@Override
+				public void accept(Entry<String, JsonElement> element) {
+					sValues[sValues.length - 1] = element.getKey();
+				}
+			});
+			
+			sResults = sValues;
+		}
+		return sResults;
 	}
 	
 	public static boolean contains(JsonObject json, String key) {

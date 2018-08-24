@@ -7,15 +7,15 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import com.google.gson.JsonObject;
+import org.apache.commons.lang3.ArrayUtils;
 
 import co.uk.duelmonster.minersadvantage.client.ClientFunctions;
 import co.uk.duelmonster.minersadvantage.common.Constants;
 import co.uk.duelmonster.minersadvantage.common.Functions;
 import co.uk.duelmonster.minersadvantage.common.Variables;
+import co.uk.duelmonster.minersadvantage.config.MAConfig;
 import co.uk.duelmonster.minersadvantage.packets.NetworkPacket;
 import co.uk.duelmonster.minersadvantage.settings.ConfigHandler;
-import co.uk.duelmonster.minersadvantage.settings.Settings;
 import co.uk.duelmonster.minersadvantage.workers.AgentProcessor;
 import co.uk.duelmonster.minersadvantage.workers.LumbinationAgent;
 import net.minecraft.block.Block;
@@ -40,7 +40,7 @@ public class LumbinationHandler implements IPacketHandler {
 	
 	private World			world;
 	private EntityPlayer	player;
-	private Settings		settings;
+	private MAConfig		settings;
 	
 	public int				iTreeWidthPlusX	= 0, iTreeWidthMinusX = 0;
 	public int				iTreeWidthPlusZ	= 0, iTreeWidthMinusZ = 0;
@@ -58,7 +58,7 @@ public class LumbinationHandler implements IPacketHandler {
 	public void processClientMessage(NetworkPacket message, MessageContext context) {
 		player = ClientFunctions.getPlayer();
 		world = player.world;
-		settings = Settings.get();
+		settings = MAConfig.get();
 		
 		Variables.get().IsLumbinating = true;
 	}
@@ -70,7 +70,7 @@ public class LumbinationHandler implements IPacketHandler {
 			return;
 		
 		world = player.world;
-		settings = Settings.get(player.getUniqueID());
+		settings = MAConfig.get(player.getUniqueID());
 		
 		// if (message.getTags().getBoolean("cancel")) {
 		// player.getServer().addScheduledTask(new Runnable() {
@@ -106,7 +106,7 @@ public class LumbinationHandler implements IPacketHandler {
 			Collection<String> saOreNames = Arrays.asList(OreDictionary.getOreNames());
 			
 			// Get Logs
-			final JsonObject lumbinationLogs = Settings.get().lumbinationLogs();
+			final String[] lumbinationLogs = MAConfig.get().lumbination.logs();
 			
 			saOreNames.stream()
 					.filter(new Predicate<String>() {
@@ -128,8 +128,8 @@ public class LumbinationHandler implements IPacketHandler {
 										@Override
 										public void accept(ItemStack item) {
 											String sID = item.getItem().getRegistryName().toString().trim();
-											if (!lumbinationLogs.has(sID))
-												lumbinationLogs.addProperty(sID, "");
+											if (!ArrayUtils.contains(lumbinationLogs, sID))
+												ArrayUtils.add(lumbinationLogs, sID);
 										}
 									});
 						}
@@ -147,7 +147,7 @@ public class LumbinationHandler implements IPacketHandler {
 			Collection<String> saOreNames = Arrays.asList(OreDictionary.getOreNames());
 			
 			// Get Leaves
-			final JsonObject lumbinationLeaves = Settings.get().lumbinationLeaves();
+			final String[] lumbinationLeaves = MAConfig.get().lumbination.leaves();
 			
 			saOreNames.stream()
 					.filter(new Predicate<String>() {
@@ -169,8 +169,8 @@ public class LumbinationHandler implements IPacketHandler {
 										@Override
 										public void accept(ItemStack item) {
 											String sID = item.getItem().getRegistryName().toString().trim();
-											if (!lumbinationLeaves.has(sID))
-												lumbinationLeaves.addProperty(sID, "");
+											if (!ArrayUtils.contains(lumbinationLeaves, sID))
+												ArrayUtils.add(lumbinationLeaves, sID);
 										}
 									});
 						}
@@ -185,13 +185,13 @@ public class LumbinationHandler implements IPacketHandler {
 	private static void getAxeList() {
 		if (!bAxesGot) {
 			// Get Axes
-			final JsonObject lumbinationAxes = Settings.get().lumbinationAxes();
+			final String[] lumbinationAxes = MAConfig.get().lumbination.axes();
 			
 			Item.REGISTRY.forEach(new Consumer<Item>() {
 				@Override
 				public void accept(Item item) {
 					if (item instanceof ItemAxe)
-						lumbinationAxes.addProperty(item.getRegistryName().toString().trim(), "");
+						ArrayUtils.add(lumbinationAxes, item.getRegistryName().toString().trim());
 				}
 			});
 			
@@ -210,11 +210,11 @@ public class LumbinationHandler implements IPacketHandler {
 				iTreeRootY = getTreeRoot(oPos, block);
 				trunkArea = getTrunkSize(oPos, block);
 				
-				int iLeafRangeIncrease = settings.iLeafRange() / 2;
+				int iLeafRangeIncrease = settings.lumbination.iLeafRange() / 2;
 				
 				rtrnBB = trunkArea
-						.expand(iLeafRangeIncrease, settings.iLeafRange(), iLeafRangeIncrease);
-				// .expand(-iLeafRangeIncrease, 0, -iLeafRangeIncrease);
+						.expand(iLeafRangeIncrease, settings.lumbination.iLeafRange(), iLeafRangeIncrease)
+						.expand(-iLeafRangeIncrease, 0, -iLeafRangeIncrease);
 				
 			}
 		}
@@ -229,7 +229,8 @@ public class LumbinationHandler implements IPacketHandler {
 					IBlockState leafState = player.world.getBlockState(leafPos);
 					Block leafBlock = leafState.getBlock();
 					
-					if (leafBlock.isLeaves(leafState, world, leafPos) && settings.lumbinationLeaves().has(Functions.getBlockName(leafBlock)))
+					if (leafBlock.isLeaves(leafState, world, leafPos) &&
+							ArrayUtils.contains(settings.lumbination.leaves(), Functions.getBlockName(leafBlock)))
 						return leafPos;
 				}
 		return null;
@@ -240,7 +241,9 @@ public class LumbinationHandler implements IPacketHandler {
 		for (int yLevel = oPos.getY() - 1; yLevel > 0; yLevel--) {
 			BlockPos checkPos = new BlockPos(oPos.getX(), yLevel, oPos.getZ());
 			Block checkBlock = player.world.getBlockState(checkPos).getBlock();
-			if (checkBlock.getClass().isInstance(block) || checkBlock.isWood(world, checkPos) || settings.lumbinationLogs().has(Functions.getBlockName(checkBlock)))
+			if (checkBlock.getClass().isInstance(block) ||
+					checkBlock.isWood(world, checkPos) ||
+					ArrayUtils.contains(settings.lumbination.logs(), Functions.getBlockName(checkBlock)))
 				iRootLevel = yLevel;
 			
 			if (yLevel < iRootLevel)
@@ -259,11 +262,14 @@ public class LumbinationHandler implements IPacketHandler {
 				IBlockState checkState = player.world.getBlockState(checkPos);
 				Block checkBlock = checkState.getBlock();
 				
-				if (checkPos.equals(oPos) || checkBlock.getClass().isInstance(block) || checkBlock.isWood(world, checkPos) || settings.lumbinationLogs().has(Functions.getBlockName(checkBlock)))
+				if (checkPos.equals(oPos) ||
+						checkBlock.getClass().isInstance(block) ||
+						checkBlock.isWood(world, checkPos) ||
+						ArrayUtils.contains(settings.lumbination.logs(), Functions.getBlockName(checkBlock)))
 					if (!trunkPositions.contains(checkPos)) // && Functions.isPosConnected(trunkPositions, checkPos))
 						trunkPositions.add(checkPos);
 					
-				for (int iLoop = 1; iLoop <= settings.iTrunkRange(); iLoop++) {
+				for (int iLoop = 1; iLoop <= settings.lumbination.iTrunkRange(); iLoop++) {
 					int iLoopAirLimit = (((iLoop + (iLoop - 1)) * 4) + 4);
 					iAirCount = 0;
 					
@@ -276,7 +282,7 @@ public class LumbinationHandler implements IPacketHandler {
 								
 								if (checkBlock.getClass().isInstance(block)
 										|| checkBlock.isWood(world, checkPos)
-										|| settings.lumbinationLogs().has(Functions.getBlockName(checkBlock))) {
+										|| ArrayUtils.contains(settings.lumbination.logs(), Functions.getBlockName(checkBlock))) {
 									
 									if (!trunkPositions.contains(checkPos))
 										trunkPositions.add(checkPos);
@@ -297,7 +303,7 @@ public class LumbinationHandler implements IPacketHandler {
 									
 									if (checkBlock.getClass().isInstance(block)
 											|| checkBlock.isWood(world, checkPos)
-											|| settings.lumbinationLogs().has(Functions.getBlockName(checkBlock))) {
+											|| ArrayUtils.contains(settings.lumbination.logs(), Functions.getBlockName(checkBlock))) {
 										
 										if (!trunkPositions.contains(checkPos))
 											trunkPositions.add(checkPos);
@@ -343,6 +349,6 @@ public class LumbinationHandler implements IPacketHandler {
 	public void setPlayer(EntityPlayerMP player) {
 		this.player = player;
 		this.world = player.world;
-		settings = Settings.get(player.getUniqueID());
+		settings = MAConfig.get(player.getUniqueID());
 	}
 }

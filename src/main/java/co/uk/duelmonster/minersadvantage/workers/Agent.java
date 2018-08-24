@@ -1,19 +1,23 @@
 package co.uk.duelmonster.minersadvantage.workers;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.logging.log4j.Level;
 
 import com.google.common.base.Stopwatch;
+import com.mojang.authlib.GameProfile;
 
 import co.uk.duelmonster.minersadvantage.MinersAdvantage;
 import co.uk.duelmonster.minersadvantage.common.BreakBlockController;
+import co.uk.duelmonster.minersadvantage.common.Constants;
 import co.uk.duelmonster.minersadvantage.common.Functions;
 import co.uk.duelmonster.minersadvantage.common.PacketID;
 import co.uk.duelmonster.minersadvantage.common.Variables;
+import co.uk.duelmonster.minersadvantage.config.MAConfig;
 import co.uk.duelmonster.minersadvantage.packets.NetworkPacket;
-import co.uk.duelmonster.minersadvantage.settings.Settings;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFalling;
 import net.minecraft.block.material.Material;
@@ -47,8 +51,18 @@ public abstract class Agent {
 	
 	public final World			world;
 	public final EntityPlayerMP	player;
-	public final FakePlayer		fakePlayer;
-	public final Settings		settings;
+	public final MAConfig		settings;
+	
+	public WeakReference<FakePlayer> _fakePlayer;
+	
+	public FakePlayer fakePlayer() {
+		FakePlayer ret = _fakePlayer != null ? _fakePlayer.get() : null;
+		if (ret == null) {
+			ret = FakePlayerFactory.get(player.getServerWorld(), new GameProfile(UUID.randomUUID(), Constants.MOD_NAME));
+			_fakePlayer = new WeakReference<FakePlayer>(ret);
+		}
+		return ret;
+	}
 	
 	public Stopwatch			timer			= Stopwatch.createUnstarted();
 	public ItemStack			heldItemStack	= null;
@@ -70,7 +84,7 @@ public abstract class Agent {
 		this.world = player.world;
 		this.player = player;
 		this.iFeetPos = (int) player.getEntityBoundingBox().minY;
-		this.settings = Settings.get(player.getUniqueID());
+		this.settings = MAConfig.get(player.getUniqueID());
 		
 		this.packetID = PacketID.valueOf(tags.getInteger("ID"));
 		
@@ -94,10 +108,9 @@ public abstract class Agent {
 		this.heldItem = Functions.getHeldItem(player);
 		this.heldItemSlot = player.inventory.currentItem;
 		
-		this.fakePlayer = FakePlayerFactory.get((WorldServer) world, player.getGameProfile());
-		this.fakePlayer.connection = player.connection;
+		this.fakePlayer().connection = player.connection;
 		if (this.heldItemStack != null)
-			this.fakePlayer.setHeldItem(EnumHand.MAIN_HAND, this.heldItemStack);
+			this.fakePlayer().setHeldItem(EnumHand.MAIN_HAND, this.heldItemStack);
 		
 		setupHarvestArea();
 		
@@ -110,14 +123,14 @@ public abstract class Agent {
 		int xStart = 0;
 		int xEnd = 0;
 		int yBottom = iFeetPos;
-		int yTop = iFeetPos + (settings.iBlockRadius() - 1);
+		int yTop = iFeetPos + (settings.common.iBlockRadius() - 1);
 		int zStart = 0;
 		int zEnd = 0;
 		
 		// if the ShaftWidth is divisible by 2 we don't want to do anything
-		double dDivision = ((settings.iBlockRadius() & 1) != 0 ? 0 : 0.5);
+		double dDivision = ((settings.common.iBlockRadius() & 1) != 0 ? 0 : 0.5);
 		
-		int iHalfRadius = ((int) ((settings.iBlockRadius() / 2) - dDivision));
+		int iHalfRadius = ((int) ((settings.common.iBlockRadius() / 2) - dDivision));
 		
 		xStart = originPos.getX() + iHalfRadius;
 		xEnd = originPos.getX() - iHalfRadius;
@@ -129,31 +142,31 @@ public abstract class Agent {
 		switch (sideHit) {
 		case SOUTH: // Positive Z
 			zStart = originPos.getZ();
-			zEnd = originPos.getZ() - (settings.iBlockRadius() - 1);
+			zEnd = originPos.getZ() - (settings.common.iBlockRadius() - 1);
 			break;
 		case NORTH: // Negative Z
 			xStart = originPos.getX() - iHalfRadius;
 			xEnd = originPos.getX() + iHalfRadius;
 			zStart = originPos.getZ();
-			zEnd = originPos.getZ() + (settings.iBlockRadius() - 1);
+			zEnd = originPos.getZ() + (settings.common.iBlockRadius() - 1);
 			break;
 		case EAST: // Positive X
 			xStart = originPos.getX();
-			xEnd = originPos.getX() - (settings.iBlockRadius() - 1);
+			xEnd = originPos.getX() - (settings.common.iBlockRadius() - 1);
 			break;
 		case WEST: // Negative X
 			xStart = originPos.getX();
-			xEnd = originPos.getX() + (settings.iBlockRadius() - 1);
+			xEnd = originPos.getX() + (settings.common.iBlockRadius() - 1);
 			zStart = originPos.getZ() - iHalfRadius;
 			zEnd = originPos.getZ() + iHalfRadius;
 			break;
 		case UP:
 			yTop = originPos.getY();
-			yBottom = originPos.getY() - (settings.iBlockRadius() - 1);
+			yBottom = originPos.getY() - (settings.common.iBlockRadius() - 1);
 			break;
 		case DOWN:
 			yTop = originPos.getY();
-			yBottom = originPos.getY() + (settings.iBlockRadius() - 1);
+			yBottom = originPos.getY() + (settings.common.iBlockRadius() - 1);
 			break;
 		default:
 			break;
@@ -257,7 +270,7 @@ public abstract class Agent {
 	
 	public boolean HarvestBlock(BlockPos oPos) {
 		
-		boolean bResult = fakePlayer.interactionManager.tryHarvestBlock(oPos);
+		boolean bResult = fakePlayer().interactionManager.tryHarvestBlock(oPos);
 		player.connection.sendPacket(new SPacketBlockChange(world, oPos));
 		
 		final int range = 20;
