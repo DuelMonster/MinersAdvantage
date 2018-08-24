@@ -1,11 +1,13 @@
 package co.uk.duelmonster.minersadvantage.packets;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.logging.log4j.Level;
 
 import co.uk.duelmonster.minersadvantage.MinersAdvantage;
 import co.uk.duelmonster.minersadvantage.client.KeyBindings;
 import co.uk.duelmonster.minersadvantage.common.PacketID;
 import co.uk.duelmonster.minersadvantage.common.Variables;
+import co.uk.duelmonster.minersadvantage.config.MAConfig;
 import co.uk.duelmonster.minersadvantage.handlers.CaptivationHandler;
 import co.uk.duelmonster.minersadvantage.handlers.CropinationHandler;
 import co.uk.duelmonster.minersadvantage.handlers.ExcavationHandler;
@@ -15,7 +17,6 @@ import co.uk.duelmonster.minersadvantage.handlers.LumbinationHandler;
 import co.uk.duelmonster.minersadvantage.handlers.PathanationHandler;
 import co.uk.duelmonster.minersadvantage.handlers.ShaftanationHandler;
 import co.uk.duelmonster.minersadvantage.handlers.SyncHandler;
-import co.uk.duelmonster.minersadvantage.settings.Settings;
 import co.uk.duelmonster.minersadvantage.workers.AgentProcessor;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
@@ -75,7 +76,7 @@ public class NetworkPacket implements IMessage {
 					}
 				}
 				
-				Settings settings = Settings.get();
+				MAConfig settings = MAConfig.get();
 				Variables variables = Variables.get();
 				
 				switch (pID) {
@@ -86,13 +87,13 @@ public class NetworkPacket implements IMessage {
 				
 				case Excavate:
 				case Veinate:
-					boolean isOreVein = settings.bVeinationEnabled() && settings.veinationOres().has(state.getBlock().getRegistryName().toString().trim());
+					boolean isOreVein = settings.veination.bEnabled() && ArrayUtils.contains(settings.veination.ores(), state.getBlock().getRegistryName().toString().trim());
 					
-					if (isOreVein || settings.bExcavationEnabled() && ((settings.bToggleMode() && variables.IsInToggleMode()) || (KeyBindings.excavation_toggle.isKeyDown() || KeyBindings.excavation_layer_only_toggle.isKeyDown()))) {
+					if (isOreVein || settings.excavation.bEnabled() && ((settings.excavation.bToggleMode() && variables.IsInToggleMode()) || (KeyBindings.excavation_toggle.isKeyDown() || KeyBindings.excavation_layer_only_toggle.isKeyDown()))) {
 						if (isOreVein)
 							message.tags.setInteger("ID", PacketID.Veinate.value());
 						
-						if (!settings.bToggleMode())
+						if (!settings.excavation.bToggleMode())
 							variables.IsSingleLayerToggled = KeyBindings.excavation_layer_only_toggle.isKeyDown();
 						
 						ExcavationHandler.instance.processClientMessage(message, context);
@@ -101,7 +102,7 @@ public class NetworkPacket implements IMessage {
 					break;
 				
 				case Shaftanate:
-					if (settings.bShaftanationEnabled() && KeyBindings.shaftanation_toggle.isKeyDown()) {
+					if (settings.shaftanation.bEnabled() && KeyBindings.shaftanation_toggle.isKeyDown()) {
 						
 						ShaftanationHandler.instance.processClientMessage(message, context);
 						rtrnPacket = new NetworkPacket(message.tags);
@@ -110,19 +111,19 @@ public class NetworkPacket implements IMessage {
 					break;
 				
 				case Illuminate:
-					if (settings.bIlluminationEnabled())
+					if (settings.illumination.bEnabled())
 						rtrnPacket = new NetworkPacket(message.tags);
 					break;
 				
 				case Lumbinate:
-					if (settings.bLumbinationEnabled()) {
+					if (settings.lumbination.bEnabled()) {
 						LumbinationHandler.instance.processClientMessage(message, context);
 						rtrnPacket = new NetworkPacket(message.tags);
 					}
 					break;
 				
 				case LayPath:
-					if (settings.bCropinationEnabled()) {
+					if (settings.cropination.bEnabled()) {
 						PathanationHandler.instance.processClientMessage(rtrnPacket, context);
 						rtrnPacket = new NetworkPacket(message.tags);
 					}
@@ -130,7 +131,7 @@ public class NetworkPacket implements IMessage {
 				
 				case TileFarmland:
 				case HarvestCrops:
-					if (settings.bCropinationEnabled()) {
+					if (settings.cropination.bEnabled()) {
 						CropinationHandler.instance.processClientMessage(rtrnPacket, context);
 						rtrnPacket = new NetworkPacket(message.tags);
 					}

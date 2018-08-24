@@ -2,9 +2,11 @@ package co.uk.duelmonster.minersadvantage.handlers;
 
 import java.util.List;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import co.uk.duelmonster.minersadvantage.common.Functions;
+import co.uk.duelmonster.minersadvantage.config.MAConfig;
 import co.uk.duelmonster.minersadvantage.packets.NetworkPacket;
-import co.uk.duelmonster.minersadvantage.settings.Settings;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.item.EntityXPOrb;
@@ -25,9 +27,9 @@ public class CaptivationHandler implements IPacketHandler {
 		if (player == null)
 			return;
 		
-		Settings settings = Settings.get(player.getUniqueID());
+		MAConfig settings = MAConfig.get(player.getUniqueID());
 		
-		AxisAlignedBB captivateArea = player.getEntityBoundingBox().grow(settings.radiusHorizontal(), settings.radiusVertical(), settings.radiusHorizontal());
+		AxisAlignedBB captivateArea = player.getEntityBoundingBox().grow(settings.captivation.radiusHorizontal(), settings.captivation.radiusVertical(), settings.captivation.radiusHorizontal());
 		
 		if (player.world != null) {
 			List<Entity> localDrops = Functions.getNearbyEntities(player.world, captivateArea);
@@ -37,9 +39,9 @@ public class CaptivationHandler implements IPacketHandler {
 						EntityItem eItem = (EntityItem) entity;
 						
 						if (!eItem.cannotPickup()
-								&& (settings.captivationBlacklist() == null
-										|| settings.captivationBlacklist().size() == 0
-										|| !settings.captivationBlacklist().has(eItem.getItem().getItem().getRegistryName().toString().trim())))
+								&& (settings.captivation.blacklist() == null
+										|| settings.captivation.blacklist().length == 0
+										|| !ArrayUtils.contains(settings.captivation.blacklist(), eItem.getItem().getItem().getRegistryName().toString().trim())))
 							entity.onCollideWithPlayer(player);
 						
 					} else if (entity instanceof EntityXPOrb)

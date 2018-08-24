@@ -27,6 +27,26 @@ public class JsonHelper {
 		return new JsonParser().parse(json).getAsJsonObject();
 	}
 	
+	public static JsonObject ParseObject(String[] stringList) {
+		String sValues = null;
+		for (String sVal : stringList)
+			sValues += ", \"" + sVal + "\":\"\"";
+		
+		return (sValues == null ? new JsonObject() : JsonHelper.ParseObject("{" + sValues.replaceFirst(", ", "") + "}"));
+	}
+	
+	public static String[] toStringList(JsonObject json) {
+		String[] sResults = {};
+		if (json.size() > 0) {
+			String[] sValues = new String[json.size()];
+			
+			json.entrySet().forEach(element -> sValues[sValues.length - 1] = element.getKey());
+			
+			sResults = sValues;
+		}
+		return sResults;
+	}
+	
 	public static boolean contains(JsonObject json, String key) {
 		json.has(key);
 		return false;

@@ -2,8 +2,8 @@ package co.uk.duelmonster.minersadvantage.handlers;
 
 import co.uk.duelmonster.minersadvantage.client.KeyBindings;
 import co.uk.duelmonster.minersadvantage.common.Variables;
+import co.uk.duelmonster.minersadvantage.config.MAConfig;
 import co.uk.duelmonster.minersadvantage.packets.NetworkPacket;
-import co.uk.duelmonster.minersadvantage.settings.Settings;
 import co.uk.duelmonster.minersadvantage.workers.AgentProcessor;
 import co.uk.duelmonster.minersadvantage.workers.ShaftanationAgent;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -18,7 +18,7 @@ public class ShaftanationHandler implements IPacketHandler {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void processClientMessage(NetworkPacket message, MessageContext context) {
-		if (!Settings.get().bShaftanationEnabled() || KeyBindings.shaftanation_toggle.getKeyCode() == 0 || !KeyBindings.shaftanation_toggle.isKeyDown())
+		if (!MAConfig.get().shaftanation.bEnabled() || KeyBindings.shaftanation_toggle.getKeyCode() == 0 || !KeyBindings.shaftanation_toggle.isKeyDown())
 			return;
 		
 		Variables.get().IsShaftanating = true;

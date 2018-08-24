@@ -6,8 +6,8 @@ import co.uk.duelmonster.minersadvantage.MinersAdvantage;
 import co.uk.duelmonster.minersadvantage.client.ClientFunctions;
 import co.uk.duelmonster.minersadvantage.common.PacketID;
 import co.uk.duelmonster.minersadvantage.common.Variables;
+import co.uk.duelmonster.minersadvantage.config.MAConfig;
 import co.uk.duelmonster.minersadvantage.packets.NetworkPacket;
-import co.uk.duelmonster.minersadvantage.settings.Settings;
 import co.uk.duelmonster.minersadvantage.workers.AgentProcessor;
 import co.uk.duelmonster.minersadvantage.workers.ExcavationAgent;
 import net.minecraft.block.Block;
@@ -35,7 +35,7 @@ public class ExcavationHandler implements IPacketHandler {
 			
 			Variables.get().IsExcavating = true;
 			
-		} else if (ID == PacketID.Veinate.value() && Settings.get().bVeinationEnabled()) {
+		} else if (ID == PacketID.Veinate.value() && MAConfig.get().veination.bEnabled()) {
 			
 			if (tags.getBoolean("doSubstitution")) {
 				EntityPlayerSP player = ClientFunctions.getPlayer();

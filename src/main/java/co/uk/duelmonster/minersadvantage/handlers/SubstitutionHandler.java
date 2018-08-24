@@ -10,7 +10,7 @@ import co.uk.duelmonster.minersadvantage.common.Constants;
 import co.uk.duelmonster.minersadvantage.common.RankAndLevel;
 import co.uk.duelmonster.minersadvantage.common.Ranking;
 import co.uk.duelmonster.minersadvantage.common.SubstitutionHelper;
-import co.uk.duelmonster.minersadvantage.settings.Settings;
+import co.uk.duelmonster.minersadvantage.config.MAConfig;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -34,7 +34,7 @@ public class SubstitutionHandler {
 	
 	private World			world		= null;
 	private EntityPlayer	player		= null;
-	private Settings		settings	= null;
+	private MAConfig		settings	= null;
 	
 	public boolean			bShouldSwitchBack	= false;
 	public boolean			bCurrentlySwitched	= false;
@@ -75,7 +75,7 @@ public class SubstitutionHandler {
 		
 		this.world = _world;
 		this.player = _player;
-		this.settings = Settings.get();
+		this.settings = MAConfig.get();
 		this.oPos = _pos;
 		this.state = world.getBlockState(oPos);
 		this.block = state.getBlock();
@@ -92,7 +92,7 @@ public class SubstitutionHandler {
 				if (itemStack != null) {// && ForgeHooks.isToolEffective(world, oPos, itemStack)) {
 					Map<Enchantment, Integer> enchantments = EnchantmentHelper.getEnchantments(itemStack);
 					
-					if (iPass == 1 && silkTouchable && settings.bFavourSilkTouch()) {
+					if (iPass == 1 && silkTouchable && settings.substitution.bFavourSilkTouch()) {
 						if (enchantments.containsKey(Enchantments.EFFICIENCY) && enchantments.containsKey(Enchantments.SILK_TOUCH)) {
 							rankingMap.put(iMapIndx, new RankAndLevel(iSlot, Ranking.EFFICIENCY_SILK_TOUCH, enchantments.get(Enchantments.EFFICIENCY)));
 							iMapIndx++;
@@ -100,7 +100,7 @@ public class SubstitutionHandler {
 							rankingMap.put(iMapIndx, new RankAndLevel(iSlot, Ranking.SILK_TOUCH, 1));
 							iMapIndx++;
 						}
-					} else if (iPass == 1 && settings.bFavourFortune()) {
+					} else if (iPass == 1 && settings.substitution.bFavourFortune()) {
 						if (enchantments.containsKey(Enchantments.EFFICIENCY) && enchantments.containsKey(Enchantments.FORTUNE)) {
 							rankingMap.put(iMapIndx, new RankAndLevel(iSlot, Ranking.EFFICIENCY_FORTUNE, enchantments.get(Enchantments.EFFICIENCY), enchantments.get(Enchantments.FORTUNE)));
 							iMapIndx++;
@@ -128,9 +128,9 @@ public class SubstitutionHandler {
 			return;
 		
 		// Decide which is the required ranking list based on user settings
-		if (silkTouchable && settings.bFavourSilkTouch())
+		if (silkTouchable && settings.substitution.bFavourSilkTouch())
 			rankings = Constants.RANKING_SILK_TOUCH;
-		else if (settings.bFavourFortune())
+		else if (settings.substitution.bFavourFortune())
 			rankings = Constants.RANKING_FORTUNE;
 		else
 			rankings = Constants.RANKING_DEFAULT;
@@ -162,7 +162,7 @@ public class SubstitutionHandler {
 			// System.out.println("Switching to Optimal slot ( " + iOptimalSlot + " )");
 			
 			iPrevSlot = inventory.currentItem;
-			bShouldSwitchBack = settings.bSwitchBack();
+			bShouldSwitchBack = settings.substitution.bSwitchBack();
 			bCurrentlySwitched = true;
 			inventory.currentItem = iOptimalSlot;
 			ClientFunctions.syncCurrentPlayItem(iOptimalSlot);
@@ -221,7 +221,7 @@ public class SubstitutionHandler {
 		reset();
 		
 		this.player = _player;
-		this.settings = Settings.get();
+		this.settings = MAConfig.get();
 		
 		InventoryPlayer inventory = player.inventory;
 		

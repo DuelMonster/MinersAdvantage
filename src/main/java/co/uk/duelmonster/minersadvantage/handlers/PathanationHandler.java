@@ -1,8 +1,8 @@
 package co.uk.duelmonster.minersadvantage.handlers;
 
 import co.uk.duelmonster.minersadvantage.common.Variables;
+import co.uk.duelmonster.minersadvantage.config.MAConfig;
 import co.uk.duelmonster.minersadvantage.packets.NetworkPacket;
-import co.uk.duelmonster.minersadvantage.settings.Settings;
 import co.uk.duelmonster.minersadvantage.workers.AgentProcessor;
 import co.uk.duelmonster.minersadvantage.workers.PathanationAgent;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -17,7 +17,7 @@ public class PathanationHandler implements IPacketHandler {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void processClientMessage(NetworkPacket message, MessageContext context) {
-		if (!Settings.get().bExcavationEnabled())
+		if (!MAConfig.get().excavation.bEnabled())
 			return;
 		
 		Variables.get().IsPathanating = true;

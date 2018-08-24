@@ -1,11 +1,13 @@
 package co.uk.duelmonster.minersadvantage.events;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import co.uk.duelmonster.minersadvantage.MinersAdvantage;
 import co.uk.duelmonster.minersadvantage.common.Functions;
 import co.uk.duelmonster.minersadvantage.common.PacketID;
 import co.uk.duelmonster.minersadvantage.common.Variables;
+import co.uk.duelmonster.minersadvantage.config.MAConfig;
 import co.uk.duelmonster.minersadvantage.packets.NetworkPacket;
-import co.uk.duelmonster.minersadvantage.settings.Settings;
 import co.uk.duelmonster.minersadvantage.workers.AgentProcessor;
 import co.uk.duelmonster.minersadvantage.workers.DropsSpawner;
 import net.minecraft.block.Block;
@@ -102,7 +104,7 @@ public class SharedEvents {
 		BlockPos oPos = event.getPos();
 		IBlockState state = event.getState();
 		
-		Settings settings = Settings.get(player.getUniqueID());
+		MAConfig settings = MAConfig.get(player.getUniqueID());
 		Variables playerVars = Variables.get(player.getUniqueID());
 		if (player.canHarvestBlock(state) && playerVars.IsPlayerAttacking) {
 			NBTTagCompound tags = new NBTTagCompound();
@@ -111,7 +113,7 @@ public class SharedEvents {
 				tags.setInteger("ID", PacketID.Shaftanate.value());
 			else if (state.getBlock().isWood(world, oPos)
 					&& ((heldItem.getItem() instanceof ItemAxe)
-							|| settings.lumbinationAxes().has(Functions.getItemName(heldItem))))
+							|| ArrayUtils.contains(settings.lumbination.axes(), Functions.getItemName(heldItem))))
 				tags.setInteger("ID", PacketID.Lumbinate.value());
 			else
 				tags.setInteger("ID", PacketID.Excavate.value());
