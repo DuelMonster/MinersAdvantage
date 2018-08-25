@@ -2,7 +2,7 @@ This mapping 'snapshot_20161220' was designed for MC 1.11! Use at your own peril
 
 ========================================================================================================================================================================================================
 
-  Building MinersAdvantage Version = 1.11.2-1.2.18.202  Building MinersAdvantage Version = 1.11.2-1.2.18.202
+  Building MinersAdvantage Version = 1.11.2-1.2.19.212  Building MinersAdvantage Version = 1.11.2-1.2.19.212
 
 ========================================================================================================================================================================================================
 
@@ -15,7 +15,56 @@ This mapping 'snapshot_20161220' was designed for MC 1.11! Use at your own peril
          by: Searge, ProfMobius, Fesh0r,         
          R4wk, ZeuX, IngisKahn, bspkrs           
 #################################################
+:clean
+:deobfCompileDummyTask
+:deobfProvidedDummyTask
+:sourceApiJava
+:compileApiJava UP-TO-DATE
+:processApiResources UP-TO-DATE
+:apiClasses UP-TO-DATE
+:sourceMainJava
+:compileJavawarning: [options] bootstrap class path not set in conjunction with -source 1.6
+Note: C:\$MC\Mod Source\~MinersAdvantage\Source\build\sources\main\java\co\uk\duelmonster\minersadvantage\client\config\ConfigGuiFactory.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+1 warning
 
-CONFIGURE SUCCESSFUL
+:processResources
+:classes
+:deobfJar
+:jar
+:extractMcpData SKIPPED
+:extractMcpMappings SKIPPED
+:getVersionJson
+:extractUserdev
+:genSrgs SKIPPED
+:reobfJar
+:srcJar
+:curseforge291972
+Invalid cookie header: "Set-Cookie: AWSALB=sp7CSVSjL3MU94yOqwPOUfDzWVh1pBefrsDiHkMUecaoEeqA3vhxUk58Xysqw5BrIP7oERpC+eoptKd7lV3EFxzbvbAylnT3FWjxtz0nhnVbN3KKncLhhTTsp3Bo; Expires=Sat, 01 Sep 2018 10:45:49 GMT; Path=/". Invalid 'expires' attribute: Sat, 01 Sep 2018 10:45:49 GMT
+Invalid cookie header: "Set-Cookie: AWSALB=OKJ/bOVXbx+dt3mberpZFprYLIzWOJgFMHZVxBcjZBBD5UYm2fxuos654ez6fL86d8zuM/ugijp023l6mz/JXllPPppfVYevXL1qthXs5E0ERM4bUGUd1qvm+RO7; Expires=Sat, 01 Sep 2018 10:45:51 GMT; Path=/". Invalid 'expires' attribute: Sat, 01 Sep 2018 10:45:51 GMT
+Uploaded C:\$MC\Mod Source\~MinersAdvantage\Source\build\libs\MinersAdvantage-1.11.2-1.2.19.212.jar to CurseForge Project: 291972, with ID: 2608312
+Invalid cookie header: "Set-Cookie: AWSALB=v+Y2jZQq02K6cOGKcsWYX0zcZPPBUAUzLUlp5MLyu9/cNTCZNNLazVQrs+1kuuFEYlcoktXid5aFxQ6+4rdD26dai6693qqfuqwAoQ09Nc+/GBhOHHZNIep1C94B; Expires=Sat, 01 Sep 2018 10:45:53 GMT; Path=/". Invalid 'expires' attribute: Sat, 01 Sep 2018 10:45:53 GMT
+Uploaded C:\$MC\Mod Source\~MinersAdvantage\Source\build\libs\MinersAdvantage-1.11.2-1.2.19.212-src.jar to CurseForge Project: 291972, with ID: 2608313
+Invalid cookie header: "Set-Cookie: AWSALB=qpukMW8PIndbo4DC0g4f90olE9wnva6NKLbZJIIqvcEWrKeT94EP+00qJB1NSev7k2bMtjLaA6qwwG+YIGBfFZ5RY64RAUC7XewlgE86ONWXlSNdd1VBhfaUqBbd; Expires=Sat, 01 Sep 2018 10:45:55 GMT; Path=/". Invalid 'expires' attribute: Sat, 01 Sep 2018 10:45:55 GMT
+Uploaded C:\$MC\Mod Source\~MinersAdvantage\Source\build\libs\MinersAdvantage-1.11.2-1.2.19.212-deobf.jar to CurseForge Project: 291972, with ID: 2608315
+:updateBuildNumber
+====================================================================================================
+  Updated Build Number: 212;
+====================================================================================================
+:sourceTestJava
+:compileTestJava UP-TO-DATE
+:processTestResources UP-TO-DATE
+:testClasses UP-TO-DATE
+:test UP-TO-DATE
+:assemble
+:check UP-TO-DATE
+:build
+:release
+====================================================================================================
+  MinersAdvantage release built successfully:  C:\$MC\Mod Source\~MinersAdvantage\~Releases
+====================================================================================================
+:curseforge
 
-Total time: 13.937 secs
+BUILD SUCCESSFUL
+
+Total time: 30.118 secs
