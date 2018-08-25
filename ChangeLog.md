@@ -5,3 +5,4 @@ refactor: Separated config sub categories into their own classes.
 refactor: Added version number to the config file. New configs are version 2.0.
 refactor: Converted item and block blacklists from json format to simple string list.
 refactor: Added code to convert pre-version 2.0 config files to conform to the new version.
+fix: Unable to open chests with empty hand
