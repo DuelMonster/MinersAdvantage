@@ -1,10 +1,19 @@
 ========================================================================================================================================================================================================
 
-  Building MinersAdvantage Version = 1.10.2-1.1.18.200  Building MinersAdvantage Version = 1.10.2-1.1.18.200
+  Building MinersAdvantage Version = 1.10.2-1.1.19.210  Building MinersAdvantage Version = 1.10.2-1.1.19.210
 
 ========================================================================================================================================================================================================
 
+#################################################
+         ForgeGradle 2.2-SNAPSHOT-9bc34b4        
+  https://github.com/MinecraftForge/ForgeGradle  
+#################################################
+               Powered by MCP unknown               
+             http://modcoderpack.com             
+         by: Searge, ProfMobius, Fesh0r,         
+         R4wk, ZeuX, IngisKahn, bspkrs           
+#################################################
 
 CONFIGURE SUCCESSFUL
 
-Total time: 1.622 secs
+Total time: 15.144 secs
