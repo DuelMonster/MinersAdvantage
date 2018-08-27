@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.logging.log4j.Level;
 
 import com.google.gson.Gson;
@@ -21,7 +22,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import co.uk.duelmonster.minersadvantage.MinersAdvantage;
-import codechicken.lib.util.ArrayUtils;
 
 public class JsonHelper {
 	
