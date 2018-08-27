@@ -25,6 +25,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemAxe;
 import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -112,14 +113,30 @@ public class LumbinationHandler implements IPacketHandler {
 			lumbinationLogs = MAConfig.get().lumbination.logs();
 			
 			saOreNames.stream()
-					.filter(log -> log.toLowerCase().startsWith("log"))
-					.forEach(log -> {
-						OreDictionary.getOres(log).stream()
-								.filter(item -> item.getItem() instanceof ItemBlock).forEach(item -> {
-									String sID = item.getItem().getRegistryName().toString().trim();
-									if (!ArrayUtils.contains(lumbinationLogs, sID))
-										lumbinationLogs = ArrayUtils.add(lumbinationLogs, sID);
-								});
+					.filter(new Predicate<String>() {
+						@Override
+						public boolean test(String log) {
+							return log.toLowerCase().startsWith("log");
+						}
+					})
+					.forEach(new Consumer<String>() {
+						@Override
+						public void accept(String log) {
+							OreDictionary.getOres(log).stream()
+									.filter(new Predicate<ItemStack>() {
+										@Override
+										public boolean test(ItemStack item) {
+											return item.getItem() instanceof ItemBlock;
+										}
+									}).forEach(new Consumer<ItemStack>() {
+										@Override
+										public void accept(ItemStack item) {
+											String sID = item.getItem().getRegistryName().toString().trim();
+											if (!ArrayUtils.contains(lumbinationLogs, sID))
+												lumbinationLogs = ArrayUtils.add(lumbinationLogs, sID);
+										}
+									});
+						}
 					});
 			
 			ConfigHandler.setValue(Constants.LUMBINATION_ID, "logs", lumbinationLogs.clone());
@@ -137,14 +154,30 @@ public class LumbinationHandler implements IPacketHandler {
 			lumbinationLeaves = MAConfig.get().lumbination.leaves();
 			
 			saOreNames.stream()
-					.filter(leaves -> leaves.toLowerCase().endsWith("leaves"))
-					.forEach(leaves -> {
-						OreDictionary.getOres(leaves).stream()
-								.filter(item -> item.getItem() instanceof ItemBlock).forEach(item -> {
-									String sID = item.getItem().getRegistryName().toString().trim();
-									if (!ArrayUtils.contains(lumbinationLeaves, sID))
-										lumbinationLeaves = ArrayUtils.add(lumbinationLeaves, sID);
-								});
+					.filter(new Predicate<String>() {
+						@Override
+						public boolean test(String leaves) {
+							return leaves.toLowerCase().endsWith("leaves");
+						}
+					})
+					.forEach(new Consumer<String>() {
+						@Override
+						public void accept(String leaves) {
+							OreDictionary.getOres(leaves).stream()
+									.filter(new Predicate<ItemStack>() {
+										@Override
+										public boolean test(ItemStack item) {
+											return item.getItem() instanceof ItemBlock;
+										}
+									}).forEach(new Consumer<ItemStack>() {
+										@Override
+										public void accept(ItemStack item) {
+											String sID = item.getItem().getRegistryName().toString().trim();
+											if (!ArrayUtils.contains(lumbinationLeaves, sID))
+												lumbinationLeaves = ArrayUtils.add(lumbinationLeaves, sID);
+										}
+									});
+						}
 					});
 			
 			ConfigHandler.setValue(Constants.LUMBINATION_ID, "leaves", lumbinationLeaves.clone());
@@ -158,10 +191,13 @@ public class LumbinationHandler implements IPacketHandler {
 			// Get Axes
 			lumbinationAxes = MAConfig.get().lumbination.axes();
 			
-			Item.REGISTRY.forEach(item -> {
-				String sID = item.getRegistryName().toString().trim();
-				if ((item instanceof ItemAxe || sID.contains("_axe")) && !ArrayUtils.contains(lumbinationAxes, sID))
-					lumbinationAxes = ArrayUtils.add(lumbinationAxes, sID);
+			Item.REGISTRY.forEach(new Consumer<Item>() {
+				@Override
+				public void accept(Item item) {
+					String sID = item.getRegistryName().toString().trim();
+					if ((item instanceof ItemAxe || sID.contains("_axe")) && !ArrayUtils.contains(lumbinationAxes, sID))
+						lumbinationAxes = ArrayUtils.add(lumbinationAxes, sID);
+				}
 			});
 			
 			ConfigHandler.setValue(Constants.LUMBINATION_ID, "axes", lumbinationAxes.clone());

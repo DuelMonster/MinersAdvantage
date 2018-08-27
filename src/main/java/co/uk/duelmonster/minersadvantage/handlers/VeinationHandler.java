@@ -12,6 +12,7 @@ import co.uk.duelmonster.minersadvantage.config.MAConfig;
 import co.uk.duelmonster.minersadvantage.settings.ConfigHandler;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.OreDictionary;
 
 public class VeinationHandler {
@@ -27,18 +28,34 @@ public class VeinationHandler {
 			veinationOres = MAConfig.get().veination.ores();
 			
 			saOreNames.stream()
-					.filter(ore -> ore.startsWith("ore"))
-					.forEach(ore -> {
-						OreDictionary.getOres(ore).stream()
-								.filter(item -> item.getItem() instanceof ItemBlock).forEach(item -> {
-									String sID = item.getItem().getRegistryName().toString().trim();
-									if (!ArrayUtils.contains(veinationOres, sID))
-										if (sID.toLowerCase().contains("redstone")) {
-											veinationOres = ArrayUtils.add(veinationOres, Blocks.REDSTONE_ORE.getRegistryName().toString().trim());
-											veinationOres = ArrayUtils.add(veinationOres, Blocks.LIT_REDSTONE_ORE.getRegistryName().toString().trim());
-										} else
-											veinationOres = ArrayUtils.add(veinationOres, sID);
-								});
+					.filter(new Predicate<String>() {
+						@Override
+						public boolean test(String ore) {
+							return ore.startsWith("ore");
+						}
+					})
+					.forEach(new Consumer<String>() {
+						@Override
+						public void accept(String ore) {
+							OreDictionary.getOres(ore).stream()
+									.filter(new Predicate<ItemStack>() {
+										@Override
+										public boolean test(ItemStack item) {
+											return item.getItem() instanceof ItemBlock;
+										}
+									}).forEach(new Consumer<ItemStack>() {
+										@Override
+										public void accept(ItemStack item) {
+											String sID = item.getItem().getRegistryName().toString().trim();
+											if (!ArrayUtils.contains(veinationOres, sID))
+												if (sID.toLowerCase().contains("redstone")) {
+													veinationOres = ArrayUtils.add(veinationOres, Blocks.REDSTONE_ORE.getRegistryName().toString().trim());
+													veinationOres = ArrayUtils.add(veinationOres, Blocks.LIT_REDSTONE_ORE.getRegistryName().toString().trim());
+												} else
+													veinationOres = ArrayUtils.add(veinationOres, sID);
+										}
+									});
+						}
 					});
 			
 			ConfigHandler.setValue(Constants.VEINATION_ID, "ores", veinationOres.clone());

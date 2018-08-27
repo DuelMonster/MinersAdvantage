@@ -76,7 +76,7 @@ public class ConfigHandler {
 	public static void setValue(String category, String key, Object value) {
 		if (_config != null)
 			if (value instanceof Boolean)
-				getCategory(category).get(Functions.localize(category + "." + key)).setValue((boolean) value);
+				getCategory(category).get(Functions.localize(category + "." + key)).setValue((Boolean) value);
 			else if (value instanceof String)
 				getCategory(category).get(Functions.localize(category + "." + key)).setValue((String) value);
 			else if (value instanceof String[])
