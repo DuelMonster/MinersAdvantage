@@ -8,16 +8,20 @@ import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.Iterator;
+import java.util.Map.Entry;
 
 import org.apache.logging.log4j.Level;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import co.uk.duelmonster.minersadvantage.MinersAdvantage;
+import codechicken.lib.util.ArrayUtils;
 
 public class JsonHelper {
 	
@@ -39,12 +43,19 @@ public class JsonHelper {
 		String[] sResults = {};
 		if (json.size() > 0) {
 			String[] sValues = new String[json.size()];
+			Iterator<Entry<String, JsonElement>> entries = json.entrySet().iterator();
 			
-			json.entrySet().forEach(element -> sValues[sValues.length - 1] = element.getKey());
+			for (int iIndx = 0; iIndx < json.size(); iIndx++)
+				if (entries.hasNext()) {
+					String sEntry = entries.next().getKey();
+					if (!ArrayUtils.contains(sValues, sEntry))
+						sValues[iIndx] = sEntry;
+				}
 			
 			sResults = sValues;
 		}
 		return sResults;
+		
 	}
 	
 	public static boolean contains(JsonObject json, String key) {

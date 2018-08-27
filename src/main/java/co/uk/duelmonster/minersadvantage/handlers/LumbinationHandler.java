@@ -50,6 +50,10 @@ public class LumbinationHandler implements IPacketHandler {
 	private static boolean	bLeavesGot	= false;
 	private static boolean	bAxesGot	= false;
 	
+	protected static String[]	lumbinationLogs		= null;
+	protected static String[]	lumbinationLeaves	= null;
+	protected static String[]	lumbinationAxes		= null;
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void processClientMessage(NetworkPacket message, MessageContext context) {
@@ -103,7 +107,7 @@ public class LumbinationHandler implements IPacketHandler {
 			Collection<String> saOreNames = Arrays.asList(OreDictionary.getOreNames());
 			
 			// Get Logs
-			String[] lumbinationLogs = MAConfig.get().lumbination.logs();
+			lumbinationLogs = MAConfig.get().lumbination.logs();
 			
 			saOreNames.stream()
 					.filter(log -> log.toLowerCase().startsWith("log"))
@@ -112,11 +116,11 @@ public class LumbinationHandler implements IPacketHandler {
 								.filter(item -> item.getItem() instanceof ItemBlock).forEach(item -> {
 									String sID = item.getItem().getRegistryName().toString().trim();
 									if (!ArrayUtils.contains(lumbinationLogs, sID))
-										ArrayUtils.add(lumbinationLogs, sID);
+										lumbinationLogs = ArrayUtils.add(lumbinationLogs, sID);
 								});
 					});
 			
-			ConfigHandler.setValue(Constants.LUMBINATION_ID, "logs", lumbinationLogs.toString());
+			ConfigHandler.setValue(Constants.LUMBINATION_ID, "logs", lumbinationLogs.clone());
 			
 			bLogsGot = true;
 		}
@@ -128,7 +132,7 @@ public class LumbinationHandler implements IPacketHandler {
 			Collection<String> saOreNames = Arrays.asList(OreDictionary.getOreNames());
 			
 			// Get Leaves
-			String[] lumbinationLeaves = MAConfig.get().lumbination.leaves();
+			lumbinationLeaves = MAConfig.get().lumbination.leaves();
 			
 			saOreNames.stream()
 					.filter(leaves -> leaves.toLowerCase().endsWith("leaves"))
@@ -137,11 +141,11 @@ public class LumbinationHandler implements IPacketHandler {
 								.filter(item -> item.getItem() instanceof ItemBlock).forEach(item -> {
 									String sID = item.getItem().getRegistryName().toString().trim();
 									if (!ArrayUtils.contains(lumbinationLeaves, sID))
-										ArrayUtils.add(lumbinationLeaves, sID);
+										lumbinationLeaves = ArrayUtils.add(lumbinationLeaves, sID);
 								});
 					});
 			
-			ConfigHandler.setValue(Constants.LUMBINATION_ID, "leaves", lumbinationLeaves.toString());
+			ConfigHandler.setValue(Constants.LUMBINATION_ID, "leaves", lumbinationLeaves.clone());
 			
 			bLeavesGot = true;
 		}
@@ -150,14 +154,15 @@ public class LumbinationHandler implements IPacketHandler {
 	private static void getAxeList() {
 		if (!bAxesGot) {
 			// Get Axes
-			String[] lumbinationAxes = MAConfig.get().lumbination.axes();
+			lumbinationAxes = MAConfig.get().lumbination.axes();
 			
 			Item.REGISTRY.forEach(item -> {
-				if (item instanceof ItemAxe)
-					ArrayUtils.add(lumbinationAxes, item.getRegistryName().toString().trim());
+				String sID = item.getRegistryName().toString().trim();
+				if ((item instanceof ItemAxe || sID.contains("_axe")) && !ArrayUtils.contains(lumbinationAxes, sID))
+					lumbinationAxes = ArrayUtils.add(lumbinationAxes, sID);
 			});
 			
-			ConfigHandler.setValue(Constants.LUMBINATION_ID, "axes", lumbinationAxes.toString());
+			ConfigHandler.setValue(Constants.LUMBINATION_ID, "axes", lumbinationAxes.clone());
 			
 			bAxesGot = true;
 		}

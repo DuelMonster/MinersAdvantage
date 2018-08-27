@@ -60,8 +60,10 @@ public class ConfigHandler {
 	
 	public static void save() {
 		if (_config != null && _config.hasChanged()) {
+			// Save the config
 			_config.save();
-			// readConfig();
+			// Refresh the MAConfig data
+			readConfig();
 		}
 	}
 	
@@ -77,6 +79,8 @@ public class ConfigHandler {
 				getCategory(category).get(Functions.localize(category + "." + key)).setValue((boolean) value);
 			else if (value instanceof String)
 				getCategory(category).get(Functions.localize(category + "." + key)).setValue((String) value);
+			else if (value instanceof String[])
+				getCategory(category).get(Functions.localize(category + "." + key)).setValues((String[]) value);
 	}
 	
 	public static boolean isOldConfig() {
@@ -267,7 +271,7 @@ public class ConfigHandler {
 	}
 	
 	private static void getPathanationSettings() {
-		settings.captivation.setEnabled(_config.getBoolean(Functions.localize(Constants.PATHANATION_ID + ".enabled"), Constants.PATHANATION_ID, MAConfig.defaults.pathanation.bEnabled(), Functions.localize(Constants.PATHANATION_ID + ".enabled.desc")));
+		settings.pathanation.setEnabled(_config.getBoolean(Functions.localize(Constants.PATHANATION_ID + ".enabled"), Constants.PATHANATION_ID, MAConfig.defaults.pathanation.bEnabled(), Functions.localize(Constants.PATHANATION_ID + ".enabled.desc")));
 		settings.pathanation.setPathWidth(_config.getInt(Functions.localize(Constants.PATHANATION_ID + ".path_width"), Constants.PATHANATION_ID, MAConfig.defaults.pathanation.iPathWidth(), 1, 16, Functions.localize(Constants.PATHANATION_ID + ".path_width.desc")));
 		settings.pathanation.setPathLength(_config.getInt(Functions.localize(Constants.PATHANATION_ID + ".path_length"), Constants.PATHANATION_ID, MAConfig.defaults.pathanation.iPathLength(), 1, 64, Functions.localize(Constants.PATHANATION_ID + ".path_length.desc")));
 		
