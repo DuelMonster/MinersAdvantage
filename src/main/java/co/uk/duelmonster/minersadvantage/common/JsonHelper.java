@@ -8,9 +8,10 @@ import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.Iterator;
 import java.util.Map.Entry;
-import java.util.function.Consumer;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.logging.log4j.Level;
 
 import com.google.gson.Gson;
@@ -42,17 +43,19 @@ public class JsonHelper {
 		String[] sResults = {};
 		if (json.entrySet().size() > 0) {
 			final String[] sValues = new String[json.entrySet().size()];
+			Iterator<Entry<String, JsonElement>> entries = json.entrySet().iterator();
 			
-			json.entrySet().forEach(new Consumer<Entry<String, JsonElement>>() {
-				@Override
-				public void accept(Entry<String, JsonElement> element) {
-					sValues[sValues.length - 1] = element.getKey();
+			for (int iIndx = 0; iIndx < json.entrySet().size(); iIndx++)
+				if (entries.hasNext()) {
+					String sEntry = entries.next().getKey();
+					if (!ArrayUtils.contains(sValues, sEntry))
+						sValues[iIndx] = sEntry;
 				}
-			});
 			
 			sResults = sValues;
 		}
 		return sResults;
+		
 	}
 	
 	public static boolean contains(JsonObject json, String key) {
