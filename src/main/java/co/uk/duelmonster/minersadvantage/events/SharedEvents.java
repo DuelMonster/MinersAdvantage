@@ -136,7 +136,7 @@ public class SharedEvents {
 		
 		EntityPlayerMP player = (EntityPlayerMP) event.getEntityPlayer();
 		
-		if (event.getItemStack().getItem() instanceof ItemSpade) {
+		if (event.getItemStack() != null && event.getItemStack().getItem() instanceof ItemSpade) {
 			BlockPos oPos = event.getPos();
 			Block block = world.getBlockState(oPos).getBlock();
 			

@@ -25,7 +25,6 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemAxe;
 import net.minecraft.item.ItemBlock;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -52,6 +51,10 @@ public class LumbinationHandler implements IPacketHandler {
 	private static boolean	bLogsGot	= false;
 	private static boolean	bLeavesGot	= false;
 	private static boolean	bAxesGot	= false;
+	
+	protected static String[]	lumbinationLogs		= null;
+	protected static String[]	lumbinationLeaves	= null;
+	protected static String[]	lumbinationAxes		= null;
 	
 	@Override
 	@SideOnly(Side.CLIENT)
@@ -106,36 +109,20 @@ public class LumbinationHandler implements IPacketHandler {
 			Collection<String> saOreNames = Arrays.asList(OreDictionary.getOreNames());
 			
 			// Get Logs
-			final String[] lumbinationLogs = MAConfig.get().lumbination.logs();
+			lumbinationLogs = MAConfig.get().lumbination.logs();
 			
 			saOreNames.stream()
-					.filter(new Predicate<String>() {
-						@Override
-						public boolean test(String log) {
-							return log.toLowerCase().startsWith("log");
-						}
-					})
-					.forEach(new Consumer<String>() {
-						@Override
-						public void accept(String log) {
-							OreDictionary.getOres(log).stream()
-									.filter(new Predicate<ItemStack>() {
-										@Override
-										public boolean test(ItemStack item) {
-											return item.getItem() instanceof ItemBlock;
-										}
-									}).forEach(new Consumer<ItemStack>() {
-										@Override
-										public void accept(ItemStack item) {
-											String sID = item.getItem().getRegistryName().toString().trim();
-											if (!ArrayUtils.contains(lumbinationLogs, sID))
-												ArrayUtils.add(lumbinationLogs, sID);
-										}
-									});
-						}
+					.filter(log -> log.toLowerCase().startsWith("log"))
+					.forEach(log -> {
+						OreDictionary.getOres(log).stream()
+								.filter(item -> item.getItem() instanceof ItemBlock).forEach(item -> {
+									String sID = item.getItem().getRegistryName().toString().trim();
+									if (!ArrayUtils.contains(lumbinationLogs, sID))
+										lumbinationLogs = ArrayUtils.add(lumbinationLogs, sID);
+								});
 					});
 			
-			ConfigHandler.setValue(Constants.LUMBINATION_ID, "logs", lumbinationLogs.toString());
+			ConfigHandler.setValue(Constants.LUMBINATION_ID, "logs", lumbinationLogs.clone());
 			
 			bLogsGot = true;
 		}
@@ -147,36 +134,20 @@ public class LumbinationHandler implements IPacketHandler {
 			Collection<String> saOreNames = Arrays.asList(OreDictionary.getOreNames());
 			
 			// Get Leaves
-			final String[] lumbinationLeaves = MAConfig.get().lumbination.leaves();
+			lumbinationLeaves = MAConfig.get().lumbination.leaves();
 			
 			saOreNames.stream()
-					.filter(new Predicate<String>() {
-						@Override
-						public boolean test(String leaves) {
-							return leaves.toLowerCase().endsWith("leaves");
-						}
-					})
-					.forEach(new Consumer<String>() {
-						@Override
-						public void accept(String leaves) {
-							OreDictionary.getOres(leaves).stream()
-									.filter(new Predicate<ItemStack>() {
-										@Override
-										public boolean test(ItemStack item) {
-											return item.getItem() instanceof ItemBlock;
-										}
-									}).forEach(new Consumer<ItemStack>() {
-										@Override
-										public void accept(ItemStack item) {
-											String sID = item.getItem().getRegistryName().toString().trim();
-											if (!ArrayUtils.contains(lumbinationLeaves, sID))
-												ArrayUtils.add(lumbinationLeaves, sID);
-										}
-									});
-						}
+					.filter(leaves -> leaves.toLowerCase().endsWith("leaves"))
+					.forEach(leaves -> {
+						OreDictionary.getOres(leaves).stream()
+								.filter(item -> item.getItem() instanceof ItemBlock).forEach(item -> {
+									String sID = item.getItem().getRegistryName().toString().trim();
+									if (!ArrayUtils.contains(lumbinationLeaves, sID))
+										lumbinationLeaves = ArrayUtils.add(lumbinationLeaves, sID);
+								});
 					});
 			
-			ConfigHandler.setValue(Constants.LUMBINATION_ID, "leaves", lumbinationLeaves.toString());
+			ConfigHandler.setValue(Constants.LUMBINATION_ID, "leaves", lumbinationLeaves.clone());
 			
 			bLeavesGot = true;
 		}
@@ -185,17 +156,15 @@ public class LumbinationHandler implements IPacketHandler {
 	private static void getAxeList() {
 		if (!bAxesGot) {
 			// Get Axes
-			final String[] lumbinationAxes = MAConfig.get().lumbination.axes();
+			lumbinationAxes = MAConfig.get().lumbination.axes();
 			
-			Item.REGISTRY.forEach(new Consumer<Item>() {
-				@Override
-				public void accept(Item item) {
-					if (item instanceof ItemAxe)
-						ArrayUtils.add(lumbinationAxes, item.getRegistryName().toString().trim());
-				}
+			Item.REGISTRY.forEach(item -> {
+				String sID = item.getRegistryName().toString().trim();
+				if ((item instanceof ItemAxe || sID.contains("_axe")) && !ArrayUtils.contains(lumbinationAxes, sID))
+					lumbinationAxes = ArrayUtils.add(lumbinationAxes, sID);
 			});
 			
-			ConfigHandler.setValue(Constants.LUMBINATION_ID, "axes", lumbinationAxes.toString());
+			ConfigHandler.setValue(Constants.LUMBINATION_ID, "axes", lumbinationAxes.clone());
 			
 			bAxesGot = true;
 		}

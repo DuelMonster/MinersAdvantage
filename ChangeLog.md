@@ -1,7 +1,6 @@
 Down port from 1.12.2 branch.
-fix: unable to use block harvesting features when swapping between Overworld and Nether without logging out and back in again.
-fix: NullPointerException in Lumbination caused when chopping a tree on dedicated server.
-refactor: Separated config sub categories into their own classes.
-refactor: Added version number to the config file. New configs are version 2.0.
-refactor: Converted item and block blacklists from json format to simple string list.
-refactor: Added code to convert pre-version 2.0 config files to conform to the new version.
+fix: Config not being refreshed after modifying in game until reloading MC.
+fix: Lumbination & Veination block and item lists not being populated.
+fix: Crash during first game start up due to config file version conversion.
+fix: Config file version conversion fails to convert Lumbination & Veination block and item lists.
+fix: Lumbination should support third-party axe items.  Done by adding item IDs that contain "_axe". Further support will be required.
