@@ -15,7 +15,53 @@ This mapping 'snapshot_20180310' was designed for MC 1.12! Use at your own peril
      by: Searge, ProfMobius, R4wk, ZeuX          
      Fesh0r, IngisKahn, bspkrs, LexManos         
 #################################################
+:clean
+:deobfCompileDummyTask
+:deobfProvidedDummyTask
+:sourceApiJava
+:compileApiJava UP-TO-DATE
+:processApiResources UP-TO-DATE
+:apiClasses UP-TO-DATE
+:sourceMainJava
+:compileJava
+:processResources
+:classes
+:deobfJar
+:jar
+:extractMcpData SKIPPED
+:extractMcpMappings SKIPPED
+:getVersionJson
+:extractUserdev UP-TO-DATE
+:genSrgs SKIPPED
+:reobfJar
+:extractAnnotationsJar
+:srcJar
+:curseforge291972
+Invalid cookie header: "Set-Cookie: AWSALB=y4nxrTA+s88DZC5USwr6+AY1lynCevyqx5Kfa2D4AJPgJwFREHPvUIpil8h4hMQsozqN0rxvZUsy3rdIeTStwcqaX+Vr1iqNhR7e2xnGwKD1YSLZn6IGCJzjKfol; Expires=Mon, 03 Sep 2018 15:36:47 GMT; Path=/". Invalid 'expires' attribute: Mon, 03 Sep 2018 15:36:47 GMT
+Invalid cookie header: "Set-Cookie: AWSALB=hCSyr2FGCuxjED9QNGkrSTfwgUdzqHDklct7Is+Ujg+SzOUdbdwGwqMzC6PkQoFWOiy81WdFCcpuRfbvAqax17PKPqQJbfJRCOYKITNK5XIKFTnIvrGBOR4d89CX; Expires=Mon, 03 Sep 2018 15:36:48 GMT; Path=/". Invalid 'expires' attribute: Mon, 03 Sep 2018 15:36:48 GMT
+Uploaded C:\$MC\Mod Source\~MinersAdvantage\Source\build\libs\MinersAdvantage-1.12.2-1.3.19.243.jar to CurseForge Project: 291972, with ID: 2609286
+Invalid cookie header: "Set-Cookie: AWSALB=cUHhSOIpiANdP4kZU5BrLJX8JATprN/KaWC6ClrenZ9WKqUrUpgNEvFDfIw+zXgCQ5fkG/kHaHnd5m0t+vBYXQ5cQbLuBDPVH8NRAUwww93vW4bolqiVA9r8akHk; Expires=Mon, 03 Sep 2018 15:36:50 GMT; Path=/". Invalid 'expires' attribute: Mon, 03 Sep 2018 15:36:50 GMT
+Uploaded C:\$MC\Mod Source\~MinersAdvantage\Source\build\libs\MinersAdvantage-1.12.2-1.3.19.243-src.jar to CurseForge Project: 291972, with ID: 2609287
+Invalid cookie header: "Set-Cookie: AWSALB=TAWTA/n+7DHsLiGtfVUiTXoqNoppjoPJc2eRGIwuUa6rpKo+LC9gulptOzOU745Spc04DwjNgxN6IL4OEGxUf7DC1DzfRi2t0WTDAaRP196C2Pd0uszjnQRkfj9D; Expires=Mon, 03 Sep 2018 15:36:51 GMT; Path=/". Invalid 'expires' attribute: Mon, 03 Sep 2018 15:36:51 GMT
+Uploaded C:\$MC\Mod Source\~MinersAdvantage\Source\build\libs\MinersAdvantage-1.12.2-1.3.19.243-deobf.jar to CurseForge Project: 291972, with ID: 2609288
+:updateBuildNumber
+====================================================================================================
+  Updated Build Number: 243;
+====================================================================================================
+:sourceTestJava
+:compileTestJava UP-TO-DATE
+:processTestResources UP-TO-DATE
+:testClasses UP-TO-DATE
+:test UP-TO-DATE
+:assemble
+:check UP-TO-DATE
+:build
+:release
+====================================================================================================
+  MinersAdvantage release built successfully:  C:\$MC\Mod Source\~MinersAdvantage\~Releases
+====================================================================================================
+:curseforge
 
-CONFIGURE SUCCESSFUL
+BUILD SUCCESSFUL
 
-Total time: 2.038 secs
+Total time: 25.912 secs
