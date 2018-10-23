@@ -14,6 +14,8 @@ public class MAConfig_Lumbination extends MAConfig_SubCategory {
 	private boolean		_bChopTreeBelow				= true;
 	private boolean		_bDestroyLeaves				= true;
 	private boolean		_bLeavesAffectDurability	= false;
+	private boolean		_bReplantSaplings			= true;
+	private boolean		_bUseShearsOnLeaves			= true;
 	private int			_iLeafRange					= 6;
 	private int			_iTrunkRange				= 32;
 	private String[]	_Logs						= {};
@@ -87,6 +89,42 @@ public class MAConfig_Lumbination extends MAConfig_SubCategory {
 	 */
 	public void setLeavesAffectDurability(boolean _bLeavesAffectDurability) {
 		this._bLeavesAffectDurability = _bLeavesAffectDurability;
+	}
+	
+	/**
+	 * @return bReplantSaplings
+	 */
+	public boolean bReplantSaplings() {
+		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceLumbinationSettings)
+			return parentConfig.serverOverrides.lumbination.bReplantSaplings();
+		
+		return _bReplantSaplings;
+	}
+	
+	/**
+	 * @param _bReplantSaplings
+	 *            Sets bReplantSaplings
+	 */
+	public void setReplantSaplings(boolean _bReplantSaplings) {
+		this._bReplantSaplings = _bReplantSaplings;
+	}
+	
+	/**
+	 * @return bUseShearsOnLeaves
+	 */
+	public boolean bUseShearsOnLeaves() {
+		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceLumbinationSettings)
+			return parentConfig.serverOverrides.lumbination.bUseShearsOnLeaves();
+		
+		return _bUseShearsOnLeaves;
+	}
+	
+	/**
+	 * @param _bUseShearsOnLeaves
+	 *            Sets bUseShearsOnLeaves
+	 */
+	public void setUseShearsOnLeaves(boolean _bUseShearsOnLeaves) {
+		this._bUseShearsOnLeaves = _bUseShearsOnLeaves;
 	}
 	
 	/**

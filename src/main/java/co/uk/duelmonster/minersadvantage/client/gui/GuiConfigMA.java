@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import co.uk.duelmonster.minersadvantage.common.Constants;
-import co.uk.duelmonster.minersadvantage.settings.ConfigHandler;
+import co.uk.duelmonster.minersadvantage.config.ConfigHandler;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.common.config.ConfigElement;
 import net.minecraftforge.fml.client.config.DummyConfigElement;

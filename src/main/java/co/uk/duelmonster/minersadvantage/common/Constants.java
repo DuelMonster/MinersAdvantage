@@ -30,7 +30,7 @@ public final class Constants {
 	public static final String MC_VERSION = "1.12.2";
 	
 	public static final String	CHANNEL		= "MA_NET_CHAN";
-	public static final String	FVC_URL		= "http://www.duelmonster.talktalk.net/Minecraft/MinersAdvantage/forge_update.json";
+	public static final String	FVC_URL		= "http://duelmonster.000webhostapp.com/Minecraft/MinersAdvantage/forge_update.json";
 	public static final String	NAMESPACE	= "co.uk.duelmonster.minersadvantage.";
 	public static final String	PROXY		= NAMESPACE + "proxies.";
 	public static final String	GUI_FACTORY	= NAMESPACE + "client.config.ConfigGuiFactory";

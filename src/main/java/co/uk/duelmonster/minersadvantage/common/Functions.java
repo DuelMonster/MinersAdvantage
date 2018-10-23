@@ -19,12 +19,16 @@ import net.minecraft.entity.EntityAreaEffectCloud;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.MobEffects;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemMultiTexture;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
@@ -35,6 +39,7 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.oredict.OreDictionary;
 
 public class Functions {
@@ -71,8 +76,8 @@ public class Functions {
 	}
 	
 	public static String getStackTrace() {
-		String sRtrn = "";
-		StackTraceElement[] stes = Thread.currentThread().getStackTrace();
+		String				sRtrn	= "";
+		StackTraceElement[]	stes	= Thread.currentThread().getStackTrace();
 		
 		for (int i = 2; i < stes.length; i++)
 			sRtrn += System.getProperty("line.separator") + "	at " + stes[i].toString();
@@ -81,9 +86,9 @@ public class Functions {
 	}
 	
 	public static boolean isWithinRange(BlockPos sourcePos, BlockPos targetPos, int range) {
-		int distanceX = sourcePos.getX() - targetPos.getX();
-		int distanceY = sourcePos.getY() - targetPos.getY();
-		int distanceZ = sourcePos.getZ() - targetPos.getZ();
+		int	distanceX	= sourcePos.getX() - targetPos.getX();
+		int	distanceY	= sourcePos.getY() - targetPos.getY();
+		int	distanceZ	= sourcePos.getZ() - targetPos.getZ();
 		
 		return ((distanceX * distanceX) + (distanceY * distanceY) + (distanceZ * distanceZ)) <= (range * range);
 	}
@@ -167,7 +172,7 @@ public class Functions {
 		for (int id : OreDictionary.getOreIDs(new ItemStack(item)))
 			if (ArrayUtils.contains(excavation.toolBlacklist(), OreDictionary.getOreName(id)))
 				return !excavation.bIsToolWhitelist();
-			
+		
 		return excavation.bIsToolWhitelist();
 	}
 	
@@ -184,9 +189,9 @@ public class Functions {
 		
 		if (!blockStack.isEmpty())
 			for (int id : OreDictionary.getOreIDs(blockStack))
-				if (ArrayUtils.contains(excavation.blockBlacklist(), OreDictionary.getOreName(id)))
-					return !excavation.bIsBlockWhitelist();
-				
+			if (ArrayUtils.contains(excavation.blockBlacklist(), OreDictionary.getOreName(id)))
+				return !excavation.bIsBlockWhitelist();
+		
 		return excavation.bIsBlockWhitelist();
 	}
 	
@@ -200,8 +205,8 @@ public class Functions {
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static List<Object> IDListToArray(List<String> saIDs, boolean bIsBlock) {
-		RegistryNamespaced rn = bIsBlock ? Block.REGISTRY : Item.REGISTRY;
-		List<Object> lReturn = new ArrayList();
+		RegistryNamespaced	rn		= bIsBlock ? Block.REGISTRY : Item.REGISTRY;
+		List<Object>		lReturn	= new ArrayList();
 		
 		for (String sID : saIDs) {
 			Object oEntity = null;
@@ -252,8 +257,45 @@ public class Functions {
 		for (int i = 0; i < player.inventory.mainInventory.size(); ++i)
 			if (!player.inventory.mainInventory.get(i).isEmpty() && stackEqualExact(stack, player.inventory.mainInventory.get(i)))
 				return i;
-			
+		
 		return -1;
+	}
+	
+	public static ItemStack getStackOfClassTypeFromHotBar(InventoryPlayer inventory, Class<?> classType) {
+		return getStackOfClassTypeFromInventory(InventoryPlayer.getHotbarSize(), inventory, classType);
+	}
+	
+	public static ItemStack getStackOfClassTypeFromInventory(InventoryPlayer inventory, Class<?> classType) {
+		return getStackOfClassTypeFromInventory(inventory.getSizeInventory(), inventory, classType);
+	}
+	
+	private static ItemStack getStackOfClassTypeFromInventory(int iInventorySize, InventoryPlayer inventory, Class<?> classType) {
+		try {
+			for (int iSlot = 0; iSlot < iInventorySize; iSlot++) {
+				ItemStack itemStack = inventory.getStackInSlot(iSlot);
+				if (itemStack != null && classType.isInstance(itemStack.getItem()))
+					return itemStack;
+			}
+		}
+		catch (Exception ex) {
+			MinersAdvantage.logger.error(ex);
+		}
+		return null;
+	}
+	
+	public static NonNullList<ItemStack> getAllStacksOfClassTypeFromInventory(InventoryPlayer inventory, Class<?> classType) {
+		NonNullList<ItemStack> rtnStacks = NonNullList.create();
+		try {
+			for (int iSlot = 0; iSlot < inventory.getSizeInventory(); iSlot++) {
+				ItemStack itemStack = inventory.getStackInSlot(iSlot);
+				if (itemStack != null && itemStack.getItem() instanceof ItemMultiTexture && classType.isInstance(((ItemMultiTexture) itemStack.getItem()).getBlock()))
+					rtnStacks.add(itemStack);
+			}
+		}
+		catch (Exception ex) {
+			MinersAdvantage.logger.error(ex);
+		}
+		return rtnStacks;
 	}
 	
 	/**
@@ -296,5 +338,9 @@ public class Functions {
 			Thread.sleep(millis);
 		}
 		catch (InterruptedException e) {}
+	}
+	
+	public static boolean canSustainPlant(World world, BlockPos oPos, IPlantable plantable) {
+		return world.getBlockState(oPos).getBlock().canSustainPlant(world.getBlockState(oPos), world, oPos, EnumFacing.UP, plantable);
 	}
 }

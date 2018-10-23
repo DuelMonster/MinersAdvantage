@@ -6,8 +6,8 @@ import java.util.Collection;
 import org.apache.commons.lang3.ArrayUtils;
 
 import co.uk.duelmonster.minersadvantage.common.Constants;
+import co.uk.duelmonster.minersadvantage.config.ConfigHandler;
 import co.uk.duelmonster.minersadvantage.config.MAConfig;
-import co.uk.duelmonster.minersadvantage.settings.ConfigHandler;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemBlock;
 import net.minecraftforge.oredict.OreDictionary;

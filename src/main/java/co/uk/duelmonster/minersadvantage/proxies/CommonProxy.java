@@ -3,11 +3,11 @@ package co.uk.duelmonster.minersadvantage.proxies;
 import java.io.File;
 
 import co.uk.duelmonster.minersadvantage.MinersAdvantage;
+import co.uk.duelmonster.minersadvantage.config.ConfigHandler;
 import co.uk.duelmonster.minersadvantage.config.MAConfig;
 import co.uk.duelmonster.minersadvantage.events.ServerEvents;
 import co.uk.duelmonster.minersadvantage.events.SharedEvents;
 import co.uk.duelmonster.minersadvantage.packets.NetworkPacket;
-import co.uk.duelmonster.minersadvantage.settings.ConfigHandler;
 import net.minecraft.client.particle.ParticleManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;

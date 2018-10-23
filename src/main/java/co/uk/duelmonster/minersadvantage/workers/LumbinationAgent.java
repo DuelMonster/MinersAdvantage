@@ -22,6 +22,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -76,9 +77,7 @@ public class LumbinationAgent extends Agent {
 		if (originPos == null || player == null || !player.isEntityAlive() || processed.size() >= settings.common.iBlockLimit())
 			return true;
 		
-		timer.start();
-		
-		boolean bIsComplete = false;
+		boolean bCancelHarvest = false;
 		
 		for (int iQueueCount = 0; queued.size() > 0; iQueueCount++) {
 			if ((settings.common.bBreakAtToolSpeeds() && iQueueCount > 0)
@@ -88,7 +87,7 @@ public class LumbinationAgent extends Agent {
 				break;
 			
 			if (Functions.IsPlayerStarving(player)) {
-				bIsComplete = true;
+				bCancelHarvest = true;
 				break;
 			}
 			
@@ -103,12 +102,30 @@ public class LumbinationAgent extends Agent {
 			world.captureBlockSnapshots = true;
 			world.capturedBlockSnapshots.clear();
 			
+			boolean bIsLeaves = state.getMaterial() == Material.LEAVES;
+			
 			// Process the current block if it is valid.
-			if (!fakePlayer().canHarvestBlock(state) || (state.getMaterial() == Material.LEAVES && !settings.lumbination.bDestroyLeaves())) {
+			if (!fakePlayer().canHarvestBlock(state) || (bIsLeaves && !settings.lumbination.bDestroyLeaves())) {
 				// Avoid the non-harvestable blocks.
 				processed.add(oPos);
 				continue;
-			} else if (state.getMaterial() == Material.LEAVES && !settings.lumbination.bLeavesAffectDurability()) {
+			} else if (bIsLeaves && settings.lumbination.bUseShearsOnLeaves() && oLumbinationHandler.bPlayerHasShears()) {
+				// Harvest the leaves using the players shears
+				
+				// Set the Fake Players held item to the players shears
+				this.fakePlayer().setHeldItem(EnumHand.MAIN_HAND, oLumbinationHandler.getPlayersShears());
+				
+				HarvestBlock(oPos);
+				reportProgessToClient(oPos, soundtype.getBreakSound());
+				processBlockSnapshots();
+				addConnectedToQueue(oPos);
+				
+				processed.add(oPos);
+				
+				// Reset the Fake Players held item back to the players initial held item
+				this.fakePlayer().setHeldItem(EnumHand.MAIN_HAND, this.heldItemStack);
+				
+			} else if (bIsLeaves && !settings.lumbination.bLeavesAffectDurability()) {
 				// Remove the Leaves without damaging the tool.
 				if (block.removedByPlayer(state, world, oPos, fakePlayer(), true)) {
 					world.playSound(player, oPos, SoundEvents.BLOCK_GRASS_BREAK, SoundCategory.BLOCKS, 1.0F, 1.0F);
@@ -131,6 +148,8 @@ public class LumbinationAgent extends Agent {
 				
 				processBlockSnapshots();
 				addConnectedToQueue(oPos);
+				
+				processed.add(oPos);
 			} else {
 				boolean bBlockHarvested = false;
 				
@@ -154,9 +173,11 @@ public class LumbinationAgent extends Agent {
 			}
 		}
 		
-		timer.reset();
+		// If the queue is empty then the tree has been harvested, so lets replant the sapling(s) if enabled
+		if (queued.isEmpty() && settings.lumbination.bReplantSaplings())
+			oLumbinationHandler.replantSaplings(originWoodVariant);
 		
-		return (bIsComplete || queued.isEmpty());
+		return (bCancelHarvest || queued.isEmpty());
 	}
 	
 	@Override

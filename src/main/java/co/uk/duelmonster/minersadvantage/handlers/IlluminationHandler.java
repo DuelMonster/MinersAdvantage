@@ -58,20 +58,30 @@ public class IlluminationHandler implements IPacketHandler {
 					message.getTags().getInteger("y"),
 					message.getTags().getInteger("z"));
 		
+		// Get Block below the current position and check to see if we can place a torch on the top of it.
+		BlockPos oHitPos = oPos.down();
+		IBlockState state = world.getBlockState(oHitPos);
 		EnumFacing sideHit = EnumFacing.UP;
-		if (message.getTags().hasKey("sideHit"))
+		boolean bCanTorchBePlacedOnFace = state.getBlock().canPlaceTorchOnTop(state, world, oHitPos);
+		
+		// Override the above if we are being told which face the torch should be placed upon.
+		if (message.getTags().hasKey("sideHit")) {
 			sideHit = EnumFacing.getFront(message.getTags().getInteger("sideHit"));
+			if (sideHit != EnumFacing.UP) {
+				oHitPos = oPos.offset(sideHit);
+				state = world.getBlockState(oHitPos);
+				bCanTorchBePlacedOnFace = state.getBlock().canPlaceBlockOnSide(world, oHitPos, sideHit.getOpposite());
+			}
+		}
 		
 		final int iBlockLightLevel = world.getLightFor((settings.illumination.bUseBlockLight() ? EnumSkyBlock.BLOCK : EnumSkyBlock.SKY), oPos);
 		
-		final IBlockState state = world.getBlockState(oPos.down());
-		
-		if ((message.getTags().hasKey("IgnoreLightLevel") || iBlockLightLevel <= settings.illumination.iLowestLightLevel())
+		if ((message.getTags().hasKey("ForceTorchPlacement") || iBlockLightLevel <= settings.illumination.iLowestLightLevel())
 				&& (world.isAirBlock(oPos) || state.getBlock().isReplaceable(world, oPos))
-				&& (world.getBlockState(oPos.offset(sideHit.getOpposite())).isSideSolid(world, oPos.offset(sideHit.getOpposite()), sideHit) || state.getBlock().canPlaceTorchOnTop(state, world, oPos.down()))) {
+				&& bCanTorchBePlacedOnFace) {
 			getTorchSlot(player);
 			
-			if (iTorchIndx >= 0 && !oPos.equals(lastTorchLocation)) {
+			if (iTorchIndx >= 0 && (message.getTags().hasKey("ForceTorchPlacement") || !oPos.equals(lastTorchLocation))) {
 				lastTorchLocation = new BlockPos(oPos);
 				
 				world.setBlockState(oPos, Blocks.TORCH.getDefaultState().withProperty(BlockTorch.FACING, sideHit));
@@ -146,7 +156,7 @@ public class IlluminationHandler implements IPacketHandler {
 				
 				NBTTagCompound tags = new NBTTagCompound();
 				tags.setInteger("ID", PacketID.Illuminate.value());
-				tags.setBoolean("IgnoreLightLevel", true);
+				tags.setBoolean("ForceTorchPlacement", true);
 				
 				IBlockState state = mc.world.getBlockState(oPos);
 				IBlockState stateDown = mc.world.getBlockState(oPos.down());

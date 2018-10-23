@@ -1,5 +1,5 @@
-fix: Config not being refreshed after modifying in game until reloading MC.
-fix: Lumbination & Veination block and item lists not being populated.
-fix: Crash during first game start up due to config file version conversion.
-fix: Config file version conversion fails to convert Lumbination & Veination block and item lists.
-fix: Lumbination should support third-party axe items.  Done by adding item IDs that contain "_axe". Further support will be required.
+chore: Update version check file URL after moving hosting location
+refactor: Illumination - Avoid torch placement on ore blocks
+feature: Illumination - Add option to place torches on walls when using Shaftanation
+feature: Lumbination - Add option to use shears on leaves if the player has shears in the hotbar
+feature: Lumbination - Add option to replant the tree after harvesting using saplings from players inventory

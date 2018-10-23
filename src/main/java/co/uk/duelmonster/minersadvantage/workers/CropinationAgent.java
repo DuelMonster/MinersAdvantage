@@ -49,8 +49,6 @@ public class CropinationAgent extends Agent {
 		if (originPos == null || player == null || !player.isEntityAlive() || processed.size() >= settings.common.iBlockLimit())
 			return true;
 		
-		timer.start();
-		
 		boolean bIsComplete = false;
 		
 		for (int iQueueCount = 0; queued.size() > 0; iQueueCount++) {
@@ -181,8 +179,6 @@ public class CropinationAgent extends Agent {
 			
 			processed.add(oPos);
 		}
-		
-		timer.reset();
 		
 		return (bIsComplete || queued.isEmpty());
 	}

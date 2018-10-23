@@ -11,21 +11,29 @@ import co.uk.duelmonster.minersadvantage.client.ClientFunctions;
 import co.uk.duelmonster.minersadvantage.common.Constants;
 import co.uk.duelmonster.minersadvantage.common.Functions;
 import co.uk.duelmonster.minersadvantage.common.Variables;
+import co.uk.duelmonster.minersadvantage.config.ConfigHandler;
 import co.uk.duelmonster.minersadvantage.config.MAConfig;
 import co.uk.duelmonster.minersadvantage.packets.NetworkPacket;
-import co.uk.duelmonster.minersadvantage.settings.ConfigHandler;
 import co.uk.duelmonster.minersadvantage.workers.AgentProcessor;
 import co.uk.duelmonster.minersadvantage.workers.LumbinationAgent;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockPlanks;
+import net.minecraft.block.BlockSapling;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemAxe;
 import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemShears;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -45,6 +53,7 @@ public class LumbinationHandler implements IPacketHandler {
 	public int				iTreeRootY		= 0;
 	public AxisAlignedBB	trunkArea		= null;
 	public List<BlockPos>	trunkPositions	= new ArrayList<BlockPos>();
+	private AxisAlignedBB	plantationArea	= null;
 	
 	private static boolean	bLogsGot	= false;
 	private static boolean	bLeavesGot	= false;
@@ -53,6 +62,8 @@ public class LumbinationHandler implements IPacketHandler {
 	protected static String[]	lumbinationLogs		= null;
 	protected static String[]	lumbinationLeaves	= null;
 	protected static String[]	lumbinationAxes		= null;
+	
+	private ItemStack oShears = null;
 	
 	@Override
 	@SideOnly(Side.CLIENT)
@@ -192,9 +203,9 @@ public class LumbinationHandler implements IPacketHandler {
 		for (int yLeaf = oPos.getY(); yLeaf < player.world.getHeight(); yLeaf++)
 			for (int xLeaf = -1; xLeaf < 1; xLeaf++)
 				for (int zLeaf = -1; zLeaf < 1; zLeaf++) {
-					BlockPos leafPos = new BlockPos(oPos.getX() + xLeaf, yLeaf, oPos.getZ() + zLeaf);
-					IBlockState leafState = player.world.getBlockState(leafPos);
-					Block leafBlock = leafState.getBlock();
+					BlockPos	leafPos		= new BlockPos(oPos.getX() + xLeaf, yLeaf, oPos.getZ() + zLeaf);
+					IBlockState	leafState	= player.world.getBlockState(leafPos);
+					Block		leafBlock	= leafState.getBlock();
 					
 					if (leafBlock.isLeaves(leafState, world, leafPos) &&
 							ArrayUtils.contains(settings.lumbination.leaves(), Functions.getBlockName(leafBlock)))
@@ -203,12 +214,13 @@ public class LumbinationHandler implements IPacketHandler {
 		return null;
 	}
 	
-	private int getTreeRoot(BlockPos oPos, Block block) {
+	private int getTreeRoot(BlockPos oPos, Block wood) {
 		int iRootLevel = oPos.getY();
+		// Get lowest point of the tree trunk
 		for (int yLevel = oPos.getY() - 1; yLevel > 0; yLevel--) {
-			BlockPos checkPos = new BlockPos(oPos.getX(), yLevel, oPos.getZ());
-			Block checkBlock = player.world.getBlockState(checkPos).getBlock();
-			if (checkBlock.getClass().isInstance(block) ||
+			BlockPos	checkPos	= new BlockPos(oPos.getX(), yLevel, oPos.getZ());
+			Block		checkBlock	= player.world.getBlockState(checkPos).getBlock();
+			if (checkBlock.getClass().isInstance(wood) ||
 					checkBlock.isWood(world, checkPos) ||
 					ArrayUtils.contains(settings.lumbination.logs(), Functions.getBlockName(checkBlock)))
 				iRootLevel = yLevel;
@@ -216,18 +228,59 @@ public class LumbinationHandler implements IPacketHandler {
 			if (yLevel < iRootLevel)
 				break;
 		}
+		
+		// Get the plantation area for sapling replanting if required
+		if (settings.lumbination.bReplantSaplings())
+			plantationArea = getPlantationArea(new BlockPos(oPos.getX(), iRootLevel, oPos.getZ()), wood);
+		
 		return iRootLevel;
+	}
+	
+	private AxisAlignedBB getPlantationArea(BlockPos oPos, Block wood) {
+		// Retrieve tree root positions
+		List<BlockPos> areaPositions = getPlantationAreaPositions(new ArrayList<BlockPos>(), oPos, wood);
+		
+		// Identify Start and End positions
+		int iStartX = 0, iEndX = 0, iStartZ = 0, iEndZ = 0;
+		for (BlockPos oCheckPos : areaPositions) {
+			if (iStartX == 0 || oCheckPos.getX() < iStartX) iStartX = oCheckPos.getX();
+			if (iStartZ == 0 || oCheckPos.getZ() < iStartZ) iStartZ = oCheckPos.getZ();
+			if (iEndX == 0 || oCheckPos.getX() > iEndX) iEndX = oCheckPos.getX();
+			if (iEndZ == 0 || oCheckPos.getZ() > iEndZ) iEndZ = oCheckPos.getZ();
+		}
+		
+		return new AxisAlignedBB(new BlockPos(iStartX, oPos.getY(), iStartZ), new BlockPos(iEndX, oPos.getY(), iEndZ));
+	}
+	
+	private List<BlockPos> getPlantationAreaPositions(List<BlockPos> pAreaPositions, BlockPos oPos, Block wood) {
+		
+		if (!pAreaPositions.contains(oPos)) pAreaPositions.add(oPos);
+		
+		for (int xOffset = -1; xOffset <= 1; xOffset++)
+			for (int zOffset = -1; zOffset <= 1; zOffset++) {
+				BlockPos	checkPos	= new BlockPos(oPos.getX() + xOffset, oPos.getY(), oPos.getZ() + zOffset);
+				Block		checkBlock	= player.world.getBlockState(checkPos).getBlock();
+				if (!pAreaPositions.contains(checkPos) &&
+						checkBlock.getClass().isInstance(wood) &&
+						checkBlock.isWood(world, checkPos) &&
+						ArrayUtils.contains(settings.lumbination.logs(), Functions.getBlockName(checkBlock))) {
+					pAreaPositions.add(checkPos);
+					getPlantationAreaPositions(pAreaPositions, checkPos, wood);
+				}
+			}
+		
+		return pAreaPositions;
 	}
 	
 	private AxisAlignedBB getTrunkSize(BlockPos oPos, Block block) {
 		
 		for (int iPass = 0; iPass < 2; iPass++)
 			for (int yLevel = iTreeRootY; yLevel < world.getHeight(); yLevel++) {
-				int iAirCount = 0;
-				int iLayerPosCount = trunkPositions.size();
-				BlockPos checkPos = new BlockPos(oPos.getX(), yLevel, oPos.getZ());
-				IBlockState checkState = player.world.getBlockState(checkPos);
-				Block checkBlock = checkState.getBlock();
+				int			iAirCount		= 0;
+				int			iLayerPosCount	= trunkPositions.size();
+				BlockPos	checkPos		= new BlockPos(oPos.getX(), yLevel, oPos.getZ());
+				IBlockState	checkState		= player.world.getBlockState(checkPos);
+				Block		checkBlock		= checkState.getBlock();
 				
 				if (checkPos.equals(oPos) ||
 						checkBlock.getClass().isInstance(block) ||
@@ -235,7 +288,7 @@ public class LumbinationHandler implements IPacketHandler {
 						ArrayUtils.contains(settings.lumbination.logs(), Functions.getBlockName(checkBlock)))
 					if (!trunkPositions.contains(checkPos)) // && Functions.isPosConnected(trunkPositions, checkPos))
 						trunkPositions.add(checkPos);
-					
+				
 				for (int iLoop = 1; iLoop <= settings.lumbination.iTrunkRange(); iLoop++) {
 					int iLoopAirLimit = (((iLoop + (iLoop - 1)) * 4) + 4);
 					iAirCount = 0;
@@ -259,7 +312,7 @@ public class LumbinationHandler implements IPacketHandler {
 									
 								} else // if (checkBlock.isLeaves(checkState, world, checkPos) &&
 										// settings.lumbinationLeaves().has(Functions.getBlockName(checkBlock)))
-									iAirCount++;
+								iAirCount++;
 							}
 						} else {
 							for (int zOffset = -iLoop; zOffset <= iLoop; zOffset++) {
@@ -280,7 +333,7 @@ public class LumbinationHandler implements IPacketHandler {
 										
 									} else // if (checkBlock.isLeaves(checkState, world, checkPos) ||
 											// settings.lumbinationLeaves().has(Functions.getBlockName(checkBlock)))
-										iAirCount++;
+									iAirCount++;
 								}
 							}
 						}
@@ -314,5 +367,56 @@ public class LumbinationHandler implements IPacketHandler {
 		this.player = player;
 		this.world = player.world;
 		settings = MAConfig.get(player.getUniqueID());
+	}
+	
+	public void replantSaplings(BlockPlanks.EnumType variant) {
+		if (plantationArea != null) {
+			ItemStack saplingStack = null;
+			
+			// Get sapling(s) from players inventory
+			NonNullList<ItemStack> allSaplingStacks = Functions.getAllStacksOfClassTypeFromInventory(player.inventory, BlockSapling.class);
+			
+			// Ensure the sapling stacks returned match the tree type being harvested
+			for (ItemStack stack : allSaplingStacks)
+				if (stack.getItemDamage() == variant.ordinal()) {
+					saplingStack = stack;
+					break;
+				}
+			
+			if (saplingStack != null) {
+				Block oPlantable = ((ItemBlock) saplingStack.getItem()).getBlock();
+				
+				int iPlantedCount = 0;
+				
+				// Navigate the sapling plantation area
+				for (double x = plantationArea.minX; x <= plantationArea.maxX; x++)
+					for (double z = plantationArea.minZ; z <= plantationArea.maxZ; z++) {
+						// Ensure the sapling can be planted on the block below
+						BlockPos oPos = new BlockPos(x, iTreeRootY, z);
+						if (!world.isAirBlock(oPos.down()) && Functions.canSustainPlant(world, oPos.down(), (IPlantable) oPlantable) && (world.isAirBlock(oPos) || player.world.getBlockState(oPos).getBlock().isReplaceable(world, oPos))) {
+							BlockPos plantationPos = new BlockPos(x, iTreeRootY, z);
+							
+							// Replant a sapling
+							world.setBlockState(plantationPos, oPlantable.getDefaultState().withProperty(BlockSapling.TYPE, BlockPlanks.EnumType.byMetadata(saplingStack.getItemDamage())));
+							Functions.playSound(world, plantationPos, SoundEvents.BLOCK_GRASS_PLACE, SoundCategory.BLOCKS, 1.0F, world.rand.nextFloat() + 0.5F);
+							iPlantedCount++;
+						}
+					}
+				
+				// Decrease the size of the sapling stack be one
+				player.inventory.decrStackSize(player.inventory.getSlotFor(saplingStack), iPlantedCount);
+			}
+		}
+	}
+	
+	public boolean bPlayerHasShears() {
+		return getPlayersShears() != null;
+	}
+	
+	public ItemStack getPlayersShears() {
+		if (oShears == null)
+			oShears = Functions.getStackOfClassTypeFromHotBar(player.inventory, ItemShears.class);
+		
+		return oShears;
 	}
 }

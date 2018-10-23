@@ -17,6 +17,7 @@ import co.uk.duelmonster.minersadvantage.common.Functions;
 import co.uk.duelmonster.minersadvantage.common.PacketID;
 import co.uk.duelmonster.minersadvantage.common.Variables;
 import co.uk.duelmonster.minersadvantage.config.MAConfig;
+import co.uk.duelmonster.minersadvantage.config.MAConfig_Shaftanation.TorchPlacement;
 import co.uk.duelmonster.minersadvantage.packets.NetworkPacket;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFalling;
@@ -38,6 +39,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.BlockSnapshot;
@@ -223,11 +225,51 @@ public abstract class Agent {
 	}
 	
 	public void autoIlluminate(BlockPos oPos) {
+		autoIlluminate(oPos, TorchPlacement.FLOOR);
+	}
+	
+	public void autoIlluminate(BlockPos oPos, TorchPlacement torchPlacement) {
 		NBTTagCompound tags = new NBTTagCompound();
 		tags.setInteger("ID", PacketID.Illuminate.value());
 		tags.setInteger("x", oPos.getX());
 		tags.setInteger("y", oPos.getY());
 		tags.setInteger("z", oPos.getZ());
+		
+		Vec3d lookVec = player.getLookVec();
+		EnumFacing looking = EnumFacing.getFacingFromVector((float) lookVec.x, (float) lookVec.y, (float) lookVec.z);
+		
+		switch (looking) {
+		case NORTH:
+			if (torchPlacement == TorchPlacement.LEFT_WALL)
+				tags.setInteger("sideHit", EnumFacing.WEST.getIndex());
+			else if (torchPlacement == TorchPlacement.RIGHT_WALL)
+				tags.setInteger("sideHit", EnumFacing.EAST.getIndex());
+			
+			break;
+		case EAST:
+			if (torchPlacement == TorchPlacement.LEFT_WALL)
+				tags.setInteger("sideHit", EnumFacing.NORTH.getIndex());
+			else if (torchPlacement == TorchPlacement.RIGHT_WALL)
+				tags.setInteger("sideHit", EnumFacing.SOUTH.getIndex());
+			
+			break;
+		case SOUTH:
+			if (torchPlacement == TorchPlacement.LEFT_WALL)
+				tags.setInteger("sideHit", EnumFacing.EAST.getIndex());
+			else if (torchPlacement == TorchPlacement.RIGHT_WALL)
+				tags.setInteger("sideHit", EnumFacing.WEST.getIndex());
+			
+			break;
+		case WEST:
+			if (torchPlacement == TorchPlacement.LEFT_WALL)
+				tags.setInteger("sideHit", EnumFacing.SOUTH.getIndex());
+			else if (torchPlacement == TorchPlacement.RIGHT_WALL)
+				tags.setInteger("sideHit", EnumFacing.NORTH.getIndex());
+			
+			break;
+		default:
+			break;
+		}
 		
 		MinersAdvantage.instance.network.sendTo(new NetworkPacket(tags), player);
 	}

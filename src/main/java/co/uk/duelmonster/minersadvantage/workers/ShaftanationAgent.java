@@ -29,8 +29,6 @@ public class ShaftanationAgent extends Agent {
 		if (originPos == null || player == null || !player.isEntityAlive() || processed.size() >= settings.common.iBlockLimit())
 			return true;
 		
-		timer.start();
-		
 		boolean bIsComplete = false;
 		
 		for (int iQueueCount = 0; queued.size() > 0; iQueueCount++) {
@@ -58,8 +56,10 @@ public class ShaftanationAgent extends Agent {
 				continue;
 			}
 			
+			boolean bIsOreBlock = ArrayUtils.contains(settings.veination.ores(), state.getBlock().getRegistryName().toString().trim());
+			
 			// Process the current block if it is valid.
-			if (settings.common.bMineVeins() && ArrayUtils.contains(settings.veination.ores(), state.getBlock().getRegistryName().toString().trim())) {
+			if (settings.common.bMineVeins() && bIsOreBlock) {
 				processed.add(oPos);
 				excavateOreVein(state, oPos);
 			} else {
@@ -83,7 +83,7 @@ public class ShaftanationAgent extends Agent {
 					SoundType soundtype = block.getSoundType(state, world, oPos, null);
 					reportProgessToClient(oPos, soundtype.getBreakSound());
 					
-					autoIlluminate(oPos);
+					autoIlluminate(oPos, settings.shaftanation.TorchPlacement());
 					
 					addConnectedToQueue(oPos);
 					
@@ -91,8 +91,6 @@ public class ShaftanationAgent extends Agent {
 				}
 			}
 		}
-		
-		timer.reset();
 		
 		return (bIsComplete || queued.isEmpty());
 	}

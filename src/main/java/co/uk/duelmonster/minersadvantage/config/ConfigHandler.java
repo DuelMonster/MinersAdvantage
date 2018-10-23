@@ -1,4 +1,4 @@
-package co.uk.duelmonster.minersadvantage.settings;
+package co.uk.duelmonster.minersadvantage.config;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,8 +9,6 @@ import co.uk.duelmonster.minersadvantage.MinersAdvantage;
 import co.uk.duelmonster.minersadvantage.common.Constants;
 import co.uk.duelmonster.minersadvantage.common.Functions;
 import co.uk.duelmonster.minersadvantage.common.JsonHelper;
-import co.uk.duelmonster.minersadvantage.config.MAConfig;
-import co.uk.duelmonster.minersadvantage.config.MAServerConfig;
 import net.minecraftforge.common.config.ConfigCategory;
 import net.minecraftforge.common.config.Configuration;
 
@@ -249,6 +247,8 @@ public class ConfigHandler {
 		settings.lumbination.setChopTreeBelow(_config.getBoolean(Functions.localize(Constants.LUMBINATION_ID + ".chop_below"), Constants.LUMBINATION_ID, MAConfig.defaults.lumbination.bChopTreeBelow(), Functions.localize(Constants.LUMBINATION_ID + ".chop_below.desc")));
 		settings.lumbination.setDestroyLeaves(_config.getBoolean(Functions.localize(Constants.LUMBINATION_ID + ".destroy_leaves"), Constants.LUMBINATION_ID, MAConfig.defaults.lumbination.bDestroyLeaves(), Functions.localize(Constants.LUMBINATION_ID + ".destroy_leaves.desc")));
 		settings.lumbination.setLeavesAffectDurability(_config.getBoolean(Functions.localize(Constants.LUMBINATION_ID + ".leaves_affect_durability"), Constants.LUMBINATION_ID, MAConfig.defaults.lumbination.bLeavesAffectDurability(), Functions.localize(Constants.LUMBINATION_ID + ".leaves_affect_durability.desc")));
+		settings.lumbination.setReplantSaplings(_config.getBoolean(Functions.localize(Constants.LUMBINATION_ID + ".replant_saplings"), Constants.LUMBINATION_ID, MAConfig.defaults.lumbination.bReplantSaplings(), Functions.localize(Constants.LUMBINATION_ID + ".replant_saplings.desc")));
+		settings.lumbination.setUseShearsOnLeaves(_config.getBoolean(Functions.localize(Constants.LUMBINATION_ID + ".use_shears"), Constants.LUMBINATION_ID, MAConfig.defaults.lumbination.bUseShearsOnLeaves(), Functions.localize(Constants.LUMBINATION_ID + ".use_shears.desc")));
 		settings.lumbination.setLeafRange(_config.getInt(Functions.localize(Constants.LUMBINATION_ID + ".leaf_range"), Constants.LUMBINATION_ID, MAConfig.defaults.lumbination.iLeafRange(), 0, 16, Functions.localize(Constants.LUMBINATION_ID + ".leaf_range.desc")));
 		settings.lumbination.setTrunkRange(_config.getInt(Functions.localize(Constants.LUMBINATION_ID + ".trunk_range"), Constants.LUMBINATION_ID, MAConfig.defaults.lumbination.iTrunkRange(), 8, 128, Functions.localize(Constants.LUMBINATION_ID + ".trunk_range.desc")));
 		
@@ -261,6 +261,8 @@ public class ConfigHandler {
 		order.add(Functions.localize(Constants.LUMBINATION_ID + ".chop_below"));
 		order.add(Functions.localize(Constants.LUMBINATION_ID + ".destroy_leaves"));
 		order.add(Functions.localize(Constants.LUMBINATION_ID + ".leaves_affect_durability"));
+		order.add(Functions.localize(Constants.LUMBINATION_ID + ".replant_saplings"));
+		order.add(Functions.localize(Constants.LUMBINATION_ID + ".use_shears"));
 		order.add(Functions.localize(Constants.LUMBINATION_ID + ".leaf_range"));
 		order.add(Functions.localize(Constants.LUMBINATION_ID + ".trunk_range"));
 		order.add(Functions.localize(Constants.LUMBINATION_ID + ".logs"));
@@ -288,12 +290,14 @@ public class ConfigHandler {
 		settings.shaftanation.setShaftLength(_config.getInt(Functions.localize(Constants.SHAFTANATION_ID + ".shaft_l"), Constants.SHAFTANATION_ID, MAConfig.defaults.shaftanation.iShaftLength(), 4, 128, Functions.localize(Constants.SHAFTANATION_ID + ".shaft_l.desc")));
 		settings.shaftanation.setShaftHeight(_config.getInt(Functions.localize(Constants.SHAFTANATION_ID + ".shaft_h"), Constants.SHAFTANATION_ID, MAConfig.defaults.shaftanation.iShaftHeight(), 2, 16, Functions.localize(Constants.SHAFTANATION_ID + ".shaft_l.desc")));
 		settings.shaftanation.setShaftWidth(_config.getInt(Functions.localize(Constants.SHAFTANATION_ID + ".shaft_w"), Constants.SHAFTANATION_ID, MAConfig.defaults.shaftanation.iShaftWidth(), 1, 16, Functions.localize(Constants.SHAFTANATION_ID + ".shaft_w.desc")));
+		settings.shaftanation.setTorchPlacement(_config.getString(Functions.localize(Constants.SHAFTANATION_ID + ".torch_placement"), Constants.SHAFTANATION_ID, MAConfig.defaults.shaftanation.TorchPlacement().toString(), Functions.localize(Constants.SHAFTANATION_ID + ".torch_placement.desc")));
 		
 		List<String> order = new ArrayList<String>(4);
 		order.add(Functions.localize(Constants.SHAFTANATION_ID + ".enabled"));
 		order.add(Functions.localize(Constants.SHAFTANATION_ID + ".shaft_l"));
 		order.add(Functions.localize(Constants.SHAFTANATION_ID + ".shaft_h"));
 		order.add(Functions.localize(Constants.SHAFTANATION_ID + ".shaft_w"));
+		order.add(Functions.localize(Constants.SHAFTANATION_ID + ".torch_placement"));
 		
 		_config.setCategoryPropertyOrder(Constants.SHAFTANATION_ID, order);
 	}
