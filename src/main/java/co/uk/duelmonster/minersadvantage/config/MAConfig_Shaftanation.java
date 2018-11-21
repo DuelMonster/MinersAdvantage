@@ -31,7 +31,7 @@ public class MAConfig_Shaftanation extends MAConfig_SubCategory {
 		private final int		index;
 		private final String	name;
 		
-		public static final TorchPlacement[]				VALUES		= new TorchPlacement[6];
+		public static final TorchPlacement[]				VALUES		= new TorchPlacement[3];
 		private static final Map<String, TorchPlacement>	NAME_LOOKUP	= Maps.<String, TorchPlacement>newHashMap();
 		
 		private TorchPlacement(int indexIn, String nameIn) {
@@ -69,6 +69,13 @@ public class MAConfig_Shaftanation extends MAConfig_SubCategory {
 				VALUES[enumTP.index] = enumTP;
 				NAME_LOOKUP.put(enumTP.getName().toLowerCase(Locale.ROOT), enumTP);
 			}
+		}
+		
+		public static String[] getValidValues() {
+			String[] saRtrn = new String[VALUES.length];
+			for (TorchPlacement enumTP : VALUES)
+				saRtrn[enumTP.index] = enumTP.getName();
+			return saRtrn;
 		}
 	}
 	

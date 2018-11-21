@@ -2,6 +2,7 @@ package co.uk.duelmonster.minersadvantage.common;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.List;
 
@@ -342,5 +343,34 @@ public class Functions {
 	
 	public static boolean canSustainPlant(World world, BlockPos oPos, IPlantable plantable) {
 		return world.getBlockState(oPos).getBlock().canSustainPlant(world.getBlockState(oPos), world, oPos, EnumFacing.UP, plantable);
+	}
+	
+	static volatile String[] saOreDictEntries = null;
+	
+	public static String[] getOreDictEntries(Class<?> clsInstanceOf) {
+		Collection<String> saOreNames = Arrays.asList(OreDictionary.getOreNames());
+		
+		if (clsInstanceOf != null) {
+			saOreNames.stream()
+					.forEach(entry -> {
+						OreDictionary.getOres(entry).stream()
+								.filter(item -> clsInstanceOf.isInstance(item.getItem())).forEach(item -> {
+									String sID = item.getItem().getRegistryName().toString().trim();
+									if (!ArrayUtils.contains(saOreDictEntries, sID))
+										saOreDictEntries = ArrayUtils.add(saOreDictEntries, sID);
+								});
+					});
+		} else {
+			saOreNames.stream()
+					.forEach(entry -> {
+						OreDictionary.getOres(entry).stream()
+								.forEach(item -> {
+									String sID = item.getItem().getRegistryName().toString().trim();
+									if (!ArrayUtils.contains(saOreDictEntries, sID))
+										saOreDictEntries = ArrayUtils.add(saOreDictEntries, sID);
+								});
+					});
+		}
+		return ArrayUtils.clone(saOreDictEntries);
 	}
 }

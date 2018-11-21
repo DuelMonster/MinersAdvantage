@@ -70,6 +70,7 @@ public abstract class Agent {
 	public ItemStack			heldItemStack	= null;
 	public Item					heldItem		= null;
 	public int					heldItemSlot	= -1;
+	public EnumFacing			looking;
 	public EnumFacing			sideHit			= EnumFacing.SOUTH;
 	public int					iFeetPos		= 0;
 	public IBlockState			originState		= null;
@@ -87,6 +88,9 @@ public abstract class Agent {
 		this.player = player;
 		this.iFeetPos = (int) player.getEntityBoundingBox().minY;
 		this.settings = MAConfig.get(player.getUniqueID());
+		
+		Vec3d lookVec = player.getLookVec();
+		this.looking = EnumFacing.getFacingFromVector((float) lookVec.x, (float) lookVec.y, (float) lookVec.z);
 		
 		this.packetID = PacketID.valueOf(tags.getInteger("ID"));
 		
@@ -122,12 +126,12 @@ public abstract class Agent {
 	
 	private void setupHarvestArea() {
 		// Shaft area info
-		int xStart = 0;
-		int xEnd = 0;
-		int yBottom = iFeetPos;
-		int yTop = iFeetPos + (settings.common.iBlockRadius() - 1);
-		int zStart = 0;
-		int zEnd = 0;
+		int	xStart	= 0;
+		int	xEnd	= 0;
+		int	yBottom	= iFeetPos;
+		int	yTop	= iFeetPos + (settings.common.iBlockRadius() - 1);
+		int	zStart	= 0;
+		int	zEnd	= 0;
 		
 		// if the ShaftWidth is divisible by 2 we don't want to do anything
 		double dDivision = ((settings.common.iBlockRadius() & 1) != 0 ? 0 : 0.5);
@@ -191,10 +195,10 @@ public abstract class Agent {
 	public void addToQueue(BlockPos oPos) {
 		final IBlockState state = world.getBlockState(oPos);
 		
-		if (state == null || state.getBlock() == Blocks.AIR || state.getBlock() == Blocks.BEDROCK ||
-				state.getMaterial() == Material.WATER || state.getMaterial() == Material.LAVA ||
-				oPos == null || processed.contains(oPos) || queued.contains(oPos) ||
-				(harvestArea != null && !Functions.isWithinArea(oPos, harvestArea)))
+		if (state == null || state.getBlock() == Blocks.AIR || state.getBlock() == Blocks.TORCH ||
+				state.getBlock() == Blocks.BEDROCK || state.getMaterial() == Material.WATER ||
+				state.getMaterial() == Material.LAVA || oPos == null || processed.contains(oPos) ||
+				queued.contains(oPos) || (harvestArea != null && !Functions.isWithinArea(oPos, harvestArea)))
 			return;
 		
 		queued.add(oPos);
@@ -231,45 +235,47 @@ public abstract class Agent {
 	public void autoIlluminate(BlockPos oPos, TorchPlacement torchPlacement) {
 		NBTTagCompound tags = new NBTTagCompound();
 		tags.setInteger("ID", PacketID.Illuminate.value());
-		tags.setInteger("x", oPos.getX());
-		tags.setInteger("y", oPos.getY());
-		tags.setInteger("z", oPos.getZ());
 		
-		Vec3d lookVec = player.getLookVec();
-		EnumFacing looking = EnumFacing.getFacingFromVector((float) lookVec.x, (float) lookVec.y, (float) lookVec.z);
-		
-		switch (looking) {
-		case NORTH:
-			if (torchPlacement == TorchPlacement.LEFT_WALL)
-				tags.setInteger("sideHit", EnumFacing.WEST.getIndex());
-			else if (torchPlacement == TorchPlacement.RIGHT_WALL)
-				tags.setInteger("sideHit", EnumFacing.EAST.getIndex());
-			
-			break;
-		case EAST:
-			if (torchPlacement == TorchPlacement.LEFT_WALL)
-				tags.setInteger("sideHit", EnumFacing.NORTH.getIndex());
-			else if (torchPlacement == TorchPlacement.RIGHT_WALL)
-				tags.setInteger("sideHit", EnumFacing.SOUTH.getIndex());
-			
-			break;
-		case SOUTH:
-			if (torchPlacement == TorchPlacement.LEFT_WALL)
-				tags.setInteger("sideHit", EnumFacing.EAST.getIndex());
-			else if (torchPlacement == TorchPlacement.RIGHT_WALL)
-				tags.setInteger("sideHit", EnumFacing.WEST.getIndex());
-			
-			break;
-		case WEST:
-			if (torchPlacement == TorchPlacement.LEFT_WALL)
-				tags.setInteger("sideHit", EnumFacing.SOUTH.getIndex());
-			else if (torchPlacement == TorchPlacement.RIGHT_WALL)
-				tags.setInteger("sideHit", EnumFacing.NORTH.getIndex());
-			
-			break;
-		default:
-			break;
+		BlockPos oFinalPos = oPos;
+		if (torchPlacement != TorchPlacement.FLOOR) {
+			oFinalPos = oPos.up().offset(looking.getOpposite());
+			switch (looking) {
+			case NORTH:
+				if (torchPlacement == TorchPlacement.RIGHT_WALL) {
+					tags.setInteger("sideHit", EnumFacing.WEST.getIndex());
+				} else if (torchPlacement == TorchPlacement.LEFT_WALL) {
+					tags.setInteger("sideHit", EnumFacing.EAST.getIndex());
+				}
+				break;
+			case EAST:
+				if (torchPlacement == TorchPlacement.RIGHT_WALL) {
+					tags.setInteger("sideHit", EnumFacing.NORTH.getIndex());
+				} else if (torchPlacement == TorchPlacement.LEFT_WALL) {
+					tags.setInteger("sideHit", EnumFacing.SOUTH.getIndex());
+				}
+				break;
+			case SOUTH:
+				if (torchPlacement == TorchPlacement.RIGHT_WALL) {
+					tags.setInteger("sideHit", EnumFacing.EAST.getIndex());
+				} else if (torchPlacement == TorchPlacement.LEFT_WALL) {
+					tags.setInteger("sideHit", EnumFacing.WEST.getIndex());
+				}
+				break;
+			case WEST:
+				if (torchPlacement == TorchPlacement.RIGHT_WALL) {
+					tags.setInteger("sideHit", EnumFacing.SOUTH.getIndex());
+				} else if (torchPlacement == TorchPlacement.LEFT_WALL) {
+					tags.setInteger("sideHit", EnumFacing.NORTH.getIndex());
+				}
+				break;
+			default:
+				break;
+			}
 		}
+		
+		tags.setInteger("x", oFinalPos.getX());
+		tags.setInteger("y", oFinalPos.getY());
+		tags.setInteger("z", oFinalPos.getZ());
 		
 		MinersAdvantage.instance.network.sendTo(new NetworkPacket(tags), player);
 	}
@@ -315,8 +321,8 @@ public abstract class Agent {
 		boolean bResult = fakePlayer().interactionManager.tryHarvestBlock(oPos);
 		player.connection.sendPacket(new SPacketBlockChange(world, oPos));
 		
-		final int range = 20;
-		IBlockState state = world.getBlockState(oPos);
+		final int	range	= 20;
+		IBlockState	state	= world.getBlockState(oPos);
 		
 		List<EntityPlayerMP> localPlayers = world.getEntitiesWithinAABB(EntityPlayerMP.class, new AxisAlignedBB(oPos.add(-range, -range, -range), oPos.add(range, range, range)));
 		
@@ -327,8 +333,8 @@ public abstract class Agent {
 		Block blockAbove = Functions.getBlockFromWorld(world, oPos.up());
 		if (blockAbove instanceof BlockFalling && HarvestBlock(oPos.up()))
 			for (Entity entity : localPlayers)
-				Functions.spawnAreaEffectCloud(world, (EntityPlayer) entity, oPos);
-			
+			Functions.spawnAreaEffectCloud(world, (EntityPlayer) entity, oPos);
+		
 		return bResult;
 	}
 }

@@ -47,8 +47,8 @@ public class ShaftanationAgent extends Agent {
 			if (oPos == null || !Functions.isWithinArea(oPos, harvestArea) || world.getBlockState(oPos).getBlock() == Blocks.TORCH)
 				continue;
 			
-			IBlockState state = world.getBlockState(oPos);
-			Block block = state.getBlock();
+			IBlockState	state	= world.getBlockState(oPos);
+			Block		block	= state.getBlock();
 			
 			if (!fakePlayer().canHarvestBlock(state)) {
 				// Avoid the non-harvestable blocks.
@@ -74,8 +74,7 @@ public class ShaftanationAgent extends Agent {
 					if (breakController.bBlockDestroyed)
 						bBlockHarvested = HarvestBlock(oPos);
 					
-				} else
-					bBlockHarvested = HarvestBlock(oPos);
+				} else bBlockHarvested = HarvestBlock(oPos);
 				
 				if (bBlockHarvested) {
 					processBlockSnapshots();
@@ -83,7 +82,7 @@ public class ShaftanationAgent extends Agent {
 					SoundType soundtype = block.getSoundType(state, world, oPos, null);
 					reportProgessToClient(oPos, soundtype.getBreakSound());
 					
-					autoIlluminate(oPos, settings.shaftanation.TorchPlacement());
+					autoIlluminate((new BlockPos(oPos.getX(), iFeetPos, oPos.getZ())).offset(sideHit.getOpposite()), settings.shaftanation.TorchPlacement());
 					
 					addConnectedToQueue(oPos);
 					
@@ -97,12 +96,12 @@ public class ShaftanationAgent extends Agent {
 	
 	private void setupShaft() {
 		// Shaft area info
-		int xStart = 0;
-		int xEnd = 0;
-		int yBottom = iFeetPos;
-		int yTop = iFeetPos + (settings.shaftanation.iShaftHeight() - 1);
-		int zStart = 0;
-		int zEnd = 0;
+		int	xStart	= 0;
+		int	xEnd	= 0;
+		int	yBottom	= iFeetPos;
+		int	yTop	= iFeetPos + (settings.shaftanation.iShaftHeight() - 1);
+		int	zStart	= 0;
+		int	zEnd	= 0;
 		
 		// if the ShaftWidth is divisible by 2 we don't want to do anything
 		double dDivision = ((settings.shaftanation.iShaftWidth() & 1) != 0 ? 0 : 0.5);

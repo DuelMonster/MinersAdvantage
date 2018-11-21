@@ -59,22 +59,22 @@ public class IlluminationHandler implements IPacketHandler {
 					message.getTags().getInteger("z"));
 		
 		// Get Block below the current position and check to see if we can place a torch on the top of it.
-		BlockPos oHitPos = oPos.down();
-		IBlockState state = world.getBlockState(oHitPos);
-		EnumFacing sideHit = EnumFacing.UP;
-		boolean bCanTorchBePlacedOnFace = state.getBlock().canPlaceTorchOnTop(state, world, oHitPos);
+		BlockPos	oHitPos					= oPos.down();
+		IBlockState	state					= world.getBlockState(oHitPos);
+		EnumFacing	sideHit					= EnumFacing.UP;
+		boolean		bCanTorchBePlacedOnFace	= state.getBlock().canPlaceTorchOnTop(state, world, oHitPos);
+		final int	iBlockLightLevel		= world.getLightFor((settings.illumination.bUseBlockLight() ? EnumSkyBlock.BLOCK : EnumSkyBlock.SKY), oPos);
 		
 		// Override the above if we are being told which face the torch should be placed upon.
 		if (message.getTags().hasKey("sideHit")) {
 			sideHit = EnumFacing.getFront(message.getTags().getInteger("sideHit"));
-			if (sideHit != EnumFacing.UP) {
-				oHitPos = oPos.offset(sideHit);
+			if (sideHit != EnumFacing.UP && sideHit != EnumFacing.DOWN) {
+				oHitPos = oPos.up().offset(sideHit);
 				state = world.getBlockState(oHitPos);
-				bCanTorchBePlacedOnFace = state.getBlock().canPlaceBlockOnSide(world, oHitPos, sideHit.getOpposite());
+				
+				bCanTorchBePlacedOnFace = Blocks.TORCH.canPlaceBlockOnSide(world, oHitPos, sideHit.getOpposite());
 			}
 		}
-		
-		final int iBlockLightLevel = world.getLightFor((settings.illumination.bUseBlockLight() ? EnumSkyBlock.BLOCK : EnumSkyBlock.SKY), oPos);
 		
 		if ((message.getTags().hasKey("ForceTorchPlacement") || iBlockLightLevel <= settings.illumination.iLowestLightLevel())
 				&& (world.isAirBlock(oPos) || state.getBlock().isReplaceable(world, oPos))
@@ -95,7 +95,7 @@ public class IlluminationHandler implements IPacketHandler {
 				}
 				
 				if (iTorchStackCount == 0)
-					Functions.NotifyClient(player, TextFormatting.GOLD + "Illumination: " + TextFormatting.WHITE + Functions.localize("superminer.illumination.no_torches"));
+					Functions.NotifyClient(player, TextFormatting.GOLD + "Illumination: " + TextFormatting.WHITE + Functions.localize("minersadvantage.illumination.no_torches"));
 			}
 		}
 	}
@@ -130,8 +130,8 @@ public class IlluminationHandler implements IPacketHandler {
 		if (mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == RayTraceResult.Type.BLOCK) {
 			BlockPos oPos = mc.objectMouseOver.getBlockPos();
 			if (mc.world.getBlockState(oPos).getBlock() != Blocks.TORCH) {
-				EnumFacing sideHit = mc.objectMouseOver.sideHit;
-				BlockPos oSidePos = mc.objectMouseOver.getBlockPos();
+				EnumFacing	sideHit		= mc.objectMouseOver.sideHit;
+				BlockPos	oSidePos	= mc.objectMouseOver.getBlockPos();
 				
 				switch (sideHit) {
 				case NORTH:
@@ -158,8 +158,8 @@ public class IlluminationHandler implements IPacketHandler {
 				tags.setInteger("ID", PacketID.Illuminate.value());
 				tags.setBoolean("ForceTorchPlacement", true);
 				
-				IBlockState state = mc.world.getBlockState(oPos);
-				IBlockState stateDown = mc.world.getBlockState(oPos.down());
+				IBlockState	state		= mc.world.getBlockState(oPos);
+				IBlockState	stateDown	= mc.world.getBlockState(oPos.down());
 				
 				if (state.getBlock().isReplaceable(mc.world, oPos) && stateDown.getBlock().canPlaceTorchOnTop(stateDown, mc.world, oPos.down())) {
 					tags.setInteger("x", oPos.getX());
