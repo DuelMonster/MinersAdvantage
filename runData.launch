@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
+<mapAttribute key="org.eclipse.debug.core.environmentVariables">
+<mapEntry key="FORGE_GROUP" value="net.minecraftforge"/>
+<mapEntry key="FORGE_VERSION" value="28.0.24"/>
+<mapEntry key="MCP_MAPPINGS" value="snapshot_20190730-1.14.3"/>
+<mapEntry key="MCP_VERSION" value="20190719.225934"/>
+<mapEntry key="MC_VERSION" value="1.14.4"/>
+<mapEntry key="MOD_CLASSES" value="examplemod%%C:\$MC\Mod Source\~MinersAdvantage\Source_1.14\bin\main;examplemod%%C:\$MC\Mod Source\~MinersAdvantage\Source_1.14\bin\main"/>
+<mapEntry key="target" value="fmluserdevdata"/>
+</mapAttribute>
+<stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.buildship.core.classpathprovider"/>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="net.minecraftforge.userdev.LaunchTesting"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="--mod examplemod --all --output C:\$MC\Mod Source\~MinersAdvantage\Source_1.14\src\generated\resources"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="Source_1.14"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dforge.logging.console.level=debug -Dforge.logging.markers=SCAN,REGISTRIES,REGISTRYDUMP"/>
+<stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="C:\$MC\Mod Source\~MinersAdvantage\Source_1.14\run"/>
+</launchConfiguration>

@@ -1,0 +1,18 @@
+modLoader="javafml" #mandatory
+loaderVersion="[26,)" #mandatory (26 is current forge version)
+# issueTrackerURL="" #optional
+
+[[mods]] #mandatory
+modId="minersadvantage" #mandatory
+version="${file.jarVersion}" #mandatory
+displayName="MinersAdvantage" #mandatory
+# updateJSONURL="" #optional
+# displayURL="" #optional
+# A file name (in the root of the mod JAR) containing a logo for display
+logoFile="examplemod.png" #optional
+credits="Thanks for downloading" #optional
+authors="DuelMonster" #optional
+description='''
+MinersAdvantage is a reimagening of my previous mod 'SuperMiner'.
+It is a rewrite from the ground up that aims to solve all previous issues and to add additional features.
+'''

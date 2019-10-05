@@ -1,3 +1,3 @@
 @echo off
-:Call gradlew setupDevWorkspace
-Call gradlew setupDecompWorkspace eclipse clean
+Call gradlew genEclipseRuns
+Call gradlew eclipse
