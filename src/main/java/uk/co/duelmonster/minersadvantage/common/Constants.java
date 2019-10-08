@@ -11,21 +11,23 @@ import org.apache.logging.log4j.Logger;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.loading.FMLPaths;
 
 public class Constants {
-
+	
 	public static final Logger LOGGER = LogManager.getLogger();
-
-	public static final ItemStack EMPTY_ITEMSTACK;
-	public static final ItemStack DUMMY_SILKTOUCH;
-
+	
+	public static final ItemStack	EMPTY_ITEMSTACK;
+	public static final ItemStack	DUMMY_SILKTOUCH;
+	
 	static {
 		ItemStack emptyStack;
 		try {
 			emptyStack = ItemStack.EMPTY;
-		} catch (NoSuchFieldError err) {
+		}
+		catch (NoSuchFieldError err) {
 			emptyStack = null;
 		}
 		EMPTY_ITEMSTACK = emptyStack;
@@ -34,21 +36,23 @@ public class Constants {
 		DUMMY_SILKTOUCH.setCount(1);
 		DUMMY_SILKTOUCH.addEnchantment(Enchantments.SILK_TOUCH, 1);
 	}
-
+	
 	private static File _configFolder = null;
+	
 	public static final File getConfigFolder() {
 		if (_configFolder == null)
 			_configFolder = new File(FMLPaths.CONFIGDIR.get().toFile(), Constants.MOD_ID);
-
+		
 		if (!_configFolder.exists())
 			try {
 				if (!_configFolder.mkdir())
 					throw new RuntimeException("Could not create config directory " + _configFolder);
 				
-			} catch (SecurityException e) {
+			}
+			catch (SecurityException e) {
 				throw new RuntimeException("Could not create config directory " + _configFolder, e);
 			}
-
+			
 		return _configFolder;
 	}
 	
@@ -71,9 +75,11 @@ public class Constants {
 	public static final String MOD_VERSION = majorVersion + "." + minorVersion + "." + revisionVersion + "." + buildVersion;
 	
 	// This is the minecraft version we're building for
-	public static final String MC_VERSION = "1.13.2";
+	public static final String MC_VERSION = "1.14.4";
 	
-	public static final String	CHANNEL		= "network_channel";
+	public static final String				PROTOCOL_VERSION	= majorVersion + "." + minorVersion + "." + revisionVersion;
+	public static final ResourceLocation	CHANNEL_ID			= new ResourceLocation(Constants.MOD_ID, "main_channel");
+	
 	public static final String	FVC_URL		= "http://duelmonster.000webhostapp.com/Minecraft/MinersAdvantage/forge_update.json";
 	public static final String	NAMESPACE	= "uk.co.duelmonster.minersadvantage.";
 	public static final String	PROXY		= NAMESPACE + "proxies.";
@@ -131,5 +137,5 @@ public class Constants {
 		RANKING_DEFAULT.add(Ranking.SILK_TOUCH);
 		RANKING_DEFAULT.add(Ranking.NONE);
 	};
-
+	
 }

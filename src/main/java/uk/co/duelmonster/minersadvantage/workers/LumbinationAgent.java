@@ -14,7 +14,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import uk.co.duelmonster.minersadvantage.MinersAdvantage;
+import uk.co.duelmonster.minersadvantage.common.Constants;
 import uk.co.duelmonster.minersadvantage.common.Functions;
 import uk.co.duelmonster.minersadvantage.config.MAConfig;
 import uk.co.duelmonster.minersadvantage.helpers.BreakBlockController;
@@ -25,11 +25,11 @@ public class LumbinationAgent extends Agent {
 	
 	private LumbinationHelper lumbinationHelper = new LumbinationHelper();
 	
-	private BlockPos				originLeafPos		= null;
-	private BlockState				originLeafState		= null;
-	private Block					originLeafBlock		= null;
-	private AxisAlignedBB			trunkArea			= null;
-	private List<BlockPos>			trunkPositions		= new ArrayList<BlockPos>();
+	private BlockPos		originLeafPos	= null;
+	private BlockState		originLeafState	= null;
+	private Block			originLeafBlock	= null;
+	private AxisAlignedBB	trunkArea		= null;
+	private List<BlockPos>	trunkPositions	= new ArrayList<BlockPos>();
 	
 	public LumbinationAgent(ServerPlayerEntity player, PacketLumbinate pkt) {
 		super(player, pkt);
@@ -41,7 +41,7 @@ public class LumbinationAgent extends Agent {
 		this.originBlock = this.originState.getBlock();
 		
 		lumbinationHelper.setPlayer(player);
-				
+		
 		this.harvestArea = lumbinationHelper.identifyTree(originPos, originState);
 		this.trunkArea = lumbinationHelper.trunkArea;
 		this.trunkPositions = lumbinationHelper.trunkPositions;
@@ -80,15 +80,15 @@ public class LumbinationAgent extends Agent {
 			if (oPos == null || !Functions.isWithinArea(oPos, harvestArea))
 				continue;
 			
-			BlockState state = world.getBlockState(oPos);
-			Block block = state.getBlock();
-			SoundType soundtype = state.getBlock().getSoundType(state, world, oPos, null);
+			BlockState	state		= world.getBlockState(oPos);
+			Block		block		= state.getBlock();
+			SoundType	soundtype	= state.getBlock().getSoundType(state, world, oPos, null);
 			
 			world.captureBlockSnapshots = true;
 			world.capturedBlockSnapshots.clear();
 			
-			boolean isLeaves = state.getMaterial() == Material.LEAVES;
-			boolean isWood = state.getMaterial() == Material.WOOD;
+			boolean	isLeaves	= state.getMaterial() == Material.LEAVES;
+			boolean	isWood		= state.getMaterial() == Material.WOOD;
 			
 			// Process the current block if it is valid.
 			if (!fakePlayer().canHarvestBlock(state) || (isLeaves && !MAConfig.CLIENT.lumbination.destroyLeaves())) {
@@ -126,7 +126,7 @@ public class LumbinationAgent extends Agent {
 								(heldItemStack != null ? heldItemStack.copy() : null));
 					}
 					catch (Exception ex) {
-						MinersAdvantage.LOGGER.error(ex.getClass().getName() + " Exception: " + Functions.getStackTrace());
+						Constants.LOGGER.error(ex.getClass().getName() + " Exception: " + Functions.getStackTrace());
 					}
 					
 					reportProgessToClient(oPos, soundtype.getBreakSound());
@@ -170,8 +170,8 @@ public class LumbinationAgent extends Agent {
 	
 	@Override
 	public void addToQueue(BlockPos oPos) {
-		BlockState state = world.getBlockState(oPos);
-		Block checkBlock = state.getBlock();
+		BlockState	state		= world.getBlockState(oPos);
+		Block		checkBlock	= state.getBlock();
 		
 		if (checkBlock.getClass().isInstance(originBlock)
 				&& (trunkArea == null || Functions.isWithinArea(oPos, trunkArea))

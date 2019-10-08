@@ -14,12 +14,12 @@ import uk.co.duelmonster.minersadvantage.network.packets.PacketAbortAgents;
 
 @Mod.EventBusSubscriber
 public class KeyInputEvents {
-
+	
 	@SubscribeEvent
 	public static void onKeyInput(InputEvent.KeyInputEvent event) {
 		// checking inGameHasFocus prevents your keys from firing when the player is typing a chat message
 		// NOTE that the KeyInputEvent will NOT be posted when a gui screen such as the inventory is open
-		if (!ClientFunctions.mc.isGamePaused() && ClientFunctions.mc.isGameFocused()) {
+		if (ClientFunctions.mc != null && !ClientFunctions.mc.isGamePaused() && ClientFunctions.mc.isGameFocused()) {
 			Variables variables = Variables.get();
 			
 			if (KeyBindings.captivation.isPressed()) {
@@ -38,17 +38,17 @@ public class KeyInputEvents {
 			}
 			
 			if (MAConfig.CLIENT.excavation.enabled() && !MAConfig.CLIENT.excavation.toggleMode()) {
-
+				
 				if (variables.IsExcavationToggled != KeyBindings.excavation_toggle.isKeyDown()) {
-
+					
 					variables.IsExcavationToggled = KeyBindings.excavation_toggle.isKeyDown();
 					ClientFunctions.DebugNotifyClient(variables.IsExcavationToggled, "Excavation Toggled:");
 					
 				} else if (variables.IsSingleLayerToggled != KeyBindings.excavation_layer_only_toggle.isKeyDown()) {
-
+					
 					variables.IsSingleLayerToggled = KeyBindings.excavation_layer_only_toggle.isKeyDown();
 					ClientFunctions.DebugNotifyClient(variables.IsSingleLayerToggled, "Excavation Single Layer Toggled:");
-
+					
 				}
 				
 			} else if (MAConfig.CLIENT.excavation.enabled() && MAConfig.CLIENT.excavation.toggleMode()) {
@@ -94,7 +94,7 @@ public class KeyInputEvents {
 				MAConfig.CLIENT.shaftanation.setEnabled(!MAConfig.CLIENT.shaftanation.enabled());
 				ClientFunctions.NotifyClient(MAConfig.CLIENT.shaftanation.enabled(), "Shaftanation");
 			}
-
+			
 			if (MAConfig.CLIENT.shaftanation.enabled() && variables.IsShaftanationToggled != KeyBindings.shaftanation_toggle.isKeyDown()) {
 				variables.IsShaftanationToggled = KeyBindings.shaftanation_toggle.isKeyDown();
 				
@@ -114,10 +114,10 @@ public class KeyInputEvents {
 			if (KeyBindings.abortAgents.isPressed()) {
 				NetworkHandler.sendToServer(new PacketAbortAgents());
 			}
-
-	        // Record the block face being attacked
+			
+			// Record the block face being attacked
 			if (ClientFunctions.mc.objectMouseOver instanceof BlockRayTraceResult) {
-				variables.faceHit = ((BlockRayTraceResult)ClientFunctions.mc.objectMouseOver).getFace();
+				variables.faceHit = ((BlockRayTraceResult) ClientFunctions.mc.objectMouseOver).getFace();
 			}
 			
 			// Sync modified variables to the server

@@ -9,7 +9,6 @@
 <mapEntry key="MOD_CLASSES" value="examplemod%%C:\$MC\Mod Source\~MinersAdvantage\Source_1.14\bin\main;examplemod%%C:\$MC\Mod Source\~MinersAdvantage\Source_1.14\bin\main"/>
 <mapEntry key="target" value="fmluserdevdata"/>
 </mapAttribute>
-<stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.buildship.core.classpathprovider"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="net.minecraftforge.userdev.LaunchTesting"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="--mod examplemod --all --output C:\$MC\Mod Source\~MinersAdvantage\Source_1.14\src\generated\resources"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="Source_1.14"/>

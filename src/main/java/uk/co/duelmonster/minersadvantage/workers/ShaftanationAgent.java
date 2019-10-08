@@ -12,7 +12,7 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.Tags;
-import uk.co.duelmonster.minersadvantage.MinersAdvantage;
+import uk.co.duelmonster.minersadvantage.common.Constants;
 import uk.co.duelmonster.minersadvantage.common.Functions;
 import uk.co.duelmonster.minersadvantage.config.MAConfig;
 import uk.co.duelmonster.minersadvantage.helpers.BreakBlockController;
@@ -28,12 +28,12 @@ public class ShaftanationAgent extends Agent {
 		this.originState = Block.getStateById(pkt.stateID);
 		
 		if (originState == null || originState.getBlock() == Blocks.AIR)
-			MinersAdvantage.LOGGER.log(Level.INFO, "Invalid BlockState ID recieved from message packet. [ " + pkt.stateID + " ]");
+			Constants.LOGGER.log(Level.INFO, "Invalid BlockState ID recieved from message packet. [ " + pkt.stateID + " ]");
 		
 		this.originBlock = originState.getBlock();
 		
 		this.shouldAutoIlluminate = MAConfig.CLIENT.common.autoIlluminate();
-
+		
 		setupShaft();
 		
 		addConnectedToQueue(originPos);

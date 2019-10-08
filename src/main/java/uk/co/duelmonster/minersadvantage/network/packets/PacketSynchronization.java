@@ -11,29 +11,33 @@ import uk.co.duelmonster.minersadvantage.common.Variables;
 import uk.co.duelmonster.minersadvantage.network.packetids.PacketId;
 
 public class PacketSynchronization {
-
-	private final UUID uuid;
-	private final String payload;
-
+	
+	private final UUID		uuid;
+	private final String	payload;
+	
 	public PacketSynchronization(UUID uuid, String payload) {
 		this.uuid = uuid;
 		this.payload = payload;
 	}
-
+	
 	public PacketSynchronization(PacketBuffer buf) {
 		this.uuid = buf.readUniqueId();
 		this.payload = buf.readString();
 	}
-
-	public PacketId getPacketId() { return PacketId.Synchronization; }
-
+	
+	public PacketId getPacketId() {
+		return PacketId.Synchronization;
+	}
+	
 	public static void encode(PacketSynchronization pkt, PacketBuffer buf) {
 		buf.writeUniqueId(pkt.uuid);
 		buf.writeString(pkt.payload);
 	}
-
-	public static PacketSynchronization decode(PacketBuffer buf) { return new PacketSynchronization(buf); }
-
+	
+	public static PacketSynchronization decode(PacketBuffer buf) {
+		return new PacketSynchronization(buf);
+	}
+	
 	public static void handle(final PacketSynchronization pkt, Supplier<Context> ctx) {
 		ctx.get().enqueueWork(() -> {
 			// Work that needs to be threadsafe (most work)
@@ -46,5 +50,6 @@ public class PacketSynchronization {
 				Variables.set(pkt.payload);
 			}
 		});
+		ctx.get().setPacketHandled(true);
 	}
 }

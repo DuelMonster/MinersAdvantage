@@ -11,30 +11,44 @@ import uk.co.duelmonster.minersadvantage.workers.AgentProcessor;
 import uk.co.duelmonster.minersadvantage.workers.CultivationAgent;
 
 public class PacketCultivate implements IMAPacket {
-
+	
 	public final BlockPos pos;
-
-	public PacketCultivate(BlockPos _pos) { pos = _pos; }
-	public PacketCultivate(PacketBuffer buf) { pos = buf.readBlockPos(); }
-
+	
+	public PacketCultivate(BlockPos _pos) {
+		pos = _pos;
+	}
+	
+	public PacketCultivate(PacketBuffer buf) {
+		pos = buf.readBlockPos();
+	}
+	
 	@Override
-	public PacketId getPacketId() { return PacketId.Cultivate; }
-
-	public static void encode(PacketCultivate pkt, PacketBuffer buf) { buf.writeBlockPos(pkt.pos); }
-
-	public static PacketCultivate decode(PacketBuffer buf) { return new PacketCultivate(buf); }
-
+	public PacketId getPacketId() {
+		return PacketId.Cultivate;
+	}
+	
+	public static void encode(PacketCultivate pkt, PacketBuffer buf) {
+		buf.writeBlockPos(pkt.pos);
+	}
+	
+	public static PacketCultivate decode(PacketBuffer buf) {
+		return new PacketCultivate(buf);
+	}
+	
 	public static void handle(final PacketCultivate pkt, Supplier<Context> ctx) {
 		ctx.get().enqueueWork(() -> {
 			// Work that needs to be threadsafe (most work)
 			ServerPlayerEntity player = ctx.get().getSender(); // the client that sent this packet
-
+			
 			// do stuff
 			player.getServer().deferTask(new Runnable() {
 				@Override
-				public void run() { AgentProcessor.INSTANCE.startProcessing(player, new CultivationAgent(player, pkt)); }
+				public void run() {
+					AgentProcessor.INSTANCE.startProcessing(player, new CultivationAgent(player, pkt));
+				}
 			});
-
+		
 		});
+		ctx.get().setPacketHandled(true);
 	}
 }

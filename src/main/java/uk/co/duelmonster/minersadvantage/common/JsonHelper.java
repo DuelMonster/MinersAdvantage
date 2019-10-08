@@ -21,8 +21,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import uk.co.duelmonster.minersadvantage.MinersAdvantage;
-
 public class JsonHelper {
 	
 	private static final Gson gson = new Gson();
@@ -42,16 +40,16 @@ public class JsonHelper {
 	public static String toJson(Object obj) {
 		return gson.toJson(obj);
 	}
-
+	
 	public static <T> T fromJson(String json, Class<T> classOfT) {
-		return gson.fromJson(json, classOfT); 
+		return gson.fromJson(json, classOfT);
 	}
 	
 	public static String[] toStringList(JsonObject json) {
 		String[] sResults = {};
 		if (json.size() > 0) {
-			String[] sValues = new String[json.size()];
-			Iterator<Entry<String, JsonElement>> entries = json.entrySet().iterator();
+			String[]								sValues	= new String[json.size()];
+			Iterator<Entry<String, JsonElement>>	entries	= json.entrySet().iterator();
 			
 			for (int iIndx = 0; iIndx < json.size(); iIndx++)
 				if (entries.hasNext()) {
@@ -144,13 +142,13 @@ public class JsonHelper {
 			return new JsonObject();
 		
 		try {
-			InputStreamReader reader = new InputStreamReader(new FileInputStream(sourceFile), StandardCharsets.UTF_8);
-			JsonObject json = new Gson().fromJson(reader, JsonObject.class);
+			InputStreamReader	reader	= new InputStreamReader(new FileInputStream(sourceFile), StandardCharsets.UTF_8);
+			JsonObject			json	= new Gson().fromJson(reader, JsonObject.class);
 			reader.close();
 			return json;
 		}
 		catch (Exception ex) {
-			MinersAdvantage.LOGGER.log(Level.ERROR, "An error occured while loading JSON from file:", ex);
+			Constants.LOGGER.log(Level.ERROR, "An error occured while loading JSON from file:", ex);
 			return new JsonObject();
 		}
 	}
@@ -169,26 +167,26 @@ public class JsonHelper {
 			writer.close();
 		}
 		catch (Exception ex) {
-			MinersAdvantage.LOGGER.log(Level.ERROR, "An error occured while saving JSON to file:", ex);
+			Constants.LOGGER.log(Level.ERROR, "An error occured while saving JSON to file:", ex);
 			return;
 		}
 	}
 	
 	public static void CopyPaste(File sourceFile, File outputFile) {
-		BufferedReader reader = null;
-		BufferedWriter writer = null;
+		BufferedReader	reader	= null;
+		BufferedWriter	writer	= null;
 		
 		try {
 			reader = new BufferedReader(new InputStreamReader(new FileInputStream(sourceFile), StandardCharsets.UTF_8));
 			writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFile), StandardCharsets.UTF_8));
 			
-			char[] buffer = new char[256];
-			int read;
+			char[]	buffer	= new char[256];
+			int		read;
 			while ((read = reader.read(buffer)) != -1)
 				writer.write(buffer, 0, read);
 		}
 		catch (Exception ex) {
-			MinersAdvantage.LOGGER.log(Level.ERROR, "Failed copy paste", ex);
+			Constants.LOGGER.log(Level.ERROR, "Failed copy paste", ex);
 		}
 		finally {
 			try {

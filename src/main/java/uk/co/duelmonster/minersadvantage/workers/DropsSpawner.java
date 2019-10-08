@@ -11,14 +11,14 @@ import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import uk.co.duelmonster.minersadvantage.MinersAdvantage;
+import uk.co.duelmonster.minersadvantage.common.Constants;
 import uk.co.duelmonster.minersadvantage.common.Functions;
 import uk.co.duelmonster.minersadvantage.config.MAConfig;
 
 public class DropsSpawner {
 	
-	private static List<Entity>	recordedDrops			= Collections.synchronizedList(new ArrayList<Entity>());
-	private static int			recordedXPCount			= 0;
+	private static List<Entity>	recordedDrops	= Collections.synchronizedList(new ArrayList<Entity>());
+	private static int			recordedXPCount	= 0;
 	
 	public static void recordDrop(Entity entity) {
 		recordedDrops.add(entity);
@@ -28,20 +28,21 @@ public class DropsSpawner {
 		recordedXPCount += value;
 	}
 	
-	public static List<Entity> getDrops(){
+	public static List<Entity> getDrops() {
 		return recordedDrops;
 	}
 	
 	public static BlockItem getDropOfBlockType(Class<?> blockClass) {
 		return getDropOfBlockTypeFromList(blockClass, recordedDrops);
 	}
+	
 	public static BlockItem getDropOfBlockTypeFromList(Class<?> blockClass, List<Entity> drops) {
 		for (Entity entity : drops) {
-			if (entity != null 
-					&& entity instanceof ItemEntity 
+			if (entity != null
+					&& entity instanceof ItemEntity
 					&& ((ItemEntity) entity).getItem().getItem() instanceof BlockItem
-					&& blockClass.isInstance(((BlockItem)((ItemEntity) entity).getItem().getItem()).getBlock()))
-				return (BlockItem)((ItemEntity) entity).getItem().getItem();
+					&& blockClass.isInstance(((BlockItem) ((ItemEntity) entity).getItem().getItem()).getBlock()))
+				return (BlockItem) ((ItemEntity) entity).getItem().getItem();
 		}
 		return null;
 	}
@@ -76,7 +77,7 @@ public class DropsSpawner {
 				}
 			}
 			catch (ConcurrentModificationException e) {
-				MinersAdvantage.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Functions.getStackTrace());
+				Constants.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Functions.getStackTrace());
 			}
 	}
 	

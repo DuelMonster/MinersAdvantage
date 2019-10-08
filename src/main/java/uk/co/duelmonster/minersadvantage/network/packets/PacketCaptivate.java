@@ -16,38 +16,43 @@ import uk.co.duelmonster.minersadvantage.config.MAConfig_Client;
 import uk.co.duelmonster.minersadvantage.network.packetids.PacketId;
 
 public class PacketCaptivate implements IMAPacket {
-
+	
 	public PacketCaptivate() {}
+	
 	public PacketCaptivate(PacketBuffer buf) {}
-
+	
 	@Override
-	public PacketId getPacketId() { return PacketId.Captivate; }
-
+	public PacketId getPacketId() {
+		return PacketId.Captivate;
+	}
+	
 	public static void encode(PacketCaptivate pkt, PacketBuffer buf) {}
-
-	public static PacketCaptivate decode(PacketBuffer buf) { return new PacketCaptivate(buf); }
-
+	
+	public static PacketCaptivate decode(PacketBuffer buf) {
+		return new PacketCaptivate(buf);
+	}
+	
 	public static void handle(final PacketCaptivate pkt, Supplier<Context> ctx) {
 		ctx.get().enqueueWork(() -> {
 			// Work that needs to be threadsafe (most work)
 			ServerPlayerEntity sender = ctx.get().getSender(); // the client that sent this packet
 			// do stuff
 			MAConfig_Client settings = MAConfig.CLIENT;
-
+			
 			if (settings != null) {
 				AxisAlignedBB captivateArea = sender.getBoundingBox().grow(settings.captivation.radiusHorizontal(), settings.captivation.radiusVertical(), settings.captivation.radiusHorizontal());
-
+				
 				if (sender.world != null) {
 					List<Entity> localDrops = Functions.getNearbyEntities(sender.world, captivateArea);
 					if (localDrops != null && !localDrops.isEmpty()) {
 						for (Entity entity : localDrops) {
 							if (entity instanceof ItemEntity) {
-								ItemEntity eItem = (ItemEntity)entity;
-
+								ItemEntity eItem = (ItemEntity) entity;
+								
 								if (!eItem.cannotPickup() && (settings.captivation.blacklist() == null || settings.captivation.blacklist().size() == 0
 										|| !settings.captivation.blacklist().contains(Functions.getName(eItem))))
 									entity.onCollideWithPlayer(sender);
-
+								
 							} else if (entity instanceof ExperienceOrbEntity)
 								entity.onCollideWithPlayer(sender);
 						}
@@ -55,5 +60,6 @@ public class PacketCaptivate implements IMAPacket {
 				}
 			}
 		});
+		ctx.get().setPacketHandled(true);
 	}
 }

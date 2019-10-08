@@ -11,30 +11,44 @@ import uk.co.duelmonster.minersadvantage.workers.AgentProcessor;
 import uk.co.duelmonster.minersadvantage.workers.PathanationAgent;
 
 public class PacketPathanate implements IMAPacket {
-
+	
 	public final BlockPos pos;
-
-	public PacketPathanate(BlockPos _pos) { pos = _pos; }
-	public PacketPathanate(PacketBuffer buf) { pos = buf.readBlockPos(); }
-
+	
+	public PacketPathanate(BlockPos _pos) {
+		pos = _pos;
+	}
+	
+	public PacketPathanate(PacketBuffer buf) {
+		pos = buf.readBlockPos();
+	}
+	
 	@Override
-	public PacketId getPacketId() { return PacketId.Pathinate; }
-
-	public static void encode(PacketPathanate pkt, PacketBuffer buf) { buf.writeBlockPos(pkt.pos); }
-
-	public static PacketPathanate decode(PacketBuffer buf) { return new PacketPathanate(buf); }
-
+	public PacketId getPacketId() {
+		return PacketId.Pathinate;
+	}
+	
+	public static void encode(PacketPathanate pkt, PacketBuffer buf) {
+		buf.writeBlockPos(pkt.pos);
+	}
+	
+	public static PacketPathanate decode(PacketBuffer buf) {
+		return new PacketPathanate(buf);
+	}
+	
 	public static void handle(final PacketPathanate pkt, Supplier<Context> ctx) {
 		ctx.get().enqueueWork(() -> {
 			// Work that needs to be threadsafe (most work)
 			ServerPlayerEntity player = ctx.get().getSender(); // the client that sent this packet
-
+			
 			// do stuff
 			player.getServer().deferTask(new Runnable() {
 				@Override
-				public void run() { AgentProcessor.INSTANCE.startProcessing(player, new PathanationAgent(player, pkt)); }
+				public void run() {
+					AgentProcessor.INSTANCE.startProcessing(player, new PathanationAgent(player, pkt));
+				}
 			});
-
+		
 		});
+		ctx.get().setPacketHandled(true);
 	}
 }
