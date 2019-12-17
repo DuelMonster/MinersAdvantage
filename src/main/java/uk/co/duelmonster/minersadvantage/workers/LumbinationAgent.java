@@ -16,7 +16,6 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import uk.co.duelmonster.minersadvantage.common.Constants;
 import uk.co.duelmonster.minersadvantage.common.Functions;
-import uk.co.duelmonster.minersadvantage.config.MAConfig;
 import uk.co.duelmonster.minersadvantage.helpers.BreakBlockController;
 import uk.co.duelmonster.minersadvantage.helpers.LumbinationHelper;
 import uk.co.duelmonster.minersadvantage.network.packets.PacketLumbinate;
@@ -59,16 +58,16 @@ public class LumbinationAgent extends Agent {
 	// Returns true when Lumbination is complete or cancelled
 	@Override
 	public boolean tick() {
-		if (originPos == null || player == null || !player.isAlive() || processed.size() >= MAConfig.CLIENT.common.blockLimit())
+		if (originPos == null || player == null || !player.isAlive() || processed.size() >= clientConfig.common.blockLimit)
 			return true;
 		
 		boolean bCancelHarvest = false;
 		
 		for (int iQueueCount = 0; queued.size() > 0; iQueueCount++) {
-			if ((MAConfig.CLIENT.common.breakAtToolSpeeds() && iQueueCount > 0)
-					|| iQueueCount >= MAConfig.CLIENT.common.blocksPerTick()
-					|| processed.size() >= MAConfig.CLIENT.common.blockLimit()
-					|| (!MAConfig.CLIENT.common.breakAtToolSpeeds() && MAConfig.CLIENT.common.tpsGuard() && timer.elapsed(TimeUnit.MILLISECONDS) > 40))
+			if ((clientConfig.common.breakAtToolSpeeds && iQueueCount > 0)
+					|| iQueueCount >= clientConfig.common.blocksPerTick
+					|| processed.size() >= clientConfig.common.blockLimit
+					|| (!clientConfig.common.breakAtToolSpeeds && clientConfig.common.tpsGuard && timer.elapsed(TimeUnit.MILLISECONDS) > 40))
 				break;
 			
 			if (Functions.IsPlayerStarving(player)) {
@@ -80,22 +79,22 @@ public class LumbinationAgent extends Agent {
 			if (oPos == null || !Functions.isWithinArea(oPos, harvestArea))
 				continue;
 			
-			BlockState	state		= world.getBlockState(oPos);
-			Block		block		= state.getBlock();
-			SoundType	soundtype	= state.getBlock().getSoundType(state, world, oPos, null);
+			BlockState state = world.getBlockState(oPos);
+			Block block = state.getBlock();
+			SoundType soundtype = state.getBlock().getSoundType(state, world, oPos, null);
 			
 			world.captureBlockSnapshots = true;
 			world.capturedBlockSnapshots.clear();
 			
-			boolean	isLeaves	= state.getMaterial() == Material.LEAVES;
-			boolean	isWood		= state.getMaterial() == Material.WOOD;
+			boolean isLeaves = state.getMaterial() == Material.LEAVES;
+			boolean isWood = state.getMaterial() == Material.WOOD;
 			
 			// Process the current block if it is valid.
-			if (!fakePlayer().canHarvestBlock(state) || (isLeaves && !MAConfig.CLIENT.lumbination.destroyLeaves())) {
+			if (!fakePlayer().canHarvestBlock(state) || (isLeaves && !clientConfig.lumbination.destroyLeaves)) {
 				// Avoid the non-harvestable blocks.
 				processed.add(oPos);
 				continue;
-			} else if (isLeaves && MAConfig.CLIENT.lumbination.useShearsOnLeaves() && lumbinationHelper.playerHasShears()) {
+			} else if (isLeaves && clientConfig.lumbination.useShearsOnLeaves && lumbinationHelper.playerHasShears()) {
 				// Harvest the leaves using the players shears
 				
 				// Set the Fake Players held item to the players shears
@@ -111,7 +110,7 @@ public class LumbinationAgent extends Agent {
 				// Reset the Fake Players held item back to the players initial held item
 				this.fakePlayer().setHeldItem(Hand.MAIN_HAND, this.heldItemStack);
 				
-			} else if (isLeaves && !MAConfig.CLIENT.lumbination.leavesAffectDurability()) {
+			} else if (isLeaves && !clientConfig.lumbination.leavesAffectDurability) {
 				// Remove the Leaves without damaging the tool.
 				if (state.removedByPlayer(world, oPos, fakePlayer(), true, null)) {
 					world.playSound(player, oPos, SoundEvents.BLOCK_GRASS_BREAK, SoundCategory.BLOCKS, 1.0F, 1.0F);
@@ -141,7 +140,7 @@ public class LumbinationAgent extends Agent {
 				
 				boolean bBlockHarvested = false;
 				
-				if (MAConfig.CLIENT.common.breakAtToolSpeeds()) {
+				if (clientConfig.common.breakAtToolSpeeds) {
 					this.breakController = new BreakBlockController(fakePlayer());
 					
 					breakController.onPlayerDamageBlock(oPos, faceHit);
@@ -162,7 +161,7 @@ public class LumbinationAgent extends Agent {
 		}
 		
 		// If the queue is empty then the tree has been harvested, so lets re-plant the sapling(s) if enabled
-		if (queued.isEmpty() && originLeafPos != null && MAConfig.CLIENT.lumbination.replantSaplings())
+		if (queued.isEmpty() && originLeafPos != null && clientConfig.lumbination.replantSaplings)
 			lumbinationHelper.replantSaplings(dropsHistory, originLeafState, originLeafPos);
 		
 		return (bCancelHarvest || queued.isEmpty());
@@ -170,8 +169,8 @@ public class LumbinationAgent extends Agent {
 	
 	@Override
 	public void addToQueue(BlockPos oPos) {
-		BlockState	state		= world.getBlockState(oPos);
-		Block		checkBlock	= state.getBlock();
+		BlockState state = world.getBlockState(oPos);
+		Block checkBlock = state.getBlock();
 		
 		if (checkBlock.getClass().isInstance(originBlock)
 				&& (trunkArea == null || Functions.isWithinArea(oPos, trunkArea))
@@ -179,7 +178,7 @@ public class LumbinationAgent extends Agent {
 			super.addToQueue(oPos);
 		
 		if (checkBlock.getClass().isInstance(originLeafBlock)
-				&& MAConfig.CLIENT.lumbination.destroyLeaves()
+				&& clientConfig.lumbination.destroyLeaves
 				&& (harvestArea == null || Functions.isWithinArea(oPos, harvestArea)))
 			super.addToQueue(oPos);
 	}

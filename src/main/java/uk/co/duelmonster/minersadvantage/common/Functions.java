@@ -30,7 +30,9 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.common.IPlantable;
+import net.minecraftforge.common.Tags;
 import uk.co.duelmonster.minersadvantage.config.MAConfig;
+import uk.co.duelmonster.minersadvantage.config.SyncedClientConfig;
 
 public class Functions {
 	
@@ -87,8 +89,8 @@ public class Functions {
 	}
 	
 	public static String getStackTrace() {
-		String				sRtrn	= "";
-		StackTraceElement[]	stes	= Thread.currentThread().getStackTrace();
+		String sRtrn = "";
+		StackTraceElement[] stes = Thread.currentThread().getStackTrace();
 		
 		for (int i = 2; i < stes.length; i++)
 			sRtrn += System.getProperty("line.separator") + "	at " + stes[i].toString();
@@ -97,9 +99,9 @@ public class Functions {
 	}
 	
 	public static boolean isWithinRange(BlockPos sourcePos, BlockPos targetPos, int range) {
-		int	distanceX	= sourcePos.getX() - targetPos.getX();
-		int	distanceY	= sourcePos.getY() - targetPos.getY();
-		int	distanceZ	= sourcePos.getZ() - targetPos.getZ();
+		int distanceX = sourcePos.getX() - targetPos.getX();
+		int distanceY = sourcePos.getY() - targetPos.getY();
+		int distanceZ = sourcePos.getZ() - targetPos.getZ();
 		
 		return ((distanceX * distanceX) + (distanceY * distanceY) + (distanceZ * distanceZ)) <= (range * range);
 	}
@@ -126,19 +128,6 @@ public class Functions {
 				for (double z = area.minZ; z <= area.maxZ; z++)
 					positions.add(new BlockPos(x, y, z));
 				
-		return positions;
-	}
-	
-	public static List<BlockPos> getAllPositionsInAreaTorchable(World world, AxisAlignedBB area) {
-		List<BlockPos> positions = new ArrayList<BlockPos>();
-		
-		for (double y = area.minY; y <= area.maxY; y++)
-			for (double x = area.minX; x <= area.maxX; x++)
-				for (double z = area.minZ; z <= area.maxZ; z++) {
-					BlockPos pos = new BlockPos(x, y, z);
-					if (world.isAirBlock(pos) && !world.isAirBlock(pos.down()))
-						positions.add(pos);
-				}
 		return positions;
 	}
 	
@@ -218,7 +207,7 @@ public class Functions {
 		for (int i = 0; i < player.inventory.mainInventory.size(); ++i)
 			if (!player.inventory.mainInventory.get(i).isEmpty() && ItemStack.areItemStacksEqual(stack, player.inventory.mainInventory.get(i)))
 				return i;
-		
+			
 		return -1;
 	}
 	
@@ -294,4 +283,9 @@ public class Functions {
 		return world.getBlockState(pos).canSustainPlant(world, pos, Direction.UP, plantable);
 	}
 	
+	public static boolean isValidOre(BlockState state, SyncedClientConfig clientConfig) {
+		return state.isIn(Tags.Blocks.ORES) ||
+				(clientConfig.veination.ores != null && clientConfig.veination.ores.isEmpty() == false
+						&& clientConfig.veination.ores.contains(Functions.getName(state.getBlock().asItem())));
+	}
 }

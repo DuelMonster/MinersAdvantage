@@ -11,8 +11,8 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.fml.network.NetworkEvent.Context;
 import uk.co.duelmonster.minersadvantage.common.Functions;
-import uk.co.duelmonster.minersadvantage.config.MAConfig;
 import uk.co.duelmonster.minersadvantage.config.MAConfig_Client;
+import uk.co.duelmonster.minersadvantage.config.SyncedClientConfig;
 import uk.co.duelmonster.minersadvantage.network.packetids.PacketId;
 
 public class PacketCaptivate implements IMAPacket {
@@ -36,11 +36,11 @@ public class PacketCaptivate implements IMAPacket {
 		ctx.get().enqueueWork(() -> {
 			// Work that needs to be threadsafe (most work)
 			ServerPlayerEntity sender = ctx.get().getSender(); // the client that sent this packet
-			// do stuff
-			MAConfig_Client settings = MAConfig.CLIENT;
 			
-			if (settings != null) {
-				AxisAlignedBB captivateArea = sender.getBoundingBox().grow(settings.captivation.radiusHorizontal(), settings.captivation.radiusVertical(), settings.captivation.radiusHorizontal());
+			// do stuff
+			SyncedClientConfig clientConfig = MAConfig_Client.getPlayerConfig(sender.getUniqueID());
+			if (clientConfig != null) {
+				AxisAlignedBB captivateArea = sender.getBoundingBox().grow(clientConfig.captivation.radiusHorizontal, clientConfig.captivation.radiusVertical, clientConfig.captivation.radiusHorizontal);
 				
 				if (sender.world != null) {
 					List<Entity> localDrops = Functions.getNearbyEntities(sender.world, captivateArea);
@@ -49,8 +49,8 @@ public class PacketCaptivate implements IMAPacket {
 							if (entity instanceof ItemEntity) {
 								ItemEntity eItem = (ItemEntity) entity;
 								
-								if (!eItem.cannotPickup() && (settings.captivation.blacklist() == null || settings.captivation.blacklist().size() == 0
-										|| !settings.captivation.blacklist().contains(Functions.getName(eItem))))
+								if (!eItem.cannotPickup() && (clientConfig.captivation.blacklist == null || clientConfig.captivation.blacklist.size() == 0
+										|| !clientConfig.captivation.blacklist.contains(Functions.getName(eItem))))
 									entity.onCollideWithPlayer(sender);
 								
 							} else if (entity instanceof ExperienceOrbEntity)

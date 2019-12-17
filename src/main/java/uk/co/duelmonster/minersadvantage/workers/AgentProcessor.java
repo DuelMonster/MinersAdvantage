@@ -1,22 +1,24 @@
 package uk.co.duelmonster.minersadvantage.workers;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.util.Direction;
 import net.minecraft.world.World;
 import uk.co.duelmonster.minersadvantage.common.Variables;
-import uk.co.duelmonster.minersadvantage.config.MAConfig;
 import uk.co.duelmonster.minersadvantage.config.MAConfig_Client;
+import uk.co.duelmonster.minersadvantage.config.SyncedClientConfig;
 import uk.co.duelmonster.minersadvantage.network.packetids.PacketId;
+import uk.co.duelmonster.minersadvantage.network.packets.PacketIlluminate;
 
 public class AgentProcessor {
 	public static final AgentProcessor INSTANCE = new AgentProcessor();
 	
-	public HashMap<UUID, Agent>						currentAgents	= new HashMap<UUID, Agent>();
-	private HashMap<UUID, HashMap<Integer, Agent>>	activeAgents	= new HashMap<UUID, HashMap<Integer, Agent>>();
+	public ConcurrentHashMap<UUID, Agent>								currentAgents	= new ConcurrentHashMap<UUID, Agent>();
+	private ConcurrentHashMap<UUID, ConcurrentHashMap<Integer, Agent>>	activeAgents	= new ConcurrentHashMap<UUID, ConcurrentHashMap<Integer, Agent>>();
 	
 	// private HashMap<UUID, ReversalData> reversing = new HashMap<UUID, ReversalData>();
 	// private HashMap<UUID, List<ReversalData>> reversalLog = new HashMap<UUID, List<ReversalData>>();
@@ -24,7 +26,7 @@ public class AgentProcessor {
 	// private Stopwatch timer = Stopwatch.createUnstarted();
 	private int tickCount = 0;
 	
-	public HashMap<Integer, Agent> getAgentsByID(UUID uuid) {
+	public ConcurrentHashMap<Integer, Agent> getAgentsByID(UUID uuid) {
 		return activeAgents.get(uuid);
 	}
 	
@@ -35,12 +37,12 @@ public class AgentProcessor {
 	public void fireAgentTicks(World world) {
 		tickCount++;
 		
-		Iterator<Entry<UUID, HashMap<Integer, Agent>>> allAgents = activeAgents.entrySet().iterator();
+		Iterator<Entry<UUID, ConcurrentHashMap<Integer, Agent>>> allAgents = activeAgents.entrySet().iterator();
 		while (allAgents.hasNext()) {
-			Entry<UUID, HashMap<Integer, Agent>> allAgentsEntry = allAgents.next();
+			Entry<UUID, ConcurrentHashMap<Integer, Agent>> allAgentsEntry = allAgents.next();
 			UUID uuid = allAgentsEntry.getKey();
-			MAConfig_Client settings = MAConfig.CLIENT;
 			Variables variables = Variables.get(uuid);
+			SyncedClientConfig clientConfig = MAConfig_Client.getPlayerConfig(uuid);
 			
 			Iterator<Entry<Integer, Agent>> playerAgents = allAgentsEntry.getValue().entrySet().iterator();
 			while (playerAgents.hasNext()) {
@@ -48,7 +50,7 @@ public class AgentProcessor {
 				
 				// If the Tick Delay is enabled and the current tick doesn't match the delay count we skip the agent for
 				// this player until next tick
-				if (!settings.common.breakAtToolSpeeds() && isAgentDelayable(agent) && settings.common.enableTickDelay() && tickCount % settings.common.tickDelay() != 0)
+				if (!clientConfig.common.breakAtToolSpeeds && isAgentDelayable(agent) && clientConfig.common.enableTickDelay && tickCount % clientConfig.common.tickDelay != 0)
 					continue;
 				
 				boolean isComplete = false;
@@ -57,23 +59,24 @@ public class AgentProcessor {
 					setCurrentAgent(allAgentsEntry.getKey(), agent);
 					isComplete = agent.tick();
 					setCurrentAgent(allAgentsEntry.getKey(), null);
-				
+					
 					agent.dropsHistory.addAll(DropsSpawner.getDrops());
 					
-					DropsSpawner.spawnDrops(world, agent.originPos);
+					DropsSpawner.spawnDrops(uuid, world, agent.originPos);
 				}
 				
-				if (isComplete && agent.shouldAutoIlluminate && !agent.awaitingAutoIllumination) {
-					agent.awaitingAutoIllumination = true;
-					isComplete = false;
-				} else if (agent.awaitingAutoIllumination) {
-					agent.autoIlluminateArea();
-					isComplete = agent.illuminationPositions.isEmpty();
-				}
-					
 				if (isComplete) {
+					if (agent.shouldAutoIlluminate) {
+						if (agent.packetId == PacketId.Shaftanate) {
+							PacketIlluminate.process(agent.player, new PacketIlluminate(agent.harvestAreaStartPos(), agent.harvestAreaEndPos(), agent.clientConfig.shaftanation.torchPlacement));
+						} else {
+							PacketIlluminate.process(agent.player, new PacketIlluminate(agent.harvestAreaStartPos(), agent.harvestAreaEndPos(), Direction.UP));
+						}
+					}
+					
 					reportAgentCompletionToClient(agent, variables);
 					playerAgents.remove();
+					
 				}
 			}
 			
@@ -84,10 +87,10 @@ public class AgentProcessor {
 	
 	public Agent startProcessing(ServerPlayerEntity player, Agent agent) {
 		UUID uid = player.getUniqueID();
-		HashMap<Integer, Agent> playerAgents = activeAgents.get(uid);
+		ConcurrentHashMap<Integer, Agent> playerAgents = activeAgents.get(uid);
 		
 		if (playerAgents == null) {
-			playerAgents = new HashMap<Integer, Agent>();
+			playerAgents = new ConcurrentHashMap<Integer, Agent>();
 			activeAgents.put(uid, playerAgents);
 		}
 		
@@ -106,7 +109,7 @@ public class AgentProcessor {
 				
 				Agent agent = playerAgents.next().getValue();
 				
-				DropsSpawner.spawnDrops(player.world, agent.originPos);
+				DropsSpawner.spawnDrops(uid, player.world, agent.originPos);
 				
 				reportAgentCompletionToClient(agent, Variables.get(uid));
 				playerAgents.remove();
@@ -141,6 +144,8 @@ public class AgentProcessor {
 			variables.IsExcavating = false;
 		else if (agent instanceof ExcavationAgent && agent.packetId == PacketId.Veinate)
 			variables.IsVeinating = false;
+		else if (agent instanceof IlluminationAgent)
+			variables.IsIlluminating = false;
 		else if (agent instanceof LumbinationAgent)
 			variables.IsLumbinating = false;
 		else if (agent instanceof PathanationAgent)

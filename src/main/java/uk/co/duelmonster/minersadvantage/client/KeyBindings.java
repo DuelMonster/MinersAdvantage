@@ -19,14 +19,13 @@ import uk.co.duelmonster.minersadvantage.common.Constants;
 @OnlyIn(Dist.CLIENT)
 public class KeyBindings {
 	
-	// Define the bindings, with unlocalised names "key.???" and
-	// the unlocalised category name "key.categories.MinersAdvantage"
 	public static final KeyBinding	captivation;
 	public static final KeyBinding	excavation;
 	public static final KeyBinding	excavation_toggle;
 	public static final KeyBinding	excavation_layer_only_toggle;
 	public static final KeyBinding	illumination;
 	public static final KeyBinding	illumination_place;
+	public static final KeyBinding	illumination_area;
 	public static final KeyBinding	lumbination;
 	public static final KeyBinding	shaftanation;
 	public static final KeyBinding	shaftanation_toggle;
@@ -43,18 +42,19 @@ public class KeyBindings {
 	
 	static {
 		allBindings = ImmutableList.of(
-				captivation = new KeyBinding(Constants.MOD_ID + ".captivation.enabled.desc", KeyConflictContext.IN_GAME, KeyModifier.NONE, getKey(GLFW.GLFW_KEY_KP_1), Constants.MOD_NAME), // Keyboard.KEY_NUMPAD1
-				excavation = new KeyBinding(Constants.MOD_ID + ".excavation.enabled.desc", KeyConflictContext.IN_GAME, KeyModifier.NONE, getKey(GLFW.GLFW_KEY_KP_2), Constants.MOD_NAME), // Keyboard.KEY_NUMPAD2
+				captivation = new KeyBinding(Constants.MOD_ID + ".captivation.enabled.comment", KeyConflictContext.IN_GAME, KeyModifier.NONE, getKey(GLFW.GLFW_KEY_KP_1), Constants.MOD_NAME), // Keyboard.KEY_NUMPAD1
+				excavation = new KeyBinding(Constants.MOD_ID + ".excavation.enabled.comment", KeyConflictContext.IN_GAME, KeyModifier.NONE, getKey(GLFW.GLFW_KEY_KP_2), Constants.MOD_NAME), // Keyboard.KEY_NUMPAD2
 				excavation_toggle = new KeyBinding(Constants.MOD_ID + ".excavation.toggle", KeyConflictContext.IN_GAME, KeyModifier.NONE, getKey(GLFW.GLFW_KEY_GRAVE_ACCENT), Constants.MOD_NAME), // Keyboard.KEY_GRAVE
-				excavation_layer_only_toggle = new KeyBinding(Constants.MOD_ID + ".excavation.toggle.sl", KeyConflictContext.IN_GAME, KeyModifier.NONE, getKey(GLFW.GLFW_KEY_RIGHT_ALT), Constants.MOD_NAME), // Keyboard.KEY_BACKSLASH
-				illumination = new KeyBinding(Constants.MOD_ID + ".illumination.enabled.desc", KeyConflictContext.IN_GAME, KeyModifier.NONE, getKey(GLFW.GLFW_KEY_KP_3), Constants.MOD_NAME), // Keyboard.KEY_NUMPAD3
+				excavation_layer_only_toggle = new KeyBinding(Constants.MOD_ID + ".excavation.toggle.sl", KeyConflictContext.IN_GAME, KeyModifier.NONE, getKey(GLFW.GLFW_KEY_TAB), Constants.MOD_NAME), // Keyboard.KEY_TAB
+				illumination = new KeyBinding(Constants.MOD_ID + ".illumination.enabled.comment", KeyConflictContext.IN_GAME, KeyModifier.NONE, getKey(GLFW.GLFW_KEY_KP_3), Constants.MOD_NAME), // Keyboard.KEY_NUMPAD3
 				illumination_place = new KeyBinding(Constants.MOD_ID + ".illumination.place", KeyConflictContext.IN_GAME, KeyModifier.NONE, getKey(GLFW.GLFW_KEY_V), Constants.MOD_NAME), // Keyboard.KEY_V
-				lumbination = new KeyBinding(Constants.MOD_ID + ".lumbination.enabled.desc", KeyConflictContext.IN_GAME, KeyModifier.NONE, getKey(GLFW.GLFW_KEY_KP_4), Constants.MOD_NAME), // Keyboard.KEY_NUMPAD4
-				shaftanation = new KeyBinding(Constants.MOD_ID + ".shaftanation.enabled.desc", KeyConflictContext.IN_GAME, KeyModifier.NONE, getKey(GLFW.GLFW_KEY_KP_5), Constants.MOD_NAME), // Keyboard.KEY_NUMPAD5
+				illumination_area = new KeyBinding(Constants.MOD_ID + ".illumination.area", KeyConflictContext.IN_GAME, KeyModifier.NONE, getKey(GLFW.GLFW_KEY_F12), Constants.MOD_NAME), // Keyboard.KEY_F12
+				lumbination = new KeyBinding(Constants.MOD_ID + ".lumbination.enabled.comment", KeyConflictContext.IN_GAME, KeyModifier.NONE, getKey(GLFW.GLFW_KEY_KP_4), Constants.MOD_NAME), // Keyboard.KEY_NUMPAD4
+				shaftanation = new KeyBinding(Constants.MOD_ID + ".shaftanation.enabled.comment", KeyConflictContext.IN_GAME, KeyModifier.NONE, getKey(GLFW.GLFW_KEY_KP_5), Constants.MOD_NAME), // Keyboard.KEY_NUMPAD5
 				shaftanation_toggle = new KeyBinding(Constants.MOD_ID + ".shaftanation.toggle", KeyConflictContext.IN_GAME, KeyModifier.NONE, getKey(GLFW.GLFW_KEY_LEFT_ALT), Constants.MOD_NAME), // Keyboard.KEY_LMENU
-				substitution = new KeyBinding(Constants.MOD_ID + ".substitution.enabled.desc", KeyConflictContext.IN_GAME, KeyModifier.NONE, getKey(GLFW.GLFW_KEY_KP_6), Constants.MOD_NAME), // Keyboard.KEY_NUMPAD6
-				veination = new KeyBinding(Constants.MOD_ID + ".veination.enabled.desc", KeyConflictContext.IN_GAME, KeyModifier.NONE, getKey(GLFW.GLFW_KEY_KP_7), Constants.MOD_NAME), // Keyboard.KEY_NUMPAD7
-				cropination = new KeyBinding(Constants.MOD_ID + ".cropination.enabled.desc", KeyConflictContext.IN_GAME, KeyModifier.NONE, getKey(GLFW.GLFW_KEY_KP_8), Constants.MOD_NAME), // Keyboard.KEY_NUMPAD8
+				substitution = new KeyBinding(Constants.MOD_ID + ".substitution.enabled.comment", KeyConflictContext.IN_GAME, KeyModifier.NONE, getKey(GLFW.GLFW_KEY_KP_6), Constants.MOD_NAME), // Keyboard.KEY_NUMPAD6
+				veination = new KeyBinding(Constants.MOD_ID + ".veination.enabled.comment", KeyConflictContext.IN_GAME, KeyModifier.NONE, getKey(GLFW.GLFW_KEY_KP_7), Constants.MOD_NAME), // Keyboard.KEY_NUMPAD7
+				cropination = new KeyBinding(Constants.MOD_ID + ".cropination.enabled.comment", KeyConflictContext.IN_GAME, KeyModifier.NONE, getKey(GLFW.GLFW_KEY_KP_8), Constants.MOD_NAME), // Keyboard.KEY_NUMPAD8
 				abortAgents = new KeyBinding(Constants.MOD_ID + ".abort.agents", KeyConflictContext.IN_GAME, KeyModifier.NONE, getKey(GLFW.GLFW_KEY_DELETE), Constants.MOD_NAME) // Keyboard.KEY_DELETE
 		);
 	}

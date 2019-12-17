@@ -91,7 +91,7 @@ public class ClientFunctions {
 	public static void syncCurrentPlayItem(int iSlotIndx) {
 		getPlayer().inventory.currentItem = iSlotIndx;
 		
-		// NetworkHandler.sendToServer(new CHeldItemChangePacket(iSlotIndx));
+		// MA.NETWORK.sendToServer(new CHeldItemChangePacket(iSlotIndx));
 		mc.playerController.tick();
 		
 		// Pause the current Thread to allow the server to catch up and realize that we

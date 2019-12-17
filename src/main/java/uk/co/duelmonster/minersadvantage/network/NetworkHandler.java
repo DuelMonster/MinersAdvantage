@@ -1,6 +1,8 @@
 package uk.co.duelmonster.minersadvantage.network;
 
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.NetworkRegistry;
@@ -20,111 +22,91 @@ import uk.co.duelmonster.minersadvantage.network.packets.PacketSupremeVantage;
 import uk.co.duelmonster.minersadvantage.network.packets.PacketSynchronization;
 import uk.co.duelmonster.minersadvantage.network.packets.PacketVeinate;
 
-public final class NetworkHandler {
+public class NetworkHandler {
 	
-	public static SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(Constants.CHANNEL_ID, () -> Constants.PROTOCOL_VERSION, v -> true, v -> true);
+	private final SimpleChannel CHANNEL = NetworkRegistry.ChannelBuilder
+			.named(Constants.CHANNEL_ID)
+			.clientAcceptedVersions(Constants.PROTOCOL_VERSION::equals)
+			.serverAcceptedVersions(Constants.PROTOCOL_VERSION::equals)
+			.networkProtocolVersion(() -> Constants.PROTOCOL_VERSION)
+			.simpleChannel();
 	
-	public static void init() {
+	public void registerPackets() {
 		int id = 0;
 		
-		CHANNEL.registerMessage(
-				id++,
+		CHANNEL.registerMessage(id++,
 				PacketAbortAgents.class,
 				PacketAbortAgents::encode,
 				PacketAbortAgents::decode,
 				PacketAbortAgents::handle);
 		
-		CHANNEL.registerMessage(
-				id++,
+		CHANNEL.registerMessage(id++,
 				PacketSynchronization.class,
 				PacketSynchronization::encode,
 				PacketSynchronization::decode,
 				PacketSynchronization::handle);
 		
-		CHANNEL.registerMessage(
-				id++,
+		CHANNEL.registerMessage(id++,
 				PacketSupremeVantage.class,
 				PacketSupremeVantage::encode,
 				PacketSupremeVantage::decode,
 				PacketSupremeVantage::handle);
 		
-		// CHANNEL.messageBuilder(PacketGiveItem.class, id++)
-		// .encoder(PacketGiveItem::encode)
-		// .decoder(PacketGiveItem::decode)
-		// .consumer(PacketGiveItem::handle)
-		// .add();
-		//
-		// CHANNEL.messageBuilder(PacketSetHotbarItem.class, id++)
-		// .encoder(PacketSetHotbarItem::encode)
-		// .decoder(PacketSetHotbarItem::decode)
-		// .consumer(PacketSetHotbarItem::handle)
-		// .add();
-		
-		CHANNEL.registerMessage(
-				id++,
+		CHANNEL.registerMessage(id++,
 				PacketCaptivate.class,
 				PacketCaptivate::encode,
 				PacketCaptivate::decode,
 				PacketCaptivate::handle);
 		
-		CHANNEL.registerMessage(
-				id++,
+		CHANNEL.registerMessage(id++,
 				PacketCropinate.class,
 				PacketCropinate::encode,
 				PacketCropinate::decode,
 				PacketCropinate::handle);
 		
-		CHANNEL.registerMessage(
-				id++,
+		CHANNEL.registerMessage(id++,
 				PacketCultivate.class,
 				PacketCultivate::encode,
 				PacketCultivate::decode,
 				PacketCultivate::handle);
 		
-		CHANNEL.registerMessage(
-				id++,
+		CHANNEL.registerMessage(id++,
 				PacketExcavate.class,
 				PacketExcavate::encode,
 				PacketExcavate::decode,
 				PacketExcavate::handle);
 		
-		CHANNEL.registerMessage(
-				id++,
+		CHANNEL.registerMessage(id++,
 				PacketIlluminate.class,
 				PacketIlluminate::encode,
 				PacketIlluminate::decode,
 				PacketIlluminate::handle);
 		
-		CHANNEL.registerMessage(
-				id++,
+		CHANNEL.registerMessage(id++,
 				PacketLumbinate.class,
 				PacketLumbinate::encode,
 				PacketLumbinate::decode,
 				PacketLumbinate::handle);
 		
-		CHANNEL.registerMessage(
-				id++,
+		CHANNEL.registerMessage(id++,
 				PacketPathanate.class,
 				PacketPathanate::encode,
 				PacketPathanate::decode,
 				PacketPathanate::handle);
 		
-		CHANNEL.registerMessage(
-				id++,
+		CHANNEL.registerMessage(id++,
 				PacketShaftanate.class,
 				PacketShaftanate::encode,
 				PacketShaftanate::decode,
 				PacketShaftanate::handle);
 		
-		CHANNEL.registerMessage(
-				id++,
+		CHANNEL.registerMessage(id++,
 				PacketSubstituteTool.class,
 				PacketSubstituteTool::encode,
 				PacketSubstituteTool::decode,
 				PacketSubstituteTool::handle);
 		
-		CHANNEL.registerMessage(
-				id++,
+		CHANNEL.registerMessage(id++,
 				PacketVeinate.class,
 				PacketVeinate::encode,
 				PacketVeinate::decode,
@@ -135,7 +117,8 @@ public final class NetworkHandler {
 	 * Sends a packet to the server.<br>
 	 * Must be called Client side.
 	 */
-	public static <MSG> void sendToServer(MSG msg) {
+	@OnlyIn(Dist.CLIENT)
+	public void sendToServer(Object msg) {
 		CHANNEL.sendToServer(msg);
 	}
 	
@@ -143,7 +126,7 @@ public final class NetworkHandler {
 	 * Send a packet to a specific player.<br>
 	 * Must be called Server side.
 	 */
-	public static <MSG> void sendTo(MSG msg, ServerPlayerEntity player) {
+	public void sendTo(ServerPlayerEntity player, Object msg) {
 		if (!(player instanceof FakePlayer)) {
 			CHANNEL.sendTo(msg, player.connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
 		}

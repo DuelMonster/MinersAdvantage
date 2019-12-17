@@ -1,39 +1,16 @@
 package uk.co.duelmonster.minersadvantage.config;
 
-import java.util.HashMap;
-import java.util.UUID;
-
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.ForgeConfigSpec.BooleanValue;
-import uk.co.duelmonster.minersadvantage.common.Constants;
-import uk.co.duelmonster.minersadvantage.common.JsonHelper;
 import uk.co.duelmonster.minersadvantage.config.defaults.MAConfig_Defaults;
 
 public class MAConfig_Server extends MAConfig_Base {
-
+	
 	// ====================================================================================================
 	// = Non-config transient variables
 	// = non-serialised because we don't want these being transfered during a settings sync.
 	// ====================================================================================================
-	private transient HashMap<UUID, MAConfig_Client> playerSettings = new HashMap<UUID, MAConfig_Client>();
-
-	public MAConfig_Client get() {
-		return get(Constants.instanceUID);
-	}
-	public MAConfig_Client get(UUID uid) {
-		if (playerSettings.isEmpty() || playerSettings.get(uid) == null)
-			return null;
-		
-		return playerSettings.get(uid);
-	}
 	
-	public MAConfig_Client set(UUID uid, MAConfig_Client settings) {
-		return playerSettings.put(uid, settings);
-	}
-	public MAConfig_Client set(UUID uid, String payload) {
-		return playerSettings.put(uid, JsonHelper.fromJson(payload, MAConfig_Client.class));
-	}
-
 	// ====================================================================================================
 	// = Config variables
 	// ====================================================================================================
@@ -56,11 +33,11 @@ public class MAConfig_Server extends MAConfig_Base {
 		super(builder);
 		
 		builder.comment("Server configuration for MinersAdvantage")
-				//.translation("minersadvantage.server.comment")
+				// .translation("minersadvantage.server.comment")
 				.push("server");
 		
 		overrideFeatureEnablement = builder
-				.comment("When enabled, the Server side enabled features will take precedence over the Client config.", 
+				.comment("When enabled, the Server side enabled features will take precedence over the Client config.",
 						"Meaning the MinersAdvantage features that are disabled within the Server config will be disabled for all Players regardless of their Client side configs.")
 				.translation("minersadvantage.server.override_client")
 				.define("override_client", MAConfig_Defaults.Server.overrideFeatureEnablement);
@@ -117,5 +94,5 @@ public class MAConfig_Server extends MAConfig_Base {
 		
 		builder.pop();
 	}
-
+	
 }

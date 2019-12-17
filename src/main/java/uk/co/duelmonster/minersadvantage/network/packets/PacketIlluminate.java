@@ -2,30 +2,54 @@ package uk.co.duelmonster.minersadvantage.network.packets;
 
 import java.util.function.Supplier;
 
-import net.minecraft.block.Blocks;
-import net.minecraft.block.WallTorchBlock;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Direction;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkEvent.Context;
-import uk.co.duelmonster.minersadvantage.common.Functions;
-import uk.co.duelmonster.minersadvantage.helpers.IlluminationHelper;
+import uk.co.duelmonster.minersadvantage.common.TorchPlacement;
 import uk.co.duelmonster.minersadvantage.network.packetids.PacketId;
+import uk.co.duelmonster.minersadvantage.workers.AgentProcessor;
+import uk.co.duelmonster.minersadvantage.workers.IlluminationAgent;
 
-public class PacketIlluminate extends BaseBlockPacket {
+public class PacketIlluminate implements IMAPacket {
 	
-	public PacketIlluminate(BlockPos _pos, Direction _faceHit) {
-		super(_pos, _faceHit);
+	public final BlockPos		areaStartPos;
+	public final BlockPos		areaEndPos;
+	public final Direction		faceHit;
+	public final boolean		singleTorch;
+	public final TorchPlacement	torchPlacement;
+	
+	public PacketIlluminate(BlockPos pos, Direction _faceHit) {
+		this.areaStartPos = pos;
+		this.areaEndPos = pos;
+		this.faceHit = _faceHit;
+		this.singleTorch = true;
+		this.torchPlacement = TorchPlacement.FLOOR;
+	}
+	
+	public PacketIlluminate(BlockPos areaStartPos, BlockPos areaEndPos, Direction _faceHit) {
+		this.areaStartPos = areaStartPos;
+		this.areaEndPos = areaEndPos;
+		this.faceHit = _faceHit;
+		this.singleTorch = false;
+		this.torchPlacement = TorchPlacement.FLOOR;
+	}
+	
+	public PacketIlluminate(BlockPos areaStartPos, BlockPos areaEndPos, TorchPlacement torchPlacement) {
+		this.areaStartPos = areaStartPos;
+		this.areaEndPos = areaEndPos;
+		this.faceHit = Direction.UP;
+		this.singleTorch = false;
+		this.torchPlacement = torchPlacement;
 	}
 	
 	public PacketIlluminate(PacketBuffer buf) {
-		super(buf);
+		this.areaStartPos = buf.readBlockPos();
+		this.areaEndPos = buf.readBlockPos();
+		this.faceHit = buf.readEnumValue(Direction.class);
+		this.singleTorch = buf.readBoolean();
+		this.torchPlacement = buf.readEnumValue(TorchPlacement.class);
 	}
 	
 	@Override
@@ -34,9 +58,11 @@ public class PacketIlluminate extends BaseBlockPacket {
 	}
 	
 	public static void encode(PacketIlluminate pkt, PacketBuffer buf) {
-		buf.writeBlockPos(pkt.pos);
+		buf.writeBlockPos(pkt.areaStartPos);
+		buf.writeBlockPos(pkt.areaEndPos);
 		buf.writeEnumValue(pkt.faceHit);
-		buf.writeInt(pkt.stateID);
+		buf.writeBoolean(pkt.singleTorch);
+		buf.writeEnumValue(pkt.torchPlacement);
 	}
 	
 	public static PacketIlluminate decode(PacketBuffer buf) {
@@ -47,33 +73,20 @@ public class PacketIlluminate extends BaseBlockPacket {
 		ctx.get().enqueueWork(() -> {
 			// Work that needs to be threadsafe (most work)
 			final ServerPlayerEntity player = ctx.get().getSender(); // the client that sent this packet
+			
 			// do stuff
-			final World world = player.getEntityWorld();
-			
-			IlluminationHelper.getTorchSlot(player);
-			
-			if (IlluminationHelper.torchIndx >= 0) {
-				IlluminationHelper.lastTorchLocation = new BlockPos(pkt.pos);
-				
-				if (pkt.faceHit == Direction.UP) {
-					world.setBlockState(pkt.pos, Blocks.TORCH.getDefaultState());
-				} else {
-					world.setBlockState(pkt.pos, Blocks.WALL_TORCH.getDefaultState().with(WallTorchBlock.HORIZONTAL_FACING, pkt.faceHit));
-				}
-				Functions.playSound(world, pkt.pos, SoundEvents.BLOCK_WOOD_HIT, SoundCategory.BLOCKS, 1.0F, world.rand.nextFloat() + 0.5F);
-				
-				ItemStack torchStack = player.inventory.decrStackSize(IlluminationHelper.torchIndx, 1);
-				
-				if (torchStack.getCount() <= 0) {
-					IlluminationHelper.lastTorchLocation = null;
-					IlluminationHelper.torchStackCount--;
-				}
-				
-				if (IlluminationHelper.torchStackCount == 0)
-					Functions.NotifyClient(player, TextFormatting.GOLD + "Illumination: " + TextFormatting.WHITE + Functions.localize("minersadvantage.illumination.no_torches"));
-			}
-			
+			process(player, pkt);
+		
 		});
 		ctx.get().setPacketHandled(true);
+	}
+	
+	public static void process(ServerPlayerEntity player, final PacketIlluminate pkt) {
+		player.getServer().deferTask(new Runnable() {
+			@Override
+			public void run() {
+				AgentProcessor.INSTANCE.startProcessing(player, new IlluminationAgent(player, pkt));
+			}
+		});
 	}
 }

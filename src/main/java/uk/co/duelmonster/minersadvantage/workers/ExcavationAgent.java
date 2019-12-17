@@ -15,7 +15,6 @@ import net.minecraftforge.common.Tags;
 import uk.co.duelmonster.minersadvantage.common.Constants;
 import uk.co.duelmonster.minersadvantage.common.Functions;
 import uk.co.duelmonster.minersadvantage.common.Variables;
-import uk.co.duelmonster.minersadvantage.config.MAConfig;
 import uk.co.duelmonster.minersadvantage.helpers.BreakBlockController;
 import uk.co.duelmonster.minersadvantage.network.packetids.PacketId;
 import uk.co.duelmonster.minersadvantage.network.packets.BaseBlockPacket;
@@ -36,14 +35,15 @@ public class ExcavationAgent extends Agent {
 		
 		this.originBlock = originState.getBlock();
 		
-		this.bIsSingleLayerToggled = Variables.get(player.getUniqueID()).IsSingleLayerToggled;
+		this.bIsSingleLayerToggled = (pkt.getPacketId() != PacketId.Veinate && Variables.get(player.getUniqueID()).IsSingleLayerToggled);
 		
-		this.shouldAutoIlluminate = MAConfig.CLIENT.common.autoIlluminate();
+		this.shouldAutoIlluminate = (pkt.getPacketId() != PacketId.Veinate && clientConfig.common.autoIlluminate);
 		
 		setupHarvestArea();
 		
 		if (this.bIsSingleLayerToggled) {
-			harvestArea = new AxisAlignedBB(harvestArea.minX, originPos.getY(), harvestArea.minZ,
+			harvestArea = new AxisAlignedBB(
+					harvestArea.minX, originPos.getY(), harvestArea.minZ,
 					harvestArea.maxX, originPos.getY(), harvestArea.maxZ);
 		}
 		
@@ -53,16 +53,16 @@ public class ExcavationAgent extends Agent {
 	// Returns true when Excavation is complete or cancelled
 	@Override
 	public boolean tick() {
-		if (originPos == null || player == null || !player.isAlive() || processed.size() >= MAConfig.CLIENT.common.blockLimit())
+		if (originPos == null || player == null || !player.isAlive() || processed.size() >= clientConfig.common.blockLimit)
 			return true;
 		
 		boolean bIsComplete = false;
 		
 		for (int iQueueCount = 0; queued.size() > 0; iQueueCount++) {
-			if ((MAConfig.CLIENT.common.breakAtToolSpeeds() && iQueueCount > 0)
-					|| iQueueCount >= MAConfig.CLIENT.common.blocksPerTick()
-					|| processed.size() >= MAConfig.CLIENT.common.blockLimit()
-					|| (!MAConfig.CLIENT.common.breakAtToolSpeeds() && MAConfig.CLIENT.common.tpsGuard() && timer.elapsed(TimeUnit.MILLISECONDS) > 40))
+			if ((clientConfig.common.breakAtToolSpeeds && iQueueCount > 0)
+					|| iQueueCount >= clientConfig.common.blocksPerTick
+					|| processed.size() >= clientConfig.common.blockLimit
+					|| (!clientConfig.common.breakAtToolSpeeds && clientConfig.common.tpsGuard && timer.elapsed(TimeUnit.MILLISECONDS) > 40))
 				break;
 			
 			if (Functions.IsPlayerStarving(player)) {
@@ -74,8 +74,8 @@ public class ExcavationAgent extends Agent {
 			if (oPos == null)
 				continue;
 			
-			BlockState	state	= world.getBlockState(oPos);
-			Block		block	= state.getBlock();
+			BlockState state = world.getBlockState(oPos);
+			Block block = state.getBlock();
 			
 			if (!fakePlayer().canHarvestBlock(state)) {
 				// Avoid the non-harvestable blocks.
@@ -84,19 +84,19 @@ public class ExcavationAgent extends Agent {
 			}
 			
 			// Process the current block if it is valid.
-			if (packetId != PacketId.Veinate && MAConfig.CLIENT.common.mineVeins() && state.isIn(Tags.Blocks.ORES)) {
+			if (packetId != PacketId.Veinate && clientConfig.common.mineVeins && state.isIn(Tags.Blocks.ORES)) {
 				
 				processed.add(oPos);
 				excavateOreVein(state, oPos);
 				
-			} else if (block == originBlock || MAConfig.CLIENT.excavation.ignoreBlockVariants()) {
+			} else if (block == originBlock || clientConfig.excavation.ignoreBlockVariants) {
 				
 				world.captureBlockSnapshots = true;
 				world.capturedBlockSnapshots.clear();
 				
 				boolean bBlockHarvested = false;
 				
-				if (MAConfig.CLIENT.common.breakAtToolSpeeds()) {
+				if (clientConfig.common.breakAtToolSpeeds) {
 					this.breakController = new BreakBlockController(fakePlayer());
 					
 					breakController.onPlayerDamageBlock(oPos, faceHit);
@@ -114,9 +114,6 @@ public class ExcavationAgent extends Agent {
 					
 					addConnectedToQueue(oPos);
 					
-					// MOVED to [AgentProcessor] agent completion
-					// autoIlluminate(oPos);
-					
 					processed.add(oPos);
 				}
 			}
@@ -127,33 +124,33 @@ public class ExcavationAgent extends Agent {
 	
 	@Override
 	public void addConnectedToQueue(BlockPos oPos) {
-		int	xStart	= -1, yStart = -1, zStart = -1;
-		int	xEnd	= 1, yEnd = 1, zEnd = 1;
+		int xStart = -1, yStart = -1, zStart = -1;
+		int xEnd = 1, yEnd = 1, zEnd = 1;
 		
 		if (packetId == PacketId.Excavate && (oPos.getX() == originPos.getX() || oPos.getY() == originPos.getY() || oPos.getZ() == originPos.getZ()))
 			switch (faceHit.getOpposite()) {
 			case SOUTH: // Positive Z
-			zStart = 0;
-			break;
+				zStart = 0;
+				break;
 			case NORTH: // Negative Z
-			zEnd = 0;
-			break;
+				zEnd = 0;
+				break;
 			case EAST: // Positive X
-			xStart = 0;
-			break;
+				xStart = 0;
+				break;
 			case WEST: // Negative X
-			xEnd = 0;
-			break;
+				xEnd = 0;
+				break;
 			case UP: // Positive Y
-			yStart = 0;
-			break;
+				yStart = 0;
+				break;
 			case DOWN: // Negative Y
-			yEnd = 0;
-			break;
+				yEnd = 0;
+				break;
 			default:
-			break;
+				break;
 			}
-			
+		
 		if (bIsSingleLayerToggled) {
 			yStart = 0;
 			yEnd = 0;
@@ -172,8 +169,8 @@ public class ExcavationAgent extends Agent {
 		if (fakePlayer().canHarvestBlock(state)) {
 			Block block = state.getBlock();
 			
-			if ((MAConfig.CLIENT.common.mineVeins() && state.isIn(Tags.Blocks.ORES))
-					|| (block == originBlock || MAConfig.CLIENT.excavation.ignoreBlockVariants())) {
+			if ((clientConfig.common.mineVeins && state.isIn(Tags.Blocks.ORES))
+					|| (block == originBlock || clientConfig.excavation.ignoreBlockVariants)) {
 				super.addToQueue(oPos);
 			}
 		}

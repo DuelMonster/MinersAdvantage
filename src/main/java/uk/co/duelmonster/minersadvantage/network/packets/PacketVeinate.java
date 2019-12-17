@@ -42,14 +42,18 @@ public class PacketVeinate extends BaseBlockPacket {
 			ServerPlayerEntity player = ctx.get().getSender(); // the client that sent this packet
 			
 			// do stuff
-			player.getServer().deferTask(new Runnable() {
-				@Override
-				public void run() {
-					AgentProcessor.INSTANCE.startProcessing(player, new ExcavationAgent(player, pkt));
-				}
-			});
+			process(player, pkt);
 		
 		});
 		ctx.get().setPacketHandled(true);
+	}
+	
+	public static void process(ServerPlayerEntity player, final PacketVeinate pkt) {
+		player.getServer().deferTask(new Runnable() {
+			@Override
+			public void run() {
+				AgentProcessor.INSTANCE.startProcessing(player, new ExcavationAgent(player, pkt));
+			}
+		});
 	}
 }

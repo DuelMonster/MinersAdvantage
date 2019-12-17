@@ -52,7 +52,7 @@ public class Constants {
 			catch (SecurityException e) {
 				throw new RuntimeException("Could not create config directory " + _configFolder, e);
 			}
-			
+		
 		return _configFolder;
 	}
 	
@@ -66,7 +66,7 @@ public class Constants {
 	public static final int majorVersion = 1;
 	// This number is incremented every minecraft release, never reset
 	public static final int minorVersion = 4;
-	// This number is incremented every time new features are added, never reset
+	// This number is incremented every time new features are added, reset when minorVersion incremented
 	public static final int revisionVersion = 1;
 	// This number is incremented every time a release is built, and never reset
 	public static final int buildVersion = 0;

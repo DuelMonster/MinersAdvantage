@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.ConcurrentModificationException;
 import java.util.List;
+import java.util.UUID;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ExperienceOrbEntity;
@@ -13,7 +14,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import uk.co.duelmonster.minersadvantage.common.Constants;
 import uk.co.duelmonster.minersadvantage.common.Functions;
-import uk.co.duelmonster.minersadvantage.config.MAConfig;
+import uk.co.duelmonster.minersadvantage.config.MAConfig_Client;
+import uk.co.duelmonster.minersadvantage.config.SyncedClientConfig;
 
 public class DropsSpawner {
 	
@@ -47,9 +49,11 @@ public class DropsSpawner {
 		return null;
 	}
 	
-	public static void spawnDrops(World world, BlockPos spawnPos) {
+	public static void spawnDrops(UUID playerUID, World world, BlockPos spawnPos) {
 		if (spawnPos != null)
 			try {
+				SyncedClientConfig clientConfig = MAConfig_Client.getPlayerConfig(playerUID);
+				
 				while (!recordedDrops.isEmpty()) {
 					List<Entity> dropsClone = new ArrayList<Entity>(recordedDrops);
 					recordedDrops.clear();
@@ -58,7 +62,7 @@ public class DropsSpawner {
 					for (Entity entity : dropsClone) {
 						if (entity != null && entity instanceof ItemEntity) {
 							
-							if (MAConfig.CLIENT.common.gatherDrops() && spawnPos != null)
+							if (clientConfig.common.gatherDrops && spawnPos != null)
 								entity = new ItemEntity(world, spawnPos.getX() + 0.5D, spawnPos.getY() + 0.5D, spawnPos.getZ() + 0.5D, ((ItemEntity) entity).getItem());
 							
 							world.addEntity(entity);

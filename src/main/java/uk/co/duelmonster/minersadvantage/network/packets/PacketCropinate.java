@@ -41,14 +41,18 @@ public class PacketCropinate implements IMAPacket {
 			ServerPlayerEntity player = ctx.get().getSender(); // the client that sent this packet
 			
 			// do stuff
-			player.getServer().deferTask(new Runnable() {
-				@Override
-				public void run() {
-					AgentProcessor.INSTANCE.startProcessing(player, new CropinationAgent(player, pkt));
-				}
-			});
+			process(player, pkt);
 		
 		});
 		ctx.get().setPacketHandled(true);
+	}
+	
+	public static void process(ServerPlayerEntity player, final PacketCropinate pkt) {
+		player.getServer().deferTask(new Runnable() {
+			@Override
+			public void run() {
+				AgentProcessor.INSTANCE.startProcessing(player, new CropinationAgent(player, pkt));
+			}
+		});
 	}
 }

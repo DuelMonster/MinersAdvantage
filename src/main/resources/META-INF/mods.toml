@@ -9,7 +9,7 @@ displayName="MinersAdvantage" #mandatory
 # updateJSONURL="" #optional
 # displayURL="" #optional
 # A file name (in the root of the mod JAR) containing a logo for display
-logoFile="examplemod.png" #optional
+logoFile="MinersAdvantage_Logo.png" #optional
 credits="Thanks for downloading" #optional
 authors="DuelMonster" #optional
 description='''
