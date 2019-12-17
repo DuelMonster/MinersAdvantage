@@ -10,19 +10,19 @@ buildscript {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
     }
 }
-// Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
-apply plugin: 'eclipse'
-apply plugin: 'maven-publish'
-
 plugins {
 	id 'com.matthewprenger.cursegradle' version '1.4.0'
 }
 
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'eclipse'
+apply plugin: 'maven-publish'
+// Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
+
 //======================================================================================================\\
 
 group = 'uk.co.DuelMonster.MinersAdvantage' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-modName = 'MinersAdvantage'
-archivesBaseName = '$modName'
+archivesBaseName = 'MinersAdvantage'
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 
@@ -34,9 +34,9 @@ minecraft {
     // stable_#            Stables are built at the discretion of the MCP team.
     // Use non-default mappings at your own risk. they may not always work.
     // Simply re-run your setup task after changing the mappings to update your workspace.
-    mappings channel: 'snapshot', version: '20191127-1.14.3'
-    
-    makeObfSourceJar = false // an Srg named sources jar is made by default. disabled because we do this ourselves.
+    mappings channel: 'snapshot', version: '20191217-1.14.3'
+	
+    // makeObfSourceJar = false // an Srg named sources jar is made by default. disabled because we do this ourselves.
     
     // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
@@ -83,7 +83,7 @@ dependencies {
     // Specify the version of Minecraft to use, If this is any group other then 'net.minecraft' it is assumed
     // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
-    minecraft 'net.minecraftforge:forge:1.14.4-28.1.90'
+    minecraft 'net.minecraftforge:forge:1.15.1-30.0.0'
 }
 
 //======================================================================================================\\
@@ -92,6 +92,7 @@ def mod_major
 def mod_minor
 def mod_revision
 def mod_build
+def mcversion = '1.15.1'
 
 def versionPropsFile = file('version.properties')
 def Properties versionProps = new Properties()
@@ -114,7 +115,7 @@ version = "$mod_major.$mod_minor.$mod_revision.$mod_build"
 //======================================================================================================\\
 
 println "===================================================================================================="
-println "  Building $modName Version = ${minecraft.version}-$version"
+println "  Building $archivesBaseName Version = ${mcversion}-$version"
 println "===================================================================================================="
 
 //======================================================================================================\\
@@ -122,12 +123,12 @@ println "=======================================================================
 processResources {
     // this will ensure that this task is redone when the versions change.
     inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
+    inputs.property "mcversion", mcversion
 
     // replace stuff in mcmod.info, nothing else
     from(sourceSets.main.resources.srcDirs) {
         include 'mcmod.info'
-        expand 'version':project.version, 'mcversion':project.minecraft.version
+        expand 'version': project.version, 'mcversion': mcversion
     }
         
     // copy everything else except the mcmod.info
@@ -138,7 +139,7 @@ processResources {
 
 //======================================================================================================\\
 
-version = "${minecraft.version}-$mod_major.$mod_minor.$mod_revision.$mod_build"
+version = "${mcversion}-$mod_major.$mod_minor.$mod_revision.$mod_build"
 
 task srcJar(type: Jar) {
 	from sourceSets.main.java
@@ -158,12 +159,12 @@ artifacts {
 jar {
     manifest {
         attributes([
-            "Specification-Title": "${modName}",
-            "Specification-Vendor": "${modName}",
+            "Specification-Title": "${archivesBaseName}",
+            "Specification-Vendor": "${archivesBaseName}",
             "Specification-Version": "1", // We are version 1 of ourselves
             "Implementation-Title": project.name,
             "Implementation-Version": "${version}",
-            "Implementation-Vendor" :"${modName}",
+            "Implementation-Vendor" :"${archivesBaseName}",
             "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
     }
@@ -235,7 +236,7 @@ if (curseForgeApiKey != '') {
 
 			releaseType = 'release'
 
-			addGameVersion minecraft.version
+			addGameVersion mcversion
 
 			mainArtifact jar
 			addArtifact  srcJar
