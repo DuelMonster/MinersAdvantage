@@ -1,3 +1,3 @@
 @echo off
-Call gradlew genEclipseRuns
-Call gradlew eclipse
+cls
+Call gradlew genEclipseRuns eclipse
