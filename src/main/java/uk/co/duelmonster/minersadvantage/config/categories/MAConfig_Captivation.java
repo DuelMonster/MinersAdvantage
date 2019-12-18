@@ -19,7 +19,7 @@ public class MAConfig_Captivation extends MAConfig_BaseCategory {
 	private final DoubleValue radiusVertical;
 	private final BooleanValue isWhitelist;
 	private final BooleanValue unconditionalBlacklist;
-	private final ConfigValue<List<String>> blacklist;
+	private final ConfigValue<List<? extends String>>	blacklist;
 
 	// ====================================================================================================
 	// = Initialisation
@@ -59,7 +59,7 @@ public class MAConfig_Captivation extends MAConfig_BaseCategory {
 		blacklist = builder
 				.comment("List of blacklisted Item IDs.")
 				.translation("minersadvantage.captivation.blacklist")
-				.define("blacklist", MAConfig_Defaults.Captivation.blacklist);
+				.defineList("blacklist", MAConfig_Defaults.Captivation.blacklist, obj -> obj instanceof String);
 
 	}
 
@@ -80,7 +80,9 @@ public class MAConfig_Captivation extends MAConfig_BaseCategory {
 	/**
 	 * @param allowInGUI Sets allowInGUI
 	 */
-	public void setAllowInGUI(boolean value) { allowInGUI.set(value); }
+	public void setAllowInGUI(boolean value) {
+		allowInGUI.set(value);
+	}
 
 	/**
 	 * @return radiusHorizontal
@@ -95,7 +97,9 @@ public class MAConfig_Captivation extends MAConfig_BaseCategory {
 	/**
 	 * @param radiusHorizontal Sets radiusHorizontal
 	 */
-	public void setRadiusHorizontal(double value) { radiusHorizontal.set(value); }
+	public void setRadiusHorizontal(double value) {
+		radiusHorizontal.set(value);
+	}
 
 	/**
 	 * @return radiusVertical
@@ -110,7 +114,9 @@ public class MAConfig_Captivation extends MAConfig_BaseCategory {
 	/**
 	 * @param radiusVertical Sets radiusVertical
 	 */
-	public void setRadiusVertical(double value) { radiusVertical.set(value); }
+	public void setRadiusVertical(double value) {
+		radiusVertical.set(value);
+	}
 
 	/**
 	 * @return isWhitelist
@@ -125,7 +131,9 @@ public class MAConfig_Captivation extends MAConfig_BaseCategory {
 	/**
 	 * @param isWhitelist Sets isWhitelist
 	 */
-	public void setIsWhitelist(boolean value) { isWhitelist.set(value); }
+	public void setIsWhitelist(boolean value) {
+		isWhitelist.set(value);
+	}
 
 	/**
 	 * @return unconditionalBlacklist
@@ -140,12 +148,14 @@ public class MAConfig_Captivation extends MAConfig_BaseCategory {
 	/**
 	 * @param unconditionalBlacklist Sets unconditionalBlacklist
 	 */
-	public void setUnconditionalBlacklist(boolean value) { unconditionalBlacklist.set(value); }
+	public void setUnconditionalBlacklist(boolean value) {
+		unconditionalBlacklist.set(value);
+	}
 
 	/**
 	 * @return blacklist
 	 */
-	public List<String> blacklist() {
+	public List<? extends String> blacklist() {
 		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceCaptivationSettings.get())
 			return parentConfig.serverOverrides.captivation.blacklist();
 
@@ -155,6 +165,8 @@ public class MAConfig_Captivation extends MAConfig_BaseCategory {
 	/**
 	 * @param blacklist Sets blacklist
 	 */
-	public void setBlacklist(List<String> value) { blacklist.set(value); }
+	public void setBlacklist(List<? extends String> value) {
+		blacklist.set(value);
+	}
 
 }

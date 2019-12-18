@@ -28,6 +28,7 @@ sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = co
 
 //======================================================================================================\\
 
+def mcversion = '1.14.4'
 minecraft {
     // The mappings can be changed at any time, and must be in the following format.
     // snapshot_YYYYMMDD   Snapshot are built nightly.
@@ -44,7 +45,7 @@ minecraft {
     // These can be tweaked, removed, or duplicated as needed.
     runs {
         client {
-            workingDirectory project.file('../Test_Client')
+            workingDirectory project.file('../Test_Client_' + mcversion)
 
             // Recommended logging data for a userdev environment
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
@@ -60,7 +61,7 @@ minecraft {
         }
 
         server {
-            workingDirectory project.file('../Test_Server')
+            workingDirectory project.file('../Test_Server_' + mcversion)
 
             // Recommended logging data for a userdev environment
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
@@ -83,7 +84,7 @@ dependencies {
     // Specify the version of Minecraft to use, If this is any group other then 'net.minecraft' it is assumed
     // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
-    minecraft 'net.minecraftforge:forge:1.15.1-30.0.0'
+    minecraft 'net.minecraftforge:forge:1.15.1-30.0.7'
 }
 
 //======================================================================================================\\
@@ -92,7 +93,6 @@ def mod_major
 def mod_minor
 def mod_revision
 def mod_build
-def mcversion = '1.15.1'
 
 def versionPropsFile = file('version.properties')
 def Properties versionProps = new Properties()
@@ -188,6 +188,7 @@ task updateRevisionNumber << {
 //======================================================================================================\\
 
 task release(type: Copy) {
+	dependsOn updateRevisionNumber
 	dependsOn updateBuildNumber
 
 	from('build/libs') { include '*.jar' }
@@ -222,7 +223,6 @@ if (userGradleScript.exists()) {
 
 tasks.curseforge.onlyIf { curseForgeApiKey }
 tasks.curseforge.dependsOn release
-tasks.curseforge.finalizedBy updateRevisionNumber
 
 if (curseForgeApiKey != '') {
 	curseforge {

@@ -16,7 +16,7 @@ public class MAConfig_Excavation extends MAConfig_BaseCategory {
 	private final BooleanValue				toggleMode;
 	private final BooleanValue				ignoreBlockVariants;
 	private final BooleanValue				isBlockWhitelist;
-	private final ConfigValue<List<String>>	blockBlacklist;
+	private final ConfigValue<List<? extends String>>	blockBlacklist;
 	
 	// ====================================================================================================
 	// = Initialisation
@@ -47,7 +47,7 @@ public class MAConfig_Excavation extends MAConfig_BaseCategory {
 		blockBlacklist = builder
 				.comment("List of blacklisted Block IDs. Default is empty.")
 				.translation("minersadvantage.excavation.block_blacklist")
-				.define("block_blacklist", MAConfig_Defaults.Excavation.blockBlacklist);
+				.defineList("block_blacklist", MAConfig_Defaults.Excavation.blockBlacklist, obj -> obj instanceof String);
 	}
 	
 	// ====================================================================================================
@@ -111,7 +111,7 @@ public class MAConfig_Excavation extends MAConfig_BaseCategory {
 	/**
 	 * @return blockBlacklist
 	 */
-	public List<String> blockBlacklist() {
+	public List<? extends String> blockBlacklist() {
 		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceExcavationSettings.get())
 			return parentConfig.serverOverrides.excavation.blockBlacklist();
 		

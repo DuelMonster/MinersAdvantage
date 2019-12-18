@@ -63,21 +63,7 @@ public class Constants {
 	public static final String	MOD_NAME_MSG	= TextFormatting.DARK_PURPLE + "[" + Constants.MOD_NAME + "] ";
 	
 	// This number is incremented every time we remove deprecated code or make major changes, never reset
-	public static final int majorVersion = 1;
-	// This number is incremented every minecraft release, never reset
-	public static final int minorVersion = 4;
-	// This number is incremented every time new features are added, reset when minorVersion incremented
-	public static final int revisionVersion = 1;
-	// This number is incremented every time a release is built, and never reset
-	public static final int buildVersion = 0;
-	
-	// This is the full version number of our mod
-	public static final String MOD_VERSION = majorVersion + "." + minorVersion + "." + revisionVersion + "." + buildVersion;
-	
-	// This is the minecraft version we're building for
-	public static final String MC_VERSION = "1.14.4";
-	
-	public static final String				PROTOCOL_VERSION	= majorVersion + "." + minorVersion + "." + revisionVersion;
+	public static final String				PROTOCOL_VERSION	= "1.5";
 	public static final ResourceLocation	CHANNEL_ID			= new ResourceLocation(Constants.MOD_ID, "main_channel");
 	
 	public static final String	FVC_URL		= "http://duelmonster.000webhostapp.com/Minecraft/MinersAdvantage/forge_update.json";

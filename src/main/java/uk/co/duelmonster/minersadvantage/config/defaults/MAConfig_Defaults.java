@@ -76,8 +76,6 @@ public class MAConfig_Defaults {
 		public static final boolean			enabled				= true;
 		public static final boolean			toggleMode			= false;
 		public static final boolean			ignoreBlockVariants	= false;
-		public static final boolean			isToolWhitelist		= false;
-		public static final List<String>	toolBlacklist		= Collections.emptyList();
 		public static final boolean			isBlockWhitelist	= false;
 		public static final List<String>	blockBlacklist		= Collections.emptyList();
 		
@@ -133,7 +131,7 @@ public class MAConfig_Defaults {
 		public static final boolean			favourFortune		= true;
 		public static final boolean			ignoreIfValidTool	= true;
 		public static final boolean			ignorePassiveMobs	= true;
-		public static final List<String>	blacklist		= Collections.emptyList();
+		public static final List<String>	blacklist			= Collections.emptyList();
 		
 	}
 	
