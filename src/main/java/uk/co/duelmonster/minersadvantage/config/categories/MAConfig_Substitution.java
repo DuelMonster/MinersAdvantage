@@ -13,12 +13,12 @@ public class MAConfig_Substitution extends MAConfig_BaseCategory {
 	// = Config variables - !! NOT TO BE USED DIRECTLY !!
 	// = Use the retrieval and modification functions below at all times!
 	// ====================================================================================================
-	private final BooleanValue				switchBack;
-	private final BooleanValue				favourSilkTouch;
-	private final BooleanValue				favourFortune;
-	private final BooleanValue				ignoreIfValidTool;
-	private final BooleanValue				ignorePassiveMobs;
-	private final ConfigValue<List<String>>	blacklist;
+	private final BooleanValue							switchBack;
+	private final BooleanValue							favourSilkTouch;
+	private final BooleanValue							favourFortune;
+	private final BooleanValue							ignoreIfValidTool;
+	private final BooleanValue							ignorePassiveMobs;
+	private final ConfigValue<List<? extends String>>	blacklist;
 	
 	// ====================================================================================================
 	// = Initialisation
@@ -58,7 +58,7 @@ public class MAConfig_Substitution extends MAConfig_BaseCategory {
 		blacklist = builder
 				.comment("List of blacklisted Tool IDs. Default is empty.")
 				.translation("minersadvantage.substitution.blacklist")
-				.define("blacklist", MAConfig_Defaults.Substitution.blacklist);
+				.defineList("blacklist", MAConfig_Defaults.Substitution.blacklist, obj -> obj instanceof String);
 	}
 	
 	// ====================================================================================================
@@ -153,7 +153,7 @@ public class MAConfig_Substitution extends MAConfig_BaseCategory {
 	/**
 	 * @return toolBlacklist
 	 */
-	public List<String> blacklist() {
+	public List<? extends String> blacklist() {
 		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceSubstitutionSettings.get())
 			return parentConfig.serverOverrides.substitution.blacklist();
 		
@@ -163,7 +163,7 @@ public class MAConfig_Substitution extends MAConfig_BaseCategory {
 	/**
 	 * @param _toolBlacklist Sets toolBlacklist
 	 */
-	public void setToolBlacklist(List<String> value) {
+	public void setToolBlacklist(List<? extends String> value) {
 		blacklist.set(value);
 	}
 	

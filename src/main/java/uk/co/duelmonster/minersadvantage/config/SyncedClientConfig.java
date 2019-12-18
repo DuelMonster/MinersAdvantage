@@ -153,13 +153,13 @@ public class SyncedClientConfig {
 	
 	public class Captivation {
 		
-		public boolean		enabled;
-		public boolean		allowInGUI;
-		public double		radiusHorizontal;
-		public double		radiusVertical;
-		public boolean		isWhitelist;
-		public boolean		unconditionalBlacklist;
-		public List<String>	blacklist;
+		public boolean					enabled;
+		public boolean					allowInGUI;
+		public double					radiusHorizontal;
+		public double					radiusVertical;
+		public boolean					isWhitelist;
+		public boolean					unconditionalBlacklist;
+		public List<? extends String>	blacklist;
 		
 	}
 	
@@ -172,11 +172,11 @@ public class SyncedClientConfig {
 	
 	public class Excavation {
 		
-		public boolean		enabled;
-		public boolean		toggleMode;
-		public boolean		ignoreBlockVariants;
-		public boolean		isBlockWhitelist;
-		public List<String>	blockBlacklist;
+		public boolean					enabled;
+		public boolean					toggleMode;
+		public boolean					ignoreBlockVariants;
+		public boolean					isBlockWhitelist;
+		public List<? extends String>	blockBlacklist;
 		
 		// ====================================================================================================
 		// = Config utility functions
@@ -211,17 +211,17 @@ public class SyncedClientConfig {
 	
 	public class Lumbination {
 		
-		public boolean		enabled;
-		public boolean		chopTreeBelow;
-		public boolean		destroyLeaves;
-		public boolean		leavesAffectDurability;
-		public boolean		replantSaplings;
-		public boolean		useShearsOnLeaves;
-		public int			leafRange;
-		public int			trunkRange;
-		public List<String>	logs;
-		public List<String>	leaves;
-		public List<String>	axes;
+		public boolean					enabled;
+		public boolean					chopTreeBelow;
+		public boolean					destroyLeaves;
+		public boolean					leavesAffectDurability;
+		public boolean					replantSaplings;
+		public boolean					useShearsOnLeaves;
+		public int						leafRange;
+		public int						trunkRange;
+		public List<? extends String>	logs;
+		public List<? extends String>	leaves;
+		public List<? extends String>	axes;
 		
 	}
 	
@@ -237,20 +237,20 @@ public class SyncedClientConfig {
 	
 	public class Substitution {
 		
-		public boolean		enabled;
-		public boolean		switchBack;
-		public boolean		favourSilkTouch;
-		public boolean		favourFortune;
-		public boolean		ignoreIfValidTool;
-		public boolean		ignorePassiveMobs;
-		public List<String>	blacklist;
+		public boolean					enabled;
+		public boolean					switchBack;
+		public boolean					favourSilkTouch;
+		public boolean					favourFortune;
+		public boolean					ignoreIfValidTool;
+		public boolean					ignorePassiveMobs;
+		public List<? extends String>	blacklist;
 		
 	}
 	
 	public class Veination {
 		
-		public boolean		enabled;
-		public List<String>	ores;
+		public boolean					enabled;
+		public List<? extends String>	ores;
 		
 	}
 }
