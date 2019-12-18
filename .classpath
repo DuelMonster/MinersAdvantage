@@ -31,7 +31,7 @@
 	</classpathentry>
 	<classpathentry kind="output" path="bin/default"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8/"/>
-	<classpathentry sourcepath="C:/Users/Andrew.Webber/.gradle/caches/forge_gradle/minecraft_user_repo/net/minecraftforge/forge/1.15.1-30.0.7_mapped_snapshot_20191217-1.14.3/forge-1.15.1-30.0.7_mapped_snapshot_20191217-1.14.3-sources.jar" kind="lib" path="C:/Users/Andrew.Webber/.gradle/caches/forge_gradle/minecraft_user_repo/net/minecraftforge/forge/1.15.1-30.0.7_mapped_snapshot_20191217-1.14.3/forge-1.15.1-30.0.7_mapped_snapshot_20191217-1.14.3.jar">
+	<classpathentry sourcepath="C:/Users/Andrew.Webber/.gradle/caches/forge_gradle/minecraft_user_repo/net/minecraftforge/forge/1.15.1-30.0.7_mapped_snapshot_20191217-1.14.3/forge-1.15.1-30.0.7_mapped_snapshot_20191217-1.14.3-sources.jar" kind="lib" path="C:/Users/Andrew.Webber/.gradle/caches/forge_gradle/minecraft_user_repo/net/minecraftforge/forge/1.15.1-30.0.7_mapped_snapshot_20191217-1.14.3/forge-1.15.1-30.0.7_mapped_snapshot_20191217-1.14.3-recomp.jar">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>

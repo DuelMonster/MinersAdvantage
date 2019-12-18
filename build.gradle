@@ -28,7 +28,7 @@ sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = co
 
 //======================================================================================================\\
 
-def mcversion = '1.14.4'
+def mcversion = '1.15.1'
 minecraft {
     // The mappings can be changed at any time, and must be in the following format.
     // snapshot_YYYYMMDD   Snapshot are built nightly.
