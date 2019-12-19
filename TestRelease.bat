@@ -1,3 +1,3 @@
 @echo off
 cls
-Call gradlew clean release
+Call gradlew clean APIKeyTest release
