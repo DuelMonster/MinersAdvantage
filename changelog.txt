@@ -1,4 +1,4 @@
-Build: 1.14.4-1.4.3
+Build: 1.14.4-1.4.3.252
 	fix: config list values cleared on startup #36
 	feature: reimplement ignoreIfValidTool
 	feature: add blacklist option to Substitution
