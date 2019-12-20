@@ -14,7 +14,6 @@ import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
@@ -30,6 +29,7 @@ import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import uk.co.duelmonster.minersadvantage.common.Constants;
 import uk.co.duelmonster.minersadvantage.common.Functions;
 import uk.co.duelmonster.minersadvantage.common.Variables;
 import uk.co.duelmonster.minersadvantage.config.MAConfig_Client;
@@ -205,7 +205,7 @@ public class ServerEventHandler {
 		BlockPos pos = event.getContext().getPos();
 		Block block = world.getBlockState(pos).getBlock();
 		
-		if (world.getBlockState(pos).isIn(BlockTags.DIRT_LIKE)) {
+		if (Constants.DIRT_BLOCKS.contains(block)) {
 			
 			PacketCultivate.process(player, new PacketCultivate(pos));
 			

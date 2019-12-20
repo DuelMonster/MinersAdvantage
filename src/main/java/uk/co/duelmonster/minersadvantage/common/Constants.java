@@ -8,6 +8,8 @@ import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -124,4 +126,12 @@ public class Constants {
 		RANKING_DEFAULT.add(Ranking.NONE);
 	};
 	
+	public static final List<Block> DIRT_BLOCKS = new LinkedList<Block>();
+	{
+		DIRT_BLOCKS.add(Blocks.DIRT);
+		DIRT_BLOCKS.add(Blocks.GRASS_BLOCK);
+		DIRT_BLOCKS.add(Blocks.PODZOL);
+		DIRT_BLOCKS.add(Blocks.COARSE_DIRT);
+		DIRT_BLOCKS.add(Blocks.MYCELIUM);
+	}
 }

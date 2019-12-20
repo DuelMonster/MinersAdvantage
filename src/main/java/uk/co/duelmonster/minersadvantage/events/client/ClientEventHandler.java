@@ -7,7 +7,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.MobEntity;
 import net.minecraft.item.ShovelItem;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.world.World;
@@ -20,6 +19,7 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import uk.co.duelmonster.minersadvantage.MA;
 import uk.co.duelmonster.minersadvantage.client.ClientFunctions;
+import uk.co.duelmonster.minersadvantage.common.Constants;
 import uk.co.duelmonster.minersadvantage.common.Functions;
 import uk.co.duelmonster.minersadvantage.common.Variables;
 import uk.co.duelmonster.minersadvantage.config.MAConfig;
@@ -160,9 +160,9 @@ public class ClientEventHandler {
 			
 			BlockRayTraceResult blockResult = (BlockRayTraceResult) ClientFunctions.mc.objectMouseOver;
 			BlockPos pos = blockResult.getPos();
-			BlockState state = world.getBlockState(pos);
+			Block block = world.getBlockState(pos).getBlock();
 			
-			if (state.isIn(BlockTags.DIRT_LIKE) || state.getBlock().equals(Blocks.GRASS_PATH)) {
+			if (Constants.DIRT_BLOCKS.contains(block) || block.equals(Blocks.GRASS_PATH)) {
 				MA.NETWORK.sendToServer(new PacketPathanate(pos));
 			}
 		}
