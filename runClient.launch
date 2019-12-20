@@ -8,13 +8,13 @@
 </listAttribute>
 <mapAttribute key="org.eclipse.debug.core.environmentVariables">
 <mapEntry key="FORGE_GROUP" value="net.minecraftforge"/>
-<mapEntry key="FORGE_VERSION" value="30.0.7"/>
-<mapEntry key="MCP_MAPPINGS" value="snapshot_20191217-1.14.3"/>
+<mapEntry key="FORGE_VERSION" value="30.0.14"/>
+<mapEntry key="MCP_MAPPINGS" value="snapshot_20191220-1.14.3"/>
 <mapEntry key="MCP_VERSION" value="20191217.105819"/>
 <mapEntry key="MC_VERSION" value="1.15.1"/>
 <mapEntry key="MOD_CLASSES" value="minersadvantage%%F:\$MC\Mod Source\~MinersAdvantage\Source\bin\main;minersadvantage%%F:\$MC\Mod Source\~MinersAdvantage\Source\bin\main"/>
 <mapEntry key="assetDirectory" value="C:\Users\Andrew.Webber\.gradle\caches\forge_gradle\assets"/>
-<mapEntry key="assetIndex" value="1.15"/>
+<mapEntry key="assetIndex" value="1.14"/>
 <mapEntry key="nativesDirectory" value="F:\$MC\Mod Source\~MinersAdvantage\Source\build\natives"/>
 <mapEntry key="target" value="fmluserdevclient"/>
 </mapAttribute>

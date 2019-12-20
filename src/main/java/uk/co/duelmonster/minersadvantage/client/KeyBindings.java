@@ -70,7 +70,8 @@ public class KeyBindings {
 	}
 	
 	public static boolean isKeyDown(int keyCode) {
-		return InputMappings.isKeyDown(Minecraft.getInstance().mainWindow.getHandle(), keyCode);
+		// return InputMappings.isKeyDown(Minecraft.getInstance().mainWindow.getHandle(), keyCode);
+		return InputMappings.isKeyDown(Minecraft.getInstance().func_228018_at_().getHandle(), keyCode);
 	}
 	
 	public static String getKeyName(int keyCode) {

@@ -1,5 +1,6 @@
 package uk.co.duelmonster.minersadvantage.common;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.List;
@@ -288,4 +289,10 @@ public class Functions {
 				(clientConfig.veination.ores != null && clientConfig.veination.ores.isEmpty() == false
 						&& clientConfig.veination.ores.contains(Functions.getName(state.getBlock().asItem())));
 	}
+	
+	public static void setFinalFieldValue(Object owner, Field field, Object value) throws Exception {
+		field.setAccessible(true);
+		field.set(owner, value);
+	}
+	
 }

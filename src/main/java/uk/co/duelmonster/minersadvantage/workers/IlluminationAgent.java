@@ -130,7 +130,8 @@ public class IlluminationAgent extends Agent {
 		
 		boolean canTorchBePlacedOnFace = IlluminationHelper.INSTANCE.canPlaceTorchOnFace(world, torchPlaceOnFacePos, placeOnFace);
 		
-		int blockLightLevel = world.getLightFor((clientConfig.illumination.useBlockLight ? LightType.BLOCK : LightType.SKY), lightCheckPos);
+		// int blockLightLevel = world.getLightFor((clientConfig.illumination.useBlockLight ? LightType.BLOCK : LightType.SKY), lightCheckPos);
+		int blockLightLevel = world.func_226658_a_((clientConfig.illumination.useBlockLight ? LightType.BLOCK : LightType.SKY), lightCheckPos);
 		
 		if (canTorchBePlacedOnFace
 				&& (singleTorch || blockLightLevel <= clientConfig.illumination.lowestLightLevel)

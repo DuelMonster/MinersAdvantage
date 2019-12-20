@@ -13,9 +13,9 @@ public class MAConfig_Excavation extends MAConfig_BaseCategory {
 	// = Config variables - !! NOT TO BE USED DIRECTLY !!
 	// = Use the retrieval and modification functions below at all times!
 	// ====================================================================================================
-	private final BooleanValue				toggleMode;
-	private final BooleanValue				ignoreBlockVariants;
-	private final BooleanValue				isBlockWhitelist;
+	private final BooleanValue							toggleMode;
+	private final BooleanValue							ignoreBlockVariants;
+	private final BooleanValue							isBlockWhitelist;
 	private final ConfigValue<List<? extends String>>	blockBlacklist;
 	
 	// ====================================================================================================

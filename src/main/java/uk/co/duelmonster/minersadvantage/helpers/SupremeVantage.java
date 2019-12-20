@@ -7,6 +7,7 @@ import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -251,8 +252,9 @@ public class SupremeVantage {
 			isWorthy = false;
 		}
 		
-		if (oItemStack != null)
-			player.world.addEntity(new ItemEntity(player.world, player.posX, player.posY, player.posZ, oItemStack));
-		
+		if (oItemStack != null) {
+			BlockPos playerPos = player.getPosition();
+			player.world.addEntity(new ItemEntity(player.world, playerPos.getX(), playerPos.getY(), playerPos.getZ(), oItemStack));
+		}
 	}
 }

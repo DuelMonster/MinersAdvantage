@@ -1,15 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
-<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/Source"/>
-</listAttribute>
-<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
-<listEntry value="4"/>
-</listAttribute>
 <mapAttribute key="org.eclipse.debug.core.environmentVariables">
 <mapEntry key="FORGE_GROUP" value="net.minecraftforge"/>
-<mapEntry key="FORGE_VERSION" value="30.0.7"/>
-<mapEntry key="MCP_MAPPINGS" value="snapshot_20191217-1.14.3"/>
+<mapEntry key="FORGE_VERSION" value="30.0.14"/>
+<mapEntry key="MCP_MAPPINGS" value="snapshot_20191220-1.14.3"/>
 <mapEntry key="MCP_VERSION" value="20191217.105819"/>
 <mapEntry key="MC_VERSION" value="1.15.1"/>
 <mapEntry key="MOD_CLASSES" value="minersadvantage%%F:\$MC\Mod Source\~MinersAdvantage\Source\bin\main;minersadvantage%%F:\$MC\Mod Source\~MinersAdvantage\Source\bin\main"/>
@@ -17,6 +11,7 @@
 </mapAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.buildship.core.classpathprovider"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="net.minecraftforge.userdev.LaunchTesting"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value=""/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="Source"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dforge.logging.console.level=debug -Dforge.logging.markers=SCAN,REGISTRIES,REGISTRYDUMP"/>
 <stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="F:\$MC\Mod Source\~MinersAdvantage\Test_Server_1.15.1"/>

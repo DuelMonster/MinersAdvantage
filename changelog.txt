@@ -1,3 +1,10 @@
+Build: 1.14.4-1.4.3.252
+	fix: config list values cleared on startup #36
+	feature: reimplement ignoreIfValidTool
+	feature: add blacklist option to Substitution
+	feature: reimplement other blacklist options
+	
+=========
 Build: 1.14.4-1.4.2.248
 	fix: Enablement/disablement key bindings being ignored by the server
 	fix: Illumination placing torches incorrectly during auto illumination tasks
