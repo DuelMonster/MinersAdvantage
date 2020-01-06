@@ -1,26 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
-<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/Source"/>
-</listAttribute>
-<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
-<listEntry value="4"/>
-</listAttribute>
-<mapAttribute key="org.eclipse.debug.core.environmentVariables">
-<mapEntry key="FORGE_GROUP" value="net.minecraftforge"/>
-<mapEntry key="FORGE_VERSION" value="30.0.14"/>
-<mapEntry key="MCP_MAPPINGS" value="snapshot_20191220-1.14.3"/>
-<mapEntry key="MCP_VERSION" value="20191217.105819"/>
-<mapEntry key="MC_VERSION" value="1.15.1"/>
-<mapEntry key="MOD_CLASSES" value="minersadvantage%%F:\$MC\Mod Source\~MinersAdvantage\Source\bin\main;minersadvantage%%F:\$MC\Mod Source\~MinersAdvantage\Source\bin\main"/>
-<mapEntry key="assetDirectory" value="C:\Users\Andrew.Webber\.gradle\caches\forge_gradle\assets"/>
-<mapEntry key="assetIndex" value="1.14"/>
-<mapEntry key="nativesDirectory" value="F:\$MC\Mod Source\~MinersAdvantage\Source\build\natives"/>
-<mapEntry key="target" value="fmluserdevclient"/>
-</mapAttribute>
-<stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.buildship.core.classpathprovider"/>
-<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="net.minecraftforge.userdev.LaunchTesting"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="Source"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dforge.logging.console.level=debug -Dforge.logging.markers=SCAN,REGISTRIES,REGISTRYDUMP -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump &quot;-Dos.name=Windows 10&quot; -Dos.version=10.0"/>
-<stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="F:\$MC\Mod Source\~MinersAdvantage\Test_Client_1.15.1"/>
+  <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="Source"/>
+  <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="net.minecraftforge.userdev.LaunchTesting"/>
+  <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dforge.logging.console.level=debug -Dforge.logging.markers=SCAN,REGISTRIES,REGISTRYDUMP -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump &quot;-Dos.name=Windows 10&quot; -Dos.version=10.0"/>
+  <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value=""/>
+  <stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="F:\$MC\Mod Source\~MinersAdvantage\Test_Client_1.15.1"/>
+  <mapAttribute key="org.eclipse.debug.core.environmentVariables">
+    <mapEntry key="MOD_CLASSES" value="minersadvantage%%F:\$MC\Mod Source\~MinersAdvantage\Source\bin\main;minersadvantage%%F:\$MC\Mod Source\~MinersAdvantage\Source\bin\main"/>
+    <mapEntry key="MCP_MAPPINGS" value="snapshot_20200106-1.14.3"/>
+    <mapEntry key="MCP_VERSION" value="20191217.105819"/>
+    <mapEntry key="FORGE_VERSION" value="30.0.30"/>
+    <mapEntry key="assetIndex" value="1.15"/>
+    <mapEntry key="assetDirectory" value="C:\Users\Andrew.Webber\.gradle\caches\forge_gradle\assets"/>
+    <mapEntry key="nativesDirectory" value="F:\$MC\Mod Source\~MinersAdvantage\Source\build\natives"/>
+    <mapEntry key="FORGE_GROUP" value="net.minecraftforge"/>
+    <mapEntry key="target" value="fmluserdevclient"/>
+    <mapEntry key="MC_VERSION" value="1.15.1"/>
+  </mapAttribute>
 </launchConfiguration>
