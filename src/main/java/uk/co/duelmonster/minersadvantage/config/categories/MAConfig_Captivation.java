@@ -71,7 +71,7 @@ public class MAConfig_Captivation extends MAConfig_BaseCategory {
 	 * @return allowInGUI
 	 */
 	public boolean allowInGUI() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceCaptivationSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceCaptivationSettings.get())
 			return parentConfig.serverOverrides.captivation.allowInGUI();
 		
 		return allowInGUI.get();
@@ -88,7 +88,7 @@ public class MAConfig_Captivation extends MAConfig_BaseCategory {
 	 * @return radiusHorizontal
 	 */
 	public double radiusHorizontal() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceCaptivationSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceCaptivationSettings.get())
 			return parentConfig.serverOverrides.captivation.radiusHorizontal();
 		
 		return radiusHorizontal.get();
@@ -105,7 +105,7 @@ public class MAConfig_Captivation extends MAConfig_BaseCategory {
 	 * @return radiusVertical
 	 */
 	public double radiusVertical() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceCaptivationSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceCaptivationSettings.get())
 			return parentConfig.serverOverrides.captivation.radiusVertical();
 		
 		return radiusVertical.get();
@@ -122,7 +122,7 @@ public class MAConfig_Captivation extends MAConfig_BaseCategory {
 	 * @return isWhitelist
 	 */
 	public boolean isWhitelist() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceCaptivationSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceCaptivationSettings.get())
 			return parentConfig.serverOverrides.captivation.isWhitelist();
 		
 		return isWhitelist.get();
@@ -139,7 +139,7 @@ public class MAConfig_Captivation extends MAConfig_BaseCategory {
 	 * @return unconditionalBlacklist
 	 */
 	public boolean unconditionalBlacklist() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceCaptivationSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceCaptivationSettings.get())
 			return parentConfig.serverOverrides.captivation.unconditionalBlacklist();
 		
 		return unconditionalBlacklist.get();
@@ -156,7 +156,7 @@ public class MAConfig_Captivation extends MAConfig_BaseCategory {
 	 * @return blacklist
 	 */
 	public List<? extends String> blacklist() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceCaptivationSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceCaptivationSettings.get())
 			return parentConfig.serverOverrides.captivation.blacklist();
 		
 		return blacklist.get();

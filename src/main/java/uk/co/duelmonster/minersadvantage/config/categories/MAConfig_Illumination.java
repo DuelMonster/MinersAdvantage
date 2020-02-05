@@ -44,7 +44,7 @@ public class MAConfig_Illumination extends MAConfig_BaseCategory {
 	 * @return useBlockLight
 	 */
 	public boolean useBlockLight() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceIlluminationSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceIlluminationSettings.get())
 			return parentConfig.serverOverrides.illumination.useBlockLight();
 
 		return useBlockLight.get();
@@ -59,7 +59,7 @@ public class MAConfig_Illumination extends MAConfig_BaseCategory {
 	 * @return lowestLightLevel
 	 */
 	public int lowestLightLevel() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceIlluminationSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceIlluminationSettings.get())
 			return parentConfig.serverOverrides.illumination.lowestLightLevel();
 
 		return lowestLightLevel.get();

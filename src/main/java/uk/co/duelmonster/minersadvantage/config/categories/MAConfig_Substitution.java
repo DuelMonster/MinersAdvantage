@@ -69,7 +69,7 @@ public class MAConfig_Substitution extends MAConfig_BaseCategory {
 	 * @return switchBack
 	 */
 	public boolean switchBack() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceSubstitutionSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceSubstitutionSettings.get())
 			return parentConfig.serverOverrides.substitution.switchBack();
 		
 		return switchBack.get();
@@ -86,7 +86,7 @@ public class MAConfig_Substitution extends MAConfig_BaseCategory {
 	 * @return favourSilkTouch
 	 */
 	public boolean favourSilkTouch() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceSubstitutionSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceSubstitutionSettings.get())
 			return parentConfig.serverOverrides.substitution.favourSilkTouch();
 		
 		return favourSilkTouch.get();
@@ -103,7 +103,7 @@ public class MAConfig_Substitution extends MAConfig_BaseCategory {
 	 * @return favourFortune
 	 */
 	public boolean favourFortune() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceSubstitutionSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceSubstitutionSettings.get())
 			return parentConfig.serverOverrides.substitution.favourFortune();
 		
 		return favourFortune.get();
@@ -120,7 +120,7 @@ public class MAConfig_Substitution extends MAConfig_BaseCategory {
 	 * @return ignoreIfValidTool
 	 */
 	public boolean ignoreIfValidTool() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceSubstitutionSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceSubstitutionSettings.get())
 			return parentConfig.serverOverrides.substitution.ignoreIfValidTool();
 		
 		return ignoreIfValidTool.get();
@@ -137,7 +137,7 @@ public class MAConfig_Substitution extends MAConfig_BaseCategory {
 	 * @return ignorePassiveMobs
 	 */
 	public boolean ignorePassiveMobs() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceSubstitutionSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceSubstitutionSettings.get())
 			return parentConfig.serverOverrides.substitution.ignorePassiveMobs();
 		
 		return ignorePassiveMobs.get();
@@ -154,7 +154,7 @@ public class MAConfig_Substitution extends MAConfig_BaseCategory {
 	 * @return toolBlacklist
 	 */
 	public List<? extends String> blacklist() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceSubstitutionSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceSubstitutionSettings.get())
 			return parentConfig.serverOverrides.substitution.blacklist();
 		
 		return blacklist.get();

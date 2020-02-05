@@ -58,7 +58,7 @@ public class MAConfig_Excavation extends MAConfig_BaseCategory {
 	 * @return ignoreBlockVariants
 	 */
 	public boolean ignoreBlockVariants() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceExcavationSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceExcavationSettings.get())
 			return parentConfig.serverOverrides.excavation.ignoreBlockVariants();
 		
 		return ignoreBlockVariants.get();
@@ -76,7 +76,7 @@ public class MAConfig_Excavation extends MAConfig_BaseCategory {
 	 * @return toggleMode
 	 */
 	public boolean toggleMode() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceExcavationSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceExcavationSettings.get())
 			return parentConfig.serverOverrides.excavation.toggleMode();
 		
 		return toggleMode.get();
@@ -94,7 +94,7 @@ public class MAConfig_Excavation extends MAConfig_BaseCategory {
 	 * @return isBlockWhitelist
 	 */
 	public boolean isBlockWhitelist() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceExcavationSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceExcavationSettings.get())
 			return parentConfig.serverOverrides.excavation.isBlockWhitelist();
 		
 		return isBlockWhitelist.get();
@@ -112,7 +112,7 @@ public class MAConfig_Excavation extends MAConfig_BaseCategory {
 	 * @return blockBlacklist
 	 */
 	public List<? extends String> blockBlacklist() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceExcavationSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceExcavationSettings.get())
 			return parentConfig.serverOverrides.excavation.blockBlacklist();
 		
 		return blockBlacklist.get();

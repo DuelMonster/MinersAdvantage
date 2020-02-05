@@ -88,7 +88,7 @@ public class MAConfig_Common extends MAConfig_BaseCategory {
 	 * @return tpsGuard
 	 */
 	public boolean tpsGuard() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceCommonSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceCommonSettings.get())
 			return parentConfig.serverOverrides.common.tpsGuard();
 
 		return tpsGuard.get();
@@ -103,7 +103,7 @@ public class MAConfig_Common extends MAConfig_BaseCategory {
 	 * @return gatherDrops
 	 */
 	public boolean gatherDrops() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceCommonSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceCommonSettings.get())
 			return parentConfig.serverOverrides.common.gatherDrops();
 
 		return gatherDrops.get();
@@ -118,7 +118,7 @@ public class MAConfig_Common extends MAConfig_BaseCategory {
 	 * @return autoIlluminate
 	 */
 	public boolean autoIlluminate() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceCommonSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceCommonSettings.get())
 			return parentConfig.serverOverrides.common.autoIlluminate();
 
 		return autoIlluminate.get();
@@ -133,7 +133,7 @@ public class MAConfig_Common extends MAConfig_BaseCategory {
 	 * @return mineVeins
 	 */
 	public boolean mineVeins() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceCommonSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceCommonSettings.get())
 			return parentConfig.serverOverrides.common.mineVeins();
 
 		return mineVeins.get();
@@ -148,7 +148,7 @@ public class MAConfig_Common extends MAConfig_BaseCategory {
 	 * @return blocksPerTick
 	 */
 	public int blocksPerTick() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceCommonSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceCommonSettings.get())
 			return parentConfig.serverOverrides.common.blocksPerTick();
 
 		return blocksPerTick.get();
@@ -163,7 +163,7 @@ public class MAConfig_Common extends MAConfig_BaseCategory {
 	 * @return enableTickDelay
 	 */
 	public boolean enableTickDelay() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceCommonSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceCommonSettings.get())
 			return parentConfig.serverOverrides.common.enableTickDelay();
 
 		return enableTickDelay.get();
@@ -178,7 +178,7 @@ public class MAConfig_Common extends MAConfig_BaseCategory {
 	 * @return tickDelay
 	 */
 	public int tickDelay() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceCommonSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceCommonSettings.get())
 			return parentConfig.serverOverrides.common.tickDelay();
 
 		return tickDelay.get();
@@ -193,7 +193,7 @@ public class MAConfig_Common extends MAConfig_BaseCategory {
 	 * @return blockRadius
 	 */
 	public int blockRadius() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceCommonSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceCommonSettings.get())
 			return parentConfig.serverOverrides.common.blockRadius();
 
 		return blockRadius.get();
@@ -208,7 +208,7 @@ public class MAConfig_Common extends MAConfig_BaseCategory {
 	 * @return blockLimit
 	 */
 	public int blockLimit() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceCommonSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceCommonSettings.get())
 			return parentConfig.serverOverrides.common.blockLimit();
 
 		return blockLimit.get();
@@ -223,7 +223,7 @@ public class MAConfig_Common extends MAConfig_BaseCategory {
 	 * @return breakAtToolSpeeds
 	 */
 	public boolean breakAtToolSpeeds() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceCommonSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceCommonSettings.get())
 			return parentConfig.serverOverrides.common.breakAtToolSpeeds();
 
 		return breakAtToolSpeeds.get();

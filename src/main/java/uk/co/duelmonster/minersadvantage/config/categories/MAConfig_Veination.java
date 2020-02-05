@@ -38,7 +38,7 @@ public class MAConfig_Veination extends MAConfig_BaseCategory {
 	 * @return Veination Ores
 	 */
 	public List<? extends String> ores() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceVeinationSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceVeinationSettings.get())
 			return parentConfig.serverOverrides.veination.ores();
 		
 		return ores.get();

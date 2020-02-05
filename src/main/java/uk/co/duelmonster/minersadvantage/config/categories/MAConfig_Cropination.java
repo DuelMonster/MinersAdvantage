@@ -36,7 +36,7 @@ public class MAConfig_Cropination extends MAConfig_BaseCategory {
 	 * @return harvestSeeds
 	 */
 	public boolean harvestSeeds() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceCropinationSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceCropinationSettings.get())
 			return parentConfig.serverOverrides.cropination.harvestSeeds();
 
 		return harvestSeeds.get();
