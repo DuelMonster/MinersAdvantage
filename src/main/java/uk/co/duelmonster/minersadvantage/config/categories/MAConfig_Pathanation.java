@@ -42,7 +42,7 @@ public class MAConfig_Pathanation extends MAConfig_BaseCategory {
 	 * @return pathWidth
 	 */
 	public int pathWidth() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceExcavationSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceExcavationSettings.get())
 			return parentConfig.serverOverrides.pathanation.pathWidth();
 
 		return pathWidth.get();
@@ -57,7 +57,7 @@ public class MAConfig_Pathanation extends MAConfig_BaseCategory {
 	 * @return pathLength
 	 */
 	public int pathLength() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceExcavationSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceExcavationSettings.get())
 			return parentConfig.serverOverrides.pathanation.pathLength();
 
 		return pathLength.get();

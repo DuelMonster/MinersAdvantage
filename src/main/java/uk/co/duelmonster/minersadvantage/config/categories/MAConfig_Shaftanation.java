@@ -56,7 +56,7 @@ public class MAConfig_Shaftanation extends MAConfig_BaseCategory {
 	 * @return shaftLength
 	 */
 	public int shaftLength() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceShaftanationSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceShaftanationSettings.get())
 			return parentConfig.serverOverrides.shaftanation.shaftLength();
 		
 		return shaftLength.get();
@@ -74,7 +74,7 @@ public class MAConfig_Shaftanation extends MAConfig_BaseCategory {
 	 * @return shaftHeight
 	 */
 	public int shaftHeight() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceShaftanationSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceShaftanationSettings.get())
 			return parentConfig.serverOverrides.shaftanation.shaftHeight();
 		
 		return shaftHeight.get();
@@ -92,7 +92,7 @@ public class MAConfig_Shaftanation extends MAConfig_BaseCategory {
 	 * @return shaftWidth
 	 */
 	public int shaftWidth() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceShaftanationSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceShaftanationSettings.get())
 			return parentConfig.serverOverrides.shaftanation.shaftWidth();
 		
 		return shaftWidth.get();
@@ -110,7 +110,7 @@ public class MAConfig_Shaftanation extends MAConfig_BaseCategory {
 	 * @return torchPlacement
 	 */
 	public TorchPlacement torchPlacement() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceShaftanationSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceShaftanationSettings.get())
 			return parentConfig.serverOverrides.shaftanation.torchPlacement();
 		
 		return torchPlacement.get();

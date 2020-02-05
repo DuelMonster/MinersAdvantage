@@ -94,7 +94,7 @@ public class MAConfig_Lumbination extends MAConfig_BaseCategory {
 	 * @return chopTreeBelow
 	 */
 	public boolean chopTreeBelow() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceLumbinationSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceLumbinationSettings.get())
 			return parentConfig.serverOverrides.lumbination.chopTreeBelow();
 		
 		return chopTreeBelow.get();
@@ -111,7 +111,7 @@ public class MAConfig_Lumbination extends MAConfig_BaseCategory {
 	 * @return destroyLeaves
 	 */
 	public boolean destroyLeaves() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceLumbinationSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceLumbinationSettings.get())
 			return parentConfig.serverOverrides.lumbination.destroyLeaves();
 		
 		return destroyLeaves.get();
@@ -128,7 +128,7 @@ public class MAConfig_Lumbination extends MAConfig_BaseCategory {
 	 * @return leavesAffectDurability
 	 */
 	public boolean leavesAffectDurability() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceLumbinationSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceLumbinationSettings.get())
 			return parentConfig.serverOverrides.lumbination.leavesAffectDurability();
 		
 		return leavesAffectDurability.get();
@@ -145,7 +145,7 @@ public class MAConfig_Lumbination extends MAConfig_BaseCategory {
 	 * @return replantSaplings
 	 */
 	public boolean replantSaplings() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceLumbinationSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceLumbinationSettings.get())
 			return parentConfig.serverOverrides.lumbination.replantSaplings();
 		
 		return replantSaplings.get();
@@ -162,7 +162,7 @@ public class MAConfig_Lumbination extends MAConfig_BaseCategory {
 	 * @return useShearsOnLeaves
 	 */
 	public boolean useShearsOnLeaves() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceLumbinationSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceLumbinationSettings.get())
 			return parentConfig.serverOverrides.lumbination.useShearsOnLeaves();
 		
 		return useShearsOnLeaves.get();
@@ -179,7 +179,7 @@ public class MAConfig_Lumbination extends MAConfig_BaseCategory {
 	 * @return leafRange
 	 */
 	public int leafRange() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceLumbinationSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceLumbinationSettings.get())
 			return parentConfig.serverOverrides.lumbination.leafRange();
 		
 		return leafRange.get();
@@ -196,7 +196,7 @@ public class MAConfig_Lumbination extends MAConfig_BaseCategory {
 	 * @return trunkRange
 	 */
 	public int trunkRange() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceLumbinationSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceLumbinationSettings.get())
 			return parentConfig.serverOverrides.lumbination.trunkRange();
 		
 		return trunkRange.get();
@@ -213,7 +213,7 @@ public class MAConfig_Lumbination extends MAConfig_BaseCategory {
 	 * @return Lumbination Logs
 	 */
 	public List<? extends String> logs() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceLumbinationSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceLumbinationSettings.get())
 			return parentConfig.serverOverrides.lumbination.logs();
 		
 		return logs.get();
@@ -230,7 +230,7 @@ public class MAConfig_Lumbination extends MAConfig_BaseCategory {
 	 * @return Lumbination Leaves
 	 */
 	public List<? extends String> leaves() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceLumbinationSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceLumbinationSettings.get())
 			return parentConfig.serverOverrides.lumbination.leaves();
 		
 		return leaves.get();
@@ -247,7 +247,7 @@ public class MAConfig_Lumbination extends MAConfig_BaseCategory {
 	 * @return Lumbination Axes
 	 */
 	public List<? extends String> axes() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceLumbinationSettings.get())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.enforceLumbinationSettings.get())
 			return parentConfig.serverOverrides.lumbination.axes();
 		
 		return axes.get();

@@ -31,7 +31,7 @@ public class MAConfig_BaseCategory {
 	 * @param _bEnabled Sets bEnabled
 	 */
 	public void setEnabled(boolean p_bEnabled) {
-		if (parentConfig.serverOverrides == null || !parentConfig.serverOverrides.overrideFeatureEnablement.get())
+		if (parentConfig == null || parentConfig.serverOverrides == null || !parentConfig.serverOverrides.overrideFeatureEnablement.get())
 			enabled.set(p_bEnabled);
 	}
 
