@@ -20,7 +20,6 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemAxe;
 import net.minecraft.item.ItemSpade;
 import net.minecraft.item.ItemStack;
@@ -35,8 +34,8 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.UseHoeEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class SharedEvents {
 	
@@ -135,8 +134,11 @@ public class SharedEvents {
 			return;
 		
 		EntityPlayerMP player = (EntityPlayerMP) event.getEntityPlayer();
+		MAConfig settings = MAConfig.get(player.getUniqueID());
 		
-		if (event.getItemStack() != null && event.getItemStack().getItem() instanceof ItemSpade) {
+		if (event.getItemStack() != null
+				&& settings.pathanation.bEnabled()
+				&& event.getItemStack().getItem() instanceof ItemSpade) {
 			BlockPos oPos = event.getPos();
 			Block block = world.getBlockState(oPos).getBlock();
 			
