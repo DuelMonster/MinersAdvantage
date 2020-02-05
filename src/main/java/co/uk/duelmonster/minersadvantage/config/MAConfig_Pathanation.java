@@ -23,7 +23,7 @@ public class MAConfig_Pathanation extends MAConfig_SubCategory {
 	 */
 	@Override
 	public boolean bEnabled() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bOverrideFeatureEnablement && !parentConfig.serverOverrides.pathanation.bEnabled())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bOverrideFeatureEnablement && !parentConfig.serverOverrides.pathanation.bEnabled())
 			return false;
 		
 		return super.bEnabled();
@@ -33,7 +33,7 @@ public class MAConfig_Pathanation extends MAConfig_SubCategory {
 	 * @return iPathWidth
 	 */
 	public int iPathWidth() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceExcavationSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceExcavationSettings)
 			return parentConfig.serverOverrides.pathanation.iPathWidth();
 		
 		return _iPathWidth;
@@ -51,7 +51,7 @@ public class MAConfig_Pathanation extends MAConfig_SubCategory {
 	 * @return iPathLength
 	 */
 	public int iPathLength() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceExcavationSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceExcavationSettings)
 			return parentConfig.serverOverrides.pathanation.iPathLength();
 		
 		return _iPathLength;

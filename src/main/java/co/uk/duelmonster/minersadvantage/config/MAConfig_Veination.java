@@ -22,7 +22,7 @@ public class MAConfig_Veination extends MAConfig_SubCategory {
 	 */
 	@Override
 	public boolean bEnabled() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bOverrideFeatureEnablement && !parentConfig.serverOverrides.veination.bEnabled())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bOverrideFeatureEnablement && !parentConfig.serverOverrides.veination.bEnabled())
 			return false;
 		
 		return super.bEnabled();
@@ -32,7 +32,7 @@ public class MAConfig_Veination extends MAConfig_SubCategory {
 	 * @return Veination Ores
 	 */
 	public String[] ores() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceVeinationSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceVeinationSettings)
 			return parentConfig.serverOverrides.veination.ores();
 		
 		return _Ores;

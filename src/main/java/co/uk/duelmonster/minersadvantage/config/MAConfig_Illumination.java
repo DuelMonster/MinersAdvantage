@@ -23,7 +23,7 @@ public class MAConfig_Illumination extends MAConfig_SubCategory {
 	 */
 	@Override
 	public boolean bEnabled() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bOverrideFeatureEnablement && !parentConfig.serverOverrides.illumination.bEnabled())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bOverrideFeatureEnablement && !parentConfig.serverOverrides.illumination.bEnabled())
 			return false;
 		
 		return super.bEnabled();
@@ -33,7 +33,7 @@ public class MAConfig_Illumination extends MAConfig_SubCategory {
 	 * @return bUseBlockLight
 	 */
 	public boolean bUseBlockLight() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceIlluminationSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceIlluminationSettings)
 			return parentConfig.serverOverrides.illumination.bUseBlockLight();
 		
 		return _bUseBlockLight;
@@ -44,7 +44,7 @@ public class MAConfig_Illumination extends MAConfig_SubCategory {
 	 *            Sets bUseBlockLight
 	 */
 	public void setUseBlockLight(boolean _bUseBlockLight) {
-		if (parentConfig.serverOverrides == null || !parentConfig.serverOverrides.server.bEnforceIlluminationSettings)
+		if (parentConfig == null || parentConfig.serverOverrides == null || !parentConfig.serverOverrides.server.bEnforceIlluminationSettings)
 			this._bUseBlockLight = _bUseBlockLight;
 	}
 	
@@ -52,7 +52,7 @@ public class MAConfig_Illumination extends MAConfig_SubCategory {
 	 * @return iLowestLightLevel
 	 */
 	public int iLowestLightLevel() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceIlluminationSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceIlluminationSettings)
 			return parentConfig.serverOverrides.illumination.iLowestLightLevel();
 		
 		return _iLowestLightLevel;

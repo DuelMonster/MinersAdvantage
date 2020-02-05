@@ -88,7 +88,7 @@ public class MAConfig_Shaftanation extends MAConfig_SubCategory {
 	 */
 	@Override
 	public boolean bEnabled() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bOverrideFeatureEnablement && !parentConfig.serverOverrides.shaftanation.bEnabled())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bOverrideFeatureEnablement && !parentConfig.serverOverrides.shaftanation.bEnabled())
 			return false;
 		
 		return super.bEnabled();
@@ -98,7 +98,7 @@ public class MAConfig_Shaftanation extends MAConfig_SubCategory {
 	 * @return iShaftLength
 	 */
 	public int iShaftLength() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceShaftanationSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceShaftanationSettings)
 			return parentConfig.serverOverrides.shaftanation.iShaftLength();
 		
 		return _iShaftLength;
@@ -116,7 +116,7 @@ public class MAConfig_Shaftanation extends MAConfig_SubCategory {
 	 * @return iShaftHeight
 	 */
 	public int iShaftHeight() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceShaftanationSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceShaftanationSettings)
 			return parentConfig.serverOverrides.shaftanation.iShaftHeight();
 		
 		return _iShaftHeight;
@@ -134,7 +134,7 @@ public class MAConfig_Shaftanation extends MAConfig_SubCategory {
 	 * @return iShaftWidth
 	 */
 	public int iShaftWidth() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceShaftanationSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceShaftanationSettings)
 			return parentConfig.serverOverrides.shaftanation.iShaftWidth();
 		
 		return _iShaftWidth;
@@ -152,7 +152,7 @@ public class MAConfig_Shaftanation extends MAConfig_SubCategory {
 	 * @return TorchPlacement
 	 */
 	public TorchPlacement TorchPlacement() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceShaftanationSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceShaftanationSettings)
 			return parentConfig.serverOverrides.shaftanation.TorchPlacement();
 		
 		return _TorchPlacement;

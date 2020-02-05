@@ -22,7 +22,7 @@ public class MAConfig_Cropination extends MAConfig_SubCategory {
 	 */
 	@Override
 	public boolean bEnabled() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bOverrideFeatureEnablement && !parentConfig.serverOverrides.cropination.bEnabled())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bOverrideFeatureEnablement && !parentConfig.serverOverrides.cropination.bEnabled())
 			return false;
 		
 		return super.bEnabled();
@@ -32,7 +32,7 @@ public class MAConfig_Cropination extends MAConfig_SubCategory {
 	 * @return bHarvestSeeds
 	 */
 	public boolean bHarvestSeeds() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceCropinationSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceCropinationSettings)
 			return parentConfig.serverOverrides.cropination.bHarvestSeeds();
 		
 		return _bHarvestSeeds;

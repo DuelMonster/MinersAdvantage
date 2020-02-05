@@ -31,7 +31,7 @@ public class MAConfig_Lumbination extends MAConfig_SubCategory {
 	 */
 	@Override
 	public boolean bEnabled() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bOverrideFeatureEnablement && !parentConfig.serverOverrides.lumbination.bEnabled())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bOverrideFeatureEnablement && !parentConfig.serverOverrides.lumbination.bEnabled())
 			return false;
 		
 		return super.bEnabled();
@@ -41,7 +41,7 @@ public class MAConfig_Lumbination extends MAConfig_SubCategory {
 	 * @return bChopTreeBelow
 	 */
 	public boolean bChopTreeBelow() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceLumbinationSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceLumbinationSettings)
 			return parentConfig.serverOverrides.lumbination.bChopTreeBelow();
 		
 		return _bChopTreeBelow;
@@ -59,7 +59,7 @@ public class MAConfig_Lumbination extends MAConfig_SubCategory {
 	 * @return bDestroyLeaves
 	 */
 	public boolean bDestroyLeaves() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceLumbinationSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceLumbinationSettings)
 			return parentConfig.serverOverrides.lumbination.bDestroyLeaves();
 		
 		return _bDestroyLeaves;
@@ -77,7 +77,7 @@ public class MAConfig_Lumbination extends MAConfig_SubCategory {
 	 * @return bLeavesAffectDurability
 	 */
 	public boolean bLeavesAffectDurability() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceLumbinationSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceLumbinationSettings)
 			return parentConfig.serverOverrides.lumbination.bLeavesAffectDurability();
 		
 		return _bLeavesAffectDurability;
@@ -95,7 +95,7 @@ public class MAConfig_Lumbination extends MAConfig_SubCategory {
 	 * @return bReplantSaplings
 	 */
 	public boolean bReplantSaplings() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceLumbinationSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceLumbinationSettings)
 			return parentConfig.serverOverrides.lumbination.bReplantSaplings();
 		
 		return _bReplantSaplings;
@@ -113,7 +113,7 @@ public class MAConfig_Lumbination extends MAConfig_SubCategory {
 	 * @return bUseShearsOnLeaves
 	 */
 	public boolean bUseShearsOnLeaves() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceLumbinationSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceLumbinationSettings)
 			return parentConfig.serverOverrides.lumbination.bUseShearsOnLeaves();
 		
 		return _bUseShearsOnLeaves;
@@ -131,7 +131,7 @@ public class MAConfig_Lumbination extends MAConfig_SubCategory {
 	 * @return iLeafRange
 	 */
 	public int iLeafRange() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceLumbinationSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceLumbinationSettings)
 			return parentConfig.serverOverrides.lumbination.iLeafRange();
 		
 		return _iLeafRange;
@@ -149,7 +149,7 @@ public class MAConfig_Lumbination extends MAConfig_SubCategory {
 	 * @return iTrunkRange
 	 */
 	public int iTrunkRange() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceLumbinationSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceLumbinationSettings)
 			return parentConfig.serverOverrides.lumbination.iTrunkRange();
 		
 		return _iTrunkRange;
@@ -167,7 +167,7 @@ public class MAConfig_Lumbination extends MAConfig_SubCategory {
 	 * @return Lumbination Logs
 	 */
 	public String[] logs() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceLumbinationSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceLumbinationSettings)
 			return parentConfig.serverOverrides.lumbination.logs();
 		
 		return _Logs;
@@ -185,7 +185,7 @@ public class MAConfig_Lumbination extends MAConfig_SubCategory {
 	 * @return Lumbination Leaves
 	 */
 	public String[] leaves() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceLumbinationSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceLumbinationSettings)
 			return parentConfig.serverOverrides.lumbination.leaves();
 		
 		return _Leaves;
@@ -203,7 +203,7 @@ public class MAConfig_Lumbination extends MAConfig_SubCategory {
 	 * @return Lumbination Axes
 	 */
 	public String[] axes() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceLumbinationSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceLumbinationSettings)
 			return parentConfig.serverOverrides.lumbination.axes();
 		
 		return _Axes;

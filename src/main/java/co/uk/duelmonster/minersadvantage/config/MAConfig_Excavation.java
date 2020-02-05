@@ -27,7 +27,7 @@ public class MAConfig_Excavation extends MAConfig_SubCategory {
 	 */
 	@Override
 	public boolean bEnabled() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bOverrideFeatureEnablement && !parentConfig.serverOverrides.excavation.bEnabled())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bOverrideFeatureEnablement && !parentConfig.serverOverrides.excavation.bEnabled())
 			return false;
 		
 		return super.bEnabled();
@@ -37,7 +37,7 @@ public class MAConfig_Excavation extends MAConfig_SubCategory {
 	 * @return bIgnoreBlockVariants
 	 */
 	public boolean bIgnoreBlockVariants() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceExcavationSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceExcavationSettings)
 			return parentConfig.serverOverrides.excavation.bIgnoreBlockVariants();
 		
 		return _bIgnoreBlockVariants;
@@ -55,7 +55,7 @@ public class MAConfig_Excavation extends MAConfig_SubCategory {
 	 * @return bToggleMode
 	 */
 	public boolean bToggleMode() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceExcavationSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceExcavationSettings)
 			return parentConfig.serverOverrides.excavation.bToggleMode();
 		
 		return _bToggleMode;
@@ -73,7 +73,7 @@ public class MAConfig_Excavation extends MAConfig_SubCategory {
 	 * @return bIsToolWhitelist
 	 */
 	public boolean bIsToolWhitelist() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceExcavationSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceExcavationSettings)
 			return parentConfig.serverOverrides.excavation.bIsToolWhitelist();
 		
 		return _bIsToolWhitelist;
@@ -91,7 +91,7 @@ public class MAConfig_Excavation extends MAConfig_SubCategory {
 	 * @return toolBlacklist
 	 */
 	public String[] toolBlacklist() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceExcavationSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceExcavationSettings)
 			return parentConfig.serverOverrides.excavation.toolBlacklist();
 		
 		return _toolBlacklist;
@@ -109,7 +109,7 @@ public class MAConfig_Excavation extends MAConfig_SubCategory {
 	 * @return bIsBlockWhitelist
 	 */
 	public boolean bIsBlockWhitelist() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceExcavationSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceExcavationSettings)
 			return parentConfig.serverOverrides.excavation.bIsBlockWhitelist();
 		
 		return _bIsBlockWhitelist;
@@ -127,7 +127,7 @@ public class MAConfig_Excavation extends MAConfig_SubCategory {
 	 * @return blockBlacklist
 	 */
 	public String[] blockBlacklist() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceExcavationSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceExcavationSettings)
 			return parentConfig.serverOverrides.excavation.blockBlacklist();
 		
 		return _blockBlacklist;

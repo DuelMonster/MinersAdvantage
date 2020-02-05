@@ -29,7 +29,7 @@ public class MAConfig_Captivation extends MAConfig_SubCategory {
 	 */
 	@Override
 	public boolean bEnabled() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bOverrideFeatureEnablement && !parentConfig.serverOverrides.captivation.bEnabled())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bOverrideFeatureEnablement && !parentConfig.serverOverrides.captivation.bEnabled())
 			return false;
 		
 		return super.bEnabled();
@@ -39,7 +39,7 @@ public class MAConfig_Captivation extends MAConfig_SubCategory {
 	 * @return bAllowInGUI
 	 */
 	public boolean bAllowInGUI() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceCaptivationSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceCaptivationSettings)
 			return parentConfig.serverOverrides.captivation.bAllowInGUI();
 		
 		return _bAllowInGUI;
@@ -57,7 +57,7 @@ public class MAConfig_Captivation extends MAConfig_SubCategory {
 	 * @return bIsWhitelist
 	 */
 	public boolean bIsWhitelist() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceCaptivationSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceCaptivationSettings)
 			return parentConfig.serverOverrides.captivation.bIsWhitelist();
 		
 		return _bIsWhitelist;
@@ -75,7 +75,7 @@ public class MAConfig_Captivation extends MAConfig_SubCategory {
 	 * @return radiusHorizontal
 	 */
 	public double radiusHorizontal() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceCaptivationSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceCaptivationSettings)
 			return parentConfig.serverOverrides.captivation.radiusHorizontal();
 		
 		return _radiusHorizontal;
@@ -93,7 +93,7 @@ public class MAConfig_Captivation extends MAConfig_SubCategory {
 	 * @return radiusVertical
 	 */
 	public double radiusVertical() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceCaptivationSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceCaptivationSettings)
 			return parentConfig.serverOverrides.captivation.radiusVertical();
 		
 		return _radiusVertical;
@@ -111,7 +111,7 @@ public class MAConfig_Captivation extends MAConfig_SubCategory {
 	 * @return captivationBlacklist
 	 */
 	public String[] blacklist() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceCaptivationSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceCaptivationSettings)
 			return parentConfig.serverOverrides.captivation.blacklist();
 		
 		return _Blacklist;

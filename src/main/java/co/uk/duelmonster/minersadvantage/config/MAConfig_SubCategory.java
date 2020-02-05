@@ -27,10 +27,10 @@ public class MAConfig_SubCategory {
 	
 	/**
 	 * @param _bEnabled
-	 *            Sets bEnabled
+	 *                  Sets bEnabled
 	 */
 	public void setEnabled(boolean p_bEnabled) {
-		if (parentConfig.serverOverrides == null || !parentConfig.serverOverrides.server.bOverrideFeatureEnablement)
+		if (parentConfig == null || parentConfig.serverOverrides == null || !parentConfig.serverOverrides.server.bOverrideFeatureEnablement)
 			this._bEnabled = p_bEnabled;
 	}
 	

@@ -35,7 +35,7 @@ public class MAConfig_Common extends MAConfig_SubCategory {
 	 * @return tpsGuard
 	 */
 	public boolean tpsGuard() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceCommonSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceCommonSettings)
 			return parentConfig.serverOverrides.common.tpsGuard();
 		
 		return _tpsGuard;
@@ -53,7 +53,7 @@ public class MAConfig_Common extends MAConfig_SubCategory {
 	 * @return bGatherDrops
 	 */
 	public boolean bGatherDrops() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceCommonSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceCommonSettings)
 			return parentConfig.serverOverrides.common.bGatherDrops();
 		
 		return _bGatherDrops;
@@ -71,7 +71,7 @@ public class MAConfig_Common extends MAConfig_SubCategory {
 	 * @return bAutoIlluminate
 	 */
 	public boolean bAutoIlluminate() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceCommonSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceCommonSettings)
 			return parentConfig.serverOverrides.common.bAutoIlluminate();
 		
 		return _bAutoIlluminate;
@@ -89,7 +89,7 @@ public class MAConfig_Common extends MAConfig_SubCategory {
 	 * @return bMineVeins
 	 */
 	public boolean bMineVeins() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceCommonSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceCommonSettings)
 			return parentConfig.serverOverrides.common.bMineVeins();
 		
 		return _bMineVeins;
@@ -107,7 +107,7 @@ public class MAConfig_Common extends MAConfig_SubCategory {
 	 * @return iBlocksPerTick
 	 */
 	public int iBlocksPerTick() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceCommonSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceCommonSettings)
 			return parentConfig.serverOverrides.common.iBlocksPerTick();
 		
 		return _iBlocksPerTick;
@@ -125,7 +125,7 @@ public class MAConfig_Common extends MAConfig_SubCategory {
 	 * @return bEnableTickDelay
 	 */
 	public boolean bEnableTickDelay() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceCommonSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceCommonSettings)
 			return parentConfig.serverOverrides.common.bEnableTickDelay();
 		
 		return _bEnableTickDelay;
@@ -143,7 +143,7 @@ public class MAConfig_Common extends MAConfig_SubCategory {
 	 * @return iTickDelay
 	 */
 	public int iTickDelay() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceCommonSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceCommonSettings)
 			return parentConfig.serverOverrides.common.iTickDelay();
 		
 		return _iTickDelay;
@@ -161,7 +161,7 @@ public class MAConfig_Common extends MAConfig_SubCategory {
 	 * @return iBlockRadius
 	 */
 	public int iBlockRadius() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceCommonSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceCommonSettings)
 			return parentConfig.serverOverrides.common.iBlockRadius();
 		
 		return _iBlockRadius;
@@ -179,7 +179,7 @@ public class MAConfig_Common extends MAConfig_SubCategory {
 	 * @return iBlockLimit
 	 */
 	public int iBlockLimit() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceCommonSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceCommonSettings)
 			return parentConfig.serverOverrides.common.iBlockLimit();
 		
 		return _iBlockLimit;
@@ -197,7 +197,7 @@ public class MAConfig_Common extends MAConfig_SubCategory {
 	 * @return iBlockLimit
 	 */
 	public boolean bBreakAtToolSpeeds() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceCommonSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceCommonSettings)
 			return parentConfig.serverOverrides.common.bBreakAtToolSpeeds();
 		
 		return _bBreakAtToolSpeeds;
@@ -215,7 +215,7 @@ public class MAConfig_Common extends MAConfig_SubCategory {
 	 * @return iBlockLimit
 	 */
 	public boolean bDisableParticleEffects() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceCommonSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceCommonSettings)
 			return parentConfig.serverOverrides.common.bDisableParticleEffects();
 		
 		return _bDisableParticleEffects;

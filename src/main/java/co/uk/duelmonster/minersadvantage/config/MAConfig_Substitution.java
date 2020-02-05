@@ -26,7 +26,7 @@ public class MAConfig_Substitution extends MAConfig_SubCategory {
 	 */
 	@Override
 	public boolean bEnabled() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bOverrideFeatureEnablement && !parentConfig.serverOverrides.substitution.bEnabled())
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bOverrideFeatureEnablement && !parentConfig.serverOverrides.substitution.bEnabled())
 			return false;
 		
 		return super.bEnabled();
@@ -36,7 +36,7 @@ public class MAConfig_Substitution extends MAConfig_SubCategory {
 	 * @return bSwitchBack
 	 */
 	public boolean bSwitchBack() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceSubstitutionSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceSubstitutionSettings)
 			return parentConfig.serverOverrides.substitution.bSwitchBack();
 		
 		return _bSwitchBack;
@@ -54,7 +54,7 @@ public class MAConfig_Substitution extends MAConfig_SubCategory {
 	 * @return bFavourSilkTouch
 	 */
 	public boolean bFavourSilkTouch() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceSubstitutionSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceSubstitutionSettings)
 			return parentConfig.serverOverrides.substitution.bFavourSilkTouch();
 		
 		return _bFavourSilkTouch;
@@ -72,7 +72,7 @@ public class MAConfig_Substitution extends MAConfig_SubCategory {
 	 * @return bFavourFortune
 	 */
 	public boolean bFavourFortune() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceSubstitutionSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceSubstitutionSettings)
 			return parentConfig.serverOverrides.substitution.bFavourFortune();
 		
 		return _bFavourFortune;
@@ -90,7 +90,7 @@ public class MAConfig_Substitution extends MAConfig_SubCategory {
 	 * @return bIgnoreIfValidTool
 	 */
 	public boolean bIgnoreIfValidTool() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceSubstitutionSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceSubstitutionSettings)
 			return parentConfig.serverOverrides.substitution.bIgnoreIfValidTool();
 		
 		return _bIgnoreIfValidTool;
@@ -108,7 +108,7 @@ public class MAConfig_Substitution extends MAConfig_SubCategory {
 	 * @return bIgnorePassiveMobs
 	 */
 	public boolean bIgnorePassiveMobs() {
-		if (parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceSubstitutionSettings)
+		if (parentConfig != null && parentConfig.serverOverrides != null && parentConfig.serverOverrides.server.bEnforceSubstitutionSettings)
 			return parentConfig.serverOverrides.substitution.bIgnorePassiveMobs();
 		
 		return _bIgnorePassiveMobs;
