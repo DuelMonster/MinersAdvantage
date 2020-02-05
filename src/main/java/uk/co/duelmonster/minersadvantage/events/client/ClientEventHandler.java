@@ -154,6 +154,7 @@ public class ClientEventHandler {
 	public void onItemRightClick(PlayerInteractEvent.RightClickItem event) {
 		World world = event.getWorld();
 		if (world.isRemote
+				&& MAConfig.CLIENT.pathanation.enabled()
 				&& event.getItemStack() != null
 				&& event.getItemStack().getItem() instanceof ShovelItem
 				&& ClientFunctions.mc.objectMouseOver instanceof BlockRayTraceResult) {
