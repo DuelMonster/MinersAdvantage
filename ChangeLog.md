@@ -1,3 +1,10 @@
+Build: 1.12.2-1.3.20
+	fix: Pathanation ignoring enabled state
+	fix: null object exception avoidance by checking parrentConfig
+	feature: improve Substitution algorithm
+		
+=========
+
 chore: Update version check file URL after moving hosting location
 refactor: Illumination - Avoid torch placement on ore blocks
 feature: Illumination - Add option to place torches on walls when using Shaftanation
