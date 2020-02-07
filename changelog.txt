@@ -1,3 +1,10 @@
+Build: 1.14.4-1.4.4
+	fix: Pathanation ignoring enabled state
+	fix: null object exception avoidance by checking parrentConfig
+	feature: improve Substitution algorithm
+		
+=========
+
 Build: 1.14.4-1.4.3.252
 	fix: config list values cleared on startup #36
 	feature: reimplement ignoreIfValidTool
