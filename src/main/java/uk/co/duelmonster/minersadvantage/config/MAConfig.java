@@ -5,6 +5,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.config.ModConfig.Reloading;
 import uk.co.duelmonster.minersadvantage.common.Constants;
 
 public class MAConfig {
@@ -31,7 +32,7 @@ public class MAConfig {
 	}
 	
 	@SubscribeEvent
-	public static void onFileChange(final ModConfig.ConfigReloading configEvent) {
+	public static void onFileChange(final Reloading configEvent) {
 		Constants.LOGGER.fatal(Constants.MOD_ID, "Config just got changed on the file system!");
 	}
 	
