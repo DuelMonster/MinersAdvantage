@@ -5,19 +5,5 @@ jdk:
 
 before_install:
   - chmod +x gradlew
-install: ./gradlew setupCI
-
+  
 script: ./gradlew build
-
-sudo: false
-
-notifications:
- irc:
-  channels:
-   - "irc.esper.net#MonsterRealm "
-  use_notice: true
-  skip_join: true
-  template:
-   - "%{repository}#%{build_number} (%{branch} - %{commit} : %{author}): %{message}"
-   - "Change view : %{compare_url}"
-   - "Build details : %{build_url}"
