@@ -17,11 +17,11 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.init.Enchantments;
 import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
@@ -108,7 +108,7 @@ public class SubstitutionHandler {
 							rankingMap.put(iMapIndx, new RankAndLevel(iSlot, Ranking.FORTUNE, enchantments.get(Enchantments.FORTUNE)));
 							iMapIndx++;
 						}
-					} else {
+					} else if (itemStack.canHarvestBlock(this.state)) {
 						if (enchantments.containsKey(Enchantments.EFFICIENCY))
 							rankingMap.put(iMapIndx, new RankAndLevel(iSlot, Ranking.EFFICIENCY, enchantments.get(Enchantments.EFFICIENCY)));
 						else if (enchantments.containsKey(Enchantments.FORTUNE))
