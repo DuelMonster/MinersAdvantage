@@ -106,7 +106,7 @@ public class SubstitutionHelper {
 							rankingMap.put(iMapIndx, new RankAndLevel(iSlot, Ranking.FORTUNE, enchantments.get(Enchantments.FORTUNE)));
 							iMapIndx++;
 						}
-					} else {
+					} else if (itemStack.canHarvestBlock(this.state)) {
 						if (enchantments.containsKey(Enchantments.EFFICIENCY))
 							rankingMap.put(iMapIndx, new RankAndLevel(iSlot, Ranking.EFFICIENCY, enchantments.get(Enchantments.EFFICIENCY)));
 						else if (enchantments.containsKey(Enchantments.FORTUNE))
