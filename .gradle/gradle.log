@@ -2,12 +2,12 @@ This mapping 'snapshot_20180310' was designed for MC 1.12! Use at your own peril
 
 ========================================================================================================================================================================================================
 
-  Building MinersAdvantage Version = 1.12.2-1.3.19.244  Building MinersAdvantage Version = 1.12.2-1.3.19.244
+  Building MinersAdvantage Version = 1.12.2-1.3.20.244  Building MinersAdvantage Version = 1.12.2-1.3.20.244
 
 ========================================================================================================================================================================================================
 
 #################################################
-         ForgeGradle 2.3-SNAPSHOT-ee3e3df        
+         ForgeGradle 2.3-SNAPSHOT-6084129e        
   https://github.com/MinecraftForge/ForgeGradle  
 #################################################
                  Powered by MCP                  
@@ -15,7 +15,39 @@ This mapping 'snapshot_20180310' was designed for MC 1.12! Use at your own peril
      by: Searge, ProfMobius, R4wk, ZeuX          
      Fesh0r, IngisKahn, bspkrs, LexManos         
 #################################################
+:deobfCompileDummyTask
+:deobfProvidedDummyTask
+:getVersionJson
+:extractUserdev
+:extractDependencyATs SKIPPED
+:extractMcpData SKIPPED
+:extractMcpMappings SKIPPED
+:genSrgs SKIPPED
+:downloadClient
+:downloadServer
+:splitServerJar SKIPPED
+:mergeJars SKIPPED
+:deobfMcSRG SKIPPED
+:decompileMc SKIPPED
+:fixMcSources
+:applySourcePatches
+:remapMcSources
+:recompileMc SKIPPED
+:extractNatives SKIPPED
+:getAssetIndex
+:getAssets
+Current status: 832/1305   63%
+Current status: 1084/1305   83%
+:makeStart
+:setupDecompWorkspace
+:eclipseClasspath
+:eclipseJdt
+:eclipseProject
+:makeEclipseCleanRunClient
+:makeEclipseCleanRunServer
+:eclipse
+:clean
 
-CONFIGURE SUCCESSFUL
+BUILD SUCCESSFUL
 
-Total time: 12.224 secs
+Total time: 1 mins 8.623 secs

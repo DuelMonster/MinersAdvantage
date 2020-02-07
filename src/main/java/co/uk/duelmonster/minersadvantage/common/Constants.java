@@ -19,7 +19,7 @@ public final class Constants {
 	// This number is incremented every minecraft release, never reset
 	public static final int minorVersion = 3;
 	// This number is incremented every time new features are added, never reset
-	public static final int revisionVersion = 19;
+	public static final int revisionVersion = 20;
 	// This number is incremented every time a release is built, and never reset
 	public static final int buildVersion = 243;
 	
