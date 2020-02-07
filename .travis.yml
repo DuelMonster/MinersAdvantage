@@ -5,7 +5,7 @@ jdk:
 
 before_install:
   - chmod +x gradlew
-install: ./gradlew setupCI
+install: ./gradlew genEclipseRuns
 
 script: ./gradlew build
 
