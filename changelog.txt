@@ -1,4 +1,11 @@
-Build: 1.15.1-1.5.0.15
+Build: 1.15.1-1.5.1
+	fix: Pathanation ignoring enabled state
+	fix: null object exception avoidance by checking parrentConfig
+	feature: improve Substitution algorithm
+		
+=========
+
+Build: 1.15.1-1.5.0
 	Ported to MC 1.15.1
 		
 =========
