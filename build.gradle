@@ -35,7 +35,7 @@ minecraft {
     // stable_#            Stables are built at the discretion of the MCP team.
     // Use non-default mappings at your own risk. they may not always work.
     // Simply re-run your setup task after changing the mappings to update your workspace.
-    mappings channel: 'snapshot', version: '20200207-1.15.1'
+    mappings channel: 'snapshot', version: '20200305-1.15.1'
 	
     // makeObfSourceJar = false // an Srg named sources jar is made by default. disabled because we do this ourselves.
     
@@ -179,10 +179,13 @@ task updateRevisionNumber << {
     versionProps['REVISION'] = (mod_revision  + 1).toString()
     versionProps.store(versionPropsFile.newWriter(), null)
 }
+updateRevisionNumber.finalizedBy build
 
 //======================================================================================================\\
 
 task release(type: Copy) {
+	dependsOn updateRevisionNumber
+	
 	doFirst {
 		println "===================================================================================================="
 		println "  Building $archivesBaseName release version: ${mcversion}-$version"
@@ -193,7 +196,26 @@ task release(type: Copy) {
 	into "../~Releases/"
 
 	doLast {
+		println "  $archivesBaseName release built successfully:  " + file("../~Releases/")
 		println "===================================================================================================="
+	}
+}
+
+//======================================================================================================\\
+
+task testRelease(type: Copy) {
+	dependsOn build
+	
+	doFirst {
+		println "===================================================================================================="
+		println "  Building $archivesBaseName release version: ${mcversion}-$version"
+		println "===================================================================================================="
+	}
+
+	from('build/libs') { include '*.jar' }
+	into "../~TestReleases/"
+
+	doLast {
 		println "  $archivesBaseName release built successfully:  " + file("../~Releases/")
 		println "===================================================================================================="
 	}
