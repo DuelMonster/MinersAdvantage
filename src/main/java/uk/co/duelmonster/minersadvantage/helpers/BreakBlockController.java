@@ -5,7 +5,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.CommandBlockBlock;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.StructureBlock;
-import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -92,7 +91,7 @@ public class BreakBlockController {
 			BlockState iblockstate = world.getBlockState(posBlock);
 			Block block = iblockstate.getBlock();
 			
-			if (iblockstate.getMaterial() == Material.AIR) {
+			if (iblockstate.isAir(world, posBlock)) {
 				this.isHittingBlock = false;
 				return false;
 			} else {
@@ -126,30 +125,30 @@ public class BreakBlockController {
 	/**
 	 * Called when the player is hitting a block with an item.
 	 */
-	public boolean clickBlock(BlockPos loc, Direction face) {
-		if (heldItemStack.isEmpty() || !world.getWorldBorder().contains(loc))
+	public boolean clickBlock(BlockPos pos, Direction face) {
+		if (heldItemStack.isEmpty() || !world.getWorldBorder().contains(pos))
 			return false;
 		
-		if (!this.isHittingBlock || !this.isHittingPosition(loc)) {
+		if (!this.isHittingBlock || !this.isHittingPosition(pos)) {
 			// if (this.isHittingBlock)
 			// this.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.ABORT_DESTROY_BLOCK,
 			// this.currentBlockPos, face));
 			
-			BlockState iblockstate = world.getBlockState(loc);
+			BlockState iblockstate = world.getBlockState(pos);
 			
 			// this.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, loc,
 			// face));
-			boolean flag = iblockstate.getMaterial() != Material.AIR;
+			boolean isAir = iblockstate.isAir(world, pos);
 			
-			if (flag && this.curBlockDamageMP == 0.0F) {
-				iblockstate.onBlockClicked(world, loc, player);
+			if (isAir && this.curBlockDamageMP == 0.0F) {
+				iblockstate.onBlockClicked(world, pos, player);
 			}
 			
-			if (flag && iblockstate.getPlayerRelativeBlockHardness(player, world, loc) >= 1.0F) {
-				this.onPlayerDestroyBlock(loc);
+			if (isAir && iblockstate.getPlayerRelativeBlockHardness(player, world, pos) >= 1.0F) {
+				this.onPlayerDestroyBlock(pos);
 			} else {
 				this.isHittingBlock = true;
-				this.currentBlockPos = loc;
+				this.currentBlockPos = pos;
 				this.curBlockDamageMP = 0.0F;
 				this.stepSoundTickCounter = 0.0F;
 				world.sendBlockBreakProgress(player.getEntityId(), this.currentBlockPos, (int) (this.curBlockDamageMP * 10.0F) - 1);
@@ -171,7 +170,7 @@ public class BreakBlockController {
 		
 		if ((block instanceof CommandBlockBlock || block instanceof StructureBlock) && !player.canUseCommandBlock()) {
 			return false;
-		} else if (blockstate.getMaterial() == Material.AIR) {
+		} else if (blockstate.isAir(world, pos)) {
 			return false;
 		} else {
 			world.playEvent(2001, pos, Block.getStateId(blockstate));

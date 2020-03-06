@@ -185,10 +185,11 @@ public abstract class Agent {
 	public void addToQueue(BlockPos pos) {
 		final BlockState state = world.getBlockState(pos);
 		
-		if (state == null || state.getBlock() == Blocks.AIR || state.getBlock() == Blocks.TORCH ||
-				state.getBlock() == Blocks.BEDROCK || state.getMaterial() == Material.WATER ||
-				state.getMaterial() == Material.LAVA || pos == null || processed.contains(pos) ||
-				queued.contains(pos) || (harvestArea != null && !Functions.isWithinArea(pos, harvestArea)))
+		if (state == null || state.isAir(world, originPos) ||
+				state.getBlock() == Blocks.TORCH || state.getBlock() == Blocks.BEDROCK ||
+				state.getMaterial() == Material.WATER || state.getMaterial() == Material.LAVA ||
+				pos == null || processed.contains(pos) || queued.contains(pos) ||
+				(harvestArea != null && !Functions.isWithinArea(pos, harvestArea)))
 			return;
 		
 		queued.add(pos);

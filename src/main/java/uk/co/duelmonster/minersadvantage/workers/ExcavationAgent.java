@@ -6,7 +6,6 @@ import org.apache.logging.log4j.Level;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.block.SoundType;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -30,7 +29,7 @@ public class ExcavationAgent extends Agent {
 		this.faceHit = pkt.faceHit;
 		this.originState = Block.getStateById(pkt.stateID);
 		
-		if (originState == null || originState.getBlock() == Blocks.AIR)
+		if (originState == null || originState.isAir(world, originPos))
 			Constants.LOGGER.log(Level.INFO, "Invalid BlockState ID recieved from message packet. [ " + pkt.stateID + " ]");
 		
 		this.originBlock = originState.getBlock();

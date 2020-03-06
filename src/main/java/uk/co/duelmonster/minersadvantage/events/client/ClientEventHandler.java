@@ -91,7 +91,7 @@ public class ClientEventHandler {
 				BlockState state = world.getBlockState(pos);
 				Block block = state.getBlock();
 				
-				if (block == null || Blocks.AIR == block || Blocks.BEDROCK == block)
+				if (block == null || state.isAir(world, pos) || Blocks.BEDROCK == block)
 					return;
 				
 				MA.NETWORK.sendToServer(new PacketSubstituteTool(pos));

@@ -11,6 +11,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.ExperienceOrbEntity;
 import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
@@ -198,10 +199,11 @@ public class ServerEventHandler {
 	@SubscribeEvent
 	public void onUseHoeEvent(UseHoeEvent event) {
 		World world = event.getContext().getWorld();
-		if (world.isRemote || !(event.getPlayer() instanceof ServerPlayerEntity) || (event.getPlayer() instanceof FakePlayer))
+		PlayerEntity playerEntity = event.getPlayer();
+		if (world.isRemote || !(playerEntity instanceof ServerPlayerEntity) || (playerEntity instanceof FakePlayer))
 			return;
 		
-		ServerPlayerEntity player = (ServerPlayerEntity) event.getPlayer();
+		ServerPlayerEntity player = (ServerPlayerEntity) playerEntity;
 		BlockPos pos = event.getContext().getPos();
 		Block block = world.getBlockState(pos).getBlock();
 		

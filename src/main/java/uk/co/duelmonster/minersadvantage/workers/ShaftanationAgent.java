@@ -26,7 +26,7 @@ public class ShaftanationAgent extends Agent {
 		this.faceHit = pkt.faceHit;
 		this.originState = Block.getStateById(pkt.stateID);
 		
-		if (originState == null || originState.getBlock() == Blocks.AIR)
+		if (originState == null || originState.isAir(world, originPos))
 			Constants.LOGGER.log(Level.INFO, "Invalid BlockState ID recieved from message packet. [ " + pkt.stateID + " ]");
 		
 		this.originBlock = originState.getBlock();
