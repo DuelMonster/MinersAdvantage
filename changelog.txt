@@ -1,7 +1,7 @@
 Build: 1.15.2-1.6.5
 	feature: improve cultivatable area detection when using hoe
 	fix: Cultivation failure when using hoe
-	fix: checks for air failing to succeed every time causing more blocks… …
+	fix: checks for air failing to succeed every time causing more blocks
 	fix: Substitution not working consistently
 		
 =========
