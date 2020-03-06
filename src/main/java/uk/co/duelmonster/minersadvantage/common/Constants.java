@@ -127,7 +127,7 @@ public class Constants {
 	};
 	
 	public static final List<Block> DIRT_BLOCKS = new LinkedList<Block>();
-	{
+	static {
 		DIRT_BLOCKS.add(Blocks.DIRT);
 		DIRT_BLOCKS.add(Blocks.GRASS_BLOCK);
 		DIRT_BLOCKS.add(Blocks.PODZOL);
