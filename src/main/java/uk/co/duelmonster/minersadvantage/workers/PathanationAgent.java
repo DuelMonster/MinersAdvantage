@@ -6,12 +6,12 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.SoundType;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Direction;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import uk.co.duelmonster.minersadvantage.common.Constants;
 import uk.co.duelmonster.minersadvantage.common.Functions;
 import uk.co.duelmonster.minersadvantage.network.packets.PacketPathanate;
 
@@ -52,7 +52,7 @@ public class PathanationAgent extends Agent {
 			
 			BlockState state = world.getBlockState(oPos);
 			
-			if (!state.isIn(BlockTags.DIRT_LIKE)) {
+			if (!Constants.DIRT_BLOCKS.contains(state.getBlock())) {
 				// Add the non-harvestable blocks to the processed list so that they can be avoided.
 				processed.add(oPos);
 				continue;
@@ -94,7 +94,7 @@ public class PathanationAgent extends Agent {
 	
 	@Override
 	public void addToQueue(BlockPos oPos) {
-		if (world.getBlockState(oPos).isIn(BlockTags.DIRT_LIKE))
+		if (Constants.DIRT_BLOCKS.contains(world.getBlockState(oPos).getBlock()))
 			super.addToQueue(oPos);
 	}
 	
@@ -143,7 +143,7 @@ public class PathanationAgent extends Agent {
 			break;
 		}
 		
-		harvestArea = new AxisAlignedBB(
+		interimArea = new AxisAlignedBB(
 				xStart, yBottom, zStart,
 				xEnd, yTop, zEnd);
 	}

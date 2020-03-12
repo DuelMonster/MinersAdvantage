@@ -21,15 +21,20 @@ public class FarmingHelper {
 	}
 	
 	public static BlockPos getWaterSource(World world, BlockPos originPos) {
-		// for (int yOffset = originPos.getY() - 1; yOffset <= originPos.getY() + 1;
-		// ++yOffset)
-		for (int xOffset = originPos.getX() - 4; xOffset <= originPos.getX() + 4; ++xOffset)
-			for (int zOffset = originPos.getZ() - 4; zOffset <= originPos.getZ() + 4; ++zOffset) {
-				BlockPos oPos = new BlockPos(xOffset, originPos.getY(), zOffset);
-				BlockState state = world.getBlockState(oPos);
-				if (state.getMaterial() == Material.WATER || (state.getProperties().contains(BlockStateProperties.WATERLOGGED) && state.get(BlockStateProperties.WATERLOGGED)))
-					return oPos;
+		// Get closest water source within range of originPos (9x9 square)
+		for (int offset = 1; offset <= 4; offset++) {
+			AxisAlignedBB box = new AxisAlignedBB(originPos, originPos);
+			box = box.grow(offset, 0, offset);
+			
+			Iterable<BlockPos> positions = BlockPos.getAllInBoxMutable(new BlockPos(box.minX, originPos.getY(), box.minZ), new BlockPos(box.maxX, originPos.getY(), box.maxZ));
+			
+			for (BlockPos pos : positions) {
+				BlockState state = world.getBlockState(pos);
+				if (state.getMaterial() == Material.WATER || (state.getProperties().contains(BlockStateProperties.WATERLOGGED) && state.get(BlockStateProperties.WATERLOGGED))) {
+					return pos;
+				}
 			}
+		}
 		
 		return null;
 	}

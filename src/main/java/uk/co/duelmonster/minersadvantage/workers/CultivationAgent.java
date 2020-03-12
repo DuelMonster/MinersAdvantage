@@ -2,14 +2,13 @@ package uk.co.duelmonster.minersadvantage.workers;
 
 import java.util.concurrent.TimeUnit;
 
-import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.FarmlandBlock;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
+import uk.co.duelmonster.minersadvantage.common.Constants;
 import uk.co.duelmonster.minersadvantage.common.Functions;
 import uk.co.duelmonster.minersadvantage.helpers.FarmingHelper;
 import uk.co.duelmonster.minersadvantage.network.packets.PacketCultivate;
@@ -21,7 +20,7 @@ public class CultivationAgent extends Agent {
 		
 		this.originPos = pkt.pos;
 		
-		this.harvestArea = FarmingHelper.getFarmableLand(world, originPos);
+		this.interimArea = FarmingHelper.getFarmableLand(world, originPos);
 		
 		addConnectedToQueue(originPos);
 	}
@@ -49,9 +48,7 @@ public class CultivationAgent extends Agent {
 			if (oPos == null)
 				continue;
 			
-			BlockState state = world.getBlockState(oPos);
-			
-			if (!state.isIn(BlockTags.DIRT_LIKE)) {
+			if (!Constants.DIRT_BLOCKS.contains(world.getBlockState(oPos).getBlock())) {
 				// Add the non-harvestable blocks to the processed list so that they can be avoided.
 				processed.add(oPos);
 				iQueueCount--;
@@ -91,9 +88,7 @@ public class CultivationAgent extends Agent {
 	
 	@Override
 	public void addToQueue(BlockPos oPos) {
-		BlockState state = world.getBlockState(oPos);
-		
-		if (state.isIn(BlockTags.DIRT_LIKE))
+		if (Constants.DIRT_BLOCKS.contains(world.getBlockState(oPos).getBlock()))
 			super.addToQueue(oPos);
 	}
 }

@@ -34,7 +34,7 @@ public class CropinationAgent extends Agent {
 		this.originPos = pkt.pos;
 		
 		// Removed to simplify harvesting crops. This may be an issue for a MASSIVE farm and should be replaced.
-		this.harvestArea = FarmingHelper.getCropPatch(world, originPos);
+		this.interimArea = FarmingHelper.getCropPatch(world, originPos);
 		
 		addConnectedToQueue(originPos);
 	}

@@ -106,10 +106,9 @@ if (versionPropsFile.canRead()) {
     mod_minor = versionProps['MINOR'].toInteger()
     mod_revision = versionProps['REVISION'].toInteger()
     mod_build = versionProps['BUILDNUMBER'].toInteger() + 1
-	
+    
     versionProps['BUILDNUMBER'] = mod_build.toString()
     versionProps.store(versionPropsFile.newWriter(), null)
-    
 } else {
     throw new FileNotFoundException("Could not read version.properties!")
 }
@@ -180,10 +179,13 @@ task updateRevisionNumber << {
     versionProps['REVISION'] = (mod_revision  + 1).toString()
     versionProps.store(versionPropsFile.newWriter(), null)
 }
+updateRevisionNumber.finalizedBy build
 
 //======================================================================================================\\
 
 task release(type: Copy) {
+	dependsOn updateRevisionNumber
+	
 	doFirst {
 		println "===================================================================================================="
 		println "  Building $archivesBaseName release version: ${mcversion}-$version"
@@ -194,7 +196,26 @@ task release(type: Copy) {
 	into "../~Releases/"
 
 	doLast {
+		println "  $archivesBaseName release built successfully:  " + file("../~Releases/")
 		println "===================================================================================================="
+	}
+}
+
+//======================================================================================================\\
+
+task testRelease(type: Copy) {
+	dependsOn build
+	
+	doFirst {
+		println "===================================================================================================="
+		println "  Building $archivesBaseName release version: ${mcversion}-$version"
+		println "===================================================================================================="
+	}
+
+	from('build/libs') { include '*.jar' }
+	into "../~TestReleases/"
+
+	doLast {
 		println "  $archivesBaseName release built successfully:  " + file("../~Releases/")
 		println "===================================================================================================="
 	}

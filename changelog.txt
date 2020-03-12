@@ -1,18 +1,27 @@
 Build: 1.14.4-1.4.4
+	fix: auto illumination placing torches way outside the harvested area with large block radius's and block limits
+	feature: improve cultivatable area detection when using hoe
+	fix: Cultivation failure when using hoe
+	fix: checks for air failing to succeed every time causing more blocks
+	fix: Substitution not working consistently
+		
+=========
+
+Build: 1.14.4-1.4.3.255
 	fix: Pathanation ignoring enabled state
 	fix: null object exception avoidance by checking parrentConfig
 	feature: improve Substitution algorithm
 		
 =========
 
-Build: 1.14.4-1.4.3.252
+Build: 1.14.4-1.4.2.252
 	fix: config list values cleared on startup #36
 	feature: reimplement ignoreIfValidTool
 	feature: add blacklist option to Substitution
 	feature: reimplement other blacklist options
 	
 =========
-Build: 1.14.4-1.4.2.248
+Build: 1.14.4-1.4.1.248
 	fix: Enablement/disablement key bindings being ignored by the server
 	fix: Illumination placing torches incorrectly during auto illumination tasks
 	fix: Coprination not working 100% of the time
@@ -22,7 +31,7 @@ Build: 1.14.4-1.4.2.248
 	feature: new key binding to automatically illuminate the area around the player. Default key = F12. This is currently a radius of 8 blocks around the player; which equates to 17x17.
 	
 =========
-Build: 1.14.4-1.4.1.235
+Build: 1.14.4-1.4.0.235
 	Major overhaul porting to MC 1.14.4
 
 	New Feature: Lumbination - Option to replant the tree after harvesting

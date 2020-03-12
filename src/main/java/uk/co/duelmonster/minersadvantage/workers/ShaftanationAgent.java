@@ -26,7 +26,7 @@ public class ShaftanationAgent extends Agent {
 		this.faceHit = pkt.faceHit;
 		this.originState = Block.getStateById(pkt.stateID);
 		
-		if (originState == null || originState.getBlock() == Blocks.AIR)
+		if (originState == null || originState.isAir(world, originPos))
 			Constants.LOGGER.log(Level.INFO, "Invalid BlockState ID recieved from message packet. [ " + pkt.stateID + " ]");
 		
 		this.originBlock = originState.getBlock();
@@ -59,7 +59,7 @@ public class ShaftanationAgent extends Agent {
 			}
 			
 			BlockPos oPos = queued.remove(0);
-			if (oPos == null || !Functions.isWithinArea(oPos, harvestArea) || world.getBlockState(oPos).getBlock() == Blocks.TORCH)
+			if (oPos == null || !Functions.isWithinArea(oPos, interimArea) || world.getBlockState(oPos).getBlock() == Blocks.TORCH)
 				continue;
 			
 			BlockState state = world.getBlockState(oPos);
@@ -150,7 +150,7 @@ public class ShaftanationAgent extends Agent {
 			break;
 		}
 		
-		harvestArea = new AxisAlignedBB(
+		interimArea = new AxisAlignedBB(
 				xStart, yBottom, zStart,
 				xEnd, yTop, zEnd);
 		

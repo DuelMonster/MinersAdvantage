@@ -8,6 +8,8 @@ import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -62,6 +64,7 @@ public class Constants {
 	public static final String	MOD_NAME		= "MinersAdvantage";
 	public static final String	MOD_NAME_MSG	= TextFormatting.DARK_PURPLE + "[" + Constants.MOD_NAME + "] ";
 	
+	// This number is incremented every time we remove deprecated code or make major changes, never reset
 	public static final String				PROTOCOL_VERSION	= "1.4";
 	public static final ResourceLocation	CHANNEL_ID			= new ResourceLocation(Constants.MOD_ID, "main_channel");
 	
@@ -123,4 +126,12 @@ public class Constants {
 		RANKING_DEFAULT.add(Ranking.NONE);
 	};
 	
+	public static final List<Block> DIRT_BLOCKS = new LinkedList<Block>();
+	static {
+		DIRT_BLOCKS.add(Blocks.DIRT);
+		DIRT_BLOCKS.add(Blocks.GRASS_BLOCK);
+		DIRT_BLOCKS.add(Blocks.PODZOL);
+		DIRT_BLOCKS.add(Blocks.COARSE_DIRT);
+		DIRT_BLOCKS.add(Blocks.MYCELIUM);
+	}
 }
