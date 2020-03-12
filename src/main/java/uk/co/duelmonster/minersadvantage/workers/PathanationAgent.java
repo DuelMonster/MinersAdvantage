@@ -143,7 +143,7 @@ public class PathanationAgent extends Agent {
 			break;
 		}
 		
-		harvestArea = new AxisAlignedBB(
+		interimArea = new AxisAlignedBB(
 				xStart, yBottom, zStart,
 				xEnd, yTop, zEnd);
 	}

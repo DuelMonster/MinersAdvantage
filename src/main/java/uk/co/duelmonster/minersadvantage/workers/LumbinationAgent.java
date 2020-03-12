@@ -41,7 +41,7 @@ public class LumbinationAgent extends Agent {
 		
 		lumbinationHelper.setPlayer(player);
 		
-		this.harvestArea = lumbinationHelper.identifyTree(originPos, originState);
+		this.interimArea = lumbinationHelper.identifyTree(originPos, originState);
 		this.trunkArea = lumbinationHelper.trunkArea;
 		this.trunkPositions = lumbinationHelper.trunkPositions;
 		this.originLeafPos = lumbinationHelper.getLeafPos(originPos);
@@ -76,7 +76,7 @@ public class LumbinationAgent extends Agent {
 			}
 			
 			BlockPos oPos = queued.remove(0);
-			if (oPos == null || !Functions.isWithinArea(oPos, harvestArea))
+			if (oPos == null || !Functions.isWithinArea(oPos, interimArea))
 				continue;
 			
 			BlockState state = world.getBlockState(oPos);
@@ -179,7 +179,7 @@ public class LumbinationAgent extends Agent {
 		
 		if (checkBlock.getClass().isInstance(originLeafBlock)
 				&& clientConfig.lumbination.destroyLeaves
-				&& (harvestArea == null || Functions.isWithinArea(oPos, harvestArea)))
+				&& (interimArea == null || Functions.isWithinArea(oPos, interimArea)))
 			super.addToQueue(oPos);
 	}
 	

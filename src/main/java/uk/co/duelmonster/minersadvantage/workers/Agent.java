@@ -74,10 +74,14 @@ public abstract class Agent {
 	public BlockState			originState					= null;
 	public Block				originBlock					= null;
 	public boolean				isRedStone					= false;
-	public AxisAlignedBB		harvestArea					= null;
 	public BreakBlockController	breakController				= null;
 	public boolean				awaitingAutoIllumination	= false;
 	public boolean				shouldAutoIlluminate		= false;
+	
+	public AxisAlignedBB	interimArea	= null;
+	public AxisAlignedBB	refinedArea	= null;
+	public BlockPos			minAreaPos	= BlockPos.ZERO;
+	public BlockPos			maxAreaPos	= BlockPos.ZERO;
 	
 	public List<BlockPos>	processed	= new ArrayList<BlockPos>();
 	public List<BlockPos>	queued		= new ArrayList<BlockPos>();
@@ -105,12 +109,12 @@ public abstract class Agent {
 	
 	protected void setupHarvestArea() {
 		// Shaft area info
-		int xStart = 0;
-		int xEnd = 0;
-		int yBottom = feetPos;
-		int yTop = feetPos + (clientConfig.common.blockRadius - 1);
-		int zStart = 0;
-		int zEnd = 0;
+		int	xStart	= 0;
+		int	xEnd	= 0;
+		int	yBottom	= feetPos;
+		int	yTop	= feetPos + (clientConfig.common.blockRadius - 1);
+		int	zStart	= 0;
+		int	zEnd	= 0;
 		
 		// if the ShaftWidth is divisible by 2 we don't want to do anything
 		double dDivision = ((clientConfig.common.blockRadius & 1) != 0 ? 0 : 0.5);
@@ -160,18 +164,26 @@ public abstract class Agent {
 			}
 		}
 		
-		harvestArea = new AxisAlignedBB(
+		interimArea = new AxisAlignedBB(
 				xStart, yBottom, zStart,
 				xEnd, yTop, zEnd);
 		
 	}
 	
 	public BlockPos harvestAreaStartPos() {
-		return new BlockPos(harvestArea.minX, harvestArea.minY, harvestArea.minZ);
+		if (refinedArea != null) {
+			return new BlockPos(refinedArea.minX, refinedArea.minY, refinedArea.minZ);
+		} else {
+			return new BlockPos(interimArea.minX, interimArea.minY, interimArea.minZ);
+		}
 	}
 	
 	public BlockPos harvestAreaEndPos() {
-		return new BlockPos(harvestArea.maxX, harvestArea.maxY, harvestArea.maxZ);
+		if (refinedArea != null) {
+			return new BlockPos(refinedArea.maxX, refinedArea.maxY, refinedArea.maxZ);
+		} else {
+			return new BlockPos(interimArea.maxX, interimArea.maxY, interimArea.maxZ);
+		}
 	}
 	
 	public void addConnectedToQueue(BlockPos pos) {
@@ -189,10 +201,47 @@ public abstract class Agent {
 				state.getBlock() == Blocks.TORCH || state.getBlock() == Blocks.BEDROCK ||
 				state.getMaterial() == Material.WATER || state.getMaterial() == Material.LAVA ||
 				pos == null || processed.contains(pos) || queued.contains(pos) ||
-				(harvestArea != null && !Functions.isWithinArea(pos, harvestArea)))
+				(interimArea != null && !Functions.isWithinArea(pos, interimArea)))
 			return;
 		
 		queued.add(pos);
+		
+		calculateRefinedArea(pos);
+	}
+	
+	public void calculateRefinedArea(BlockPos currentPos) {
+		// Set initial minimum area position
+		if (minAreaPos.equals(BlockPos.ZERO)) {
+			minAreaPos = currentPos;
+		}
+		// Set initial maximum area position
+		if (maxAreaPos.equals(BlockPos.ZERO)) {
+			maxAreaPos = currentPos;
+		}
+		
+		// Update minimum area position
+		if (currentPos.getX() < minAreaPos.getX()) {
+			minAreaPos = new BlockPos(currentPos.getX(), minAreaPos.getY(), minAreaPos.getZ());
+		}
+		if (currentPos.getY() < minAreaPos.getY()) {
+			minAreaPos = new BlockPos(minAreaPos.getX(), currentPos.getY(), minAreaPos.getZ());
+		}
+		if (currentPos.getZ() < minAreaPos.getZ()) {
+			minAreaPos = new BlockPos(minAreaPos.getX(), minAreaPos.getY(), currentPos.getZ());
+		}
+		// Update maximum area position
+		if (currentPos.getX() > maxAreaPos.getX()) {
+			maxAreaPos = new BlockPos(currentPos.getX(), maxAreaPos.getY(), maxAreaPos.getZ());
+		}
+		if (currentPos.getY() > maxAreaPos.getY()) {
+			maxAreaPos = new BlockPos(maxAreaPos.getX(), currentPos.getY(), maxAreaPos.getZ());
+		}
+		if (currentPos.getZ() > maxAreaPos.getZ()) {
+			maxAreaPos = new BlockPos(maxAreaPos.getX(), maxAreaPos.getY(), currentPos.getZ());
+		}
+		
+		// Update the refined harvest area for auto illumination usage
+		refinedArea = new AxisAlignedBB(minAreaPos, maxAreaPos);
 	}
 	
 	// Returns true when complete or cancelled
@@ -231,7 +280,7 @@ public abstract class Agent {
 	}
 	
 	public boolean shouldProcess(BlockPos pos) {
-		return !processed.contains(pos) && queued.contains(pos) && (harvestArea == null || Functions.isWithinArea(pos, harvestArea));
+		return !processed.contains(pos) && queued.contains(pos) && (interimArea == null || Functions.isWithinArea(pos, interimArea));
 	}
 	
 	public void reportProgessToClient(BlockPos pos) {
@@ -252,8 +301,8 @@ public abstract class Agent {
 		boolean bResult = fakePlayer().interactionManager.tryHarvestBlock(pos);
 		player.connection.sendPacket(new SChangeBlockPacket(world, pos));
 		
-		final int range = 20;
-		BlockState state = world.getBlockState(pos);
+		final int	range	= 20;
+		BlockState	state	= world.getBlockState(pos);
 		
 		List<ServerPlayerEntity> localPlayers = world.getEntitiesWithinAABB(ServerPlayerEntity.class, new AxisAlignedBB(pos.add(-range, -range, -range), pos.add(range, range, range)));
 		

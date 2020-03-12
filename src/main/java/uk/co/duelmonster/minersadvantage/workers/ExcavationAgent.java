@@ -41,9 +41,9 @@ public class ExcavationAgent extends Agent {
 		setupHarvestArea();
 		
 		if (this.bIsSingleLayerToggled) {
-			harvestArea = new AxisAlignedBB(
-					harvestArea.minX, originPos.getY(), harvestArea.minZ,
-					harvestArea.maxX, originPos.getY(), harvestArea.maxZ);
+			interimArea = new AxisAlignedBB(
+					interimArea.minX, originPos.getY(), interimArea.minZ,
+					interimArea.maxX, originPos.getY(), interimArea.maxZ);
 		}
 		
 		addConnectedToQueue(originPos);
@@ -73,8 +73,8 @@ public class ExcavationAgent extends Agent {
 			if (oPos == null)
 				continue;
 			
-			BlockState state = world.getBlockState(oPos);
-			Block block = state.getBlock();
+			BlockState	state	= world.getBlockState(oPos);
+			Block		block	= state.getBlock();
 			
 			if (!fakePlayer().canHarvestBlock(state)) {
 				// Avoid the non-harvestable blocks.
@@ -123,33 +123,33 @@ public class ExcavationAgent extends Agent {
 	
 	@Override
 	public void addConnectedToQueue(BlockPos oPos) {
-		int xStart = -1, yStart = -1, zStart = -1;
-		int xEnd = 1, yEnd = 1, zEnd = 1;
+		int	xStart	= -1, yStart = -1, zStart = -1;
+		int	xEnd	= 1, yEnd = 1, zEnd = 1;
 		
 		if (packetId == PacketId.Excavate && (oPos.getX() == originPos.getX() || oPos.getY() == originPos.getY() || oPos.getZ() == originPos.getZ()))
 			switch (faceHit.getOpposite()) {
 			case SOUTH: // Positive Z
-				zStart = 0;
-				break;
+			zStart = 0;
+			break;
 			case NORTH: // Negative Z
-				zEnd = 0;
-				break;
+			zEnd = 0;
+			break;
 			case EAST: // Positive X
-				xStart = 0;
-				break;
+			xStart = 0;
+			break;
 			case WEST: // Negative X
-				xEnd = 0;
-				break;
+			xEnd = 0;
+			break;
 			case UP: // Positive Y
-				yStart = 0;
-				break;
+			yStart = 0;
+			break;
 			case DOWN: // Negative Y
-				yEnd = 0;
-				break;
+			yEnd = 0;
+			break;
 			default:
-				break;
+			break;
 			}
-		
+			
 		if (bIsSingleLayerToggled) {
 			yStart = 0;
 			yEnd = 0;

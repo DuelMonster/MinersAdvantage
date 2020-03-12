@@ -59,7 +59,7 @@ public class ShaftanationAgent extends Agent {
 			}
 			
 			BlockPos oPos = queued.remove(0);
-			if (oPos == null || !Functions.isWithinArea(oPos, harvestArea) || world.getBlockState(oPos).getBlock() == Blocks.TORCH)
+			if (oPos == null || !Functions.isWithinArea(oPos, interimArea) || world.getBlockState(oPos).getBlock() == Blocks.TORCH)
 				continue;
 			
 			BlockState state = world.getBlockState(oPos);
@@ -150,7 +150,7 @@ public class ShaftanationAgent extends Agent {
 			break;
 		}
 		
-		harvestArea = new AxisAlignedBB(
+		interimArea = new AxisAlignedBB(
 				xStart, yBottom, zStart,
 				xEnd, yTop, zEnd);
 		

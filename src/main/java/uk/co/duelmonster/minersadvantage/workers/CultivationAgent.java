@@ -20,7 +20,7 @@ public class CultivationAgent extends Agent {
 		
 		this.originPos = pkt.pos;
 		
-		this.harvestArea = FarmingHelper.getFarmableLand(world, originPos);
+		this.interimArea = FarmingHelper.getFarmableLand(world, originPos);
 		
 		addConnectedToQueue(originPos);
 	}
