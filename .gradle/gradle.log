@@ -15,37 +15,57 @@ This mapping 'snapshot_20180310' was designed for MC 1.12! Use at your own peril
      by: Searge, ProfMobius, R4wk, ZeuX          
      Fesh0r, IngisKahn, bspkrs, LexManos         
 #################################################
+:clean UP-TO-DATE
 :deobfCompileDummyTask
 :deobfProvidedDummyTask
-:getVersionJson
-:extractUserdev
-:extractDependencyATs SKIPPED
+:sourceApiJava
+:compileApiJava UP-TO-DATE
+:processApiResources UP-TO-DATE
+:apiClasses UP-TO-DATE
+:sourceMainJava
+:compileJava
+:processResources
+:classes
+:deobfJar
+:jar
 :extractMcpData SKIPPED
-:extractMcpMappings
+:extractMcpMappings SKIPPED
+:getVersionJson
+:extractUserdev UP-TO-DATE
 :genSrgs SKIPPED
-:downloadClient SKIPPED
-:downloadServer SKIPPED
-:splitServerJar SKIPPED
-:mergeJars SKIPPED
-:deobfMcSRG SKIPPED
-:decompileMc SKIPPED
-:fixMcSources
-:applySourcePatches
-:remapMcSources
-:recompileMc SKIPPED
-:extractNatives SKIPPED
-:getAssetIndex UP-TO-DATE
-:getAssets
-:makeStart
-:setupDecompWorkspace
-:eclipseClasspath
-:eclipseJdt
-:eclipseProject
-:makeEclipseCleanRunClient
-:makeEclipseCleanRunServer
-:eclipse
-:clean
+:reobfJar
+:extractAnnotationsJar
+:srcJar
+:curseforge291972
+Invalid cookie header: "Set-Cookie: AWSALB=fUrlnlHdmEmdVboQOsQfEV5JKk7z2HFupSutVCR3Ut4uitaiAih7ipkxvJO3aGL2x1iId9leSFAXV28JLeo9Dk4KZtv7fRsB46ofOzRgKmv/uGPqdVzugowMcl0C; Expires=Thu, 19 Mar 2020 22:41:02 GMT; Path=/". Invalid 'expires' attribute: Thu, 19 Mar 2020 22:41:02 GMT
+Invalid cookie header: "Set-Cookie: AWSALBCORS=fUrlnlHdmEmdVboQOsQfEV5JKk7z2HFupSutVCR3Ut4uitaiAih7ipkxvJO3aGL2x1iId9leSFAXV28JLeo9Dk4KZtv7fRsB46ofOzRgKmv/uGPqdVzugowMcl0C; Expires=Thu, 19 Mar 2020 22:41:02 GMT; Path=/; SameSite=None; Secure". Invalid 'expires' attribute: Thu, 19 Mar 2020 22:41:02 GMT
+Invalid cookie header: "Set-Cookie: AWSALB=gZHjBOC6nMAk6uXk430mkcEjPF5PQxiN7/saq7X5S9skrlz7td24u63IgTWhrsq+A1zmJaYofTyVEPXctSHr33xOTdgMzdxl9ZtRSykC0KYIFXxoxoSRoWxTxN5S; Expires=Thu, 19 Mar 2020 22:41:04 GMT; Path=/". Invalid 'expires' attribute: Thu, 19 Mar 2020 22:41:04 GMT
+Invalid cookie header: "Set-Cookie: AWSALBCORS=gZHjBOC6nMAk6uXk430mkcEjPF5PQxiN7/saq7X5S9skrlz7td24u63IgTWhrsq+A1zmJaYofTyVEPXctSHr33xOTdgMzdxl9ZtRSykC0KYIFXxoxoSRoWxTxN5S; Expires=Thu, 19 Mar 2020 22:41:04 GMT; Path=/; SameSite=None; Secure". Invalid 'expires' attribute: Thu, 19 Mar 2020 22:41:04 GMT
+Uploaded C:\$MC\Mod Source\~MinersAdvantage\Source\build\libs\MinersAdvantage-1.12.2-1.3.20.245.jar to CurseForge Project: 291972, with ID: 2899649
+Invalid cookie header: "Set-Cookie: AWSALB=HJ78ct15e71guCkN7BjVMXkZIy24iFUjjRHCx43jXgk/YAe6PhDD2rYUU9y55yLb2F3eDXfmR9cuhBddUCsbjhY/bkokpPNzzTIJmQ9iAgjx7QvtgsOFXxBLIpQ7; Expires=Thu, 19 Mar 2020 22:41:06 GMT; Path=/". Invalid 'expires' attribute: Thu, 19 Mar 2020 22:41:06 GMT
+Invalid cookie header: "Set-Cookie: AWSALBCORS=HJ78ct15e71guCkN7BjVMXkZIy24iFUjjRHCx43jXgk/YAe6PhDD2rYUU9y55yLb2F3eDXfmR9cuhBddUCsbjhY/bkokpPNzzTIJmQ9iAgjx7QvtgsOFXxBLIpQ7; Expires=Thu, 19 Mar 2020 22:41:06 GMT; Path=/; SameSite=None; Secure". Invalid 'expires' attribute: Thu, 19 Mar 2020 22:41:06 GMT
+Uploaded C:\$MC\Mod Source\~MinersAdvantage\Source\build\libs\MinersAdvantage-1.12.2-1.3.20.245-src.jar to CurseForge Project: 291972, with ID: 2899650
+Invalid cookie header: "Set-Cookie: AWSALB=vrvkw5BN2hxz85IibFtC6ksRo7Txv2tJrAptkpYgdwnMgRMxDGWPe5j+cpusILzFW5lHJ0DvsYnExp/M4QQNyn88OhkaYImWy4UiKVN+a9qR2dRBvUCnU9p3EL7I; Expires=Thu, 19 Mar 2020 22:41:08 GMT; Path=/". Invalid 'expires' attribute: Thu, 19 Mar 2020 22:41:08 GMT
+Invalid cookie header: "Set-Cookie: AWSALBCORS=vrvkw5BN2hxz85IibFtC6ksRo7Txv2tJrAptkpYgdwnMgRMxDGWPe5j+cpusILzFW5lHJ0DvsYnExp/M4QQNyn88OhkaYImWy4UiKVN+a9qR2dRBvUCnU9p3EL7I; Expires=Thu, 19 Mar 2020 22:41:08 GMT; Path=/; SameSite=None; Secure". Invalid 'expires' attribute: Thu, 19 Mar 2020 22:41:08 GMT
+Uploaded C:\$MC\Mod Source\~MinersAdvantage\Source\build\libs\MinersAdvantage-1.12.2-1.3.20.245-deobf.jar to CurseForge Project: 291972, with ID: 2899651
+:updateBuildNumber
+====================================================================================================
+  Updated Build Number: 245;
+====================================================================================================
+:sourceTestJava
+:compileTestJava UP-TO-DATE
+:processTestResources UP-TO-DATE
+:testClasses UP-TO-DATE
+:test UP-TO-DATE
+:assemble
+:check UP-TO-DATE
+:build
+:release
+====================================================================================================
+  MinersAdvantage release built successfully:  C:\$MC\Mod Source\~MinersAdvantage\~Releases
+====================================================================================================
+:curseforge
 
 BUILD SUCCESSFUL
 
-Total time: 1 mins 0.547 secs
+Total time: 20.609 secs

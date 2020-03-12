@@ -21,7 +21,7 @@ public final class Constants {
 	// This number is incremented every time new features are added, never reset
 	public static final int revisionVersion = 20;
 	// This number is incremented every time a release is built, and never reset
-	public static final int buildVersion = 244;
+	public static final int buildVersion = 245;
 	
 	// This is the full version number of our mod
 	public static final String MOD_VERSION = majorVersion + "." + minorVersion + "." + revisionVersion + "." + buildVersion;
