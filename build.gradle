@@ -162,8 +162,8 @@ if (curseForgeApiKey != '') {
 		project {
 			id = curseId
 
-			changelogType = 'markdown'
-			changelog 	  = file('ChangeLog.md')
+			changelogType = 'text'
+			changelog 	  = file('ChangeLog.txt')
 
 			releaseType = 'release'
 

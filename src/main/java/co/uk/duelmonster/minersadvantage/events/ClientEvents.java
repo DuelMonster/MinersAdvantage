@@ -39,7 +39,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ClientEvents {
-	private static int iTickCount = 10;
 	
 	private enum AttackStage {
 		IDLE, SWITCHED
@@ -93,13 +92,13 @@ public class ClientEvents {
 		if (!TickEvent.Phase.START.equals(event.phase))
 			return;
 		
-		Minecraft mc = ClientFunctions.getMC();
-		EntityPlayerSP player = ClientFunctions.getPlayer();
+		Minecraft		mc		= ClientFunctions.getMC();
+		EntityPlayerSP	player	= ClientFunctions.getPlayer();
 		if (player == null)
 			return;
 		
-		MAConfig settings = MAConfig.get();
-		Variables variables = Variables.get();
+		MAConfig	settings	= MAConfig.get();
+		Variables	variables	= Variables.get();
 		
 		// Fire Captivation if enabled
 		if (settings.captivation.bEnabled() && !mc.isGamePaused() && mc.inGameHasFocus) {
@@ -151,10 +150,10 @@ public class ClientEvents {
 			variables.sideHit = mc.objectMouseOver.sideHit;
 			
 			if (settings.substitution.bEnabled() && !SubstitutionHandler.instance.bCurrentlySwitched) {
-				World world = player.getEntityWorld();
-				BlockPos oPos = mc.objectMouseOver.getBlockPos();
-				IBlockState state = world.getBlockState(oPos);
-				Block block = state.getBlock();
+				World		world	= player.getEntityWorld();
+				BlockPos	oPos	= mc.objectMouseOver.getBlockPos();
+				IBlockState	state	= world.getBlockState(oPos);
+				Block		block	= state.getBlock();
 				
 				if (block == null || Blocks.AIR == block || Blocks.BEDROCK == block)
 					return;

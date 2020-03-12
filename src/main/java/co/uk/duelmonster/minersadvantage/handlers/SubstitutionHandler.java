@@ -108,7 +108,7 @@ public class SubstitutionHandler {
 							rankingMap.put(iMapIndx, new RankAndLevel(iSlot, Ranking.FORTUNE, enchantments.get(Enchantments.FORTUNE)));
 							iMapIndx++;
 						}
-					} else if (itemStack.canHarvestBlock(this.state)) {
+					} else {
 						if (enchantments.containsKey(Enchantments.EFFICIENCY))
 							rankingMap.put(iMapIndx, new RankAndLevel(iSlot, Ranking.EFFICIENCY, enchantments.get(Enchantments.EFFICIENCY)));
 						else if (enchantments.containsKey(Enchantments.FORTUNE))
@@ -139,9 +139,9 @@ public class SubstitutionHandler {
 		rankings.forEach(rank -> {
 			rankingMap.entrySet().forEach(rankedSlot -> {
 				
-				RankAndLevel rankAndLevel = rankedSlot.getValue();
-				int iCurrentRankIndx = rankings.size() - rankings.indexOf(rank);
-				float iCurrentToolSpeed = getToolSpeed(inventory.getStackInSlot(rankAndLevel.SlotID));
+				RankAndLevel	rankAndLevel		= rankedSlot.getValue();
+				int				iCurrentRankIndx	= rankings.size() - rankings.indexOf(rank);
+				float			iCurrentToolSpeed	= getToolSpeed(inventory.getStackInSlot(rankAndLevel.SlotID));
 				
 				if (iOptimalDigSpeed < iCurrentToolSpeed ||
 						(iOptimalDigSpeed <= iCurrentToolSpeed && iOptimalRankIndx <= iCurrentRankIndx && rankAndLevel.rank.ordinal() == rank.ordinal() &&
@@ -247,30 +247,30 @@ public class SubstitutionHandler {
 	
 	private boolean isBestWeapon(ItemStack currentWeapon, ItemStack compareWeapon, EntityLivingBase target) {
 		
-		boolean isTargetPlayer = target instanceof EntityPlayer;
-		double oldDamage = SubstitutionHelper.getFullItemStackDamage(currentWeapon, target);
-		double newDamage = SubstitutionHelper.getFullItemStackDamage(compareWeapon, target);
+		boolean	isTargetPlayer	= target instanceof EntityPlayer;
+		double	oldDamage		= SubstitutionHelper.getFullItemStackDamage(currentWeapon, target);
+		double	newDamage		= SubstitutionHelper.getFullItemStackDamage(compareWeapon, target);
 		
 		if (isTargetPlayer) {
 			return (newDamage > oldDamage);
 		} else {
 			
-			int oldHits = (oldDamage == 0 ? Integer.MAX_VALUE : MathHelper.ceil(target.getMaxHealth() / oldDamage));
-			int newHits = (newDamage == 0 ? Integer.MAX_VALUE : MathHelper.ceil(target.getMaxHealth() / newDamage));
+			int	oldHits	= (oldDamage == 0 ? Integer.MAX_VALUE : MathHelper.ceil(target.getMaxHealth() / oldDamage));
+			int	newHits	= (newDamage == 0 ? Integer.MAX_VALUE : MathHelper.ceil(target.getMaxHealth() / newDamage));
 			
 			if (newHits != oldHits)
 				return (newHits < oldHits);
 		}
 		
-		int newLootingLevel = EnchantmentHelper.getEnchantmentLevel(Enchantments.LOOTING, compareWeapon);
-		int newFireAspectLevel = EnchantmentHelper.getEnchantmentLevel(Enchantments.FIRE_ASPECT, compareWeapon);
-		int newKnockbackLevel = EnchantmentHelper.getEnchantmentLevel(Enchantments.KNOCKBACK, compareWeapon);
-		int newUnbreakingLevel = EnchantmentHelper.getEnchantmentLevel(Enchantments.UNBREAKING, compareWeapon);
+		int	newLootingLevel		= EnchantmentHelper.getEnchantmentLevel(Enchantments.LOOTING, compareWeapon);
+		int	newFireAspectLevel	= EnchantmentHelper.getEnchantmentLevel(Enchantments.FIRE_ASPECT, compareWeapon);
+		int	newKnockbackLevel	= EnchantmentHelper.getEnchantmentLevel(Enchantments.KNOCKBACK, compareWeapon);
+		int	newUnbreakingLevel	= EnchantmentHelper.getEnchantmentLevel(Enchantments.UNBREAKING, compareWeapon);
 		
-		int oldLootingLevel = EnchantmentHelper.getEnchantmentLevel(Enchantments.LOOTING, currentWeapon);
-		int oldFireAspectLevel = EnchantmentHelper.getEnchantmentLevel(Enchantments.FIRE_ASPECT, currentWeapon);
-		int oldKnockbackLevel = EnchantmentHelper.getEnchantmentLevel(Enchantments.KNOCKBACK, currentWeapon);
-		int oldUnbreakingLevel = EnchantmentHelper.getEnchantmentLevel(Enchantments.UNBREAKING, currentWeapon);
+		int	oldLootingLevel		= EnchantmentHelper.getEnchantmentLevel(Enchantments.LOOTING, currentWeapon);
+		int	oldFireAspectLevel	= EnchantmentHelper.getEnchantmentLevel(Enchantments.FIRE_ASPECT, currentWeapon);
+		int	oldKnockbackLevel	= EnchantmentHelper.getEnchantmentLevel(Enchantments.KNOCKBACK, currentWeapon);
+		int	oldUnbreakingLevel	= EnchantmentHelper.getEnchantmentLevel(Enchantments.UNBREAKING, currentWeapon);
 		
 		if (!isTargetPlayer && newLootingLevel != oldLootingLevel)
 			return (newLootingLevel > oldLootingLevel);
@@ -284,8 +284,8 @@ public class SubstitutionHandler {
 		Set<Enchantment> bothItemsEnchantments = SubstitutionHelper.getNonstandardNondamageEnchantmentsOnBothStacks(compareWeapon, currentWeapon);
 		
 		for (Enchantment enchantment : bothItemsEnchantments) {
-			int oldLevel = EnchantmentHelper.getEnchantmentLevel(enchantment, currentWeapon);
-			int newLevel = EnchantmentHelper.getEnchantmentLevel(enchantment, compareWeapon);
+			int	oldLevel	= EnchantmentHelper.getEnchantmentLevel(enchantment, currentWeapon);
+			int	newLevel	= EnchantmentHelper.getEnchantmentLevel(enchantment, compareWeapon);
 			if (newLevel > oldLevel) {
 				return true;
 			} else if (newLevel < oldLevel) {
@@ -306,8 +306,8 @@ public class SubstitutionHandler {
 			return false;
 		}
 		
-		boolean newDamageable = SubstitutionHelper.isItemStackDamageable(compareWeapon);
-		boolean oldDamageable = SubstitutionHelper.isItemStackDamageable(currentWeapon);
+		boolean	newDamageable	= SubstitutionHelper.isItemStackDamageable(compareWeapon);
+		boolean	oldDamageable	= SubstitutionHelper.isItemStackDamageable(currentWeapon);
 		
 		if (newDamageable && !oldDamageable) {
 			return false;
