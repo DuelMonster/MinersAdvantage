@@ -64,8 +64,8 @@ public class BreakBlockController {
 		
 		final TileEntity te = world.getTileEntity(oPos); // OHHHHH YEEEEAAAH
 		
-		boolean canHarvest = state.canHarvestBlock(world, oPos, player);
-		boolean isRemoved = removeBlock(oPos, state, canHarvest);
+		boolean	canHarvest	= state.canHarvestBlock(world, oPos, player);
+		boolean	isRemoved	= removeBlock(oPos, state, canHarvest);
 		if (isRemoved && canHarvest) {
 			state.getBlock().harvestBlock(world, player, oPos, state, te, heldItemStack);
 			world.playEvent(player, 2001, oPos, Block.getStateId(state));
@@ -77,7 +77,7 @@ public class BreakBlockController {
 	private boolean removeBlock(BlockPos oPos, BlockState state, boolean canHarvest) {
 		final Block block = state.getBlock();
 		block.onBlockHarvested(world, oPos, state, player);
-		final boolean result = state.removedByPlayer(world, oPos, player, canHarvest, null);
+		final boolean result = state.removedByPlayer(world, oPos, player, canHarvest, state.getFluidState());
 		if (result)
 			block.onPlayerDestroy(world, oPos, state);
 		return result;
@@ -88,8 +88,8 @@ public class BreakBlockController {
 			--this.blockHitDelay;
 			return true;
 		} else if (this.isHittingPosition(posBlock)) {
-			BlockState iblockstate = world.getBlockState(posBlock);
-			Block block = iblockstate.getBlock();
+			BlockState	iblockstate	= world.getBlockState(posBlock);
+			Block		block		= iblockstate.getBlock();
 			
 			if (iblockstate.isAir(world, posBlock)) {
 				this.isHittingBlock = false;
@@ -165,22 +165,22 @@ public class BreakBlockController {
 		if (!this.heldItemStack.isEmpty() && this.heldItem.onBlockStartBreak(this.heldItemStack, pos, player))
 			return false;
 		
-		BlockState blockstate = world.getBlockState(pos);
-		Block block = blockstate.getBlock();
+		BlockState	state	= world.getBlockState(pos);
+		Block		block	= state.getBlock();
 		
 		if ((block instanceof CommandBlockBlock || block instanceof StructureBlock) && !player.canUseCommandBlock()) {
 			return false;
-		} else if (blockstate.isAir(world, pos)) {
+		} else if (state.isAir(world, pos)) {
 			return false;
 		} else {
-			world.playEvent(2001, pos, Block.getStateId(blockstate));
+			world.playEvent(2001, pos, Block.getStateId(state));
 			
 			this.currentBlockPos = new BlockPos(this.currentBlockPos.getX(), -1, this.currentBlockPos.getZ());
 			
 			ItemStack copyBeforeUse = this.heldItemStack.copy();
 			
 			if (!this.heldItemStack.isEmpty()) {
-				this.heldItemStack.onBlockDestroyed(world, blockstate, pos, player);
+				this.heldItemStack.onBlockDestroyed(world, state, pos, player);
 				
 				if (this.heldItemStack.isEmpty()) {
 					net.minecraftforge.event.ForgeEventFactory.onPlayerDestroyItem(player, copyBeforeUse, Hand.MAIN_HAND);
@@ -189,10 +189,10 @@ public class BreakBlockController {
 			}
 		}
 		
-		boolean flag = blockstate.removedByPlayer(world, pos, player, false, null);
+		boolean flag = state.removedByPlayer(world, pos, player, false, state.getFluidState());
 		
 		if (flag)
-			block.onPlayerDestroy(world, pos, blockstate);
+			block.onPlayerDestroy(world, pos, state);
 		
 		return flag;
 		

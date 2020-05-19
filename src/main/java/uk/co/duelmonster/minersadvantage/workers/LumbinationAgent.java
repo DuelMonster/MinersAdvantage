@@ -79,15 +79,15 @@ public class LumbinationAgent extends Agent {
 			if (oPos == null || !Functions.isWithinArea(oPos, interimArea))
 				continue;
 			
-			BlockState state = world.getBlockState(oPos);
-			Block block = state.getBlock();
-			SoundType soundtype = state.getBlock().getSoundType(state, world, oPos, null);
+			BlockState	state		= world.getBlockState(oPos);
+			Block		block		= state.getBlock();
+			SoundType	soundtype	= state.getBlock().getSoundType(state, world, oPos, null);
 			
 			world.captureBlockSnapshots = true;
 			world.capturedBlockSnapshots.clear();
 			
-			boolean isLeaves = state.getMaterial() == Material.LEAVES;
-			boolean isWood = state.getMaterial() == Material.WOOD;
+			boolean	isLeaves	= state.getMaterial() == Material.LEAVES;
+			boolean	isWood		= state.getMaterial() == Material.WOOD;
 			
 			// Process the current block if it is valid.
 			if (!fakePlayer().canHarvestBlock(state) || (isLeaves && !clientConfig.lumbination.destroyLeaves)) {
@@ -112,7 +112,7 @@ public class LumbinationAgent extends Agent {
 				
 			} else if (isLeaves && !clientConfig.lumbination.leavesAffectDurability) {
 				// Remove the Leaves without damaging the tool.
-				if (state.removedByPlayer(world, oPos, fakePlayer(), true, null)) {
+				if (state.removedByPlayer(world, oPos, fakePlayer(), true, state.getFluidState())) {
 					world.playSound(player, oPos, SoundEvents.BLOCK_GRASS_BREAK, SoundCategory.BLOCKS, 1.0F, 1.0F);
 					
 					block.onPlayerDestroy(world, oPos, state);
@@ -169,8 +169,8 @@ public class LumbinationAgent extends Agent {
 	
 	@Override
 	public void addToQueue(BlockPos oPos) {
-		BlockState state = world.getBlockState(oPos);
-		Block checkBlock = state.getBlock();
+		BlockState	state		= world.getBlockState(oPos);
+		Block		checkBlock	= state.getBlock();
 		
 		if (checkBlock.getClass().isInstance(originBlock)
 				&& (trunkArea == null || Functions.isWithinArea(oPos, trunkArea))
