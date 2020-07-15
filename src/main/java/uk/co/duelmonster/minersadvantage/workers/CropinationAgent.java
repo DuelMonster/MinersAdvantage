@@ -62,8 +62,8 @@ public class CropinationAgent extends Agent {
 			if (oPos == null)
 				continue;
 			
-			BlockState state = world.getBlockState(oPos);
-			Block block = state.getBlock();
+			BlockState	state	= world.getBlockState(oPos);
+			Block		block	= state.getBlock();
 			
 			if (isFullyGrown(state)) {
 				
@@ -82,8 +82,8 @@ public class CropinationAgent extends Agent {
 				}
 				
 				// Decrease the plantable drops by one to simulate re-planting
-				boolean bReplanted = false;
-				BlockNamedItem oSeeds = null;
+				boolean			bReplanted	= false;
+				BlockNamedItem	oSeeds		= null;
 				for (ItemStack plantable : plantables) {
 					if (!bReplanted) {
 						if (plantable.getItem() instanceof BlockNamedItem)
@@ -140,19 +140,26 @@ public class CropinationAgent extends Agent {
 	}
 	
 	private boolean isFullyGrown(BlockState state) {
-		return (state.has(BlockStateProperties.AGE_0_1) && state.get(BlockStateProperties.AGE_0_1).equals(1)) ||
-				(state.has(BlockStateProperties.AGE_0_2) && state.get(BlockStateProperties.AGE_0_2).equals(2)) ||
-				(state.has(BlockStateProperties.AGE_0_3) && state.get(BlockStateProperties.AGE_0_3).equals(3)) ||
-				(state.has(BlockStateProperties.AGE_0_5) && state.get(BlockStateProperties.AGE_0_5).equals(5)) ||
-				(state.has(BlockStateProperties.AGE_0_7) && state.get(BlockStateProperties.AGE_0_7).equals(7)) ||
-				(state.has(BlockStateProperties.AGE_0_15) && state.get(BlockStateProperties.AGE_0_15).equals(15)) ||
-				(state.has(BlockStateProperties.AGE_0_25) && state.get(BlockStateProperties.AGE_0_25).equals(25));
+		// return (state.has(BlockStateProperties.AGE_0_1) && state.get(BlockStateProperties.AGE_0_1).equals(1)) ||
+		// (state.has(BlockStateProperties.AGE_0_2) && state.get(BlockStateProperties.AGE_0_2).equals(2)) ||
+		// (state.has(BlockStateProperties.AGE_0_3) && state.get(BlockStateProperties.AGE_0_3).equals(3)) ||
+		// (state.has(BlockStateProperties.AGE_0_5) && state.get(BlockStateProperties.AGE_0_5).equals(5)) ||
+		// (state.has(BlockStateProperties.AGE_0_7) && state.get(BlockStateProperties.AGE_0_7).equals(7)) ||
+		// (state.has(BlockStateProperties.AGE_0_15) && state.get(BlockStateProperties.AGE_0_15).equals(15)) ||
+		// (state.has(BlockStateProperties.AGE_0_25) && state.get(BlockStateProperties.AGE_0_25).equals(25));
+		return (state.func_235901_b_(BlockStateProperties.AGE_0_1) && state.get(BlockStateProperties.AGE_0_1).equals(1)) ||
+				(state.func_235901_b_(BlockStateProperties.AGE_0_2) && state.get(BlockStateProperties.AGE_0_2).equals(2)) ||
+				(state.func_235901_b_(BlockStateProperties.AGE_0_3) && state.get(BlockStateProperties.AGE_0_3).equals(3)) ||
+				(state.func_235901_b_(BlockStateProperties.AGE_0_5) && state.get(BlockStateProperties.AGE_0_5).equals(5)) ||
+				(state.func_235901_b_(BlockStateProperties.AGE_0_7) && state.get(BlockStateProperties.AGE_0_7).equals(7)) ||
+				(state.func_235901_b_(BlockStateProperties.AGE_0_15) && state.get(BlockStateProperties.AGE_0_15).equals(15)) ||
+				(state.func_235901_b_(BlockStateProperties.AGE_0_25) && state.get(BlockStateProperties.AGE_0_25).equals(25));
 	}
 	
 	@Override
 	public void addToQueue(BlockPos oPos) {
-		BlockState state = world.getBlockState(oPos);
-		Block block = state.getBlock();
+		BlockState	state	= world.getBlockState(oPos);
+		Block		block	= state.getBlock();
 		
 		if ((block instanceof IGrowable && block instanceof IPlantable) || block instanceof CropsBlock || block instanceof NetherWartBlock)
 			super.addToQueue(oPos);

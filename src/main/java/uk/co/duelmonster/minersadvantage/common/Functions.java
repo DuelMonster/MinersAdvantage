@@ -25,7 +25,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -38,7 +38,7 @@ import uk.co.duelmonster.minersadvantage.config.SyncedClientConfig;
 public class Functions {
 	
 	public static String localize(String key) {
-		return (new TranslationTextComponent(key)).getFormattedText();
+		return (new TranslationTextComponent(key)).toString();
 	}
 	
 	public static boolean isDebug() {
@@ -85,13 +85,13 @@ public class Functions {
 	}
 	
 	public static Direction getPlayerFacing(PlayerEntity player) {
-		Vec3d lookVec = player.getLookVec();
+		Vector3d lookVec = player.getLookVec();
 		return Direction.getFacingFromVector((float) lookVec.x, (float) lookVec.y, (float) lookVec.z);
 	}
 	
 	public static String getStackTrace() {
-		String sRtrn = "";
-		StackTraceElement[] stes = Thread.currentThread().getStackTrace();
+		String				sRtrn	= "";
+		StackTraceElement[]	stes	= Thread.currentThread().getStackTrace();
 		
 		for (int i = 2; i < stes.length; i++)
 			sRtrn += System.getProperty("line.separator") + "	at " + stes[i].toString();
@@ -100,9 +100,9 @@ public class Functions {
 	}
 	
 	public static boolean isWithinRange(BlockPos sourcePos, BlockPos targetPos, int range) {
-		int distanceX = sourcePos.getX() - targetPos.getX();
-		int distanceY = sourcePos.getY() - targetPos.getY();
-		int distanceZ = sourcePos.getZ() - targetPos.getZ();
+		int	distanceX	= sourcePos.getX() - targetPos.getX();
+		int	distanceY	= sourcePos.getY() - targetPos.getY();
+		int	distanceZ	= sourcePos.getZ() - targetPos.getZ();
 		
 		return ((distanceX * distanceX) + (distanceY * distanceY) + (distanceZ * distanceZ)) <= (range * range);
 	}
@@ -116,9 +116,9 @@ public class Functions {
 	
 	public static boolean isWithinArea(Entity entity, AxisAlignedBB area) {
 		return area != null &&
-				entity.getPosition().getX() >= area.minX && entity.getPosition().getX() <= area.maxX &&
-				entity.getPosition().getY() >= area.minY && entity.getPosition().getY() <= area.maxY &&
-				entity.getPosition().getZ() >= area.minZ && entity.getPosition().getZ() <= area.maxZ;
+				entity.getPosX() >= area.minX && entity.getPosX() <= area.maxX &&
+				entity.getPosY() >= area.minY && entity.getPosY() <= area.maxY &&
+				entity.getPosZ() >= area.minZ && entity.getPosZ() <= area.maxZ;
 	}
 	
 	public static List<BlockPos> getAllPositionsInArea(AxisAlignedBB area) {
@@ -208,7 +208,7 @@ public class Functions {
 		for (int i = 0; i < player.inventory.mainInventory.size(); ++i)
 			if (!player.inventory.mainInventory.get(i).isEmpty() && ItemStack.areItemStacksEqual(stack, player.inventory.mainInventory.get(i)))
 				return i;
-			
+		
 		return -1;
 	}
 	

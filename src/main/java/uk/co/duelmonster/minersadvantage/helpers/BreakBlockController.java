@@ -14,6 +14,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.BlockEvent;
 import uk.co.duelmonster.minersadvantage.common.Functions;
@@ -204,6 +205,6 @@ public class BreakBlockController {
 	
 	// player reach distance = 4F
 	public float getBlockReachDistance() {
-		return ((float) player.getAttribute(ServerPlayerEntity.REACH_DISTANCE).getValue()) - 0.5F;
+		return ((float) player.getAttribute(ForgeMod.REACH_DISTANCE.get()).getValue()) - 0.5F;
 	}
 }

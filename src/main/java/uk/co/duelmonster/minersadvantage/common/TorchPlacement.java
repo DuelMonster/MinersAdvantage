@@ -27,7 +27,7 @@ public enum TorchPlacement implements IStringSerializable {
 	}
 	
 	@Override
-	public String getName() {
+	public String getString() {
 		return this.name;
 	}
 	
@@ -54,14 +54,14 @@ public enum TorchPlacement implements IStringSerializable {
 	static {
 		for (TorchPlacement enumTP : values()) {
 			VALUES[enumTP.index] = enumTP;
-			NAME_LOOKUP.put(enumTP.getName().toLowerCase(Locale.ROOT), enumTP);
+			NAME_LOOKUP.put(enumTP.getString().toLowerCase(Locale.ROOT), enumTP);
 		}
 	}
 	
 	public static String[] getValidValues() {
 		String[] saRtrn = new String[VALUES.length];
 		for (TorchPlacement enumTP : VALUES)
-			saRtrn[enumTP.index] = enumTP.getName();
+			saRtrn[enumTP.index] = enumTP.getString();
 		return saRtrn;
 	}
 }

@@ -20,7 +20,7 @@ public class MA {
 	public static final NetworkHandler NETWORK = new NetworkHandler();
 	
 	public MA() {
-		DistExecutor.runWhenOn(Dist.CLIENT, () -> ClientSetup::new);
+		DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> ClientSetup::new);
 		
 		MinecraftForge.EVENT_BUS.register(new ServerSetup());
 		

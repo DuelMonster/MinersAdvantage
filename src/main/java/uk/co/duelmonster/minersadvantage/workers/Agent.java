@@ -261,9 +261,10 @@ public abstract class Agent {
 			world.markAndNotifyBlock(
 					snap.getPos(),
 					world.getChunk(snap.getPos().getX() >> 4, snap.getPos().getZ() >> 4),
-					snap.getReplacedBlock(),
-					snap.getCurrentBlock(),
-					snap.getFlag());
+					snap.getReplacedBlock().getBlockState(),
+					snap.getCurrentBlock().getBlockState(),
+					snap.getFlag(),
+					1); // 1 = force diagonal neighbour updates
 		}
 		AgentProcessor.INSTANCE.setCurrentAgent(player.getUniqueID(), this);
 	}

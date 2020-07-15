@@ -4,7 +4,7 @@ import net.minecraft.client.particle.DiggingParticle;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.world.World;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import uk.co.duelmonster.minersadvantage.config.MAConfig;
@@ -15,7 +15,7 @@ public class MAParticleManager extends ParticleManager {
 	private static ParticleManager	MA_ParticleManager;
 	private static ParticleManager	MC_ParticleManager;
 	
-	public MAParticleManager(World worldIn, TextureManager rendererIn) {
+	public MAParticleManager(ClientWorld worldIn, TextureManager rendererIn) {
 		super(worldIn, rendererIn);
 	}
 	

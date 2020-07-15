@@ -22,8 +22,8 @@ public final class UtilsServer {
 	 * @see GiveCommand#giveItem(net.minecraft.command.CommandSource, net.minecraft.command.arguments.ItemInput, java.util.Collection, int)
 	 */
 	public static void giveToInventory(ServerPlayerEntity player, ItemStack itemStack) {
-		ItemStack itemStackCopy = itemStack.copy();
-		boolean flag = player.inventory.addItemStackToInventory(itemStack);
+		ItemStack	itemStackCopy	= itemStack.copy();
+		boolean		flag			= player.inventory.addItemStackToInventory(itemStack);
 		
 		if (flag && itemStack.isEmpty()) {
 			itemStack.setCount(1);
@@ -32,7 +32,8 @@ public final class UtilsServer {
 			if (entityitem != null)
 				entityitem.makeFakeItem();
 			
-			BlockPos playerPos = player.getPosition();
+			// BlockPos playerPos = player.getPosition();
+			BlockPos playerPos = player.func_233580_cy_();
 			player.world.playSound(null, playerPos.getX(), playerPos.getY(), playerPos.getZ(), SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 0.2F, ((player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.7F + 1.0F) * 2.0F);
 			player.container.detectAndSendChanges();
 			
@@ -61,7 +62,8 @@ public final class UtilsServer {
 		ItemStack itemStackCopy = itemStack.copy();
 		player.inventory.setInventorySlotContents(hotbarSlot, itemStack);
 		
-		BlockPos playerPos = player.getPosition();
+		// BlockPos playerPos = player.getPosition();
+		BlockPos playerPos = player.func_233580_cy_();
 		player.world.playSound(null, playerPos.getX(), playerPos.getY(), playerPos.getZ(), SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 0.2F, ((player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.7F + 1.0F) * 2.0F);
 		player.container.detectAndSendChanges();
 		
@@ -77,7 +79,8 @@ public final class UtilsServer {
 		
 		player.inventory.currentItem = hotbarSlot;
 		
-		BlockPos playerPos = player.getPosition();
+		// BlockPos playerPos = player.getPosition();
+		BlockPos playerPos = player.func_233580_cy_();
 		player.world.playSound(null, playerPos.getX(), playerPos.getY(), playerPos.getZ(), SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 0.2F, ((player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.7F + 1.0F) * 2.0F);
 		player.container.detectAndSendChanges();
 	}
@@ -85,10 +88,10 @@ public final class UtilsServer {
 	private static void notifyGive(ServerPlayerEntity ServerPlayerEntity, ItemStack stack) {
 		int count = stack.getCount();
 		
-		CommandSource commandSource = ServerPlayerEntity.getCommandSource();
-		ITextComponent stackTextComponent = stack.getTextComponent();
-		ITextComponent displayName = ServerPlayerEntity.getDisplayName();
-		TranslationTextComponent message = new TranslationTextComponent("commands.give.success.single", count, stackTextComponent, displayName);
+		CommandSource				commandSource		= ServerPlayerEntity.getCommandSource();
+		ITextComponent				stackTextComponent	= stack.getTextComponent();
+		ITextComponent				displayName			= ServerPlayerEntity.getDisplayName();
+		TranslationTextComponent	message				= new TranslationTextComponent("commands.give.success.single", count, stackTextComponent, displayName);
 		
 		commandSource.sendFeedback(message, true);
 	}

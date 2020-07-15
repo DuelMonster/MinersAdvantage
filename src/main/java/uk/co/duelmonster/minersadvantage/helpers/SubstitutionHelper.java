@@ -15,21 +15,21 @@ import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.SwordItem;
+import net.minecraft.loot.LootContext;
+import net.minecraft.loot.LootParameters;
 import net.minecraft.potion.Effects;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
-import net.minecraft.world.storage.loot.LootContext;
-import net.minecraft.world.storage.loot.LootParameters;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import uk.co.duelmonster.minersadvantage.MA;
@@ -137,9 +137,9 @@ public class SubstitutionHelper {
 		rankings.forEach(rank -> {
 			rankingMap.entrySet().forEach(rankedSlot -> {
 				
-				RankAndLevel rankAndLevel = rankedSlot.getValue();
-				int iCurrentRankIndx = rankings.size() - rankings.indexOf(rank);
-				float iCurrentToolSpeed = getToolSpeed(inventory.getStackInSlot(rankAndLevel.SlotID));
+				RankAndLevel	rankAndLevel		= rankedSlot.getValue();
+				int				iCurrentRankIndx	= rankings.size() - rankings.indexOf(rank);
+				float			iCurrentToolSpeed	= getToolSpeed(inventory.getStackInSlot(rankAndLevel.SlotID));
 				
 				if (optimalDigSpeed < iCurrentToolSpeed ||
 						(optimalDigSpeed <= iCurrentToolSpeed && optimalRankIndx <= iCurrentRankIndx && rankAndLevel.rank.ordinal() == rank.ordinal() &&
@@ -208,7 +208,7 @@ public class SubstitutionHelper {
 		if (player.isInWater() && !EnchantmentHelper.hasAquaAffinity(player))
 			f /= 5.0F;
 		
-		if (!player.onGround)
+		if (player.isAirBorne)
 			f /= 5.0F;
 		
 		f = net.minecraftforge.event.ForgeEventFactory.getBreakSpeed(player, state, f, oPos);
@@ -245,30 +245,30 @@ public class SubstitutionHelper {
 	
 	private boolean isBestWeapon(ItemStack currentWeapon, ItemStack compareWeapon, LivingEntity target) {
 		
-		boolean isTargetPlayer = target instanceof PlayerEntity;
-		double oldDamage = getFullItemStackDamage(currentWeapon, target);
-		double newDamage = getFullItemStackDamage(compareWeapon, target);
+		boolean	isTargetPlayer	= target instanceof PlayerEntity;
+		double	oldDamage		= getFullItemStackDamage(currentWeapon, target);
+		double	newDamage		= getFullItemStackDamage(compareWeapon, target);
 		
 		if (isTargetPlayer) {
 			return (newDamage > oldDamage);
 		} else {
 			
-			int oldHits = (oldDamage == 0 ? Integer.MAX_VALUE : MathHelper.ceil(target.getMaxHealth() / oldDamage));
-			int newHits = (newDamage == 0 ? Integer.MAX_VALUE : MathHelper.ceil(target.getMaxHealth() / newDamage));
+			int	oldHits	= (oldDamage == 0 ? Integer.MAX_VALUE : MathHelper.ceil(target.getMaxHealth() / oldDamage));
+			int	newHits	= (newDamage == 0 ? Integer.MAX_VALUE : MathHelper.ceil(target.getMaxHealth() / newDamage));
 			
 			if (newHits != oldHits)
 				return (newHits < oldHits);
 		}
 		
-		int newLootingLevel = EnchantmentHelper.getEnchantmentLevel(Enchantments.LOOTING, compareWeapon);
-		int newFireAspectLevel = EnchantmentHelper.getEnchantmentLevel(Enchantments.FIRE_ASPECT, compareWeapon);
-		int newKnockbackLevel = EnchantmentHelper.getEnchantmentLevel(Enchantments.KNOCKBACK, compareWeapon);
-		int newUnbreakingLevel = EnchantmentHelper.getEnchantmentLevel(Enchantments.UNBREAKING, compareWeapon);
+		int	newLootingLevel		= EnchantmentHelper.getEnchantmentLevel(Enchantments.LOOTING, compareWeapon);
+		int	newFireAspectLevel	= EnchantmentHelper.getEnchantmentLevel(Enchantments.FIRE_ASPECT, compareWeapon);
+		int	newKnockbackLevel	= EnchantmentHelper.getEnchantmentLevel(Enchantments.KNOCKBACK, compareWeapon);
+		int	newUnbreakingLevel	= EnchantmentHelper.getEnchantmentLevel(Enchantments.UNBREAKING, compareWeapon);
 		
-		int oldLootingLevel = EnchantmentHelper.getEnchantmentLevel(Enchantments.LOOTING, currentWeapon);
-		int oldFireAspectLevel = EnchantmentHelper.getEnchantmentLevel(Enchantments.FIRE_ASPECT, currentWeapon);
-		int oldKnockbackLevel = EnchantmentHelper.getEnchantmentLevel(Enchantments.KNOCKBACK, currentWeapon);
-		int oldUnbreakingLevel = EnchantmentHelper.getEnchantmentLevel(Enchantments.UNBREAKING, currentWeapon);
+		int	oldLootingLevel		= EnchantmentHelper.getEnchantmentLevel(Enchantments.LOOTING, currentWeapon);
+		int	oldFireAspectLevel	= EnchantmentHelper.getEnchantmentLevel(Enchantments.FIRE_ASPECT, currentWeapon);
+		int	oldKnockbackLevel	= EnchantmentHelper.getEnchantmentLevel(Enchantments.KNOCKBACK, currentWeapon);
+		int	oldUnbreakingLevel	= EnchantmentHelper.getEnchantmentLevel(Enchantments.UNBREAKING, currentWeapon);
 		
 		if (!isTargetPlayer && newLootingLevel != oldLootingLevel)
 			return (newLootingLevel > oldLootingLevel);
@@ -282,8 +282,8 @@ public class SubstitutionHelper {
 		Set<Enchantment> bothItemsEnchantments = getNonstandardNondamageEnchantmentsOnBothStacks(compareWeapon, currentWeapon);
 		
 		for (Enchantment enchantment : bothItemsEnchantments) {
-			int oldLevel = EnchantmentHelper.getEnchantmentLevel(enchantment, currentWeapon);
-			int newLevel = EnchantmentHelper.getEnchantmentLevel(enchantment, compareWeapon);
+			int	oldLevel	= EnchantmentHelper.getEnchantmentLevel(enchantment, currentWeapon);
+			int	newLevel	= EnchantmentHelper.getEnchantmentLevel(enchantment, compareWeapon);
 			if (newLevel > oldLevel) {
 				return true;
 			} else if (newLevel < oldLevel) {
@@ -304,8 +304,8 @@ public class SubstitutionHelper {
 			return false;
 		}
 		
-		boolean newDamageable = isItemStackDamageable(compareWeapon);
-		boolean oldDamageable = isItemStackDamageable(currentWeapon);
+		boolean	newDamageable	= isItemStackDamageable(compareWeapon);
+		boolean	oldDamageable	= isItemStackDamageable(currentWeapon);
 		
 		if (newDamageable && !oldDamageable) {
 			return false;
@@ -334,10 +334,12 @@ public class SubstitutionHelper {
 		variables.prevHeldItem = player.inventory.getStackInSlot(player.inventory.currentItem);
 		player.inventory.setInventorySlotContents(player.inventory.currentItem, itemstack);
 		if (!isItemStackEmpty(variables.prevHeldItem)) {
-			player.getAttributes().removeAttributeModifiers(variables.prevHeldItem.getAttributeModifiers(EquipmentSlotType.MAINHAND));
+			// player.getAttributeManager().removeAttributeModifiers(variables.prevHeldItem.getAttributeModifiers(EquipmentSlotType.MAINHAND));
+			player.getAttributeManager().func_233785_a_(variables.prevHeldItem.getAttributeModifiers(EquipmentSlotType.MAINHAND));
 		}
 		if (!isItemStackEmpty(itemstack)) {
-			player.getAttributes().applyAttributeModifiers(itemstack.getAttributeModifiers(EquipmentSlotType.MAINHAND));
+			// player.getAttributeManager().applyAttributeModifiers(itemstack.getAttributeModifiers(EquipmentSlotType.MAINHAND));
+			player.getAttributeManager().func_233793_b_(itemstack.getAttributeModifiers(EquipmentSlotType.MAINHAND));
 		}
 	}
 	
@@ -349,13 +351,13 @@ public class SubstitutionHelper {
 	
 	public double getFullItemStackDamage(ItemStack itemStack, LivingEntity entity) {
 		fakeItemForPlayer(itemStack);
-		double damage = player.getAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getValue();
+		double damage = player.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
 		
 		double enchDamage = EnchantmentHelper.getModifierForCreature(itemStack, entity.getCreatureAttribute());
 		
 		if (damage > 0.0D || enchDamage > 0.0D) {
 			boolean critical = player.fallDistance > 0.0F
-					&& !player.onGround && !player.isOnLadder()
+					&& player.isAirBorne && !player.isOnLadder()
 					&& !player.isInWater()
 					&& !player.isPotionActive(Effects.BLINDNESS)
 					&& !player.isOnePlayerRiding();
@@ -423,12 +425,12 @@ public class SubstitutionHelper {
 		ItemStack fakedStack = player.inventory.getStackInSlot(player.inventory.currentItem);
 		player.inventory.setInventorySlotContents(player.inventory.currentItem, variables.prevHeldItem);
 		if (!isItemStackEmpty(fakedStack)) {
-			player.getAttributes().removeAttributeModifiers(
-					fakedStack.getAttributeModifiers(EquipmentSlotType.MAINHAND));
+			// player.getAttributeManager().removeAttributeModifiers(fakedStack.getAttributeModifiers(EquipmentSlotType.MAINHAND));
+			player.getAttributeManager().func_233785_a_(fakedStack.getAttributeModifiers(EquipmentSlotType.MAINHAND));
 		}
 		if (!isItemStackEmpty(variables.prevHeldItem)) {
-			player.getAttributes().applyAttributeModifiers(
-					variables.prevHeldItem.getAttributeModifiers(EquipmentSlotType.MAINHAND));
+			// player.getAttributeManager().applyAttributeModifiers(variables.prevHeldItem.getAttributeModifiers(EquipmentSlotType.MAINHAND));
+			player.getAttributeManager().func_233793_b_(variables.prevHeldItem.getAttributeModifiers(EquipmentSlotType.MAINHAND));
 		}
 	}
 }

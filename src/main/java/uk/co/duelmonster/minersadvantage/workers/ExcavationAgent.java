@@ -76,7 +76,7 @@ public class ExcavationAgent extends Agent {
 			BlockState	state	= world.getBlockState(oPos);
 			Block		block	= state.getBlock();
 			
-			if (!fakePlayer().canHarvestBlock(state)) {
+			if (!fakePlayer().func_234569_d_(state)) {
 				// Avoid the non-harvestable blocks.
 				processed.add(oPos);
 				continue;
@@ -165,7 +165,7 @@ public class ExcavationAgent extends Agent {
 	public void addToQueue(BlockPos oPos) {
 		BlockState state = world.getBlockState(oPos);
 		
-		if (fakePlayer().canHarvestBlock(state)) {
+		if (fakePlayer().func_234569_d_(state)) {
 			Block block = state.getBlock();
 			
 			if ((clientConfig.common.mineVeins && state.isIn(Tags.Blocks.ORES))

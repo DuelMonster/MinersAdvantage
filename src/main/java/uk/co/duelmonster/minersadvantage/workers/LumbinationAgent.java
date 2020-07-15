@@ -90,7 +90,7 @@ public class LumbinationAgent extends Agent {
 			boolean	isWood		= state.getMaterial() == Material.WOOD;
 			
 			// Process the current block if it is valid.
-			if (!fakePlayer().canHarvestBlock(state) || (isLeaves && !clientConfig.lumbination.destroyLeaves)) {
+			if (!fakePlayer().func_234569_d_(state) || (isLeaves && !clientConfig.lumbination.destroyLeaves)) {
 				// Avoid the non-harvestable blocks.
 				processed.add(oPos);
 				continue;
