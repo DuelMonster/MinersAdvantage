@@ -38,7 +38,7 @@ import uk.co.duelmonster.minersadvantage.config.SyncedClientConfig;
 public class Functions {
 	
 	public static String localize(String key) {
-		return (new TranslationTextComponent(key)).toString();
+		return (new TranslationTextComponent(key)).getString();
 	}
 	
 	public static boolean isDebug() {
