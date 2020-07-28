@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/Source"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="4"/>
+</listAttribute>
 <mapAttribute key="org.eclipse.debug.core.environmentVariables">
 <mapEntry key="FORGE_GROUP" value="net.minecraftforge"/>
 <mapEntry key="FORGE_VERSION" value="32.0.66"/>
@@ -9,8 +15,12 @@
 <mapEntry key="MOD_CLASSES" value="examplemod%%C:\$MC\Mod Source\~MinersAdvantage\Source\bin\main;examplemod%%C:\$MC\Mod Source\~MinersAdvantage\Source\bin\main"/>
 <mapEntry key="target" value="fmluserdevdata"/>
 </mapAttribute>
+<listAttribute key="org.eclipse.debug.ui.favoriteGroups">
+<listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
+</listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.buildship.core.classpathprovider"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="net.minecraftforge.userdev.LaunchTesting"/>
+<stringAttribute key="org.eclipse.jdt.launching.MODULE_NAME" value="Source"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="--mod examplemod --all --output &quot;C:\$MC\Mod Source\~MinersAdvantage\Source\src\generated\resources&quot;"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="Source"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dforge.logging.console.level=debug -Dforge.logging.markers=SCAN,REGISTRIES,REGISTRYDUMP"/>

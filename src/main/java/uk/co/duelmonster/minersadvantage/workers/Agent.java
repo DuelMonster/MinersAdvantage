@@ -109,17 +109,19 @@ public abstract class Agent {
 	
 	protected void setupHarvestArea() {
 		// Shaft area info
+		int blockRadius = (packetId != PacketId.Veinate ? clientConfig.common.blockRadius - 1 : 16);
+		
 		int	xStart	= 0;
 		int	xEnd	= 0;
 		int	yBottom	= feetPos;
-		int	yTop	= feetPos + (clientConfig.common.blockRadius - 1);
+		int	yTop	= feetPos + (blockRadius - 1);
 		int	zStart	= 0;
 		int	zEnd	= 0;
 		
 		// if the ShaftWidth is divisible by 2 we don't want to do anything
-		double dDivision = ((clientConfig.common.blockRadius & 1) != 0 ? 0 : 0.5);
+		double dDivision = ((blockRadius & 1) != 0 ? 0 : 0.5);
 		
-		int iHalfRadius = ((int) ((clientConfig.common.blockRadius / 2) - dDivision));
+		int iHalfRadius = ((int) ((blockRadius / 2) - dDivision));
 		
 		xStart = originPos.getX() + iHalfRadius;
 		xEnd = originPos.getX() - iHalfRadius;
@@ -129,7 +131,7 @@ public abstract class Agent {
 		zEnd = originPos.getZ() - iHalfRadius;
 		
 		if (packetId == PacketId.Excavate || packetId == PacketId.Shaftanate || packetId == PacketId.Pathinate || packetId == PacketId.Illuminate) {
-			int blockRadius = (clientConfig.common.blockRadius - 1);
+			
 			switch (faceHit) {
 			case SOUTH: // Positive Z
 				zStart = originPos.getZ();

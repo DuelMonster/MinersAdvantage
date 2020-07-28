@@ -1,26 +1,6 @@
-Build: 1.15.2-1.6.7
-	fix: Lumbination crash fix
-	chore updated forge version to 3.2.0
 
-=========
-
-Build: 1.15.2-1.6.6
-	fix: auto illumination placing torches way outside the harvested area with large block radius's and block limits
-
-=========
-
-Build: 1.15.2-1.6.5
-	feature: improve cultivatable area detection when using hoe
-	fix: Cultivation failure when using hoe
-	fix: checks for air failing to succeed every time causing more blocks
-	fix: Substitution not working consistently
-		
-=========
-
-Build: 1.15.2-1.6.1
-	Ported to MC 1.15.2
-	fix: Pathanation ignoring enabled state
-	fix: null object exception avoidance by checking parrentConfig
-	feature: improve Substitution algorithm
+Build: 1.16.1-1.7.0
+	Ported to MC 1.16.1
+	compatible with Forge 32.0.66+
 		
 =========

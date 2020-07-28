@@ -60,7 +60,7 @@ public class ExcavationAgent extends Agent {
 		for (int iQueueCount = 0; queued.size() > 0; iQueueCount++) {
 			if ((clientConfig.common.breakAtToolSpeeds && iQueueCount > 0)
 					|| iQueueCount >= clientConfig.common.blocksPerTick
-					|| processed.size() >= clientConfig.common.blockLimit
+					|| (packetId != PacketId.Veinate && processed.size() >= clientConfig.common.blockLimit)
 					|| (!clientConfig.common.breakAtToolSpeeds && clientConfig.common.tpsGuard && timer.elapsed(TimeUnit.MILLISECONDS) > 40))
 				break;
 			
