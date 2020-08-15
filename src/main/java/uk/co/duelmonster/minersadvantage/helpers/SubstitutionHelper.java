@@ -75,7 +75,8 @@ public class SubstitutionHelper {
 		
 		PlayerInventory inventory = player.inventory;
 		
-		LootContext.Builder ctx = new LootContext.Builder((ServerWorld) world).withParameter(LootParameters.BLOCK_STATE, state).withParameter(LootParameters.POSITION, oPos).withParameter(LootParameters.TOOL, Constants.DUMMY_SILKTOUCH);
+		// LootContext.Builder ctx = new LootContext.Builder((ServerWorld) world).withParameter(LootParameters.BLOCK_STATE, state).withParameter(LootParameters.POSITION, oPos).withParameter(LootParameters.TOOL, Constants.DUMMY_SILKTOUCH);
+		LootContext.Builder ctx = new LootContext.Builder((ServerWorld) world).withParameter(LootParameters.BLOCK_STATE, state).withParameter(LootParameters.TOOL, Constants.DUMMY_SILKTOUCH);
 		
 		boolean silkTouchable = state.getDrops(ctx).contains(new ItemStack(block.asItem()));
 		
@@ -334,12 +335,10 @@ public class SubstitutionHelper {
 		variables.prevHeldItem = player.inventory.getStackInSlot(player.inventory.currentItem);
 		player.inventory.setInventorySlotContents(player.inventory.currentItem, itemstack);
 		if (!isItemStackEmpty(variables.prevHeldItem)) {
-			// player.getAttributeManager().removeAttributeModifiers(variables.prevHeldItem.getAttributeModifiers(EquipmentSlotType.MAINHAND));
-			player.getAttributeManager().func_233785_a_(variables.prevHeldItem.getAttributeModifiers(EquipmentSlotType.MAINHAND));
+			player.getAttributeManager().removeModifiers(variables.prevHeldItem.getAttributeModifiers(EquipmentSlotType.MAINHAND));
 		}
 		if (!isItemStackEmpty(itemstack)) {
-			// player.getAttributeManager().applyAttributeModifiers(itemstack.getAttributeModifiers(EquipmentSlotType.MAINHAND));
-			player.getAttributeManager().func_233793_b_(itemstack.getAttributeModifiers(EquipmentSlotType.MAINHAND));
+			player.getAttributeManager().reapplyModifiers(itemstack.getAttributeModifiers(EquipmentSlotType.MAINHAND));
 		}
 	}
 	
@@ -425,12 +424,10 @@ public class SubstitutionHelper {
 		ItemStack fakedStack = player.inventory.getStackInSlot(player.inventory.currentItem);
 		player.inventory.setInventorySlotContents(player.inventory.currentItem, variables.prevHeldItem);
 		if (!isItemStackEmpty(fakedStack)) {
-			// player.getAttributeManager().removeAttributeModifiers(fakedStack.getAttributeModifiers(EquipmentSlotType.MAINHAND));
-			player.getAttributeManager().func_233785_a_(fakedStack.getAttributeModifiers(EquipmentSlotType.MAINHAND));
+			player.getAttributeManager().removeModifiers(fakedStack.getAttributeModifiers(EquipmentSlotType.MAINHAND));
 		}
 		if (!isItemStackEmpty(variables.prevHeldItem)) {
-			// player.getAttributeManager().applyAttributeModifiers(variables.prevHeldItem.getAttributeModifiers(EquipmentSlotType.MAINHAND));
-			player.getAttributeManager().func_233793_b_(variables.prevHeldItem.getAttributeModifiers(EquipmentSlotType.MAINHAND));
+			player.getAttributeManager().reapplyModifiers(variables.prevHeldItem.getAttributeModifiers(EquipmentSlotType.MAINHAND));
 		}
 	}
 }

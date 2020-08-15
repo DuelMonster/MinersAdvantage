@@ -15,7 +15,6 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -62,8 +61,8 @@ public class IlluminationHelper {
 	}
 	
 	public List<BlockPos> getTorchablePositionsInArea(World world, AxisAlignedBB area) {
-		List<BlockPos> positions = new ArrayList<BlockPos>();
-		BlockPos previousPos = null;
+		List<BlockPos>	positions	= new ArrayList<BlockPos>();
+		BlockPos		previousPos	= null;
 		
 		for (double y = area.minY; y <= area.maxY; y++)
 			for (double x = area.minX; x <= area.maxX; x++)
@@ -85,12 +84,12 @@ public class IlluminationHelper {
 		
 		if (mc.objectMouseOver != null && mc.objectMouseOver.getType() == RayTraceResult.Type.BLOCK) {
 			
-			BlockRayTraceResult blockResult = (BlockRayTraceResult) mc.objectMouseOver;
-			BlockPos oPos = blockResult.getPos();
+			BlockRayTraceResult	blockResult	= (BlockRayTraceResult) mc.objectMouseOver;
+			BlockPos			oPos		= blockResult.getPos();
 			
 			if (mc.world.getBlockState(oPos).getBlock() != Blocks.TORCH) {
-				Direction faceHit = blockResult.getFace();
-				BlockPos oSidePos = oPos;
+				Direction	faceHit		= blockResult.getFace();
+				BlockPos	oSidePos	= oPos;
 				
 				switch (faceHit) {
 				case NORTH:
@@ -136,18 +135,18 @@ public class IlluminationHelper {
 	
 	@OnlyIn(Dist.CLIENT)
 	public void IlluminateArea() {
-		AxisAlignedBB illuminationArea = ClientFunctions.mc.player.getBoundingBox().grow(8);
-		BlockPos startPos = new BlockPos(illuminationArea.minX, illuminationArea.minY, illuminationArea.minZ);
-		BlockPos endPos = new BlockPos(illuminationArea.maxX, illuminationArea.maxY, illuminationArea.maxZ);
+		AxisAlignedBB	illuminationArea	= ClientFunctions.mc.player.getBoundingBox().grow(8);
+		BlockPos		startPos			= new BlockPos(illuminationArea.minX, illuminationArea.minY, illuminationArea.minZ);
+		BlockPos		endPos				= new BlockPos(illuminationArea.maxX, illuminationArea.maxY, illuminationArea.maxZ);
 		
 		MA.NETWORK.sendToServer(new PacketIlluminate(startPos, endPos, TorchPlacement.FLOOR));
 	}
 	
-	public boolean canPlaceTorchOnFace(IBlockReader world, BlockPos pos, Direction face) {
-		BlockState state = world.getBlockState(pos);
-		Block block = state.getBlock();
+	public boolean canPlaceTorchOnFace(World world, BlockPos pos, Direction face) {
+		BlockState	state	= world.getBlockState(pos);
+		Block		block	= state.getBlock();
 		
-		boolean validFace = (face != Direction.DOWN && Block.hasSolidSide(state, world, pos, face) && world.getBlockState(pos.offset(face)).getMaterial().isReplaceable());
+		boolean validFace = (face != Direction.DOWN && Block.hasEnoughSolidSide(world, pos, face) && world.getBlockState(pos.offset(face)).getMaterial().isReplaceable());
 		
 		boolean validBockType = (block != Blocks.END_GATEWAY && block != Blocks.JACK_O_LANTERN);
 		

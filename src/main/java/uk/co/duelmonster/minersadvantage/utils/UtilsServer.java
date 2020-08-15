@@ -32,8 +32,7 @@ public final class UtilsServer {
 			if (entityitem != null)
 				entityitem.makeFakeItem();
 			
-			// BlockPos playerPos = player.getPosition();
-			BlockPos playerPos = player.func_233580_cy_();
+			BlockPos playerPos = player.getPosition();
 			player.world.playSound(null, playerPos.getX(), playerPos.getY(), playerPos.getZ(), SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 0.2F, ((player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.7F + 1.0F) * 2.0F);
 			player.container.detectAndSendChanges();
 			
@@ -62,8 +61,7 @@ public final class UtilsServer {
 		ItemStack itemStackCopy = itemStack.copy();
 		player.inventory.setInventorySlotContents(hotbarSlot, itemStack);
 		
-		// BlockPos playerPos = player.getPosition();
-		BlockPos playerPos = player.func_233580_cy_();
+		BlockPos playerPos = player.getPosition();
 		player.world.playSound(null, playerPos.getX(), playerPos.getY(), playerPos.getZ(), SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 0.2F, ((player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.7F + 1.0F) * 2.0F);
 		player.container.detectAndSendChanges();
 		
@@ -79,8 +77,7 @@ public final class UtilsServer {
 		
 		player.inventory.currentItem = hotbarSlot;
 		
-		// BlockPos playerPos = player.getPosition();
-		BlockPos playerPos = player.func_233580_cy_();
+		BlockPos playerPos = player.getPosition();
 		player.world.playSound(null, playerPos.getX(), playerPos.getY(), playerPos.getZ(), SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 0.2F, ((player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.7F + 1.0F) * 2.0F);
 		player.container.detectAndSendChanges();
 	}

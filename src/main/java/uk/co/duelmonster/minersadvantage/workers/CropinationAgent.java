@@ -140,20 +140,13 @@ public class CropinationAgent extends Agent {
 	}
 	
 	private boolean isFullyGrown(BlockState state) {
-		// return (state.has(BlockStateProperties.AGE_0_1) && state.get(BlockStateProperties.AGE_0_1).equals(1)) ||
-		// (state.has(BlockStateProperties.AGE_0_2) && state.get(BlockStateProperties.AGE_0_2).equals(2)) ||
-		// (state.has(BlockStateProperties.AGE_0_3) && state.get(BlockStateProperties.AGE_0_3).equals(3)) ||
-		// (state.has(BlockStateProperties.AGE_0_5) && state.get(BlockStateProperties.AGE_0_5).equals(5)) ||
-		// (state.has(BlockStateProperties.AGE_0_7) && state.get(BlockStateProperties.AGE_0_7).equals(7)) ||
-		// (state.has(BlockStateProperties.AGE_0_15) && state.get(BlockStateProperties.AGE_0_15).equals(15)) ||
-		// (state.has(BlockStateProperties.AGE_0_25) && state.get(BlockStateProperties.AGE_0_25).equals(25));
-		return (state.func_235901_b_(BlockStateProperties.AGE_0_1) && state.get(BlockStateProperties.AGE_0_1).equals(1)) ||
-				(state.func_235901_b_(BlockStateProperties.AGE_0_2) && state.get(BlockStateProperties.AGE_0_2).equals(2)) ||
-				(state.func_235901_b_(BlockStateProperties.AGE_0_3) && state.get(BlockStateProperties.AGE_0_3).equals(3)) ||
-				(state.func_235901_b_(BlockStateProperties.AGE_0_5) && state.get(BlockStateProperties.AGE_0_5).equals(5)) ||
-				(state.func_235901_b_(BlockStateProperties.AGE_0_7) && state.get(BlockStateProperties.AGE_0_7).equals(7)) ||
-				(state.func_235901_b_(BlockStateProperties.AGE_0_15) && state.get(BlockStateProperties.AGE_0_15).equals(15)) ||
-				(state.func_235901_b_(BlockStateProperties.AGE_0_25) && state.get(BlockStateProperties.AGE_0_25).equals(25));
+		return (state.hasProperty(BlockStateProperties.AGE_0_1) && state.get(BlockStateProperties.AGE_0_1).equals(1)) ||
+				(state.hasProperty(BlockStateProperties.AGE_0_2) && state.get(BlockStateProperties.AGE_0_2).equals(2)) ||
+				(state.hasProperty(BlockStateProperties.AGE_0_3) && state.get(BlockStateProperties.AGE_0_3).equals(3)) ||
+				(state.hasProperty(BlockStateProperties.AGE_0_5) && state.get(BlockStateProperties.AGE_0_5).equals(5)) ||
+				(state.hasProperty(BlockStateProperties.AGE_0_7) && state.get(BlockStateProperties.AGE_0_7).equals(7)) ||
+				(state.hasProperty(BlockStateProperties.AGE_0_15) && state.get(BlockStateProperties.AGE_0_15).equals(15)) ||
+				(state.hasProperty(BlockStateProperties.AGE_0_25) && state.get(BlockStateProperties.AGE_0_25).equals(25));
 	}
 	
 	@Override

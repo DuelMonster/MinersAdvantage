@@ -30,8 +30,7 @@ public class FarmingHelper {
 			
 			for (BlockPos pos : positions) {
 				BlockState state = world.getBlockState(pos);
-				// if (state.getMaterial() == Material.WATER || (state.getProperties().contains(BlockStateProperties.WATERLOGGED) && state.get(BlockStateProperties.WATERLOGGED))) {
-				if (state.getMaterial() == Material.WATER || (state.func_235901_b_(BlockStateProperties.WATERLOGGED) && state.get(BlockStateProperties.WATERLOGGED))) {
+				if (state.getMaterial() == Material.WATER || (state.getProperties().contains(BlockStateProperties.WATERLOGGED) && state.get(BlockStateProperties.WATERLOGGED))) {
 					return pos;
 				}
 			}
