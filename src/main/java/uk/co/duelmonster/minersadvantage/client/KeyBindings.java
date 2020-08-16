@@ -33,6 +33,7 @@ public class KeyBindings {
 	public static final KeyBinding	veination;
 	public static final KeyBinding	cropination;
 	public static final KeyBinding	abortAgents;
+	public static final KeyBinding	inGameConfig;
 	
 	private static final List<KeyBinding> allBindings;
 	
@@ -55,7 +56,9 @@ public class KeyBindings {
 				substitution = new KeyBinding(Constants.MOD_ID + ".substitution.enabled.comment", KeyConflictContext.IN_GAME, KeyModifier.NONE, getKey(GLFW.GLFW_KEY_KP_6), Constants.MOD_NAME), // Keyboard.KEY_NUMPAD6
 				veination = new KeyBinding(Constants.MOD_ID + ".veination.enabled.comment", KeyConflictContext.IN_GAME, KeyModifier.NONE, getKey(GLFW.GLFW_KEY_KP_7), Constants.MOD_NAME), // Keyboard.KEY_NUMPAD7
 				cropination = new KeyBinding(Constants.MOD_ID + ".cropination.enabled.comment", KeyConflictContext.IN_GAME, KeyModifier.NONE, getKey(GLFW.GLFW_KEY_KP_8), Constants.MOD_NAME), // Keyboard.KEY_NUMPAD8
-				abortAgents = new KeyBinding(Constants.MOD_ID + ".abort.agents", KeyConflictContext.IN_GAME, KeyModifier.NONE, getKey(GLFW.GLFW_KEY_DELETE), Constants.MOD_NAME) // Keyboard.KEY_DELETE
+				abortAgents = new KeyBinding(Constants.MOD_ID + ".abort.agents", KeyConflictContext.IN_GAME, KeyModifier.NONE, getKey(GLFW.GLFW_KEY_DELETE), Constants.MOD_NAME), // Keyboard.KEY_DELETE
+				
+				inGameConfig = new KeyBinding(Constants.MOD_ID + ".inGameConfig", KeyConflictContext.IN_GAME, KeyModifier.CONTROL, getKey(GLFW.GLFW_KEY_INSERT), Constants.MOD_NAME) // Keyboard.KEY_DELETE
 		);
 	}
 	

@@ -1,11 +1,13 @@
 package uk.co.duelmonster.minersadvantage.events.client;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import uk.co.duelmonster.minersadvantage.MA;
 import uk.co.duelmonster.minersadvantage.client.ClientFunctions;
 import uk.co.duelmonster.minersadvantage.client.KeyBindings;
+import uk.co.duelmonster.minersadvantage.client.GUI.MAConfigGUI;
 import uk.co.duelmonster.minersadvantage.common.Variables;
 import uk.co.duelmonster.minersadvantage.config.MAConfig;
 import uk.co.duelmonster.minersadvantage.helpers.IlluminationHelper;
@@ -114,6 +116,10 @@ public class KeyInputEvents {
 			
 			if (KeyBindings.abortAgents.isPressed()) {
 				MA.NETWORK.sendToServer(new PacketAbortAgents());
+			}
+			
+			if (KeyBindings.inGameConfig.isPressed()) {
+				Minecraft.getInstance().displayGuiScreen(new MAConfigGUI(null));
 			}
 			
 			// Record the block face being attacked

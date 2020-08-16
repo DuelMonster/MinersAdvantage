@@ -1,18 +1,66 @@
-modLoader="javafml" #mandatory
-loaderVersion="[26,)" #mandatory (26 is current forge version)
-# issueTrackerURL="" #optional
 
+# There are several mandatory fields (#mandatory), and many more that are optional (#optional).
+# The overall format is standard TOML format, v0.5.0.
+# Note that there are a couple of TOML lists in this file.
+# Find more information on toml format here:  https://github.com/toml-lang/toml
+# The name of the mod loader type to load - for regular FML @Mod mods it should be javafml
+modLoader="javafml" #mandatory
+# A version range to match for said mod loader - for regular FML @Mod it will be the forge version
+loaderVersion="[33,)" #mandatory This is typically bumped every Minecraft version by Forge. See our download page for lists of versions.
+# The license for you mod. This is mandatory metadata and allows for easier comprehension of your redistributive properties.
+# Review your options at https://choosealicense.com/. All rights reserved is the default copyright stance, and is thus the default here.
+license="LGPL License"
+# A URL to refer people to when problems occur with this mod
+issueTrackerURL="https://github.com/DuelMonster/MinersAdvantage/issues" #optional
+
+# A list of mods - how many allowed here is determined by the individual mod loader
 [[mods]] #mandatory
+# The modid of the mod
 modId="minersadvantage" #mandatory
+# The version number of the mod - there's a few well known ${} variables useable here or just hardcode it
 version="${file.jarVersion}" #mandatory
+ # A display name for the mod
 displayName="MinersAdvantage" #mandatory
+# A URL to query for updates for this mod. See the JSON update specification <here>
 # updateJSONURL="" #optional
-# displayURL="" #optional
+# A URL for the "homepage" for this mod, displayed in the mod UI
+displayURL="https://www.curseforge.com/minecraft/mc-mods/minersadvantage" #optional
 # A file name (in the root of the mod JAR) containing a logo for display
 logoFile="MinersAdvantage_Logo.png" #optional
+# A text field displayed in the mod UI
 credits="Thanks for downloading" #optional
+# A text field displayed in the mod UI
 authors="DuelMonster" #optional
+# The description text for the mod (multi line!) (#mandatory)
+# A file name (in the root of the mod JAR) containing a logo for display
 description='''
 MinersAdvantage is a reimagening of my previous mod 'SuperMiner'.
 It is a rewrite from the ground up that aims to solve all previous issues and to add additional features.
 '''
+
+# A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
+[[dependencies.minersadvantage]] #optional
+    # the modid of the dependency
+    modId="forge" #mandatory
+    # Does this dependency have to exist - if not, ordering below must be specified
+    mandatory=true #mandatory
+    # The version range of the dependency
+    versionRange="[33,)" #mandatory
+    # An ordering relationship for the dependency - BEFORE or AFTER required if the relationship is not mandatory
+    ordering="NONE"
+    # Side this dependency is applied on - BOTH, CLIENT or SERVER
+    side="BOTH"
+	
+[[dependencies.minersadvantage]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.16.2]"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.minersadvantage]]
+    modId="eguilib"
+    mandatory=true
+    versionRange="[1.0.2,)"
+    ordering="NONE"
+    side="CLIENT"

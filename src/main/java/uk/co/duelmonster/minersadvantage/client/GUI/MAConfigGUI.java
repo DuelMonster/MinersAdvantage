@@ -1,0 +1,1046 @@
+package uk.co.duelmonster.minersadvantage.client.GUI;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import de.erdbeerbaerlp.guilib.components.Button;
+import de.erdbeerbaerlp.guilib.components.CheckBox;
+import de.erdbeerbaerlp.guilib.components.EnumSlider;
+import de.erdbeerbaerlp.guilib.components.Label;
+import de.erdbeerbaerlp.guilib.components.Slider;
+import de.erdbeerbaerlp.guilib.components.TextField;
+import de.erdbeerbaerlp.guilib.gui.ExtendedScreen;
+import net.minecraft.client.gui.screen.Screen;
+import uk.co.duelmonster.minersadvantage.common.Constants;
+import uk.co.duelmonster.minersadvantage.common.Functions;
+import uk.co.duelmonster.minersadvantage.common.TorchPlacement;
+import uk.co.duelmonster.minersadvantage.config.MAConfig;
+
+public class MAConfigGUI extends ExtendedScreen {
+	
+	public MAConfigGUI(Screen parentGui) {
+		super(parentGui);
+	}
+	
+	private final String PressEnter = "... press Enter to update ...";
+	
+	private final int	startY		= 100;
+	private final int	categoryX	= 50;
+	private final int	rowHeight	= 20;
+	private final int	rowSpace	= 10;
+	private final int	rowStartY	= rowHeight + rowSpace;
+	private final int	col_1		= 300;
+	private final int	col_2		= 510;
+	private final int	sliderWidth	= 300;
+	
+	private int centerX() {
+		return width / 2;
+	}
+	
+	private Button	btnClose;
+	private Button	btnCommon;
+	private Button	btnCaptivation;
+	private Button	btnCropination;
+	private Button	btnExcavation;
+	private Button	btnPathanation;
+	private Button	btnIllumination;
+	private Button	btnLumbination;
+	private Button	btnShaftanation;
+	private Button	btnSubstitution;
+	private Button	btnVeination;
+	
+	private Label	lblTitleCategory;
+	private Label	lblTitleCommon;
+	private Label	lblSubTitleClient;
+	private Label	lblTitleCaptivation;
+	private Label	lblTitleCropination;
+	private Label	lblTitleExcavation;
+	private Label	lblTitlePathanation;
+	private Label	lblTitleIllumination;
+	private Label	lblTitleLumbination;
+	private Label	lblTitleShaftanation;
+	private Label	lblTitleSubstitution;
+	private Label	lblTitleVeination;
+	
+	private CheckBox	chkCommonEnableTickDelay;
+	private CheckBox	chkCommonGatherDrops;
+	private CheckBox	chkCommonBreakAtToolSpeeds;
+	private CheckBox	chkCommonMineViens;
+	private CheckBox	chkCommonTPSGuard;
+	private CheckBox	chkCommonAutoIllum;
+	private CheckBox	chkClientDisableParticles;
+	private CheckBox	chkCaptivationEnabled;
+	private CheckBox	chkCaptivationAllowInGUI;
+	private CheckBox	chkCaptivationIsWhitelist;
+	private CheckBox	chkCaptivationUnconditionalBlacklist;
+	private CheckBox	chkCropinationEnabled;
+	private CheckBox	chkCropinationHarvestSeeds;
+	private CheckBox	chkExcavationEnabled;
+	private CheckBox	chkExcavationToggleMode;
+	private CheckBox	chkExcavationIgnoreBlockVariants;
+	private CheckBox	chkExcavationIsBlockWhitelist;
+	private CheckBox	chkPathanationEnabled;
+	private CheckBox	chkIlluminationEnabled;
+	private CheckBox	chkIlluminationUseBlockLight;
+	private CheckBox	chkLumbinationEnabled;
+	private CheckBox	chkLumbinationChopTreeBelow;
+	private CheckBox	chkLumbinationDestroyLeaves;
+	private CheckBox	chkLumbinationLeavesAffectDurability;
+	private CheckBox	chkLumbinationReplantSaplings;
+	private CheckBox	chkLumbinationUseShearsOnLeaves;
+	private CheckBox	chkShaftanationEnabled;
+	private CheckBox	chkSubstitutionEnabled;
+	private CheckBox	chkSubstitutionSwitchBack;
+	private CheckBox	chkSubstitutionFavourSilkTouch;
+	private CheckBox	chkSubstitutionFavourFortune;
+	private CheckBox	chkSubstitutionIgnoreIfValidTool;
+	private CheckBox	chkSubstitutionIgnorePassiveMobs;
+	private CheckBox	chkVeinationEnabled;
+	
+	private Slider	sldCommonTickDelay;
+	private Slider	sldCommonBlocksPerTick;
+	private Slider	sldCommonBlockLimit;
+	private Slider	sldCommonBlockRadius;
+	private Slider	sldCaptivationRadiusHorizontal;
+	private Slider	sldCaptivationRadiusVertical;
+	private Slider	sldPathanationWidth;
+	private Slider	sldPathanationLength;
+	private Slider	sldIlluminationLightLevel;
+	private Slider	sldLumbinationLeafRange;
+	private Slider	sldLumbinationTrunkRange;
+	private Slider	sldShaftanationShaftLength;
+	private Slider	sldShaftanationShaftHeight;
+	private Slider	sldShaftanationShaftWidth;
+	
+	private EnumSlider esldShaftanationTorchPlacement;
+	
+	private TextField	txtCommonTickDelay;
+	private TextField	txtCommonBlocksPerTick;
+	private TextField	txtCommonBlockLimit;
+	private TextField	txtCommonBlockRadius;
+	private TextField	txtCaptivationRadiusHorizontal;
+	private TextField	txtCaptivationRadiusVertical;
+	private TextField	txtPathanationWidth;
+	private TextField	txtPathanationLength;
+	private TextField	txtIlluminationLightLevel;
+	private TextField	txtLumbinationLeafRange;
+	private TextField	txtLumbinationTrunkRange;
+	private TextField	txtShaftanationShaftLength;
+	private TextField	txtShaftanationShaftHeight;
+	private TextField	txtShaftanationShaftWidth;
+	
+	@Override
+	public void buildGui() {
+		
+		btnClose = new Button(0, 0, 200, "Close");
+		btnClose.setClickListener(this::close);
+		
+		lblTitleCategory = new Label("Category", 0, 0);
+		lblTitleCategory.setCentered();
+		
+		btnCommon = new Button(0, 0, 200, "Common");
+		btnCommon.setClickListener(() -> {
+			setPage(0);
+			toggleCategoryButton(btnCommon);
+		});
+		
+		btnCaptivation = new Button(0, 0, 200, "Captivation");
+		btnCaptivation.setClickListener(() -> {
+			setPage(1);
+			toggleCategoryButton(btnCaptivation);
+		});
+		
+		btnCropination = new Button(0, 0, 200, "Cropination");
+		btnCropination.setClickListener(() -> {
+			setPage(2);
+			toggleCategoryButton(btnCropination);
+		});
+		
+		btnExcavation = new Button(0, 0, 200, "Excavation");
+		btnExcavation.setClickListener(() -> {
+			setPage(3);
+			toggleCategoryButton(btnExcavation);
+		});
+		
+		btnPathanation = new Button(0, 0, 200, "Pathanation");
+		btnPathanation.setClickListener(() -> {
+			setPage(4);
+			toggleCategoryButton(btnPathanation);
+		});
+		
+		btnIllumination = new Button(0, 0, 200, "Illumination");
+		btnIllumination.setClickListener(() -> {
+			setPage(5);
+			toggleCategoryButton(btnIllumination);
+		});
+		
+		btnLumbination = new Button(0, 0, 200, "Lumbination");
+		btnLumbination.setClickListener(() -> {
+			setPage(6);
+			toggleCategoryButton(btnLumbination);
+		});
+		
+		btnShaftanation = new Button(0, 0, 200, "Shaftanation");
+		btnShaftanation.setClickListener(() -> {
+			setPage(7);
+			toggleCategoryButton(btnShaftanation);
+		});
+		
+		btnSubstitution = new Button(0, 0, 200, "Substitution");
+		btnSubstitution.setClickListener(() -> {
+			setPage(8);
+			toggleCategoryButton(btnSubstitution);
+		});
+		
+		btnVeination = new Button(0, 0, 200, "Veination");
+		btnVeination.setClickListener(() -> {
+			setPage(9);
+			toggleCategoryButton(btnVeination);
+		});
+		
+		generateCommonControls();
+		generateClientControls();
+		generateCaptivationControls();
+		generateCropinationControls();
+		generateExcavationControls();
+		generatePathanationControls();
+		generateIlluminationControls();
+		generateLumbinationControls();
+		generateShaftanationControls();
+		generateSubstitutionControls();
+		generateVeinationControls();
+		
+		// Add always visible components
+		this.addAllComponents(
+				btnClose,
+				lblTitleCategory,
+				btnCommon,
+				btnCaptivation,
+				btnCropination,
+				btnExcavation,
+				btnPathanation,
+				btnIllumination,
+				btnLumbination,
+				btnShaftanation,
+				btnSubstitution,
+				btnVeination);
+		
+		toggleCategoryButton(btnCommon);
+	}
+	
+	@Override
+	public void updateGui() {
+		
+		lblTitleCategory.setPosition(categoryX + 100, 75);
+		
+		btnCommon.setPosition(categoryX, startY);
+		btnCaptivation.setPosition(categoryX, startY + (rowStartY * 1));
+		btnCropination.setPosition(categoryX, startY + (rowStartY * 2));
+		btnExcavation.setPosition(categoryX, startY + (rowStartY * 3));
+		btnPathanation.setPosition(categoryX, startY + (rowStartY * 4));
+		btnIllumination.setPosition(categoryX, startY + (rowStartY * 5));
+		btnLumbination.setPosition(categoryX, startY + (rowStartY * 6));
+		btnShaftanation.setPosition(categoryX, startY + (rowStartY * 7));
+		btnSubstitution.setPosition(categoryX, startY + (rowStartY * 8));
+		btnVeination.setPosition(categoryX, startY + (rowStartY * 9));
+		
+		btnClose.setPosition(centerX() - btnClose.getWidth() / 2, height - 50);
+		
+		positionCommonControls();
+		positionClientControls();
+		positionCaptivationControls();
+		positionCropinationControls();
+		positionExcavationControls();
+		positionPathanationControls();
+		positionIlluminationControls();
+		positionLumbinationControls();
+		positionShaftanationControls();
+		positionSubstitutionControls();
+		positionVeinationControls();
+	}
+	
+	@Override
+	public boolean doesGuiPauseGame() {
+		return false;
+	}
+	
+	@Override
+	public boolean doesEscCloseGui() {
+		return false;
+	}
+	
+	private void toggleCategoryButton(Button btn) {
+		btnCommon.setEnabled(btnCommon != btn);
+		btnCaptivation.setEnabled(btnCaptivation != btn);
+		btnCropination.setEnabled(btnCropination != btn);
+		btnExcavation.setEnabled(btnExcavation != btn);
+		btnPathanation.setEnabled(btnPathanation != btn);
+		btnIllumination.setEnabled(btnIllumination != btn);
+		btnLumbination.setEnabled(btnLumbination != btn);
+		btnShaftanation.setEnabled(btnShaftanation != btn);
+		btnSubstitution.setEnabled(btnSubstitution != btn);
+		btnVeination.setEnabled(btnVeination != btn);
+	}
+	
+	private String[] SplitTooltips(String input) {
+		return SplitTooltips(input, false);
+	}
+	
+	private String[] SplitTooltips(String input, Boolean appendPressEnter) {
+		List<String>	lines		= new ArrayList<String>();
+		String[]		words		= input.split("\\s");		// splits the string based on whitespace
+		String			line		= "";
+		int				wordCount	= 0;
+		
+		for (String word : words) {
+			wordCount++;
+			line += word;
+			
+			if (wordCount == 8) {
+				wordCount = 0;
+				lines.add(line);
+				line = "";
+			} else {
+				line += " ";
+			}
+		}
+		
+		if (line != "") {
+			lines.add(line);
+		}
+		
+		if (appendPressEnter) {
+			lines.add(PressEnter);
+		}
+		
+		return lines.toArray(new String[0]);
+	}
+	
+	private void generateCommonControls() {
+		
+		lblTitleCommon = new Label("Common", 0, 0);
+		lblTitleCommon.setCentered();
+		
+		chkCommonEnableTickDelay = new CheckBox(0, 0, Functions.localize("minersadvantage.common.enable_tick_delay"), MAConfig.CLIENT.common.enableTickDelay());
+		chkCommonTPSGuard = new CheckBox(0, 0, Functions.localize("minersadvantage.common.tps_guard"), MAConfig.CLIENT.common.tpsGuard());
+		chkCommonGatherDrops = new CheckBox(0, 0, Functions.localize("minersadvantage.common.gather_drops"), MAConfig.CLIENT.common.gatherDrops());
+		chkCommonMineViens = new CheckBox(0, 0, Functions.localize("minersadvantage.common.mine_veins"), MAConfig.CLIENT.common.mineVeins());
+		chkCommonAutoIllum = new CheckBox(0, 0, Functions.localize("minersadvantage.common.auto_illum"), MAConfig.CLIENT.common.autoIlluminate());
+		chkCommonBreakAtToolSpeeds = new CheckBox(0, 0, Functions.localize("minersadvantage.common.break_at_tool_speeds"), MAConfig.CLIENT.common.breakAtToolSpeeds());
+		chkCommonBreakAtToolSpeeds.setEnabled(false);
+		
+		sldCommonTickDelay = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.common.tick_delay") + ": ", "", 1, 20, MAConfig.CLIENT.common.tickDelay(), false, true);
+		sldCommonBlocksPerTick = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.common.blocks_per_tick") + ": ", "", 1, 16, MAConfig.CLIENT.common.blocksPerTick(), false, true);
+		sldCommonBlockLimit = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.common.limit") + ": ", "", Constants.MIN_BLOCKLIMIT, Constants.MAX_BLOCKLIMIT, MAConfig.CLIENT.common.blockLimit(), false, true);
+		sldCommonBlockRadius = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.common.radius") + ": ", "", Constants.MIN_BLOCKRADIUS, Constants.MAX_BLOCKRADIUS, MAConfig.CLIENT.common.blockRadius(), false, true);
+		
+		txtCommonTickDelay = new TextField(0, 0, 50);
+		txtCommonTickDelay.setText(String.valueOf(MAConfig.CLIENT.common.tickDelay()));
+		txtCommonBlocksPerTick = new TextField(0, 0, 50);
+		txtCommonBlocksPerTick.setText(String.valueOf(MAConfig.CLIENT.common.blocksPerTick()));
+		txtCommonBlockLimit = new TextField(0, 0, 50);
+		txtCommonBlockLimit.setText(String.valueOf(MAConfig.CLIENT.common.blockLimit()));
+		txtCommonBlockRadius = new TextField(0, 0, 50);
+		txtCommonBlockRadius.setText(String.valueOf(MAConfig.CLIENT.common.blockRadius()));
+		
+		chkCommonEnableTickDelay.setTooltips(SplitTooltips(Functions.localize("minersadvantage.common.enable_tick_delay.comment")));
+		chkCommonTPSGuard.setTooltips(SplitTooltips(Functions.localize("minersadvantage.common.tps_guard.comment")));
+		chkCommonGatherDrops.setTooltips(SplitTooltips(Functions.localize("minersadvantage.common.gather_drops.comment")));
+		chkCommonMineViens.setTooltips(SplitTooltips(Functions.localize("minersadvantage.common.mine_veins.comment")));
+		chkCommonAutoIllum.setTooltips(SplitTooltips(Functions.localize("minersadvantage.common.auto_illum.comment")));
+		chkCommonBreakAtToolSpeeds.setTooltips(SplitTooltips(Functions.localize("minersadvantage.common.break_at_tool_speeds.comment")));
+		
+		txtCommonTickDelay.setTooltips(SplitTooltips(Functions.localize("minersadvantage.common.tick_delay.comment"), true));
+		txtCommonBlocksPerTick.setTooltips(SplitTooltips(Functions.localize("minersadvantage.common.blocks_per_tick.comment"), true));
+		txtCommonBlockLimit.setTooltips(SplitTooltips(Functions.localize("minersadvantage.common.limit.comment"), true));
+		txtCommonBlockRadius.setTooltips(SplitTooltips(Functions.localize("minersadvantage.common.radius.comment"), true));
+		
+		chkCommonEnableTickDelay.setChangeListener(() -> {
+			MAConfig.CLIENT.common.setEnableTickDelay(chkCommonEnableTickDelay.isChecked());
+			MAConfig.clientSpec.save();
+		});
+		chkCommonTPSGuard.setChangeListener(() -> {
+			MAConfig.CLIENT.common.set_tpsGuard(chkCommonTPSGuard.isChecked());
+			MAConfig.clientSpec.save();
+		});
+		chkCommonGatherDrops.setChangeListener(() -> {
+			MAConfig.CLIENT.common.setGatherDrops(chkCommonGatherDrops.isChecked());
+			MAConfig.clientSpec.save();
+		});
+		chkCommonMineViens.setChangeListener(() -> {
+			MAConfig.CLIENT.common.setMineVeins(chkCommonMineViens.isChecked());
+			MAConfig.clientSpec.save();
+		});
+		chkCommonAutoIllum.setChangeListener(() -> {
+			MAConfig.CLIENT.common.setAutoIlluminate(chkCommonAutoIllum.isChecked());
+			MAConfig.clientSpec.save();
+		});
+		chkCommonBreakAtToolSpeeds.setChangeListener(() -> {
+			MAConfig.CLIENT.common.setBreakAtToolSpeeds(chkCommonBreakAtToolSpeeds.isChecked());
+			MAConfig.clientSpec.save();
+		});
+		
+		sldCommonTickDelay.setAction(() -> {
+			MAConfig.CLIENT.common.setTickDelay(sldCommonTickDelay.getValueInt());
+			txtCommonTickDelay.setText(String.valueOf(sldCommonTickDelay.getValueInt()));
+			MAConfig.clientSpec.save();
+		});
+		sldCommonBlocksPerTick.setAction(() -> {
+			MAConfig.CLIENT.common.setBlocksPerTick(sldCommonBlocksPerTick.getValueInt());
+			txtCommonBlocksPerTick.setText(String.valueOf(sldCommonBlocksPerTick.getValueInt()));
+			MAConfig.clientSpec.save();
+		});
+		sldCommonBlockLimit.setAction(() -> {
+			MAConfig.CLIENT.common.setBlockLimit(sldCommonBlockLimit.getValueInt());
+			txtCommonBlockLimit.setText(String.valueOf(sldCommonBlockLimit.getValueInt()));
+			MAConfig.clientSpec.save();
+		});
+		sldCommonBlockRadius.setAction(() -> {
+			MAConfig.CLIENT.common.setBlockRadius(sldCommonBlockRadius.getValueInt());
+			txtCommonBlockRadius.setText(String.valueOf(sldCommonBlockRadius.getValueInt()));
+			MAConfig.clientSpec.save();
+		});
+		
+		txtCommonTickDelay.setReturnAction(() -> {
+			sldCommonTickDelay.setValue(Double.parseDouble(txtCommonTickDelay.getText()));
+		});
+		txtCommonBlocksPerTick.setReturnAction(() -> {
+			sldCommonBlocksPerTick.setValue(Double.parseDouble(txtCommonBlocksPerTick.getText()));
+		});
+		txtCommonBlockLimit.setReturnAction(() -> {
+			sldCommonBlockLimit.setValue(Double.parseDouble(txtCommonBlockLimit.getText()));
+		});
+		txtCommonBlockRadius.setReturnAction(() -> {
+			sldCommonBlockRadius.setValue(Double.parseDouble(txtCommonBlockRadius.getText()));
+		});
+		
+		this.addComponent(lblTitleCommon, 0);
+		
+		this.addComponent(chkCommonEnableTickDelay, 0);
+		this.addComponent(chkCommonTPSGuard, 0);
+		this.addComponent(chkCommonGatherDrops, 0);
+		this.addComponent(chkCommonMineViens, 0);
+		this.addComponent(chkCommonAutoIllum, 0);
+		this.addComponent(chkCommonBreakAtToolSpeeds, 0);
+		
+		this.addComponent(sldCommonTickDelay, 0);
+		this.addComponent(sldCommonBlocksPerTick, 0);
+		this.addComponent(sldCommonBlockLimit, 0);
+		this.addComponent(sldCommonBlockRadius, 0);
+		
+		this.addComponent(txtCommonTickDelay, 0);
+		this.addComponent(txtCommonBlocksPerTick, 0);
+		this.addComponent(txtCommonBlockLimit, 0);
+		this.addComponent(txtCommonBlockRadius, 0);
+		
+	}
+	
+	private void positionCommonControls() {
+		
+		lblTitleCommon.setPosition(centerX(), 75);
+		
+		chkCommonEnableTickDelay.setPosition(col_1, startY + 5);
+		chkCommonTPSGuard.setPosition(col_2, startY + 5);
+		
+		sldCommonTickDelay.setPosition(col_1, startY + rowStartY);
+		txtCommonTickDelay.setPosition(col_1 + sliderWidth + 10, startY + rowStartY);
+		
+		sldCommonBlocksPerTick.setPosition(col_1, startY + (rowStartY * 2));
+		txtCommonBlocksPerTick.setPosition(col_1 + sliderWidth + 10, startY + (rowStartY * 2));
+		
+		sldCommonBlockLimit.setPosition(col_1, startY + (rowStartY * 3));
+		txtCommonBlockLimit.setPosition(col_1 + sliderWidth + 10, startY + (rowStartY * 3));
+		
+		sldCommonBlockRadius.setPosition(col_1, startY + (rowStartY * 4));
+		txtCommonBlockRadius.setPosition(col_1 + sliderWidth + 10, startY + (rowStartY * 4));
+		
+		chkCommonGatherDrops.setPosition(col_1, startY + (rowStartY * 5) + 5);
+		chkCommonMineViens.setPosition(col_1, startY + (rowStartY * 6) + 5);
+		chkCommonAutoIllum.setPosition(col_1, startY + (rowStartY * 7) + 5);
+		
+		chkCommonBreakAtToolSpeeds.setPosition(col_1, startY + (rowStartY * 8) + 5);
+	}
+	
+	private void generateClientControls() {
+		
+		lblSubTitleClient = new Label("Client Only:", 0, 0);
+		
+		chkClientDisableParticles = new CheckBox(0, 0, Functions.localize("minersadvantage.client.disable_particle_effects"), MAConfig.CLIENT.disableParticleEffects());
+		chkClientDisableParticles.setTooltips(SplitTooltips(Functions.localize("minersadvantage.client.disable_particle_effects.comment")));
+		chkClientDisableParticles.setChangeListener(() -> {
+			MAConfig.CLIENT.setDisableParticleEffects(chkClientDisableParticles.isChecked());
+			MAConfig.clientSpec.save();
+		});
+		
+		this.addComponent(lblSubTitleClient, 0);
+		this.addComponent(chkClientDisableParticles, 0);
+	}
+	
+	private void positionClientControls() {
+		
+		lblSubTitleClient.setPosition(col_1, startY + (rowStartY * 9) + 10);
+		
+		chkClientDisableParticles.setPosition(col_1, startY + (rowStartY * 10) + 5);
+		
+	}
+	
+	private void generateCaptivationControls() {
+		
+		lblTitleCaptivation = new Label("Captivation", 0, 0);
+		lblTitleCaptivation.setCentered();
+		
+		chkCaptivationEnabled = new CheckBox(0, 0, Functions.localize("minersadvantage.captivation.enabled"), MAConfig.CLIENT.captivation.enabled());
+		chkCaptivationAllowInGUI = new CheckBox(0, 0, Functions.localize("minersadvantage.captivation.allow_in_gui"), MAConfig.CLIENT.captivation.allowInGUI());
+		chkCaptivationIsWhitelist = new CheckBox(0, 0, Functions.localize("minersadvantage.captivation.is_whitelist"), MAConfig.CLIENT.captivation.isWhitelist());
+		chkCaptivationUnconditionalBlacklist = new CheckBox(0, 0, Functions.localize("minersadvantage.captivation.unconditional_blacklist"), MAConfig.CLIENT.captivation.unconditionalBlacklist());
+		
+		sldCaptivationRadiusHorizontal = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.captivation.h_radius") + ": ", "", 0, 128, MAConfig.CLIENT.captivation.radiusHorizontal(), false, true);
+		sldCaptivationRadiusVertical = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.captivation.v_radius") + ": ", "", 0, 128, MAConfig.CLIENT.captivation.radiusVertical(), false, true);
+		
+		txtCaptivationRadiusHorizontal = new TextField(0, 0, 50);
+		txtCaptivationRadiusHorizontal.setText(String.valueOf(MAConfig.CLIENT.captivation.radiusHorizontal()));
+		txtCaptivationRadiusVertical = new TextField(0, 0, 50);
+		txtCaptivationRadiusVertical.setText(String.valueOf(MAConfig.CLIENT.captivation.radiusVertical()));
+		
+		chkCaptivationEnabled.setTooltips(SplitTooltips(Functions.localize("minersadvantage.captivation.enabled.comment")));
+		chkCaptivationAllowInGUI.setTooltips(SplitTooltips(Functions.localize("minersadvantage.captivation.allow_in_gui.comment")));
+		chkCaptivationIsWhitelist.setTooltips(SplitTooltips(Functions.localize("minersadvantage.captivation.is_whitelist.comment")));
+		chkCaptivationUnconditionalBlacklist.setTooltips(SplitTooltips(Functions.localize("minersadvantage.captivation.unconditional_blacklist.comment")));
+		
+		txtCaptivationRadiusHorizontal.setTooltips(SplitTooltips(Functions.localize("minersadvantage.captivation.h_radius.comment"), true));
+		txtCaptivationRadiusVertical.setTooltips(SplitTooltips(Functions.localize("minersadvantage.captivation.v_radius.comment"), true));
+		
+		chkCaptivationEnabled.setChangeListener(() -> {
+			MAConfig.CLIENT.captivation.setEnabled(chkCaptivationEnabled.isChecked());
+			MAConfig.clientSpec.save();
+		});
+		chkCaptivationAllowInGUI.setChangeListener(() -> {
+			MAConfig.CLIENT.captivation.setAllowInGUI(chkCaptivationAllowInGUI.isChecked());
+			MAConfig.clientSpec.save();
+		});
+		chkCaptivationIsWhitelist.setChangeListener(() -> {
+			MAConfig.CLIENT.captivation.setIsWhitelist(chkCaptivationIsWhitelist.isChecked());
+			MAConfig.clientSpec.save();
+		});
+		chkCaptivationUnconditionalBlacklist.setChangeListener(() -> {
+			MAConfig.CLIENT.captivation.setUnconditionalBlacklist(chkCaptivationUnconditionalBlacklist.isChecked());
+			MAConfig.clientSpec.save();
+		});
+		
+		sldCaptivationRadiusHorizontal.setAction(() -> {
+			MAConfig.CLIENT.captivation.setRadiusHorizontal(sldCaptivationRadiusHorizontal.getValueInt());
+			txtCaptivationRadiusHorizontal.setText(String.valueOf(sldCaptivationRadiusHorizontal.getValueInt()));
+			MAConfig.clientSpec.save();
+		});
+		sldCaptivationRadiusVertical.setAction(() -> {
+			MAConfig.CLIENT.captivation.setRadiusVertical(sldCaptivationRadiusVertical.getValueInt());
+			txtCaptivationRadiusVertical.setText(String.valueOf(sldCaptivationRadiusVertical.getValueInt()));
+			MAConfig.clientSpec.save();
+		});
+		
+		txtCaptivationRadiusHorizontal.setReturnAction(() -> {
+			sldCaptivationRadiusHorizontal.setValue(Double.parseDouble(txtCaptivationRadiusHorizontal.getText()));
+		});
+		txtCaptivationRadiusVertical.setReturnAction(() -> {
+			sldCaptivationRadiusVertical.setValue(Double.parseDouble(txtCaptivationRadiusVertical.getText()));
+		});
+		
+		this.addComponent(lblTitleCaptivation, 1);
+		this.addComponent(chkCaptivationEnabled, 1);
+		this.addComponent(chkCaptivationAllowInGUI, 1);
+		this.addComponent(chkCaptivationIsWhitelist, 1);
+		this.addComponent(chkCaptivationUnconditionalBlacklist, 1);
+		
+		this.addComponent(sldCaptivationRadiusHorizontal, 1);
+		this.addComponent(sldCaptivationRadiusVertical, 1);
+		
+		this.addComponent(txtCaptivationRadiusHorizontal, 1);
+		this.addComponent(txtCaptivationRadiusVertical, 1);
+	}
+	
+	private void positionCaptivationControls() {
+		
+		lblTitleCaptivation.setPosition(centerX(), 75);
+		
+		chkCaptivationEnabled.setPosition(col_1, startY + 5);
+		chkCaptivationAllowInGUI.setPosition(col_1, startY + rowStartY + 5);
+		chkCaptivationIsWhitelist.setPosition(col_1, startY + (rowStartY * 2) + 5);
+		chkCaptivationUnconditionalBlacklist.setPosition(col_1, startY + (rowStartY * 3) + 5);
+		
+		sldCaptivationRadiusHorizontal.setPosition(col_1, startY + (rowStartY * 4));
+		txtCaptivationRadiusHorizontal.setPosition(col_1 + sliderWidth + 10, startY + (rowStartY * 4));
+		
+		sldCaptivationRadiusVertical.setPosition(col_1, startY + (rowStartY * 5));
+		txtCaptivationRadiusVertical.setPosition(col_1 + sliderWidth + 10, startY + (rowStartY * 5));
+		
+	}
+	
+	private void generateCropinationControls() {
+		lblTitleCropination = new Label("Cropination", 0, 0);
+		lblTitleCropination.setCentered();
+		
+		chkCropinationEnabled = new CheckBox(0, 0, Functions.localize("minersadvantage.cropination.enabled"), MAConfig.CLIENT.cropination.enabled());
+		chkCropinationHarvestSeeds = new CheckBox(0, 0, Functions.localize("minersadvantage.cropination.harvest_seeds"), MAConfig.CLIENT.cropination.harvestSeeds());
+		
+		chkCropinationEnabled.setTooltips(SplitTooltips(Functions.localize("minersadvantage.cropination.enabled.comment")));
+		chkCropinationHarvestSeeds.setTooltips(SplitTooltips(Functions.localize("minersadvantage.cropination.harvest_seeds.comment")));
+		
+		chkCropinationEnabled.setChangeListener(() -> {
+			MAConfig.CLIENT.cropination.setEnabled(chkCropinationEnabled.isChecked());
+			MAConfig.clientSpec.save();
+		});
+		chkCropinationHarvestSeeds.setChangeListener(() -> {
+			MAConfig.CLIENT.cropination.setHarvestSeeds(chkCropinationHarvestSeeds.isChecked());
+			MAConfig.clientSpec.save();
+		});
+		
+		this.addComponent(lblTitleCropination, 2);
+		this.addComponent(chkCropinationEnabled, 2);
+		this.addComponent(chkCropinationHarvestSeeds, 2);
+	}
+	
+	private void positionCropinationControls() {
+		lblTitleCropination.setPosition(centerX(), 75);
+		
+		chkCropinationEnabled.setPosition(col_1, startY + 5);
+		chkCropinationHarvestSeeds.setPosition(col_1, startY + rowStartY + 5);
+		
+	}
+	
+	private void generateExcavationControls() {
+		lblTitleExcavation = new Label("Excavation", 0, 0);
+		lblTitleExcavation.setCentered();
+		
+		chkExcavationEnabled = new CheckBox(0, 0, Functions.localize("minersadvantage.excavation.enabled"), MAConfig.CLIENT.excavation.enabled());
+		chkExcavationToggleMode = new CheckBox(0, 0, Functions.localize("minersadvantage.excavation.toggle_mode"), MAConfig.CLIENT.excavation.toggleMode());
+		chkExcavationIgnoreBlockVariants = new CheckBox(0, 0, Functions.localize("minersadvantage.excavation.ignore_variants"), MAConfig.CLIENT.excavation.ignoreBlockVariants());
+		chkExcavationIsBlockWhitelist = new CheckBox(0, 0, Functions.localize("minersadvantage.excavation.is_block_whitelist"), MAConfig.CLIENT.excavation.isBlockWhitelist());
+		
+		chkExcavationEnabled.setTooltips(SplitTooltips(Functions.localize("minersadvantage.excavation.enabled.comment")));
+		chkExcavationToggleMode.setTooltips(SplitTooltips(Functions.localize("minersadvantage.excavation.toggle_mode.comment")));
+		chkExcavationIgnoreBlockVariants.setTooltips(SplitTooltips(Functions.localize("minersadvantage.excavation.ignore_variants.comment")));
+		chkExcavationIsBlockWhitelist.setTooltips(SplitTooltips(Functions.localize("minersadvantage.excavation.is_block_whitelist.comment")));
+		
+		chkExcavationEnabled.setChangeListener(() -> {
+			MAConfig.CLIENT.excavation.setEnabled(chkExcavationEnabled.isChecked());
+			MAConfig.clientSpec.save();
+		});
+		chkExcavationToggleMode.setChangeListener(() -> {
+			MAConfig.CLIENT.excavation.setToggleMode(chkExcavationToggleMode.isChecked());
+			MAConfig.clientSpec.save();
+		});
+		chkExcavationIgnoreBlockVariants.setChangeListener(() -> {
+			MAConfig.CLIENT.excavation.setIgnoreBlockVariants(chkExcavationIgnoreBlockVariants.isChecked());
+			MAConfig.clientSpec.save();
+		});
+		chkExcavationIsBlockWhitelist.setChangeListener(() -> {
+			MAConfig.CLIENT.excavation.setIsBlockWhitelist(chkExcavationIsBlockWhitelist.isChecked());
+			MAConfig.clientSpec.save();
+		});
+		
+		this.addComponent(lblTitleExcavation, 3);
+		this.addComponent(chkExcavationEnabled, 3);
+		this.addComponent(chkExcavationToggleMode, 3);
+		this.addComponent(chkExcavationIgnoreBlockVariants, 3);
+		this.addComponent(chkExcavationIsBlockWhitelist, 3);
+	}
+	
+	private void positionExcavationControls() {
+		
+		lblTitleExcavation.setPosition(centerX(), 75);
+		
+		chkExcavationEnabled.setPosition(col_1, startY + 5);
+		chkExcavationToggleMode.setPosition(col_1, startY + rowStartY + 5);
+		chkExcavationIgnoreBlockVariants.setPosition(col_1, startY + (rowStartY * 2) + 5);
+		chkExcavationIsBlockWhitelist.setPosition(col_1, startY + (rowStartY * 3) + 5);
+		
+	}
+	
+	private void generatePathanationControls() {
+		lblTitlePathanation = new Label("Pathanation", 0, 0);
+		lblTitlePathanation.setCentered();
+		
+		chkPathanationEnabled = new CheckBox(0, 0, Functions.localize("minersadvantage.pathanation.enabled"), MAConfig.CLIENT.pathanation.enabled());
+		
+		sldPathanationWidth = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.pathanation.path_width") + ": ", "", 1, 16, MAConfig.CLIENT.pathanation.pathWidth(), false, true);;
+		sldPathanationLength = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.pathanation.path_length") + ": ", "", 1, 64, MAConfig.CLIENT.pathanation.pathLength(), false, true);
+		
+		txtPathanationWidth = new TextField(0, 0, 50);
+		txtPathanationWidth.setText(String.valueOf(MAConfig.CLIENT.pathanation.pathWidth()));
+		txtPathanationLength = new TextField(0, 0, 50);
+		txtPathanationLength.setText(String.valueOf(MAConfig.CLIENT.pathanation.pathLength()));
+		
+		chkPathanationEnabled.setTooltips(SplitTooltips(Functions.localize("minersadvantage.pathanation.enabled.comment")));
+		txtPathanationWidth.setTooltips(SplitTooltips(Functions.localize("minersadvantage.pathanation.path_width.comment")));
+		txtPathanationLength.setTooltips(SplitTooltips(Functions.localize("minersadvantage.pathanation.path_length.comment")));
+		
+		chkPathanationEnabled.setChangeListener(() -> {
+			MAConfig.CLIENT.pathanation.setEnabled(chkPathanationEnabled.isChecked());
+			MAConfig.clientSpec.save();
+		});
+		
+		sldPathanationWidth.setAction(() -> {
+			MAConfig.CLIENT.pathanation.setPathWidth(sldPathanationWidth.getValueInt());
+			txtPathanationWidth.setText(String.valueOf(sldPathanationWidth.getValueInt()));
+			MAConfig.clientSpec.save();
+		});
+		sldPathanationLength.setAction(() -> {
+			MAConfig.CLIENT.pathanation.setPathLength(sldPathanationLength.getValueInt());
+			txtPathanationLength.setText(String.valueOf(sldPathanationLength.getValueInt()));
+			MAConfig.clientSpec.save();
+		});
+		
+		txtPathanationWidth.setReturnAction(() -> {
+			sldPathanationWidth.setValue(Double.parseDouble(txtPathanationWidth.getText()));
+		});
+		txtPathanationLength.setReturnAction(() -> {
+			sldPathanationLength.setValue(Double.parseDouble(txtPathanationLength.getText()));
+		});
+		
+		this.addComponent(lblTitlePathanation, 4);
+		this.addComponent(chkPathanationEnabled, 4);
+		this.addComponent(sldPathanationWidth, 4);
+		this.addComponent(sldPathanationLength, 4);
+		this.addComponent(txtPathanationWidth, 4);
+		this.addComponent(txtPathanationLength, 4);
+	}
+	
+	private void positionPathanationControls() {
+		lblTitlePathanation.setPosition(centerX(), 75);
+		
+		chkPathanationEnabled.setPosition(col_1, startY + 5);
+		
+		sldPathanationWidth.setPosition(col_1, startY + rowStartY);
+		txtPathanationWidth.setPosition(col_1 + sliderWidth + 10, startY + rowStartY);
+		
+		sldPathanationLength.setPosition(col_1, startY + (rowStartY * 2));
+		txtPathanationLength.setPosition(col_1 + sliderWidth + 10, startY + (rowStartY * 2));
+		
+	}
+	
+	private void generateIlluminationControls() {
+		lblTitleIllumination = new Label("Illumination", 0, 0);
+		lblTitleIllumination.setCentered();
+		
+		chkIlluminationEnabled = new CheckBox(0, 0, Functions.localize("minersadvantage.illumination.enabled"), MAConfig.CLIENT.illumination.enabled());
+		chkIlluminationUseBlockLight = new CheckBox(0, 0, Functions.localize("minersadvantage.illumination.use_block_light"), MAConfig.CLIENT.illumination.useBlockLight());
+		
+		sldIlluminationLightLevel = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.illumination.light_level") + ": ", "", 0, 16, MAConfig.CLIENT.illumination.lowestLightLevel(), false, true);;
+		
+		txtIlluminationLightLevel = new TextField(0, 0, 50);
+		txtIlluminationLightLevel.setText(String.valueOf(MAConfig.CLIENT.illumination.lowestLightLevel()));
+		
+		chkIlluminationEnabled.setTooltips(SplitTooltips(Functions.localize("minersadvantage.illumination.enabled.comment")));
+		chkIlluminationUseBlockLight.setTooltips(SplitTooltips(Functions.localize("minersadvantage.illumination.use_block_light.comment")));
+		txtIlluminationLightLevel.setTooltips(SplitTooltips(Functions.localize("minersadvantage.illumination.light_level.comment")));
+		
+		chkIlluminationEnabled.setChangeListener(() -> {
+			MAConfig.CLIENT.illumination.setEnabled(chkIlluminationEnabled.isChecked());
+			MAConfig.clientSpec.save();
+		});
+		chkIlluminationUseBlockLight.setChangeListener(() -> {
+			MAConfig.CLIENT.illumination.setUseBlockLight(chkIlluminationUseBlockLight.isChecked());
+			MAConfig.clientSpec.save();
+		});
+		
+		sldIlluminationLightLevel.setAction(() -> {
+			MAConfig.CLIENT.illumination.setLowestLightLevel(sldIlluminationLightLevel.getValueInt());
+			txtIlluminationLightLevel.setText(String.valueOf(sldIlluminationLightLevel.getValueInt()));
+			MAConfig.clientSpec.save();
+		});
+		
+		txtIlluminationLightLevel.setReturnAction(() -> {
+			sldIlluminationLightLevel.setValue(Double.parseDouble(txtIlluminationLightLevel.getText()));
+		});
+		
+		this.addComponent(lblTitleIllumination, 5);
+		this.addComponent(chkIlluminationEnabled, 5);
+		this.addComponent(chkIlluminationUseBlockLight, 5);
+		this.addComponent(sldIlluminationLightLevel, 5);
+		this.addComponent(txtIlluminationLightLevel, 5);
+	}
+	
+	private void positionIlluminationControls() {
+		lblTitleIllumination.setPosition(centerX(), 75);
+		
+		chkIlluminationEnabled.setPosition(col_1, startY + 5);
+		chkIlluminationUseBlockLight.setPosition(col_1, startY + rowStartY + 5);
+		
+		sldIlluminationLightLevel.setPosition(col_1, startY + (rowStartY * 2));
+		txtIlluminationLightLevel.setPosition(col_1 + sliderWidth + 10, startY + (rowStartY * 2));
+		
+	}
+	
+	private void generateLumbinationControls() {
+		lblTitleLumbination = new Label("Lumbination", 0, 0);
+		lblTitleLumbination.setCentered();
+		
+		chkLumbinationEnabled = new CheckBox(0, 0, Functions.localize("minersadvantage.lumbination.enabled"), MAConfig.CLIENT.lumbination.enabled());
+		chkLumbinationChopTreeBelow = new CheckBox(0, 0, Functions.localize("minersadvantage.lumbination.chop_below"), MAConfig.CLIENT.lumbination.chopTreeBelow());
+		chkLumbinationDestroyLeaves = new CheckBox(0, 0, Functions.localize("minersadvantage.lumbination.destroy_leaves"), MAConfig.CLIENT.lumbination.destroyLeaves());
+		chkLumbinationLeavesAffectDurability = new CheckBox(0, 0, Functions.localize("minersadvantage.lumbination.leaves_affect_durability"), MAConfig.CLIENT.lumbination.leavesAffectDurability());
+		chkLumbinationReplantSaplings = new CheckBox(0, 0, Functions.localize("minersadvantage.lumbination.replant_saplings"), MAConfig.CLIENT.lumbination.replantSaplings());
+		chkLumbinationUseShearsOnLeaves = new CheckBox(0, 0, Functions.localize("minersadvantage.lumbination.use_shears"), MAConfig.CLIENT.lumbination.useShearsOnLeaves());
+		sldLumbinationLeafRange = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.lumbination.leaf_range") + ": ", "", 0, 16, MAConfig.CLIENT.lumbination.leafRange(), false, true);;
+		sldLumbinationTrunkRange = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.lumbination.trunk_range") + ": ", "", 8, 128, MAConfig.CLIENT.lumbination.trunkRange(), false, true);;
+		txtLumbinationLeafRange = new TextField(0, 0, 50);
+		txtLumbinationLeafRange.setText(String.valueOf(MAConfig.CLIENT.lumbination.leafRange()));
+		txtLumbinationTrunkRange = new TextField(0, 0, 50);
+		txtLumbinationTrunkRange.setText(String.valueOf(MAConfig.CLIENT.lumbination.trunkRange()));
+		
+		chkLumbinationEnabled.setTooltips(SplitTooltips(Functions.localize("minersadvantage.lumbination.enabled.comment")));
+		chkLumbinationChopTreeBelow.setTooltips(SplitTooltips(Functions.localize("minersadvantage.lumbination.chop_below.comment")));
+		chkLumbinationDestroyLeaves.setTooltips(SplitTooltips(Functions.localize("minersadvantage.lumbination.destroy_leaves.comment")));
+		chkLumbinationLeavesAffectDurability.setTooltips(SplitTooltips(Functions.localize("minersadvantage.lumbination.leaves_affect_durability.comment")));
+		chkLumbinationReplantSaplings.setTooltips(SplitTooltips(Functions.localize("minersadvantage.lumbination.replant_saplings.comment")));
+		chkLumbinationUseShearsOnLeaves.setTooltips(SplitTooltips(Functions.localize("minersadvantage.lumbination.use_shears.comment")));
+		txtLumbinationLeafRange.setTooltips(SplitTooltips(Functions.localize("minersadvantage.lumbination.leaf_range.comment")));
+		txtLumbinationTrunkRange.setTooltips(SplitTooltips(Functions.localize("minersadvantage.lumbination.trunk_range.comment")));
+		
+		chkLumbinationEnabled.setChangeListener(() -> {
+			MAConfig.CLIENT.lumbination.setEnabled(chkLumbinationEnabled.isChecked());
+			MAConfig.clientSpec.save();
+		});
+		chkLumbinationChopTreeBelow.setChangeListener(() -> {
+			MAConfig.CLIENT.lumbination.setChopTreeBelow(chkLumbinationChopTreeBelow.isChecked());
+			MAConfig.clientSpec.save();
+		});
+		chkLumbinationDestroyLeaves.setChangeListener(() -> {
+			MAConfig.CLIENT.lumbination.setDestroyLeaves(chkLumbinationDestroyLeaves.isChecked());
+			MAConfig.clientSpec.save();
+		});
+		chkLumbinationLeavesAffectDurability.setChangeListener(() -> {
+			MAConfig.CLIENT.lumbination.setLeavesAffectDurability(chkLumbinationLeavesAffectDurability.isChecked());
+			MAConfig.clientSpec.save();
+		});
+		chkLumbinationReplantSaplings.setChangeListener(() -> {
+			MAConfig.CLIENT.lumbination.setReplantSaplings(chkLumbinationReplantSaplings.isChecked());
+			MAConfig.clientSpec.save();
+		});
+		chkLumbinationUseShearsOnLeaves.setChangeListener(() -> {
+			MAConfig.CLIENT.lumbination.setUseShearsOnLeaves(chkLumbinationUseShearsOnLeaves.isChecked());
+			MAConfig.clientSpec.save();
+		});
+		
+		sldLumbinationLeafRange.setAction(() -> {
+			MAConfig.CLIENT.lumbination.setLeafRange(sldLumbinationLeafRange.getValueInt());
+			txtLumbinationLeafRange.setText(String.valueOf(sldLumbinationLeafRange.getValueInt()));
+			MAConfig.clientSpec.save();
+		});
+		sldLumbinationTrunkRange.setAction(() -> {
+			MAConfig.CLIENT.lumbination.setTrunkRange(sldLumbinationTrunkRange.getValueInt());
+			txtLumbinationTrunkRange.setText(String.valueOf(sldLumbinationTrunkRange.getValueInt()));
+			MAConfig.clientSpec.save();
+		});
+		
+		txtLumbinationLeafRange.setReturnAction(() -> {
+			sldLumbinationLeafRange.setValue(Double.parseDouble(txtLumbinationLeafRange.getText()));
+		});
+		txtLumbinationTrunkRange.setReturnAction(() -> {
+			sldLumbinationTrunkRange.setValue(Double.parseDouble(txtLumbinationTrunkRange.getText()));
+		});
+		
+		this.addComponent(lblTitleLumbination, 6);
+		this.addComponent(chkLumbinationEnabled, 6);
+		this.addComponent(chkLumbinationChopTreeBelow, 6);
+		this.addComponent(chkLumbinationDestroyLeaves, 6);
+		this.addComponent(chkLumbinationLeavesAffectDurability, 6);
+		this.addComponent(chkLumbinationReplantSaplings, 6);
+		this.addComponent(chkLumbinationUseShearsOnLeaves, 6);
+		this.addComponent(sldLumbinationLeafRange, 6);
+		this.addComponent(sldLumbinationTrunkRange, 6);
+		this.addComponent(txtLumbinationLeafRange, 6);
+		this.addComponent(txtLumbinationTrunkRange, 6);
+	}
+	
+	private void positionLumbinationControls() {
+		lblTitleLumbination.setPosition(centerX(), 75);
+		
+		chkLumbinationEnabled.setPosition(col_1, startY + 5);
+		chkLumbinationChopTreeBelow.setPosition(col_1, startY + rowStartY + 5);
+		chkLumbinationDestroyLeaves.setPosition(col_1, startY + (rowStartY * 2) + 5);
+		chkLumbinationLeavesAffectDurability.setPosition(col_1, startY + (rowStartY * 3) + 5);
+		chkLumbinationReplantSaplings.setPosition(col_1, startY + (rowStartY * 4) + 5);
+		chkLumbinationUseShearsOnLeaves.setPosition(col_1, startY + (rowStartY * 5) + 5);
+		
+		sldLumbinationLeafRange.setPosition(col_1, startY + (rowStartY * 6));
+		txtLumbinationLeafRange.setPosition(col_1 + sliderWidth + 10, startY + (rowStartY * 6));
+		
+		sldLumbinationTrunkRange.setPosition(col_1, startY + (rowStartY * 7));
+		txtLumbinationTrunkRange.setPosition(col_1 + sliderWidth + 10, startY + (rowStartY * 7));
+		
+	}
+	
+	private void generateShaftanationControls() {
+		lblTitleShaftanation = new Label("Shaftanation", 0, 0);
+		lblTitleShaftanation.setCentered();
+		
+		chkShaftanationEnabled = new CheckBox(0, 0, Functions.localize("minersadvantage.shaftanation.enabled"), MAConfig.CLIENT.shaftanation.enabled());
+		
+		sldShaftanationShaftLength = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.shaftanation.shaft_l") + ": ", "", 4, 128, MAConfig.CLIENT.shaftanation.shaftLength(), false, true);
+		sldShaftanationShaftHeight = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.shaftanation.shaft_h") + ": ", "", 2, 16, MAConfig.CLIENT.shaftanation.shaftHeight(), false, true);
+		sldShaftanationShaftWidth = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.shaftanation.shaft_w") + ": ", "", 1, 16, MAConfig.CLIENT.shaftanation.shaftWidth(), false, true);
+		
+		esldShaftanationTorchPlacement = new <TorchPlacement>EnumSlider(0, 0, 300, 20, Functions.localize("minersadvantage.shaftanation.torch_placement") + ": ", "", TorchPlacement.class, MAConfig.CLIENT.shaftanation.torchPlacement(), true, () -> {
+			MAConfig.CLIENT.shaftanation.setTorchPlacement((TorchPlacement) esldShaftanationTorchPlacement.getEnum());
+			MAConfig.clientSpec.save();
+		});
+		
+		txtShaftanationShaftLength = new TextField(0, 0, 50);
+		txtShaftanationShaftLength.setText(String.valueOf(MAConfig.CLIENT.shaftanation.shaftLength()));
+		txtShaftanationShaftHeight = new TextField(0, 0, 50);
+		txtShaftanationShaftHeight.setText(String.valueOf(MAConfig.CLIENT.shaftanation.shaftHeight()));
+		txtShaftanationShaftWidth = new TextField(0, 0, 50);
+		txtShaftanationShaftWidth.setText(String.valueOf(MAConfig.CLIENT.shaftanation.shaftWidth()));
+		
+		chkShaftanationEnabled.setTooltips(SplitTooltips(Functions.localize("minersadvantage.shaftanation.enabled.comment")));
+		esldShaftanationTorchPlacement.setTooltips(SplitTooltips(Functions.localize("minersadvantage.shaftanation.torch_placement.comment")));
+		txtShaftanationShaftLength.setTooltips(SplitTooltips(Functions.localize("minersadvantage.shaftanation.shaft_l.comment")));
+		txtShaftanationShaftHeight.setTooltips(SplitTooltips(Functions.localize("minersadvantage.shaftanation.shaft_h.comment")));
+		txtShaftanationShaftWidth.setTooltips(SplitTooltips(Functions.localize("minersadvantage.shaftanation.shaft_w.comment")));
+		
+		chkShaftanationEnabled.setChangeListener(() -> {
+			MAConfig.CLIENT.shaftanation.setEnabled(chkShaftanationEnabled.isChecked());
+			MAConfig.clientSpec.save();
+		});
+		
+		sldShaftanationShaftLength.setAction(() -> {
+			MAConfig.CLIENT.shaftanation.setShaftLength(sldShaftanationShaftLength.getValueInt());
+			txtShaftanationShaftLength.setText(String.valueOf(sldShaftanationShaftLength.getValueInt()));
+			MAConfig.clientSpec.save();
+		});
+		sldShaftanationShaftHeight.setAction(() -> {
+			MAConfig.CLIENT.shaftanation.setShaftHeight(sldShaftanationShaftHeight.getValueInt());
+			txtShaftanationShaftHeight.setText(String.valueOf(sldShaftanationShaftHeight.getValueInt()));
+			MAConfig.clientSpec.save();
+		});
+		sldShaftanationShaftWidth.setAction(() -> {
+			MAConfig.CLIENT.shaftanation.setShaftWidth(sldShaftanationShaftWidth.getValueInt());
+			txtShaftanationShaftWidth.setText(String.valueOf(sldShaftanationShaftWidth.getValueInt()));
+			MAConfig.clientSpec.save();
+		});
+		
+		txtShaftanationShaftLength.setReturnAction(() -> {
+			sldShaftanationShaftLength.setValue(Double.parseDouble(txtShaftanationShaftLength.getText()));
+		});
+		txtShaftanationShaftHeight.setReturnAction(() -> {
+			sldShaftanationShaftHeight.setValue(Double.parseDouble(txtShaftanationShaftHeight.getText()));
+		});
+		txtShaftanationShaftWidth.setReturnAction(() -> {
+			sldShaftanationShaftWidth.setValue(Double.parseDouble(txtShaftanationShaftWidth.getText()));
+		});
+		
+		this.addComponent(lblTitleShaftanation, 7);
+		this.addComponent(chkShaftanationEnabled, 7);
+		this.addComponent(sldShaftanationShaftLength, 7);
+		this.addComponent(sldShaftanationShaftHeight, 7);
+		this.addComponent(sldShaftanationShaftWidth, 7);
+		this.addComponent(esldShaftanationTorchPlacement, 7);
+		this.addComponent(txtShaftanationShaftLength, 7);
+		this.addComponent(txtShaftanationShaftHeight, 7);
+		this.addComponent(txtShaftanationShaftWidth, 7);
+	}
+	
+	private void positionShaftanationControls() {
+		lblTitleShaftanation.setPosition(centerX(), 75);
+		
+		chkShaftanationEnabled.setPosition(col_1, startY + 5);
+		
+		sldShaftanationShaftLength.setPosition(col_1, startY + rowStartY);
+		txtShaftanationShaftLength.setPosition(col_1 + sliderWidth + 10, startY + rowStartY);
+		
+		sldShaftanationShaftHeight.setPosition(col_1, startY + (rowStartY * 2));
+		txtShaftanationShaftHeight.setPosition(col_1 + sliderWidth + 10, startY + (rowStartY * 2));
+		
+		sldShaftanationShaftWidth.setPosition(col_1, startY + (rowStartY * 3));
+		txtShaftanationShaftWidth.setPosition(col_1 + sliderWidth + 10, startY + (rowStartY * 3));
+		
+		esldShaftanationTorchPlacement.setPosition(col_1, startY + (rowStartY * 4));
+	}
+	
+	private void generateSubstitutionControls() {
+		lblTitleSubstitution = new Label("Substitution", 0, 0);
+		lblTitleSubstitution.setCentered();
+		
+		chkSubstitutionEnabled = new CheckBox(0, 0, Functions.localize("minersadvantage.substitution.enabled"), MAConfig.CLIENT.substitution.enabled());
+		chkSubstitutionSwitchBack = new CheckBox(0, 0, Functions.localize("minersadvantage.substitution.switchback"), MAConfig.CLIENT.substitution.switchBack());
+		chkSubstitutionFavourSilkTouch = new CheckBox(0, 0, Functions.localize("minersadvantage.substitution.favour_silk"), MAConfig.CLIENT.substitution.favourSilkTouch());
+		chkSubstitutionFavourFortune = new CheckBox(0, 0, Functions.localize("minersadvantage.substitution.favour_fortune"), MAConfig.CLIENT.substitution.favourFortune());
+		chkSubstitutionIgnoreIfValidTool = new CheckBox(0, 0, Functions.localize("minersadvantage.substitution.ignore_valid"), MAConfig.CLIENT.substitution.ignoreIfValidTool());
+		chkSubstitutionIgnorePassiveMobs = new CheckBox(0, 0, Functions.localize("minersadvantage.substitution.ignore_passive"), MAConfig.CLIENT.substitution.ignorePassiveMobs());
+		
+		chkSubstitutionEnabled.setTooltips(SplitTooltips(Functions.localize("minersadvantage.substitution.enabled.comment")));
+		chkSubstitutionSwitchBack.setTooltips(SplitTooltips(Functions.localize("minersadvantage.substitution.switchback.comment")));
+		chkSubstitutionFavourSilkTouch.setTooltips(SplitTooltips(Functions.localize("minersadvantage.substitution.favour_silk.comment")));
+		chkSubstitutionFavourFortune.setTooltips(SplitTooltips(Functions.localize("minersadvantage.substitution.favour_fortune.comment")));
+		chkSubstitutionIgnoreIfValidTool.setTooltips(SplitTooltips(Functions.localize("minersadvantage.substitution.ignore_valid.comment")));
+		chkSubstitutionIgnorePassiveMobs.setTooltips(SplitTooltips(Functions.localize("minersadvantage.substitution.ignore_passive.comment")));
+		
+		chkSubstitutionEnabled.setChangeListener(() -> {
+			MAConfig.CLIENT.substitution.setEnabled(chkShaftanationEnabled.isChecked());
+			MAConfig.clientSpec.save();
+		});
+		chkSubstitutionSwitchBack.setChangeListener(() -> {
+			MAConfig.CLIENT.substitution.setSwitchBack(chkSubstitutionSwitchBack.isChecked());
+			MAConfig.clientSpec.save();
+		});
+		chkSubstitutionFavourSilkTouch.setChangeListener(() -> {
+			MAConfig.CLIENT.substitution.setFavourSilkTouch(chkSubstitutionFavourSilkTouch.isChecked());
+			MAConfig.clientSpec.save();
+		});
+		chkSubstitutionFavourFortune.setChangeListener(() -> {
+			MAConfig.CLIENT.substitution.setFavourFortune(chkSubstitutionFavourFortune.isChecked());
+			MAConfig.clientSpec.save();
+		});
+		chkSubstitutionIgnoreIfValidTool.setChangeListener(() -> {
+			MAConfig.CLIENT.substitution.setIgnoreIfValidTool(chkSubstitutionIgnoreIfValidTool.isChecked());
+			MAConfig.clientSpec.save();
+		});
+		chkSubstitutionIgnorePassiveMobs.setChangeListener(() -> {
+			MAConfig.CLIENT.substitution.setIgnorePassiveMobs(chkSubstitutionIgnorePassiveMobs.isChecked());
+			MAConfig.clientSpec.save();
+		});
+		
+		this.addComponent(lblTitleSubstitution, 8);
+		this.addComponent(chkSubstitutionEnabled, 8);
+		this.addComponent(chkSubstitutionSwitchBack, 8);
+		this.addComponent(chkSubstitutionFavourSilkTouch, 8);
+		this.addComponent(chkSubstitutionFavourFortune, 8);
+		this.addComponent(chkSubstitutionIgnoreIfValidTool, 8);
+		this.addComponent(chkSubstitutionIgnorePassiveMobs, 8);
+	}
+	
+	private void positionSubstitutionControls() {
+		lblTitleSubstitution.setPosition(centerX(), 75);
+		
+		chkSubstitutionEnabled.setPosition(col_1, startY + 5);
+		chkSubstitutionSwitchBack.setPosition(col_1, startY + rowStartY + 5);
+		chkSubstitutionFavourSilkTouch.setPosition(col_1, startY + (rowStartY * 2) + 5);
+		chkSubstitutionFavourFortune.setPosition(col_1, startY + (rowStartY * 3) + 5);
+		chkSubstitutionIgnoreIfValidTool.setPosition(col_1, startY + (rowStartY * 4) + 5);
+		chkSubstitutionIgnorePassiveMobs.setPosition(col_1, startY + (rowStartY * 5) + 5);
+	}
+	
+	private void generateVeinationControls() {
+		lblTitleVeination = new Label("Veination", 0, 0);
+		lblTitleVeination.setCentered();
+		
+		chkVeinationEnabled = new CheckBox(0, 0, Functions.localize("minersadvantage.veination.enabled"), MAConfig.CLIENT.veination.enabled());
+		
+		chkVeinationEnabled.setTooltips(SplitTooltips(Functions.localize("minersadvantage.veination.enabled.comment")));
+		
+		chkVeinationEnabled.setChangeListener(() -> {
+			MAConfig.CLIENT.veination.setEnabled(chkVeinationEnabled.isChecked());
+			MAConfig.clientSpec.save();
+		});
+		
+		this.addComponent(lblTitleVeination, 9);
+		this.addComponent(chkVeinationEnabled, 9);
+	}
+	
+	private void positionVeinationControls() {
+		lblTitleVeination.setPosition(centerX(), 75);
+		
+		chkVeinationEnabled.setPosition(col_1, startY + 5);
+	}
+}
