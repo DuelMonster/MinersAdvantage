@@ -4,6 +4,13 @@
     "minersadvantage.about.agents": "Abort Processes",
     "minersadvantage.supremevantage": "§aCONGRATULATIONS: §7You've gained the §6SupremeVantage§7!",
 
+    "minersadvantage.config.gui.close": "Close",
+    "minersadvantage.config.gui.category": "Category",
+    "minersadvantage.config.gui.common": "Common",
+    "minersadvantage.config.gui.reset.comment": "Reset category values to Defaults",
+    "minersadvantage.config.gui.fullreset": "Full Reset",
+    "minersadvantage.config.gui.fullreset.comment": "Reset all values to Defaults",
+
     "minersadvantage.client.comment": "Client configuration for MinersAdvantage",
     "minersadvantage.client.disable_particle_effects": "Disable Particle Effects",
     "minersadvantage.client.disable_particle_effects.comment": "Disable Particle Effects generated during block harvesting.",

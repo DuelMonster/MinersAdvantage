@@ -37,6 +37,7 @@ public class MAConfigGUI extends ExtendedScreen {
 		return width / 2;
 	}
 	
+	private Button	btnFullReset;
 	private Button	btnClose;
 	private Button	btnCommon;
 	private Button	btnCaptivation;
@@ -48,6 +49,16 @@ public class MAConfigGUI extends ExtendedScreen {
 	private Button	btnShaftanation;
 	private Button	btnSubstitution;
 	private Button	btnVeination;
+	private Button	btnResetCommon;
+	private Button	btnResetCaptivation;
+	private Button	btnResetCropination;
+	private Button	btnResetExcavation;
+	private Button	btnResetPathanation;
+	private Button	btnResetIllumination;
+	private Button	btnResetLumbination;
+	private Button	btnResetShaftanation;
+	private Button	btnResetSubstitution;
+	private Button	btnResetVeination;
 	
 	private Label	lblTitleCategory;
 	private Label	lblTitleCommon;
@@ -132,71 +143,39 @@ public class MAConfigGUI extends ExtendedScreen {
 	@Override
 	public void buildGui() {
 		
-		btnClose = new Button(0, 0, 200, "Close");
+		btnClose = new Button(0, 0, 200, Functions.localize("minersadvantage.config.gui.close"));
 		btnClose.setClickListener(this::close);
 		
-		lblTitleCategory = new Label("Category", 0, 0);
+		btnFullReset = new Button(0, 0, 100, Functions.localize("minersadvantage.config.gui.fullreset"));
+		btnFullReset.setClickListener(() -> {
+			resetDefaults(btnFullReset);
+		});
+		btnFullReset.setTooltips(SplitTooltips(Functions.localize("minersadvantage.config.gui.fullreset.comment")));
+		
+		lblTitleCategory = new Label(Functions.localize("minersadvantage.config.gui.category"), 0, 0);
 		lblTitleCategory.setCentered();
 		
-		btnCommon = new Button(0, 0, 200, "Common");
-		btnCommon.setClickListener(() -> {
-			setPage(0);
-			toggleCategoryButton(btnCommon);
-		});
+		btnCommon = createCategoryButton(0, Functions.localize("minersadvantage.config.gui.common"));
+		btnCaptivation = createCategoryButton(1, "Captivation");
+		btnCropination = createCategoryButton(2, "Cropination");
+		btnExcavation = createCategoryButton(3, "Excavation");
+		btnPathanation = createCategoryButton(4, "Pathanation");
+		btnIllumination = createCategoryButton(5, "Illumination");
+		btnLumbination = createCategoryButton(6, "Lumbination");
+		btnShaftanation = createCategoryButton(7, "Shaftanation");
+		btnSubstitution = createCategoryButton(8, "Substitution");
+		btnVeination = createCategoryButton(9, "Veination");
 		
-		btnCaptivation = new Button(0, 0, 200, "Captivation");
-		btnCaptivation.setClickListener(() -> {
-			setPage(1);
-			toggleCategoryButton(btnCaptivation);
-		});
-		
-		btnCropination = new Button(0, 0, 200, "Cropination");
-		btnCropination.setClickListener(() -> {
-			setPage(2);
-			toggleCategoryButton(btnCropination);
-		});
-		
-		btnExcavation = new Button(0, 0, 200, "Excavation");
-		btnExcavation.setClickListener(() -> {
-			setPage(3);
-			toggleCategoryButton(btnExcavation);
-		});
-		
-		btnPathanation = new Button(0, 0, 200, "Pathanation");
-		btnPathanation.setClickListener(() -> {
-			setPage(4);
-			toggleCategoryButton(btnPathanation);
-		});
-		
-		btnIllumination = new Button(0, 0, 200, "Illumination");
-		btnIllumination.setClickListener(() -> {
-			setPage(5);
-			toggleCategoryButton(btnIllumination);
-		});
-		
-		btnLumbination = new Button(0, 0, 200, "Lumbination");
-		btnLumbination.setClickListener(() -> {
-			setPage(6);
-			toggleCategoryButton(btnLumbination);
-		});
-		
-		btnShaftanation = new Button(0, 0, 200, "Shaftanation");
-		btnShaftanation.setClickListener(() -> {
-			setPage(7);
-			toggleCategoryButton(btnShaftanation);
-		});
-		
-		btnSubstitution = new Button(0, 0, 200, "Substitution");
-		btnSubstitution.setClickListener(() -> {
-			setPage(8);
-			toggleCategoryButton(btnSubstitution);
-		});
-		
-		btnVeination = new Button(0, 0, 200, "Veination");
-		btnVeination.setClickListener(() -> {
-			setPage(9);
-			toggleCategoryButton(btnVeination);
-		});
+		btnResetCommon = createCategoryResetButton();
+		btnResetCaptivation = createCategoryResetButton();
+		btnResetCropination = createCategoryResetButton();
+		btnResetExcavation = createCategoryResetButton();
+		btnResetPathanation = createCategoryResetButton();
+		btnResetIllumination = createCategoryResetButton();
+		btnResetLumbination = createCategoryResetButton();
+		btnResetShaftanation = createCategoryResetButton();
+		btnResetSubstitution = createCategoryResetButton();
+		btnResetVeination = createCategoryResetButton();
 		
 		generateCommonControls();
 		generateClientControls();
@@ -213,6 +192,7 @@ public class MAConfigGUI extends ExtendedScreen {
 		// Add always visible components
 		this.addAllComponents(
 				btnClose,
+				btnFullReset,
 				lblTitleCategory,
 				btnCommon,
 				btnCaptivation,
@@ -223,7 +203,17 @@ public class MAConfigGUI extends ExtendedScreen {
 				btnLumbination,
 				btnShaftanation,
 				btnSubstitution,
-				btnVeination);
+				btnVeination,
+				btnResetCommon,
+				btnResetCaptivation,
+				btnResetCropination,
+				btnResetExcavation,
+				btnResetPathanation,
+				btnResetIllumination,
+				btnResetLumbination,
+				btnResetShaftanation,
+				btnResetSubstitution,
+				btnResetVeination);
 		
 		toggleCategoryButton(btnCommon);
 	}
@@ -244,7 +234,20 @@ public class MAConfigGUI extends ExtendedScreen {
 		btnSubstitution.setPosition(categoryX, startY + (rowStartY * 8));
 		btnVeination.setPosition(categoryX, startY + (rowStartY * 9));
 		
-		btnClose.setPosition(centerX() - btnClose.getWidth() / 2, height - 50);
+		btnResetCommon.setPosition(categoryX - 30, startY);
+		btnResetCaptivation.setPosition(categoryX - 30, startY + (rowStartY * 1));
+		btnResetCropination.setPosition(categoryX - 30, startY + (rowStartY * 2));
+		btnResetExcavation.setPosition(categoryX - 30, startY + (rowStartY * 3));
+		btnResetPathanation.setPosition(categoryX - 30, startY + (rowStartY * 4));
+		btnResetIllumination.setPosition(categoryX - 30, startY + (rowStartY * 5));
+		btnResetLumbination.setPosition(categoryX - 30, startY + (rowStartY * 6));
+		btnResetShaftanation.setPosition(categoryX - 30, startY + (rowStartY * 7));
+		btnResetSubstitution.setPosition(categoryX - 30, startY + (rowStartY * 8));
+		btnResetVeination.setPosition(categoryX - 30, startY + (rowStartY * 9));
+		
+		btnClose.setPosition(centerX() - btnClose.getWidth() / 2, height - 40);
+		
+		btnFullReset.setPosition(width - btnFullReset.getWidth() - 20, height - 40);
 		
 		positionCommonControls();
 		positionClientControls();
@@ -267,6 +270,28 @@ public class MAConfigGUI extends ExtendedScreen {
 	@Override
 	public boolean doesEscCloseGui() {
 		return false;
+	}
+	
+	private Button createCategoryButton(int destinationPage, String displayString) {
+		
+		Button categoryButton = new Button(0, 0, 200, displayString);
+		categoryButton.setClickListener(() -> {
+			setPage(destinationPage);
+			toggleCategoryButton(categoryButton);
+		});
+		
+		return categoryButton;
+	}
+	
+	private Button createCategoryResetButton() {
+		
+		Button categoryResetButton = new Button(0, 0, 20, "X");
+		categoryResetButton.setClickListener(() -> {
+			resetDefaults(categoryResetButton);
+		});
+		categoryResetButton.setTooltips(SplitTooltips(Functions.localize("minersadvantage.config.gui.reset.comment")));
+		
+		return categoryResetButton;
 	}
 	
 	private void toggleCategoryButton(Button btn) {
@@ -1042,5 +1067,9 @@ public class MAConfigGUI extends ExtendedScreen {
 		lblTitleVeination.setPosition(centerX(), 75);
 		
 		chkVeinationEnabled.setPosition(col_1, startY + 5);
+	}
+	
+	private void resetDefaults(Button btn) {
+		
 	}
 }
