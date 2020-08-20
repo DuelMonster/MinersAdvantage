@@ -24,121 +24,121 @@ public class MAConfigGUI extends ExtendedScreen {
 	
 	private final String PressEnter = "... press Enter to update ...";
 	
-	private final int	startY		= 100;
-	private final int	categoryX	= 50;
-	private final int	rowHeight	= 20;
-	private final int	rowSpace	= 10;
-	private final int	rowStartY	= rowHeight + rowSpace;
-	private final int	col_1		= 300;
-	private final int	col_2		= 510;
-	private final int	sliderWidth	= 300;
+	private final int startY      = 100;
+	private final int categoryX   = 50;
+	private final int rowHeight   = 20;
+	private final int rowSpace    = 10;
+	private final int rowStartY   = rowHeight + rowSpace;
+	private final int col_1       = 300;
+	private final int col_2       = 510;
+	private final int sliderWidth = 300;
 	
 	private int centerX() {
 		return width / 2;
 	}
 	
-	private Button	btnFullReset;
-	private Button	btnClose;
-	private Button	btnCommon;
-	private Button	btnCaptivation;
-	private Button	btnCropination;
-	private Button	btnExcavation;
-	private Button	btnPathanation;
-	private Button	btnIllumination;
-	private Button	btnLumbination;
-	private Button	btnShaftanation;
-	private Button	btnSubstitution;
-	private Button	btnVeination;
-	private Button	btnResetCommon;
-	private Button	btnResetCaptivation;
-	private Button	btnResetCropination;
-	private Button	btnResetExcavation;
-	private Button	btnResetPathanation;
-	private Button	btnResetIllumination;
-	private Button	btnResetLumbination;
-	private Button	btnResetShaftanation;
-	private Button	btnResetSubstitution;
-	private Button	btnResetVeination;
+	private Button btnFullReset;
+	private Button btnClose;
+	private Button btnCommon;
+	private Button btnCaptivation;
+	private Button btnCropination;
+	private Button btnExcavation;
+	private Button btnPathanation;
+	private Button btnIllumination;
+	private Button btnLumbination;
+	private Button btnShaftanation;
+	private Button btnSubstitution;
+	private Button btnVeination;
+	private Button btnResetCommon;
+	private Button btnResetCaptivation;
+	private Button btnResetCropination;
+	private Button btnResetExcavation;
+	private Button btnResetPathanation;
+	private Button btnResetIllumination;
+	private Button btnResetLumbination;
+	private Button btnResetShaftanation;
+	private Button btnResetSubstitution;
+	private Button btnResetVeination;
 	
-	private Label	lblTitleCategory;
-	private Label	lblTitleCommon;
-	private Label	lblSubTitleClient;
-	private Label	lblTitleCaptivation;
-	private Label	lblTitleCropination;
-	private Label	lblTitleExcavation;
-	private Label	lblTitlePathanation;
-	private Label	lblTitleIllumination;
-	private Label	lblTitleLumbination;
-	private Label	lblTitleShaftanation;
-	private Label	lblTitleSubstitution;
-	private Label	lblTitleVeination;
+	private Label lblTitleCategory;
+	private Label lblTitleCommon;
+	private Label lblSubTitleClient;
+	private Label lblTitleCaptivation;
+	private Label lblTitleCropination;
+	private Label lblTitleExcavation;
+	private Label lblTitlePathanation;
+	private Label lblTitleIllumination;
+	private Label lblTitleLumbination;
+	private Label lblTitleShaftanation;
+	private Label lblTitleSubstitution;
+	private Label lblTitleVeination;
 	
-	private CheckBox	chkCommonEnableTickDelay;
-	private CheckBox	chkCommonGatherDrops;
-	private CheckBox	chkCommonBreakAtToolSpeeds;
-	private CheckBox	chkCommonMineViens;
-	private CheckBox	chkCommonTPSGuard;
-	private CheckBox	chkCommonAutoIllum;
-	private CheckBox	chkClientDisableParticles;
-	private CheckBox	chkCaptivationEnabled;
-	private CheckBox	chkCaptivationAllowInGUI;
-	private CheckBox	chkCaptivationIsWhitelist;
-	private CheckBox	chkCaptivationUnconditionalBlacklist;
-	private CheckBox	chkCropinationEnabled;
-	private CheckBox	chkCropinationHarvestSeeds;
-	private CheckBox	chkExcavationEnabled;
-	private CheckBox	chkExcavationToggleMode;
-	private CheckBox	chkExcavationIgnoreBlockVariants;
-	private CheckBox	chkExcavationIsBlockWhitelist;
-	private CheckBox	chkPathanationEnabled;
-	private CheckBox	chkIlluminationEnabled;
-	private CheckBox	chkIlluminationUseBlockLight;
-	private CheckBox	chkLumbinationEnabled;
-	private CheckBox	chkLumbinationChopTreeBelow;
-	private CheckBox	chkLumbinationDestroyLeaves;
-	private CheckBox	chkLumbinationLeavesAffectDurability;
-	private CheckBox	chkLumbinationReplantSaplings;
-	private CheckBox	chkLumbinationUseShearsOnLeaves;
-	private CheckBox	chkShaftanationEnabled;
-	private CheckBox	chkSubstitutionEnabled;
-	private CheckBox	chkSubstitutionSwitchBack;
-	private CheckBox	chkSubstitutionFavourSilkTouch;
-	private CheckBox	chkSubstitutionFavourFortune;
-	private CheckBox	chkSubstitutionIgnoreIfValidTool;
-	private CheckBox	chkSubstitutionIgnorePassiveMobs;
-	private CheckBox	chkVeinationEnabled;
+	private CheckBox chkCommonEnableTickDelay;
+	private CheckBox chkCommonGatherDrops;
+	private CheckBox chkCommonBreakAtToolSpeeds;
+	private CheckBox chkCommonMineViens;
+	private CheckBox chkCommonTPSGuard;
+	private CheckBox chkCommonAutoIllum;
+	private CheckBox chkClientDisableParticles;
+	private CheckBox chkCaptivationEnabled;
+	private CheckBox chkCaptivationAllowInGUI;
+	private CheckBox chkCaptivationIsWhitelist;
+	private CheckBox chkCaptivationUnconditionalBlacklist;
+	private CheckBox chkCropinationEnabled;
+	private CheckBox chkCropinationHarvestSeeds;
+	private CheckBox chkExcavationEnabled;
+	private CheckBox chkExcavationToggleMode;
+	private CheckBox chkExcavationIgnoreBlockVariants;
+	private CheckBox chkExcavationIsBlockWhitelist;
+	private CheckBox chkPathanationEnabled;
+	private CheckBox chkIlluminationEnabled;
+	private CheckBox chkIlluminationUseBlockLight;
+	private CheckBox chkLumbinationEnabled;
+	private CheckBox chkLumbinationChopTreeBelow;
+	private CheckBox chkLumbinationDestroyLeaves;
+	private CheckBox chkLumbinationLeavesAffectDurability;
+	private CheckBox chkLumbinationReplantSaplings;
+	private CheckBox chkLumbinationUseShearsOnLeaves;
+	private CheckBox chkShaftanationEnabled;
+	private CheckBox chkSubstitutionEnabled;
+	private CheckBox chkSubstitutionSwitchBack;
+	private CheckBox chkSubstitutionFavourSilkTouch;
+	private CheckBox chkSubstitutionFavourFortune;
+	private CheckBox chkSubstitutionIgnoreIfValidTool;
+	private CheckBox chkSubstitutionIgnorePassiveMobs;
+	private CheckBox chkVeinationEnabled;
 	
-	private Slider	sldCommonTickDelay;
-	private Slider	sldCommonBlocksPerTick;
-	private Slider	sldCommonBlockLimit;
-	private Slider	sldCommonBlockRadius;
-	private Slider	sldCaptivationRadiusHorizontal;
-	private Slider	sldCaptivationRadiusVertical;
-	private Slider	sldPathanationWidth;
-	private Slider	sldPathanationLength;
-	private Slider	sldIlluminationLightLevel;
-	private Slider	sldLumbinationLeafRange;
-	private Slider	sldLumbinationTrunkRange;
-	private Slider	sldShaftanationShaftLength;
-	private Slider	sldShaftanationShaftHeight;
-	private Slider	sldShaftanationShaftWidth;
+	private Slider sldCommonTickDelay;
+	private Slider sldCommonBlocksPerTick;
+	private Slider sldCommonBlockLimit;
+	private Slider sldCommonBlockRadius;
+	private Slider sldCaptivationRadiusHorizontal;
+	private Slider sldCaptivationRadiusVertical;
+	private Slider sldPathanationWidth;
+	private Slider sldPathanationLength;
+	private Slider sldIlluminationLightLevel;
+	private Slider sldLumbinationLeafRange;
+	private Slider sldLumbinationTrunkRange;
+	private Slider sldShaftanationShaftLength;
+	private Slider sldShaftanationShaftHeight;
+	private Slider sldShaftanationShaftWidth;
 	
 	private EnumSlider esldShaftanationTorchPlacement;
 	
-	private TextField	txtCommonTickDelay;
-	private TextField	txtCommonBlocksPerTick;
-	private TextField	txtCommonBlockLimit;
-	private TextField	txtCommonBlockRadius;
-	private TextField	txtCaptivationRadiusHorizontal;
-	private TextField	txtCaptivationRadiusVertical;
-	private TextField	txtPathanationWidth;
-	private TextField	txtPathanationLength;
-	private TextField	txtIlluminationLightLevel;
-	private TextField	txtLumbinationLeafRange;
-	private TextField	txtLumbinationTrunkRange;
-	private TextField	txtShaftanationShaftLength;
-	private TextField	txtShaftanationShaftHeight;
-	private TextField	txtShaftanationShaftWidth;
+	private TextField txtCommonTickDelay;
+	private TextField txtCommonBlocksPerTick;
+	private TextField txtCommonBlockLimit;
+	private TextField txtCommonBlockRadius;
+	private TextField txtCaptivationRadiusHorizontal;
+	private TextField txtCaptivationRadiusVertical;
+	private TextField txtPathanationWidth;
+	private TextField txtPathanationLength;
+	private TextField txtIlluminationLightLevel;
+	private TextField txtLumbinationLeafRange;
+	private TextField txtLumbinationTrunkRange;
+	private TextField txtShaftanationShaftLength;
+	private TextField txtShaftanationShaftHeight;
+	private TextField txtShaftanationShaftWidth;
 	
 	@Override
 	public void buildGui() {
@@ -155,27 +155,27 @@ public class MAConfigGUI extends ExtendedScreen {
 		lblTitleCategory = new Label(Functions.localize("minersadvantage.config.gui.category"), 0, 0);
 		lblTitleCategory.setCentered();
 		
-		btnCommon = createCategoryButton(0, Functions.localize("minersadvantage.config.gui.common"));
-		btnCaptivation = createCategoryButton(1, "Captivation");
-		btnCropination = createCategoryButton(2, "Cropination");
-		btnExcavation = createCategoryButton(3, "Excavation");
-		btnPathanation = createCategoryButton(4, "Pathanation");
+		btnCommon       = createCategoryButton(0, Functions.localize("minersadvantage.config.gui.common"));
+		btnCaptivation  = createCategoryButton(1, "Captivation");
+		btnCropination  = createCategoryButton(2, "Cropination");
+		btnExcavation   = createCategoryButton(3, "Excavation");
+		btnPathanation  = createCategoryButton(4, "Pathanation");
 		btnIllumination = createCategoryButton(5, "Illumination");
-		btnLumbination = createCategoryButton(6, "Lumbination");
+		btnLumbination  = createCategoryButton(6, "Lumbination");
 		btnShaftanation = createCategoryButton(7, "Shaftanation");
 		btnSubstitution = createCategoryButton(8, "Substitution");
-		btnVeination = createCategoryButton(9, "Veination");
+		btnVeination    = createCategoryButton(9, "Veination");
 		
-		btnResetCommon = createCategoryResetButton();
-		btnResetCaptivation = createCategoryResetButton();
-		btnResetCropination = createCategoryResetButton();
-		btnResetExcavation = createCategoryResetButton();
-		btnResetPathanation = createCategoryResetButton();
+		btnResetCommon       = createCategoryResetButton();
+		btnResetCaptivation  = createCategoryResetButton();
+		btnResetCropination  = createCategoryResetButton();
+		btnResetExcavation   = createCategoryResetButton();
+		btnResetPathanation  = createCategoryResetButton();
 		btnResetIllumination = createCategoryResetButton();
-		btnResetLumbination = createCategoryResetButton();
+		btnResetLumbination  = createCategoryResetButton();
 		btnResetShaftanation = createCategoryResetButton();
 		btnResetSubstitution = createCategoryResetButton();
-		btnResetVeination = createCategoryResetButton();
+		btnResetVeination    = createCategoryResetButton();
 		
 		generateCommonControls();
 		generateClientControls();
@@ -312,10 +312,10 @@ public class MAConfigGUI extends ExtendedScreen {
 	}
 	
 	private String[] SplitTooltips(String input, Boolean appendPressEnter) {
-		List<String>	lines		= new ArrayList<String>();
-		String[]		words		= input.split("\\s");		// splits the string based on whitespace
-		String			line		= "";
-		int				wordCount	= 0;
+		List<String> lines     = new ArrayList<String>();
+		String[]     words     = input.split("\\s");     // splits the string based on whitespace
+		String       line      = "";
+		int          wordCount = 0;
 		
 		for (String word : words) {
 			wordCount++;
@@ -346,27 +346,22 @@ public class MAConfigGUI extends ExtendedScreen {
 		lblTitleCommon = new Label("Common", 0, 0);
 		lblTitleCommon.setCentered();
 		
-		chkCommonEnableTickDelay = new CheckBox(0, 0, Functions.localize("minersadvantage.common.enable_tick_delay"), MAConfig.CLIENT.common.enableTickDelay());
-		chkCommonTPSGuard = new CheckBox(0, 0, Functions.localize("minersadvantage.common.tps_guard"), MAConfig.CLIENT.common.tpsGuard());
-		chkCommonGatherDrops = new CheckBox(0, 0, Functions.localize("minersadvantage.common.gather_drops"), MAConfig.CLIENT.common.gatherDrops());
-		chkCommonMineViens = new CheckBox(0, 0, Functions.localize("minersadvantage.common.mine_veins"), MAConfig.CLIENT.common.mineVeins());
-		chkCommonAutoIllum = new CheckBox(0, 0, Functions.localize("minersadvantage.common.auto_illum"), MAConfig.CLIENT.common.autoIlluminate());
-		chkCommonBreakAtToolSpeeds = new CheckBox(0, 0, Functions.localize("minersadvantage.common.break_at_tool_speeds"), MAConfig.CLIENT.common.breakAtToolSpeeds());
-		chkCommonBreakAtToolSpeeds.setEnabled(false);
+		chkCommonEnableTickDelay   = new CheckBox(0, 0, Functions.localize("minersadvantage.common.enable_tick_delay"), false);
+		chkCommonTPSGuard          = new CheckBox(0, 0, Functions.localize("minersadvantage.common.tps_guard"), false);
+		chkCommonGatherDrops       = new CheckBox(0, 0, Functions.localize("minersadvantage.common.gather_drops"), false);
+		chkCommonMineViens         = new CheckBox(0, 0, Functions.localize("minersadvantage.common.mine_veins"), false);
+		chkCommonAutoIllum         = new CheckBox(0, 0, Functions.localize("minersadvantage.common.auto_illum"), false);
+		chkCommonBreakAtToolSpeeds = new CheckBox(0, 0, Functions.localize("minersadvantage.common.break_at_tool_speeds"), false);
 		
-		sldCommonTickDelay = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.common.tick_delay") + ": ", "", 1, 20, MAConfig.CLIENT.common.tickDelay(), false, true);
-		sldCommonBlocksPerTick = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.common.blocks_per_tick") + ": ", "", 1, 16, MAConfig.CLIENT.common.blocksPerTick(), false, true);
-		sldCommonBlockLimit = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.common.limit") + ": ", "", Constants.MIN_BLOCKLIMIT, Constants.MAX_BLOCKLIMIT, MAConfig.CLIENT.common.blockLimit(), false, true);
-		sldCommonBlockRadius = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.common.radius") + ": ", "", Constants.MIN_BLOCKRADIUS, Constants.MAX_BLOCKRADIUS, MAConfig.CLIENT.common.blockRadius(), false, true);
+		sldCommonTickDelay     = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.common.tick_delay") + ": ", "", 1, 20, 1, false, true);
+		sldCommonBlocksPerTick = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.common.blocks_per_tick") + ": ", "", 1, 16, 1, false, true);
+		sldCommonBlockLimit    = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.common.limit") + ": ", "", Constants.MIN_BLOCKLIMIT, Constants.MAX_BLOCKLIMIT, Constants.MIN_BLOCKLIMIT, false, true);
+		sldCommonBlockRadius   = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.common.radius") + ": ", "", Constants.MIN_BLOCKRADIUS, Constants.MAX_BLOCKRADIUS, Constants.MIN_BLOCKRADIUS, false, true);
 		
-		txtCommonTickDelay = new TextField(0, 0, 50);
-		txtCommonTickDelay.setText(String.valueOf(MAConfig.CLIENT.common.tickDelay()));
+		txtCommonTickDelay     = new TextField(0, 0, 50);
 		txtCommonBlocksPerTick = new TextField(0, 0, 50);
-		txtCommonBlocksPerTick.setText(String.valueOf(MAConfig.CLIENT.common.blocksPerTick()));
-		txtCommonBlockLimit = new TextField(0, 0, 50);
-		txtCommonBlockLimit.setText(String.valueOf(MAConfig.CLIENT.common.blockLimit()));
-		txtCommonBlockRadius = new TextField(0, 0, 50);
-		txtCommonBlockRadius.setText(String.valueOf(MAConfig.CLIENT.common.blockRadius()));
+		txtCommonBlockLimit    = new TextField(0, 0, 50);
+		txtCommonBlockRadius   = new TextField(0, 0, 50);
 		
 		chkCommonEnableTickDelay.setTooltips(SplitTooltips(Functions.localize("minersadvantage.common.enable_tick_delay.comment")));
 		chkCommonTPSGuard.setTooltips(SplitTooltips(Functions.localize("minersadvantage.common.tps_guard.comment")));
@@ -379,6 +374,8 @@ public class MAConfigGUI extends ExtendedScreen {
 		txtCommonBlocksPerTick.setTooltips(SplitTooltips(Functions.localize("minersadvantage.common.blocks_per_tick.comment"), true));
 		txtCommonBlockLimit.setTooltips(SplitTooltips(Functions.localize("minersadvantage.common.limit.comment"), true));
 		txtCommonBlockRadius.setTooltips(SplitTooltips(Functions.localize("minersadvantage.common.radius.comment"), true));
+		
+		chkCommonBreakAtToolSpeeds.setEnabled(false);
 		
 		chkCommonEnableTickDelay.setChangeListener(() -> {
 			MAConfig.CLIENT.common.setEnableTickDelay(chkCommonEnableTickDelay.isChecked());
@@ -458,6 +455,7 @@ public class MAConfigGUI extends ExtendedScreen {
 		this.addComponent(txtCommonBlockLimit, 0);
 		this.addComponent(txtCommonBlockRadius, 0);
 		
+		applyCommonValues();
 	}
 	
 	private void positionCommonControls() {
@@ -486,12 +484,35 @@ public class MAConfigGUI extends ExtendedScreen {
 		chkCommonBreakAtToolSpeeds.setPosition(col_1, startY + (rowStartY * 8) + 5);
 	}
 	
+	private void applyCommonValues() {
+		
+		chkCommonEnableTickDelay.setIsChecked(MAConfig.CLIENT.common.enableTickDelay());
+		chkCommonTPSGuard.setIsChecked(MAConfig.CLIENT.common.tpsGuard());
+		chkCommonGatherDrops.setIsChecked(MAConfig.CLIENT.common.gatherDrops());
+		chkCommonMineViens.setIsChecked(MAConfig.CLIENT.common.mineVeins());
+		chkCommonAutoIllum.setIsChecked(MAConfig.CLIENT.common.autoIlluminate());
+		chkCommonBreakAtToolSpeeds.setIsChecked(MAConfig.CLIENT.common.breakAtToolSpeeds());
+		
+		sldCommonTickDelay.setValue(MAConfig.CLIENT.common.tickDelay());
+		sldCommonBlocksPerTick.setValue(MAConfig.CLIENT.common.blocksPerTick());
+		sldCommonBlockLimit.setValue(MAConfig.CLIENT.common.blockLimit());
+		sldCommonBlockRadius.setValue(MAConfig.CLIENT.common.blockRadius());
+		
+		txtCommonTickDelay.setText(String.valueOf(MAConfig.CLIENT.common.tickDelay()));
+		txtCommonBlocksPerTick.setText(String.valueOf(MAConfig.CLIENT.common.blocksPerTick()));
+		txtCommonBlockLimit.setText(String.valueOf(MAConfig.CLIENT.common.blockLimit()));
+		txtCommonBlockRadius.setText(String.valueOf(MAConfig.CLIENT.common.blockRadius()));
+		
+	}
+	
 	private void generateClientControls() {
 		
 		lblSubTitleClient = new Label("Client Only:", 0, 0);
 		
-		chkClientDisableParticles = new CheckBox(0, 0, Functions.localize("minersadvantage.client.disable_particle_effects"), MAConfig.CLIENT.disableParticleEffects());
+		chkClientDisableParticles = new CheckBox(0, 0, Functions.localize("minersadvantage.client.disable_particle_effects"), false);
+		
 		chkClientDisableParticles.setTooltips(SplitTooltips(Functions.localize("minersadvantage.client.disable_particle_effects.comment")));
+		
 		chkClientDisableParticles.setChangeListener(() -> {
 			MAConfig.CLIENT.setDisableParticleEffects(chkClientDisableParticles.isChecked());
 			MAConfig.clientSpec.save();
@@ -499,6 +520,8 @@ public class MAConfigGUI extends ExtendedScreen {
 		
 		this.addComponent(lblSubTitleClient, 0);
 		this.addComponent(chkClientDisableParticles, 0);
+		
+		applyClientValues();
 	}
 	
 	private void positionClientControls() {
@@ -509,23 +532,27 @@ public class MAConfigGUI extends ExtendedScreen {
 		
 	}
 	
+	private void applyClientValues() {
+		
+		chkClientDisableParticles.setIsChecked(MAConfig.CLIENT.disableParticleEffects());
+		
+	}
+	
 	private void generateCaptivationControls() {
 		
 		lblTitleCaptivation = new Label("Captivation", 0, 0);
 		lblTitleCaptivation.setCentered();
 		
-		chkCaptivationEnabled = new CheckBox(0, 0, Functions.localize("minersadvantage.captivation.enabled"), MAConfig.CLIENT.captivation.enabled());
-		chkCaptivationAllowInGUI = new CheckBox(0, 0, Functions.localize("minersadvantage.captivation.allow_in_gui"), MAConfig.CLIENT.captivation.allowInGUI());
-		chkCaptivationIsWhitelist = new CheckBox(0, 0, Functions.localize("minersadvantage.captivation.is_whitelist"), MAConfig.CLIENT.captivation.isWhitelist());
-		chkCaptivationUnconditionalBlacklist = new CheckBox(0, 0, Functions.localize("minersadvantage.captivation.unconditional_blacklist"), MAConfig.CLIENT.captivation.unconditionalBlacklist());
+		chkCaptivationEnabled                = new CheckBox(0, 0, Functions.localize("minersadvantage.captivation.enabled"), false);
+		chkCaptivationAllowInGUI             = new CheckBox(0, 0, Functions.localize("minersadvantage.captivation.allow_in_gui"), false);
+		chkCaptivationIsWhitelist            = new CheckBox(0, 0, Functions.localize("minersadvantage.captivation.is_whitelist"), false);
+		chkCaptivationUnconditionalBlacklist = new CheckBox(0, 0, Functions.localize("minersadvantage.captivation.unconditional_blacklist"), false);
 		
-		sldCaptivationRadiusHorizontal = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.captivation.h_radius") + ": ", "", 0, 128, MAConfig.CLIENT.captivation.radiusHorizontal(), false, true);
-		sldCaptivationRadiusVertical = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.captivation.v_radius") + ": ", "", 0, 128, MAConfig.CLIENT.captivation.radiusVertical(), false, true);
+		sldCaptivationRadiusHorizontal = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.captivation.h_radius") + ": ", "", 0, 128, 0, false, true);
+		sldCaptivationRadiusVertical   = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.captivation.v_radius") + ": ", "", 0, 128, 0, false, true);
 		
 		txtCaptivationRadiusHorizontal = new TextField(0, 0, 50);
-		txtCaptivationRadiusHorizontal.setText(String.valueOf(MAConfig.CLIENT.captivation.radiusHorizontal()));
-		txtCaptivationRadiusVertical = new TextField(0, 0, 50);
-		txtCaptivationRadiusVertical.setText(String.valueOf(MAConfig.CLIENT.captivation.radiusVertical()));
+		txtCaptivationRadiusVertical   = new TextField(0, 0, 50);
 		
 		chkCaptivationEnabled.setTooltips(SplitTooltips(Functions.localize("minersadvantage.captivation.enabled.comment")));
 		chkCaptivationAllowInGUI.setTooltips(SplitTooltips(Functions.localize("minersadvantage.captivation.allow_in_gui.comment")));
@@ -581,6 +608,8 @@ public class MAConfigGUI extends ExtendedScreen {
 		
 		this.addComponent(txtCaptivationRadiusHorizontal, 1);
 		this.addComponent(txtCaptivationRadiusVertical, 1);
+		
+		applyCaptivationValues();
 	}
 	
 	private void positionCaptivationControls() {
@@ -600,12 +629,27 @@ public class MAConfigGUI extends ExtendedScreen {
 		
 	}
 	
+	private void applyCaptivationValues() {
+		
+		chkCaptivationEnabled.setIsChecked(MAConfig.CLIENT.captivation.enabled());
+		chkCaptivationAllowInGUI.setIsChecked(MAConfig.CLIENT.captivation.allowInGUI());
+		chkCaptivationIsWhitelist.setIsChecked(MAConfig.CLIENT.captivation.isWhitelist());
+		chkCaptivationUnconditionalBlacklist.setIsChecked(MAConfig.CLIENT.captivation.unconditionalBlacklist());
+		
+		sldCaptivationRadiusHorizontal.setValue(MAConfig.CLIENT.captivation.radiusHorizontal());
+		sldCaptivationRadiusVertical.setValue(MAConfig.CLIENT.captivation.radiusVertical());
+		
+		txtCaptivationRadiusHorizontal.setText(String.valueOf(MAConfig.CLIENT.captivation.radiusHorizontal()));
+		txtCaptivationRadiusVertical.setText(String.valueOf(MAConfig.CLIENT.captivation.radiusVertical()));
+		
+	}
+	
 	private void generateCropinationControls() {
 		lblTitleCropination = new Label("Cropination", 0, 0);
 		lblTitleCropination.setCentered();
 		
-		chkCropinationEnabled = new CheckBox(0, 0, Functions.localize("minersadvantage.cropination.enabled"), MAConfig.CLIENT.cropination.enabled());
-		chkCropinationHarvestSeeds = new CheckBox(0, 0, Functions.localize("minersadvantage.cropination.harvest_seeds"), MAConfig.CLIENT.cropination.harvestSeeds());
+		chkCropinationEnabled      = new CheckBox(0, 0, Functions.localize("minersadvantage.cropination.enabled"), false);
+		chkCropinationHarvestSeeds = new CheckBox(0, 0, Functions.localize("minersadvantage.cropination.harvest_seeds"), false);
 		
 		chkCropinationEnabled.setTooltips(SplitTooltips(Functions.localize("minersadvantage.cropination.enabled.comment")));
 		chkCropinationHarvestSeeds.setTooltips(SplitTooltips(Functions.localize("minersadvantage.cropination.harvest_seeds.comment")));
@@ -622,6 +666,8 @@ public class MAConfigGUI extends ExtendedScreen {
 		this.addComponent(lblTitleCropination, 2);
 		this.addComponent(chkCropinationEnabled, 2);
 		this.addComponent(chkCropinationHarvestSeeds, 2);
+		
+		applyCropinationValues();
 	}
 	
 	private void positionCropinationControls() {
@@ -632,14 +678,21 @@ public class MAConfigGUI extends ExtendedScreen {
 		
 	}
 	
+	private void applyCropinationValues() {
+		
+		chkCropinationEnabled.setIsChecked(MAConfig.CLIENT.cropination.enabled());
+		chkCropinationHarvestSeeds.setIsChecked(MAConfig.CLIENT.cropination.harvestSeeds());
+		
+	}
+	
 	private void generateExcavationControls() {
 		lblTitleExcavation = new Label("Excavation", 0, 0);
 		lblTitleExcavation.setCentered();
 		
-		chkExcavationEnabled = new CheckBox(0, 0, Functions.localize("minersadvantage.excavation.enabled"), MAConfig.CLIENT.excavation.enabled());
-		chkExcavationToggleMode = new CheckBox(0, 0, Functions.localize("minersadvantage.excavation.toggle_mode"), MAConfig.CLIENT.excavation.toggleMode());
-		chkExcavationIgnoreBlockVariants = new CheckBox(0, 0, Functions.localize("minersadvantage.excavation.ignore_variants"), MAConfig.CLIENT.excavation.ignoreBlockVariants());
-		chkExcavationIsBlockWhitelist = new CheckBox(0, 0, Functions.localize("minersadvantage.excavation.is_block_whitelist"), MAConfig.CLIENT.excavation.isBlockWhitelist());
+		chkExcavationEnabled             = new CheckBox(0, 0, Functions.localize("minersadvantage.excavation.enabled"), false);
+		chkExcavationToggleMode          = new CheckBox(0, 0, Functions.localize("minersadvantage.excavation.toggle_mode"), false);
+		chkExcavationIgnoreBlockVariants = new CheckBox(0, 0, Functions.localize("minersadvantage.excavation.ignore_variants"), false);
+		chkExcavationIsBlockWhitelist    = new CheckBox(0, 0, Functions.localize("minersadvantage.excavation.is_block_whitelist"), false);
 		
 		chkExcavationEnabled.setTooltips(SplitTooltips(Functions.localize("minersadvantage.excavation.enabled.comment")));
 		chkExcavationToggleMode.setTooltips(SplitTooltips(Functions.localize("minersadvantage.excavation.toggle_mode.comment")));
@@ -668,6 +721,8 @@ public class MAConfigGUI extends ExtendedScreen {
 		this.addComponent(chkExcavationToggleMode, 3);
 		this.addComponent(chkExcavationIgnoreBlockVariants, 3);
 		this.addComponent(chkExcavationIsBlockWhitelist, 3);
+		
+		applyExcavationValues();
 	}
 	
 	private void positionExcavationControls() {
@@ -681,18 +736,28 @@ public class MAConfigGUI extends ExtendedScreen {
 		
 	}
 	
+	private void applyExcavationValues() {
+		
+		chkExcavationEnabled.setIsChecked(MAConfig.CLIENT.excavation.enabled());
+		chkExcavationToggleMode.setIsChecked(MAConfig.CLIENT.excavation.toggleMode());
+		chkExcavationIgnoreBlockVariants.setIsChecked(MAConfig.CLIENT.excavation.ignoreBlockVariants());
+		chkExcavationIsBlockWhitelist.setIsChecked(MAConfig.CLIENT.excavation.isBlockWhitelist());
+		
+	}
+	
 	private void generatePathanationControls() {
 		lblTitlePathanation = new Label("Pathanation", 0, 0);
 		lblTitlePathanation.setCentered();
 		
-		chkPathanationEnabled = new CheckBox(0, 0, Functions.localize("minersadvantage.pathanation.enabled"), MAConfig.CLIENT.pathanation.enabled());
+		chkPathanationEnabled = new CheckBox(0, 0, Functions.localize("minersadvantage.pathanation.enabled"), false);
 		
-		sldPathanationWidth = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.pathanation.path_width") + ": ", "", 1, 16, MAConfig.CLIENT.pathanation.pathWidth(), false, true);;
-		sldPathanationLength = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.pathanation.path_length") + ": ", "", 1, 64, MAConfig.CLIENT.pathanation.pathLength(), false, true);
+		sldPathanationWidth  = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.pathanation.path_width") + ": ", "", 1, 16, 1, false, true);
+		sldPathanationLength = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.pathanation.path_length") + ": ", "", 1, 64, 1, false, true);
 		
-		txtPathanationWidth = new TextField(0, 0, 50);
-		txtPathanationWidth.setText(String.valueOf(MAConfig.CLIENT.pathanation.pathWidth()));
+		txtPathanationWidth  = new TextField(0, 0, 50);
 		txtPathanationLength = new TextField(0, 0, 50);
+		
+		txtPathanationWidth.setText(String.valueOf(MAConfig.CLIENT.pathanation.pathWidth()));
 		txtPathanationLength.setText(String.valueOf(MAConfig.CLIENT.pathanation.pathLength()));
 		
 		chkPathanationEnabled.setTooltips(SplitTooltips(Functions.localize("minersadvantage.pathanation.enabled.comment")));
@@ -728,6 +793,8 @@ public class MAConfigGUI extends ExtendedScreen {
 		this.addComponent(sldPathanationLength, 4);
 		this.addComponent(txtPathanationWidth, 4);
 		this.addComponent(txtPathanationLength, 4);
+		
+		applyPathanationValues();
 	}
 	
 	private void positionPathanationControls() {
@@ -743,17 +810,28 @@ public class MAConfigGUI extends ExtendedScreen {
 		
 	}
 	
+	private void applyPathanationValues() {
+		
+		chkPathanationEnabled.setIsChecked(MAConfig.CLIENT.pathanation.enabled());
+		
+		sldPathanationWidth.setValue(MAConfig.CLIENT.pathanation.pathWidth());
+		sldPathanationLength.setValue(MAConfig.CLIENT.pathanation.pathLength());
+		
+		txtPathanationWidth.setText(String.valueOf(MAConfig.CLIENT.pathanation.pathWidth()));
+		txtPathanationLength.setText(String.valueOf(MAConfig.CLIENT.pathanation.pathLength()));
+		
+	}
+	
 	private void generateIlluminationControls() {
 		lblTitleIllumination = new Label("Illumination", 0, 0);
 		lblTitleIllumination.setCentered();
 		
-		chkIlluminationEnabled = new CheckBox(0, 0, Functions.localize("minersadvantage.illumination.enabled"), MAConfig.CLIENT.illumination.enabled());
-		chkIlluminationUseBlockLight = new CheckBox(0, 0, Functions.localize("minersadvantage.illumination.use_block_light"), MAConfig.CLIENT.illumination.useBlockLight());
+		chkIlluminationEnabled       = new CheckBox(0, 0, Functions.localize("minersadvantage.illumination.enabled"), false);
+		chkIlluminationUseBlockLight = new CheckBox(0, 0, Functions.localize("minersadvantage.illumination.use_block_light"), false);
 		
-		sldIlluminationLightLevel = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.illumination.light_level") + ": ", "", 0, 16, MAConfig.CLIENT.illumination.lowestLightLevel(), false, true);;
+		sldIlluminationLightLevel = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.illumination.light_level") + ": ", "", 0, 16, 0, false, true);
 		
 		txtIlluminationLightLevel = new TextField(0, 0, 50);
-		txtIlluminationLightLevel.setText(String.valueOf(MAConfig.CLIENT.illumination.lowestLightLevel()));
 		
 		chkIlluminationEnabled.setTooltips(SplitTooltips(Functions.localize("minersadvantage.illumination.enabled.comment")));
 		chkIlluminationUseBlockLight.setTooltips(SplitTooltips(Functions.localize("minersadvantage.illumination.use_block_light.comment")));
@@ -783,6 +861,8 @@ public class MAConfigGUI extends ExtendedScreen {
 		this.addComponent(chkIlluminationUseBlockLight, 5);
 		this.addComponent(sldIlluminationLightLevel, 5);
 		this.addComponent(txtIlluminationLightLevel, 5);
+		
+		applyIlluminationValues();
 	}
 	
 	private void positionIlluminationControls() {
@@ -796,21 +876,35 @@ public class MAConfigGUI extends ExtendedScreen {
 		
 	}
 	
+	private void applyIlluminationValues() {
+		
+		chkIlluminationEnabled.setIsChecked(MAConfig.CLIENT.illumination.enabled());
+		chkIlluminationUseBlockLight.setIsChecked(MAConfig.CLIENT.illumination.useBlockLight());
+		
+		sldIlluminationLightLevel.setValue(MAConfig.CLIENT.illumination.lowestLightLevel());
+		
+		txtIlluminationLightLevel.setText(String.valueOf(MAConfig.CLIENT.illumination.lowestLightLevel()));
+		
+	}
+	
 	private void generateLumbinationControls() {
 		lblTitleLumbination = new Label("Lumbination", 0, 0);
 		lblTitleLumbination.setCentered();
 		
-		chkLumbinationEnabled = new CheckBox(0, 0, Functions.localize("minersadvantage.lumbination.enabled"), MAConfig.CLIENT.lumbination.enabled());
-		chkLumbinationChopTreeBelow = new CheckBox(0, 0, Functions.localize("minersadvantage.lumbination.chop_below"), MAConfig.CLIENT.lumbination.chopTreeBelow());
-		chkLumbinationDestroyLeaves = new CheckBox(0, 0, Functions.localize("minersadvantage.lumbination.destroy_leaves"), MAConfig.CLIENT.lumbination.destroyLeaves());
-		chkLumbinationLeavesAffectDurability = new CheckBox(0, 0, Functions.localize("minersadvantage.lumbination.leaves_affect_durability"), MAConfig.CLIENT.lumbination.leavesAffectDurability());
-		chkLumbinationReplantSaplings = new CheckBox(0, 0, Functions.localize("minersadvantage.lumbination.replant_saplings"), MAConfig.CLIENT.lumbination.replantSaplings());
-		chkLumbinationUseShearsOnLeaves = new CheckBox(0, 0, Functions.localize("minersadvantage.lumbination.use_shears"), MAConfig.CLIENT.lumbination.useShearsOnLeaves());
-		sldLumbinationLeafRange = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.lumbination.leaf_range") + ": ", "", 0, 16, MAConfig.CLIENT.lumbination.leafRange(), false, true);;
-		sldLumbinationTrunkRange = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.lumbination.trunk_range") + ": ", "", 8, 128, MAConfig.CLIENT.lumbination.trunkRange(), false, true);;
-		txtLumbinationLeafRange = new TextField(0, 0, 50);
-		txtLumbinationLeafRange.setText(String.valueOf(MAConfig.CLIENT.lumbination.leafRange()));
+		chkLumbinationEnabled                = new CheckBox(0, 0, Functions.localize("minersadvantage.lumbination.enabled"), false);
+		chkLumbinationChopTreeBelow          = new CheckBox(0, 0, Functions.localize("minersadvantage.lumbination.chop_below"), false);
+		chkLumbinationDestroyLeaves          = new CheckBox(0, 0, Functions.localize("minersadvantage.lumbination.destroy_leaves"), false);
+		chkLumbinationLeavesAffectDurability = new CheckBox(0, 0, Functions.localize("minersadvantage.lumbination.leaves_affect_durability"), false);
+		chkLumbinationReplantSaplings        = new CheckBox(0, 0, Functions.localize("minersadvantage.lumbination.replant_saplings"), false);
+		chkLumbinationUseShearsOnLeaves      = new CheckBox(0, 0, Functions.localize("minersadvantage.lumbination.use_shears"), false);
+		
+		sldLumbinationLeafRange  = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.lumbination.leaf_range") + ": ", "", 0, 16, 0, false, true);
+		sldLumbinationTrunkRange = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.lumbination.trunk_range") + ": ", "", 8, 128, 8, false, true);
+		
+		txtLumbinationLeafRange  = new TextField(0, 0, 50);
 		txtLumbinationTrunkRange = new TextField(0, 0, 50);
+		
+		txtLumbinationLeafRange.setText(String.valueOf(MAConfig.CLIENT.lumbination.leafRange()));
 		txtLumbinationTrunkRange.setText(String.valueOf(MAConfig.CLIENT.lumbination.trunkRange()));
 		
 		chkLumbinationEnabled.setTooltips(SplitTooltips(Functions.localize("minersadvantage.lumbination.enabled.comment")));
@@ -876,6 +970,8 @@ public class MAConfigGUI extends ExtendedScreen {
 		this.addComponent(sldLumbinationTrunkRange, 6);
 		this.addComponent(txtLumbinationLeafRange, 6);
 		this.addComponent(txtLumbinationTrunkRange, 6);
+		
+		applyLumbinationValues();
 	}
 	
 	private void positionLumbinationControls() {
@@ -896,27 +992,41 @@ public class MAConfigGUI extends ExtendedScreen {
 		
 	}
 	
+	private void applyLumbinationValues() {
+		
+		chkLumbinationEnabled.setIsChecked(MAConfig.CLIENT.lumbination.enabled());
+		chkLumbinationChopTreeBelow.setIsChecked(MAConfig.CLIENT.lumbination.chopTreeBelow());
+		chkLumbinationDestroyLeaves.setIsChecked(MAConfig.CLIENT.lumbination.destroyLeaves());
+		chkLumbinationLeavesAffectDurability.setIsChecked(MAConfig.CLIENT.lumbination.leavesAffectDurability());
+		chkLumbinationReplantSaplings.setIsChecked(MAConfig.CLIENT.lumbination.replantSaplings());
+		chkLumbinationUseShearsOnLeaves.setIsChecked(MAConfig.CLIENT.lumbination.useShearsOnLeaves());
+		
+		sldLumbinationLeafRange.setValue(MAConfig.CLIENT.lumbination.leafRange());
+		sldLumbinationTrunkRange.setValue(MAConfig.CLIENT.lumbination.trunkRange());
+		
+		txtLumbinationLeafRange.setText(String.valueOf(MAConfig.CLIENT.lumbination.leafRange()));
+		txtLumbinationTrunkRange.setText(String.valueOf(MAConfig.CLIENT.lumbination.trunkRange()));
+		
+	}
+	
 	private void generateShaftanationControls() {
 		lblTitleShaftanation = new Label("Shaftanation", 0, 0);
 		lblTitleShaftanation.setCentered();
 		
-		chkShaftanationEnabled = new CheckBox(0, 0, Functions.localize("minersadvantage.shaftanation.enabled"), MAConfig.CLIENT.shaftanation.enabled());
+		chkShaftanationEnabled = new CheckBox(0, 0, Functions.localize("minersadvantage.shaftanation.enabled"), false);
 		
-		sldShaftanationShaftLength = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.shaftanation.shaft_l") + ": ", "", 4, 128, MAConfig.CLIENT.shaftanation.shaftLength(), false, true);
-		sldShaftanationShaftHeight = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.shaftanation.shaft_h") + ": ", "", 2, 16, MAConfig.CLIENT.shaftanation.shaftHeight(), false, true);
-		sldShaftanationShaftWidth = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.shaftanation.shaft_w") + ": ", "", 1, 16, MAConfig.CLIENT.shaftanation.shaftWidth(), false, true);
+		sldShaftanationShaftLength = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.shaftanation.shaft_l") + ": ", "", 4, 128, 4, false, true);
+		sldShaftanationShaftHeight = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.shaftanation.shaft_h") + ": ", "", 2, 16, 2, false, true);
+		sldShaftanationShaftWidth  = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.shaftanation.shaft_w") + ": ", "", 1, 16, 1, false, true);
 		
-		esldShaftanationTorchPlacement = new <TorchPlacement>EnumSlider(0, 0, 300, 20, Functions.localize("minersadvantage.shaftanation.torch_placement") + ": ", "", TorchPlacement.class, MAConfig.CLIENT.shaftanation.torchPlacement(), true, () -> {
+		esldShaftanationTorchPlacement = new <TorchPlacement>EnumSlider(0, 0, 300, 20, Functions.localize("minersadvantage.shaftanation.torch_placement") + ": ", "", TorchPlacement.class, TorchPlacement.FLOOR, true, () -> {
 			MAConfig.CLIENT.shaftanation.setTorchPlacement((TorchPlacement) esldShaftanationTorchPlacement.getEnum());
 			MAConfig.clientSpec.save();
 		});
 		
 		txtShaftanationShaftLength = new TextField(0, 0, 50);
-		txtShaftanationShaftLength.setText(String.valueOf(MAConfig.CLIENT.shaftanation.shaftLength()));
 		txtShaftanationShaftHeight = new TextField(0, 0, 50);
-		txtShaftanationShaftHeight.setText(String.valueOf(MAConfig.CLIENT.shaftanation.shaftHeight()));
-		txtShaftanationShaftWidth = new TextField(0, 0, 50);
-		txtShaftanationShaftWidth.setText(String.valueOf(MAConfig.CLIENT.shaftanation.shaftWidth()));
+		txtShaftanationShaftWidth  = new TextField(0, 0, 50);
 		
 		chkShaftanationEnabled.setTooltips(SplitTooltips(Functions.localize("minersadvantage.shaftanation.enabled.comment")));
 		esldShaftanationTorchPlacement.setTooltips(SplitTooltips(Functions.localize("minersadvantage.shaftanation.torch_placement.comment")));
@@ -964,6 +1074,8 @@ public class MAConfigGUI extends ExtendedScreen {
 		this.addComponent(txtShaftanationShaftLength, 7);
 		this.addComponent(txtShaftanationShaftHeight, 7);
 		this.addComponent(txtShaftanationShaftWidth, 7);
+		
+		applyShaftanationValues();
 	}
 	
 	private void positionShaftanationControls() {
@@ -983,16 +1095,32 @@ public class MAConfigGUI extends ExtendedScreen {
 		esldShaftanationTorchPlacement.setPosition(col_1, startY + (rowStartY * 4));
 	}
 	
+	private void applyShaftanationValues() {
+		
+		chkShaftanationEnabled.setIsChecked(MAConfig.CLIENT.shaftanation.enabled());
+		
+		sldShaftanationShaftLength.setValue(MAConfig.CLIENT.shaftanation.shaftLength());
+		sldShaftanationShaftHeight.setValue(MAConfig.CLIENT.shaftanation.shaftHeight());
+		sldShaftanationShaftWidth.setValue(MAConfig.CLIENT.shaftanation.shaftWidth());
+		
+		esldShaftanationTorchPlacement.setEnum(MAConfig.CLIENT.shaftanation.torchPlacement());
+		
+		txtShaftanationShaftLength.setText(String.valueOf(MAConfig.CLIENT.shaftanation.shaftLength()));
+		txtShaftanationShaftHeight.setText(String.valueOf(MAConfig.CLIENT.shaftanation.shaftHeight()));
+		txtShaftanationShaftWidth.setText(String.valueOf(MAConfig.CLIENT.shaftanation.shaftWidth()));
+		
+	}
+	
 	private void generateSubstitutionControls() {
 		lblTitleSubstitution = new Label("Substitution", 0, 0);
 		lblTitleSubstitution.setCentered();
 		
-		chkSubstitutionEnabled = new CheckBox(0, 0, Functions.localize("minersadvantage.substitution.enabled"), MAConfig.CLIENT.substitution.enabled());
-		chkSubstitutionSwitchBack = new CheckBox(0, 0, Functions.localize("minersadvantage.substitution.switchback"), MAConfig.CLIENT.substitution.switchBack());
-		chkSubstitutionFavourSilkTouch = new CheckBox(0, 0, Functions.localize("minersadvantage.substitution.favour_silk"), MAConfig.CLIENT.substitution.favourSilkTouch());
-		chkSubstitutionFavourFortune = new CheckBox(0, 0, Functions.localize("minersadvantage.substitution.favour_fortune"), MAConfig.CLIENT.substitution.favourFortune());
-		chkSubstitutionIgnoreIfValidTool = new CheckBox(0, 0, Functions.localize("minersadvantage.substitution.ignore_valid"), MAConfig.CLIENT.substitution.ignoreIfValidTool());
-		chkSubstitutionIgnorePassiveMobs = new CheckBox(0, 0, Functions.localize("minersadvantage.substitution.ignore_passive"), MAConfig.CLIENT.substitution.ignorePassiveMobs());
+		chkSubstitutionEnabled           = new CheckBox(0, 0, Functions.localize("minersadvantage.substitution.enabled"), false);
+		chkSubstitutionSwitchBack        = new CheckBox(0, 0, Functions.localize("minersadvantage.substitution.switchback"), false);
+		chkSubstitutionFavourSilkTouch   = new CheckBox(0, 0, Functions.localize("minersadvantage.substitution.favour_silk"), false);
+		chkSubstitutionFavourFortune     = new CheckBox(0, 0, Functions.localize("minersadvantage.substitution.favour_fortune"), false);
+		chkSubstitutionIgnoreIfValidTool = new CheckBox(0, 0, Functions.localize("minersadvantage.substitution.ignore_valid"), false);
+		chkSubstitutionIgnorePassiveMobs = new CheckBox(0, 0, Functions.localize("minersadvantage.substitution.ignore_passive"), false);
 		
 		chkSubstitutionEnabled.setTooltips(SplitTooltips(Functions.localize("minersadvantage.substitution.enabled.comment")));
 		chkSubstitutionSwitchBack.setTooltips(SplitTooltips(Functions.localize("minersadvantage.substitution.switchback.comment")));
@@ -1033,6 +1161,8 @@ public class MAConfigGUI extends ExtendedScreen {
 		this.addComponent(chkSubstitutionFavourFortune, 8);
 		this.addComponent(chkSubstitutionIgnoreIfValidTool, 8);
 		this.addComponent(chkSubstitutionIgnorePassiveMobs, 8);
+		
+		applySubstitutionValues();
 	}
 	
 	private void positionSubstitutionControls() {
@@ -1046,11 +1176,21 @@ public class MAConfigGUI extends ExtendedScreen {
 		chkSubstitutionIgnorePassiveMobs.setPosition(col_1, startY + (rowStartY * 5) + 5);
 	}
 	
+	private void applySubstitutionValues() {
+		
+		chkSubstitutionEnabled.setIsChecked(MAConfig.CLIENT.substitution.enabled());
+		chkSubstitutionSwitchBack.setIsChecked(MAConfig.CLIENT.substitution.switchBack());
+		chkSubstitutionFavourSilkTouch.setIsChecked(MAConfig.CLIENT.substitution.favourSilkTouch());
+		chkSubstitutionFavourFortune.setIsChecked(MAConfig.CLIENT.substitution.favourFortune());
+		chkSubstitutionIgnoreIfValidTool.setIsChecked(MAConfig.CLIENT.substitution.ignoreIfValidTool());
+		chkSubstitutionIgnorePassiveMobs.setIsChecked(MAConfig.CLIENT.substitution.ignorePassiveMobs());
+	}
+	
 	private void generateVeinationControls() {
 		lblTitleVeination = new Label("Veination", 0, 0);
 		lblTitleVeination.setCentered();
 		
-		chkVeinationEnabled = new CheckBox(0, 0, Functions.localize("minersadvantage.veination.enabled"), MAConfig.CLIENT.veination.enabled());
+		chkVeinationEnabled = new CheckBox(0, 0, Functions.localize("minersadvantage.veination.enabled"), false);
 		
 		chkVeinationEnabled.setTooltips(SplitTooltips(Functions.localize("minersadvantage.veination.enabled.comment")));
 		
@@ -1061,12 +1201,20 @@ public class MAConfigGUI extends ExtendedScreen {
 		
 		this.addComponent(lblTitleVeination, 9);
 		this.addComponent(chkVeinationEnabled, 9);
+		
+		applyVeinationValues();
 	}
 	
 	private void positionVeinationControls() {
 		lblTitleVeination.setPosition(centerX(), 75);
 		
 		chkVeinationEnabled.setPosition(col_1, startY + 5);
+	}
+	
+	private void applyVeinationValues() {
+		
+		chkVeinationEnabled.setIsChecked(MAConfig.CLIENT.veination.enabled());
+		
 	}
 	
 	private void resetDefaults(Button btn) {
