@@ -8,6 +8,7 @@ import de.erdbeerbaerlp.guilib.components.CheckBox;
 import de.erdbeerbaerlp.guilib.components.EnumSlider;
 import de.erdbeerbaerlp.guilib.components.Label;
 import de.erdbeerbaerlp.guilib.components.Slider;
+import de.erdbeerbaerlp.guilib.components.StringList;
 import de.erdbeerbaerlp.guilib.components.TextField;
 import de.erdbeerbaerlp.guilib.gui.ExtendedScreen;
 import net.minecraft.client.gui.screen.Screen;
@@ -15,6 +16,7 @@ import uk.co.duelmonster.minersadvantage.common.Constants;
 import uk.co.duelmonster.minersadvantage.common.Functions;
 import uk.co.duelmonster.minersadvantage.common.TorchPlacement;
 import uk.co.duelmonster.minersadvantage.config.MAConfig;
+import uk.co.duelmonster.minersadvantage.config.defaults.MAConfig_Defaults;
 
 public class MAConfigGUI extends ExtendedScreen {
 	
@@ -29,8 +31,8 @@ public class MAConfigGUI extends ExtendedScreen {
 	private final int rowHeight   = 20;
 	private final int rowSpace    = 10;
 	private final int rowStartY   = rowHeight + rowSpace;
-	private final int col_1       = 300;
-	private final int col_2       = 510;
+	private final int col_1       = 275;
+	private final int col_2       = 500;
 	private final int sliderWidth = 300;
 	
 	private int centerX() {
@@ -139,6 +141,8 @@ public class MAConfigGUI extends ExtendedScreen {
 	private TextField txtShaftanationShaftLength;
 	private TextField txtShaftanationShaftHeight;
 	private TextField txtShaftanationShaftWidth;
+	
+	private StringList slCaptivationBlacklist;
 	
 	@Override
 	public void buildGui() {
@@ -455,7 +459,7 @@ public class MAConfigGUI extends ExtendedScreen {
 		this.addComponent(txtCommonBlockLimit, 0);
 		this.addComponent(txtCommonBlockRadius, 0);
 		
-		applyCommonValues();
+		applyCommonValues(false);
 	}
 	
 	private void positionCommonControls() {
@@ -484,24 +488,24 @@ public class MAConfigGUI extends ExtendedScreen {
 		chkCommonBreakAtToolSpeeds.setPosition(col_1, startY + (rowStartY * 8) + 5);
 	}
 	
-	private void applyCommonValues() {
+	private void applyCommonValues(boolean applyDefaults) {
 		
-		chkCommonEnableTickDelay.setIsChecked(MAConfig.CLIENT.common.enableTickDelay());
-		chkCommonTPSGuard.setIsChecked(MAConfig.CLIENT.common.tpsGuard());
-		chkCommonGatherDrops.setIsChecked(MAConfig.CLIENT.common.gatherDrops());
-		chkCommonMineViens.setIsChecked(MAConfig.CLIENT.common.mineVeins());
-		chkCommonAutoIllum.setIsChecked(MAConfig.CLIENT.common.autoIlluminate());
-		chkCommonBreakAtToolSpeeds.setIsChecked(MAConfig.CLIENT.common.breakAtToolSpeeds());
+		chkCommonEnableTickDelay.setIsChecked(!applyDefaults ? MAConfig.CLIENT.common.enableTickDelay() : MAConfig_Defaults.Common.enableTickDelay);
+		chkCommonTPSGuard.setIsChecked(!applyDefaults ? MAConfig.CLIENT.common.tpsGuard() : MAConfig_Defaults.Common.tpsGuard);
+		chkCommonGatherDrops.setIsChecked(!applyDefaults ? MAConfig.CLIENT.common.gatherDrops() : MAConfig_Defaults.Common.gatherDrops);
+		chkCommonMineViens.setIsChecked(!applyDefaults ? MAConfig.CLIENT.common.mineVeins() : MAConfig_Defaults.Common.mineVeins);
+		chkCommonAutoIllum.setIsChecked(!applyDefaults ? MAConfig.CLIENT.common.autoIlluminate() : MAConfig_Defaults.Common.autoIlluminate);
+		chkCommonBreakAtToolSpeeds.setIsChecked(!applyDefaults ? MAConfig.CLIENT.common.breakAtToolSpeeds() : MAConfig_Defaults.Common.breakAtToolSpeeds);
 		
-		sldCommonTickDelay.setValue(MAConfig.CLIENT.common.tickDelay());
-		sldCommonBlocksPerTick.setValue(MAConfig.CLIENT.common.blocksPerTick());
-		sldCommonBlockLimit.setValue(MAConfig.CLIENT.common.blockLimit());
-		sldCommonBlockRadius.setValue(MAConfig.CLIENT.common.blockRadius());
+		sldCommonTickDelay.setValue(!applyDefaults ? MAConfig.CLIENT.common.tickDelay() : MAConfig_Defaults.Common.tickDelay);
+		sldCommonBlocksPerTick.setValue(!applyDefaults ? MAConfig.CLIENT.common.blocksPerTick() : MAConfig_Defaults.Common.blocksPerTick);
+		sldCommonBlockLimit.setValue(!applyDefaults ? MAConfig.CLIENT.common.blockLimit() : MAConfig_Defaults.Common.blockLimit);
+		sldCommonBlockRadius.setValue(!applyDefaults ? MAConfig.CLIENT.common.blockRadius() : MAConfig_Defaults.Common.blockRadius);
 		
-		txtCommonTickDelay.setText(String.valueOf(MAConfig.CLIENT.common.tickDelay()));
-		txtCommonBlocksPerTick.setText(String.valueOf(MAConfig.CLIENT.common.blocksPerTick()));
-		txtCommonBlockLimit.setText(String.valueOf(MAConfig.CLIENT.common.blockLimit()));
-		txtCommonBlockRadius.setText(String.valueOf(MAConfig.CLIENT.common.blockRadius()));
+		txtCommonTickDelay.setText(String.valueOf(!applyDefaults ? MAConfig.CLIENT.common.tickDelay() : MAConfig_Defaults.Common.tickDelay));
+		txtCommonBlocksPerTick.setText(String.valueOf(!applyDefaults ? MAConfig.CLIENT.common.blocksPerTick() : MAConfig_Defaults.Common.blocksPerTick));
+		txtCommonBlockLimit.setText(String.valueOf(!applyDefaults ? MAConfig.CLIENT.common.blockLimit() : MAConfig_Defaults.Common.blockLimit));
+		txtCommonBlockRadius.setText(String.valueOf(!applyDefaults ? MAConfig.CLIENT.common.blockRadius() : MAConfig_Defaults.Common.blockRadius));
 		
 	}
 	
@@ -521,7 +525,7 @@ public class MAConfigGUI extends ExtendedScreen {
 		this.addComponent(lblSubTitleClient, 0);
 		this.addComponent(chkClientDisableParticles, 0);
 		
-		applyClientValues();
+		applyClientValues(false);
 	}
 	
 	private void positionClientControls() {
@@ -532,9 +536,9 @@ public class MAConfigGUI extends ExtendedScreen {
 		
 	}
 	
-	private void applyClientValues() {
+	private void applyClientValues(boolean applyDefaults) {
 		
-		chkClientDisableParticles.setIsChecked(MAConfig.CLIENT.disableParticleEffects());
+		chkClientDisableParticles.setIsChecked(!applyDefaults ? MAConfig.CLIENT.disableParticleEffects() : MAConfig_Defaults.Client.disableParticleEffects);
 		
 	}
 	
@@ -553,6 +557,8 @@ public class MAConfigGUI extends ExtendedScreen {
 		
 		txtCaptivationRadiusHorizontal = new TextField(0, 0, 50);
 		txtCaptivationRadiusVertical   = new TextField(0, 0, 50);
+		
+		slCaptivationBlacklist = new StringList(0, 0, 50, 50, null);
 		
 		chkCaptivationEnabled.setTooltips(SplitTooltips(Functions.localize("minersadvantage.captivation.enabled.comment")));
 		chkCaptivationAllowInGUI.setTooltips(SplitTooltips(Functions.localize("minersadvantage.captivation.allow_in_gui.comment")));
@@ -609,7 +615,9 @@ public class MAConfigGUI extends ExtendedScreen {
 		this.addComponent(txtCaptivationRadiusHorizontal, 1);
 		this.addComponent(txtCaptivationRadiusVertical, 1);
 		
-		applyCaptivationValues();
+		this.addComponent(slCaptivationBlacklist, 1);
+		
+		applyCaptivationValues(false);
 	}
 	
 	private void positionCaptivationControls() {
@@ -627,21 +635,27 @@ public class MAConfigGUI extends ExtendedScreen {
 		sldCaptivationRadiusVertical.setPosition(col_1, startY + (rowStartY * 5));
 		txtCaptivationRadiusVertical.setPosition(col_1 + sliderWidth + 10, startY + (rowStartY * 5));
 		
+		slCaptivationBlacklist.setPosition(col_1, startY + (rowStartY * 6));
+		slCaptivationBlacklist.setWidth(width - col_1 - 20);
+		slCaptivationBlacklist.setHeight(height - slCaptivationBlacklist.getY() - 60);
+		slCaptivationBlacklist.setPositions();
 	}
 	
-	private void applyCaptivationValues() {
+	@SuppressWarnings("unchecked")
+	private void applyCaptivationValues(boolean applyDefaults) {
 		
-		chkCaptivationEnabled.setIsChecked(MAConfig.CLIENT.captivation.enabled());
-		chkCaptivationAllowInGUI.setIsChecked(MAConfig.CLIENT.captivation.allowInGUI());
-		chkCaptivationIsWhitelist.setIsChecked(MAConfig.CLIENT.captivation.isWhitelist());
-		chkCaptivationUnconditionalBlacklist.setIsChecked(MAConfig.CLIENT.captivation.unconditionalBlacklist());
+		chkCaptivationEnabled.setIsChecked(!applyDefaults ? MAConfig.CLIENT.captivation.enabled() : MAConfig_Defaults.Captivation.enabled);
+		chkCaptivationAllowInGUI.setIsChecked(!applyDefaults ? MAConfig.CLIENT.captivation.allowInGUI() : MAConfig_Defaults.Captivation.allowInGUI);
+		chkCaptivationIsWhitelist.setIsChecked(!applyDefaults ? MAConfig.CLIENT.captivation.isWhitelist() : MAConfig_Defaults.Captivation.isWhitelist);
+		chkCaptivationUnconditionalBlacklist.setIsChecked(!applyDefaults ? MAConfig.CLIENT.captivation.unconditionalBlacklist() : MAConfig_Defaults.Captivation.unconditionalBlacklist);
 		
-		sldCaptivationRadiusHorizontal.setValue(MAConfig.CLIENT.captivation.radiusHorizontal());
-		sldCaptivationRadiusVertical.setValue(MAConfig.CLIENT.captivation.radiusVertical());
+		sldCaptivationRadiusHorizontal.setValue(!applyDefaults ? MAConfig.CLIENT.captivation.radiusHorizontal() : MAConfig_Defaults.Captivation.radiusHorizontal);
+		sldCaptivationRadiusVertical.setValue(!applyDefaults ? MAConfig.CLIENT.captivation.radiusVertical() : MAConfig_Defaults.Captivation.radiusVertical);
 		
-		txtCaptivationRadiusHorizontal.setText(String.valueOf(MAConfig.CLIENT.captivation.radiusHorizontal()));
-		txtCaptivationRadiusVertical.setText(String.valueOf(MAConfig.CLIENT.captivation.radiusVertical()));
+		txtCaptivationRadiusHorizontal.setText(String.valueOf(!applyDefaults ? MAConfig.CLIENT.captivation.radiusHorizontal() : MAConfig_Defaults.Captivation.radiusHorizontal));
+		txtCaptivationRadiusVertical.setText(String.valueOf(!applyDefaults ? MAConfig.CLIENT.captivation.radiusVertical() : MAConfig_Defaults.Captivation.radiusVertical));
 		
+		slCaptivationBlacklist.setListValues(!applyDefaults ? (List<String>) MAConfig.CLIENT.captivation.blacklist() : MAConfig_Defaults.Captivation.blacklist);
 	}
 	
 	private void generateCropinationControls() {
@@ -667,7 +681,7 @@ public class MAConfigGUI extends ExtendedScreen {
 		this.addComponent(chkCropinationEnabled, 2);
 		this.addComponent(chkCropinationHarvestSeeds, 2);
 		
-		applyCropinationValues();
+		applyCropinationValues(false);
 	}
 	
 	private void positionCropinationControls() {
@@ -678,10 +692,10 @@ public class MAConfigGUI extends ExtendedScreen {
 		
 	}
 	
-	private void applyCropinationValues() {
+	private void applyCropinationValues(boolean applyDefaults) {
 		
-		chkCropinationEnabled.setIsChecked(MAConfig.CLIENT.cropination.enabled());
-		chkCropinationHarvestSeeds.setIsChecked(MAConfig.CLIENT.cropination.harvestSeeds());
+		chkCropinationEnabled.setIsChecked(!applyDefaults ? MAConfig.CLIENT.cropination.enabled() : MAConfig_Defaults.Cropination.enabled);
+		chkCropinationHarvestSeeds.setIsChecked(!applyDefaults ? MAConfig.CLIENT.cropination.harvestSeeds() : MAConfig_Defaults.Cropination.harvestSeeds);
 		
 	}
 	
@@ -722,7 +736,7 @@ public class MAConfigGUI extends ExtendedScreen {
 		this.addComponent(chkExcavationIgnoreBlockVariants, 3);
 		this.addComponent(chkExcavationIsBlockWhitelist, 3);
 		
-		applyExcavationValues();
+		applyExcavationValues(false);
 	}
 	
 	private void positionExcavationControls() {
@@ -736,12 +750,12 @@ public class MAConfigGUI extends ExtendedScreen {
 		
 	}
 	
-	private void applyExcavationValues() {
+	private void applyExcavationValues(boolean applyDefaults) {
 		
-		chkExcavationEnabled.setIsChecked(MAConfig.CLIENT.excavation.enabled());
-		chkExcavationToggleMode.setIsChecked(MAConfig.CLIENT.excavation.toggleMode());
-		chkExcavationIgnoreBlockVariants.setIsChecked(MAConfig.CLIENT.excavation.ignoreBlockVariants());
-		chkExcavationIsBlockWhitelist.setIsChecked(MAConfig.CLIENT.excavation.isBlockWhitelist());
+		chkExcavationEnabled.setIsChecked(!applyDefaults ? MAConfig.CLIENT.excavation.enabled() : MAConfig_Defaults.Excavation.enabled);
+		chkExcavationToggleMode.setIsChecked(!applyDefaults ? MAConfig.CLIENT.excavation.toggleMode() : MAConfig_Defaults.Excavation.toggleMode);
+		chkExcavationIgnoreBlockVariants.setIsChecked(!applyDefaults ? MAConfig.CLIENT.excavation.ignoreBlockVariants() : MAConfig_Defaults.Excavation.ignoreBlockVariants);
+		chkExcavationIsBlockWhitelist.setIsChecked(!applyDefaults ? MAConfig.CLIENT.excavation.isBlockWhitelist() : MAConfig_Defaults.Excavation.isBlockWhitelist);
 		
 	}
 	
@@ -794,7 +808,7 @@ public class MAConfigGUI extends ExtendedScreen {
 		this.addComponent(txtPathanationWidth, 4);
 		this.addComponent(txtPathanationLength, 4);
 		
-		applyPathanationValues();
+		applyPathanationValues(false);
 	}
 	
 	private void positionPathanationControls() {
@@ -810,15 +824,15 @@ public class MAConfigGUI extends ExtendedScreen {
 		
 	}
 	
-	private void applyPathanationValues() {
+	private void applyPathanationValues(boolean applyDefaults) {
 		
-		chkPathanationEnabled.setIsChecked(MAConfig.CLIENT.pathanation.enabled());
+		chkPathanationEnabled.setIsChecked(!applyDefaults ? MAConfig.CLIENT.pathanation.enabled() : MAConfig_Defaults.Pathanation.enabled);
 		
-		sldPathanationWidth.setValue(MAConfig.CLIENT.pathanation.pathWidth());
-		sldPathanationLength.setValue(MAConfig.CLIENT.pathanation.pathLength());
+		sldPathanationWidth.setValue(!applyDefaults ? MAConfig.CLIENT.pathanation.pathWidth() : MAConfig_Defaults.Pathanation.pathWidth);
+		sldPathanationLength.setValue(!applyDefaults ? MAConfig.CLIENT.pathanation.pathLength() : MAConfig_Defaults.Pathanation.pathLength);
 		
-		txtPathanationWidth.setText(String.valueOf(MAConfig.CLIENT.pathanation.pathWidth()));
-		txtPathanationLength.setText(String.valueOf(MAConfig.CLIENT.pathanation.pathLength()));
+		txtPathanationWidth.setText(String.valueOf(!applyDefaults ? MAConfig.CLIENT.pathanation.pathWidth() : MAConfig_Defaults.Pathanation.pathWidth));
+		txtPathanationLength.setText(String.valueOf(!applyDefaults ? MAConfig.CLIENT.pathanation.pathLength() : MAConfig_Defaults.Pathanation.pathLength));
 		
 	}
 	
@@ -862,7 +876,7 @@ public class MAConfigGUI extends ExtendedScreen {
 		this.addComponent(sldIlluminationLightLevel, 5);
 		this.addComponent(txtIlluminationLightLevel, 5);
 		
-		applyIlluminationValues();
+		applyIlluminationValues(false);
 	}
 	
 	private void positionIlluminationControls() {
@@ -876,14 +890,14 @@ public class MAConfigGUI extends ExtendedScreen {
 		
 	}
 	
-	private void applyIlluminationValues() {
+	private void applyIlluminationValues(boolean applyDefaults) {
 		
-		chkIlluminationEnabled.setIsChecked(MAConfig.CLIENT.illumination.enabled());
-		chkIlluminationUseBlockLight.setIsChecked(MAConfig.CLIENT.illumination.useBlockLight());
+		chkIlluminationEnabled.setIsChecked(!applyDefaults ? MAConfig.CLIENT.illumination.enabled() : MAConfig_Defaults.Illumination.enabled);
+		chkIlluminationUseBlockLight.setIsChecked(!applyDefaults ? MAConfig.CLIENT.illumination.useBlockLight() : MAConfig_Defaults.Illumination.useBlockLight);
 		
-		sldIlluminationLightLevel.setValue(MAConfig.CLIENT.illumination.lowestLightLevel());
+		sldIlluminationLightLevel.setValue(!applyDefaults ? MAConfig.CLIENT.illumination.lowestLightLevel() : MAConfig_Defaults.Illumination.lowestLightLevel);
 		
-		txtIlluminationLightLevel.setText(String.valueOf(MAConfig.CLIENT.illumination.lowestLightLevel()));
+		txtIlluminationLightLevel.setText(String.valueOf(!applyDefaults ? MAConfig.CLIENT.illumination.lowestLightLevel() : MAConfig_Defaults.Illumination.lowestLightLevel));
 		
 	}
 	
@@ -971,7 +985,7 @@ public class MAConfigGUI extends ExtendedScreen {
 		this.addComponent(txtLumbinationLeafRange, 6);
 		this.addComponent(txtLumbinationTrunkRange, 6);
 		
-		applyLumbinationValues();
+		applyLumbinationValues(false);
 	}
 	
 	private void positionLumbinationControls() {
@@ -992,20 +1006,20 @@ public class MAConfigGUI extends ExtendedScreen {
 		
 	}
 	
-	private void applyLumbinationValues() {
+	private void applyLumbinationValues(boolean applyDefaults) {
 		
-		chkLumbinationEnabled.setIsChecked(MAConfig.CLIENT.lumbination.enabled());
-		chkLumbinationChopTreeBelow.setIsChecked(MAConfig.CLIENT.lumbination.chopTreeBelow());
-		chkLumbinationDestroyLeaves.setIsChecked(MAConfig.CLIENT.lumbination.destroyLeaves());
-		chkLumbinationLeavesAffectDurability.setIsChecked(MAConfig.CLIENT.lumbination.leavesAffectDurability());
-		chkLumbinationReplantSaplings.setIsChecked(MAConfig.CLIENT.lumbination.replantSaplings());
-		chkLumbinationUseShearsOnLeaves.setIsChecked(MAConfig.CLIENT.lumbination.useShearsOnLeaves());
+		chkLumbinationEnabled.setIsChecked(!applyDefaults ? MAConfig.CLIENT.lumbination.enabled() : MAConfig_Defaults.Lumbination.enabled);
+		chkLumbinationChopTreeBelow.setIsChecked(!applyDefaults ? MAConfig.CLIENT.lumbination.chopTreeBelow() : MAConfig_Defaults.Lumbination.chopTreeBelow);
+		chkLumbinationDestroyLeaves.setIsChecked(!applyDefaults ? MAConfig.CLIENT.lumbination.destroyLeaves() : MAConfig_Defaults.Lumbination.destroyLeaves);
+		chkLumbinationLeavesAffectDurability.setIsChecked(!applyDefaults ? MAConfig.CLIENT.lumbination.leavesAffectDurability() : MAConfig_Defaults.Lumbination.leavesAffectDurability);
+		chkLumbinationReplantSaplings.setIsChecked(!applyDefaults ? MAConfig.CLIENT.lumbination.replantSaplings() : MAConfig_Defaults.Lumbination.replantSaplings);
+		chkLumbinationUseShearsOnLeaves.setIsChecked(!applyDefaults ? MAConfig.CLIENT.lumbination.useShearsOnLeaves() : MAConfig_Defaults.Lumbination.useShearsOnLeaves);
 		
-		sldLumbinationLeafRange.setValue(MAConfig.CLIENT.lumbination.leafRange());
-		sldLumbinationTrunkRange.setValue(MAConfig.CLIENT.lumbination.trunkRange());
+		sldLumbinationLeafRange.setValue(!applyDefaults ? MAConfig.CLIENT.lumbination.leafRange() : MAConfig_Defaults.Lumbination.leafRange);
+		sldLumbinationTrunkRange.setValue(!applyDefaults ? MAConfig.CLIENT.lumbination.trunkRange() : MAConfig_Defaults.Lumbination.trunkRange);
 		
-		txtLumbinationLeafRange.setText(String.valueOf(MAConfig.CLIENT.lumbination.leafRange()));
-		txtLumbinationTrunkRange.setText(String.valueOf(MAConfig.CLIENT.lumbination.trunkRange()));
+		txtLumbinationLeafRange.setText(String.valueOf(!applyDefaults ? MAConfig.CLIENT.lumbination.leafRange() : MAConfig_Defaults.Lumbination.leafRange));
+		txtLumbinationTrunkRange.setText(String.valueOf(!applyDefaults ? MAConfig.CLIENT.lumbination.trunkRange() : MAConfig_Defaults.Lumbination.trunkRange));
 		
 	}
 	
@@ -1075,7 +1089,7 @@ public class MAConfigGUI extends ExtendedScreen {
 		this.addComponent(txtShaftanationShaftHeight, 7);
 		this.addComponent(txtShaftanationShaftWidth, 7);
 		
-		applyShaftanationValues();
+		applyShaftanationValues(false);
 	}
 	
 	private void positionShaftanationControls() {
@@ -1095,19 +1109,19 @@ public class MAConfigGUI extends ExtendedScreen {
 		esldShaftanationTorchPlacement.setPosition(col_1, startY + (rowStartY * 4));
 	}
 	
-	private void applyShaftanationValues() {
+	private void applyShaftanationValues(boolean applyDefaults) {
 		
-		chkShaftanationEnabled.setIsChecked(MAConfig.CLIENT.shaftanation.enabled());
+		chkShaftanationEnabled.setIsChecked(!applyDefaults ? MAConfig.CLIENT.shaftanation.enabled() : MAConfig_Defaults.Shaftanation.enabled);
 		
-		sldShaftanationShaftLength.setValue(MAConfig.CLIENT.shaftanation.shaftLength());
-		sldShaftanationShaftHeight.setValue(MAConfig.CLIENT.shaftanation.shaftHeight());
-		sldShaftanationShaftWidth.setValue(MAConfig.CLIENT.shaftanation.shaftWidth());
+		// esldShaftanationTorchPlacement.setEnum(!applyDefaults ? MAConfig.CLIENT.shaftanation.torchPlacement() : MAConfig_Defaults.Shaftanation.torchPlacement);
 		
-		esldShaftanationTorchPlacement.setEnum(MAConfig.CLIENT.shaftanation.torchPlacement());
+		sldShaftanationShaftLength.setValue(!applyDefaults ? MAConfig.CLIENT.shaftanation.shaftLength() : MAConfig_Defaults.Shaftanation.shaftLength);
+		sldShaftanationShaftHeight.setValue(!applyDefaults ? MAConfig.CLIENT.shaftanation.shaftHeight() : MAConfig_Defaults.Shaftanation.shaftHeight);
+		sldShaftanationShaftWidth.setValue(!applyDefaults ? MAConfig.CLIENT.shaftanation.shaftWidth() : MAConfig_Defaults.Shaftanation.shaftWidth);
 		
-		txtShaftanationShaftLength.setText(String.valueOf(MAConfig.CLIENT.shaftanation.shaftLength()));
-		txtShaftanationShaftHeight.setText(String.valueOf(MAConfig.CLIENT.shaftanation.shaftHeight()));
-		txtShaftanationShaftWidth.setText(String.valueOf(MAConfig.CLIENT.shaftanation.shaftWidth()));
+		txtShaftanationShaftLength.setText(String.valueOf(!applyDefaults ? MAConfig.CLIENT.shaftanation.shaftLength() : MAConfig_Defaults.Shaftanation.shaftLength));
+		txtShaftanationShaftHeight.setText(String.valueOf(!applyDefaults ? MAConfig.CLIENT.shaftanation.shaftHeight() : MAConfig_Defaults.Shaftanation.shaftHeight));
+		txtShaftanationShaftWidth.setText(String.valueOf(!applyDefaults ? MAConfig.CLIENT.shaftanation.shaftWidth() : MAConfig_Defaults.Shaftanation.shaftWidth));
 		
 	}
 	
@@ -1162,7 +1176,7 @@ public class MAConfigGUI extends ExtendedScreen {
 		this.addComponent(chkSubstitutionIgnoreIfValidTool, 8);
 		this.addComponent(chkSubstitutionIgnorePassiveMobs, 8);
 		
-		applySubstitutionValues();
+		applySubstitutionValues(false);
 	}
 	
 	private void positionSubstitutionControls() {
@@ -1176,14 +1190,14 @@ public class MAConfigGUI extends ExtendedScreen {
 		chkSubstitutionIgnorePassiveMobs.setPosition(col_1, startY + (rowStartY * 5) + 5);
 	}
 	
-	private void applySubstitutionValues() {
+	private void applySubstitutionValues(boolean applyDefaults) {
 		
-		chkSubstitutionEnabled.setIsChecked(MAConfig.CLIENT.substitution.enabled());
-		chkSubstitutionSwitchBack.setIsChecked(MAConfig.CLIENT.substitution.switchBack());
-		chkSubstitutionFavourSilkTouch.setIsChecked(MAConfig.CLIENT.substitution.favourSilkTouch());
-		chkSubstitutionFavourFortune.setIsChecked(MAConfig.CLIENT.substitution.favourFortune());
-		chkSubstitutionIgnoreIfValidTool.setIsChecked(MAConfig.CLIENT.substitution.ignoreIfValidTool());
-		chkSubstitutionIgnorePassiveMobs.setIsChecked(MAConfig.CLIENT.substitution.ignorePassiveMobs());
+		chkSubstitutionEnabled.setIsChecked(!applyDefaults ? MAConfig.CLIENT.substitution.enabled() : MAConfig_Defaults.Substitution.enabled);
+		chkSubstitutionSwitchBack.setIsChecked(!applyDefaults ? MAConfig.CLIENT.substitution.switchBack() : MAConfig_Defaults.Substitution.switchBack);
+		chkSubstitutionFavourSilkTouch.setIsChecked(!applyDefaults ? MAConfig.CLIENT.substitution.favourSilkTouch() : MAConfig_Defaults.Substitution.favourSilkTouch);
+		chkSubstitutionFavourFortune.setIsChecked(!applyDefaults ? MAConfig.CLIENT.substitution.favourFortune() : MAConfig_Defaults.Substitution.favourFortune);
+		chkSubstitutionIgnoreIfValidTool.setIsChecked(!applyDefaults ? MAConfig.CLIENT.substitution.ignoreIfValidTool() : MAConfig_Defaults.Substitution.ignoreIfValidTool);
+		chkSubstitutionIgnorePassiveMobs.setIsChecked(!applyDefaults ? MAConfig.CLIENT.substitution.ignorePassiveMobs() : MAConfig_Defaults.Substitution.ignorePassiveMobs);
 	}
 	
 	private void generateVeinationControls() {
@@ -1202,7 +1216,7 @@ public class MAConfigGUI extends ExtendedScreen {
 		this.addComponent(lblTitleVeination, 9);
 		this.addComponent(chkVeinationEnabled, 9);
 		
-		applyVeinationValues();
+		applyVeinationValues(false);
 	}
 	
 	private void positionVeinationControls() {
@@ -1211,13 +1225,34 @@ public class MAConfigGUI extends ExtendedScreen {
 		chkVeinationEnabled.setPosition(col_1, startY + 5);
 	}
 	
-	private void applyVeinationValues() {
+	private void applyVeinationValues(boolean applyDefaults) {
 		
-		chkVeinationEnabled.setIsChecked(MAConfig.CLIENT.veination.enabled());
+		chkVeinationEnabled.setIsChecked(!applyDefaults ? MAConfig.CLIENT.veination.enabled() : MAConfig_Defaults.Veination.enabled);
 		
 	}
 	
 	private void resetDefaults(Button btn) {
+		
+		if (btn == btnResetCommon) {
+			applyCommonValues(true);
+			applyClientValues(true);
+		} else if (btn == btnResetCaptivation) {
+			applyCaptivationValues(true);
+		} else if (btn == btnResetCropination) {
+			applyCropinationValues(true);
+		} else if (btn == btnResetExcavation) {
+			applyExcavationValues(true);
+		} else if (btn == btnResetIllumination) {
+			applyIlluminationValues(true);
+		} else if (btn == btnResetLumbination) {
+			applyLumbinationValues(true);
+		} else if (btn == btnResetPathanation) {
+			applyPathanationValues(true);
+		} else if (btn == btnResetShaftanation) {
+			applyShaftanationValues(true);
+		} else if (btn == btnResetSubstitution) {
+			applySubstitutionValues(true);
+		} else if (btn == btnResetVeination) applyVeinationValues(true);
 		
 	}
 }
