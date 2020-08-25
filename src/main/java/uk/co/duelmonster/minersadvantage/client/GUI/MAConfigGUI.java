@@ -5,11 +5,11 @@ import java.util.List;
 
 import de.erdbeerbaerlp.guilib.components.Button;
 import de.erdbeerbaerlp.guilib.components.CheckBox;
-import de.erdbeerbaerlp.guilib.components.EnumSlider;
+import de.erdbeerbaerlp.guilib.components.EnumSliderExt;
 import de.erdbeerbaerlp.guilib.components.Label;
 import de.erdbeerbaerlp.guilib.components.Slider;
 import de.erdbeerbaerlp.guilib.components.StringList;
-import de.erdbeerbaerlp.guilib.components.TextField;
+import de.erdbeerbaerlp.guilib.components.TextFieldExt;
 import de.erdbeerbaerlp.guilib.gui.ExtendedScreen;
 import net.minecraft.client.gui.screen.Screen;
 import uk.co.duelmonster.minersadvantage.common.Constants;
@@ -125,22 +125,22 @@ public class MAConfigGUI extends ExtendedScreen {
 	private Slider sldShaftanationShaftHeight;
 	private Slider sldShaftanationShaftWidth;
 	
-	private EnumSlider esldShaftanationTorchPlacement;
+	private EnumSliderExt esldShaftanationTorchPlacement;
 	
-	private TextField txtCommonTickDelay;
-	private TextField txtCommonBlocksPerTick;
-	private TextField txtCommonBlockLimit;
-	private TextField txtCommonBlockRadius;
-	private TextField txtCaptivationRadiusHorizontal;
-	private TextField txtCaptivationRadiusVertical;
-	private TextField txtPathanationWidth;
-	private TextField txtPathanationLength;
-	private TextField txtIlluminationLightLevel;
-	private TextField txtLumbinationLeafRange;
-	private TextField txtLumbinationTrunkRange;
-	private TextField txtShaftanationShaftLength;
-	private TextField txtShaftanationShaftHeight;
-	private TextField txtShaftanationShaftWidth;
+	private TextFieldExt txtCommonTickDelay;
+	private TextFieldExt txtCommonBlocksPerTick;
+	private TextFieldExt txtCommonBlockLimit;
+	private TextFieldExt txtCommonBlockRadius;
+	private TextFieldExt txtCaptivationRadiusHorizontal;
+	private TextFieldExt txtCaptivationRadiusVertical;
+	private TextFieldExt txtPathanationWidth;
+	private TextFieldExt txtPathanationLength;
+	private TextFieldExt txtIlluminationLightLevel;
+	private TextFieldExt txtLumbinationLeafRange;
+	private TextFieldExt txtLumbinationTrunkRange;
+	private TextFieldExt txtShaftanationShaftLength;
+	private TextFieldExt txtShaftanationShaftHeight;
+	private TextFieldExt txtShaftanationShaftWidth;
 	
 	private StringList slCaptivationBlacklist;
 	
@@ -292,6 +292,7 @@ public class MAConfigGUI extends ExtendedScreen {
 		Button categoryResetButton = new Button(0, 0, 20, "X");
 		categoryResetButton.setClickListener(() -> {
 			resetDefaults(categoryResetButton);
+			MAConfig.clientSpec.save();
 		});
 		categoryResetButton.setTooltips(SplitTooltips(Functions.localize("minersadvantage.config.gui.reset.comment")));
 		
@@ -362,10 +363,10 @@ public class MAConfigGUI extends ExtendedScreen {
 		sldCommonBlockLimit    = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.common.limit") + ": ", "", Constants.MIN_BLOCKLIMIT, Constants.MAX_BLOCKLIMIT, Constants.MIN_BLOCKLIMIT, false, true);
 		sldCommonBlockRadius   = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.common.radius") + ": ", "", Constants.MIN_BLOCKRADIUS, Constants.MAX_BLOCKRADIUS, Constants.MIN_BLOCKRADIUS, false, true);
 		
-		txtCommonTickDelay     = new TextField(0, 0, 50);
-		txtCommonBlocksPerTick = new TextField(0, 0, 50);
-		txtCommonBlockLimit    = new TextField(0, 0, 50);
-		txtCommonBlockRadius   = new TextField(0, 0, 50);
+		txtCommonTickDelay     = new TextFieldExt(0, 0, 50);
+		txtCommonBlocksPerTick = new TextFieldExt(0, 0, 50);
+		txtCommonBlockLimit    = new TextFieldExt(0, 0, 50);
+		txtCommonBlockRadius   = new TextFieldExt(0, 0, 50);
 		
 		chkCommonEnableTickDelay.setTooltips(SplitTooltips(Functions.localize("minersadvantage.common.enable_tick_delay.comment")));
 		chkCommonTPSGuard.setTooltips(SplitTooltips(Functions.localize("minersadvantage.common.tps_guard.comment")));
@@ -555,8 +556,8 @@ public class MAConfigGUI extends ExtendedScreen {
 		sldCaptivationRadiusHorizontal = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.captivation.h_radius") + ": ", "", 0, 128, 0, false, true);
 		sldCaptivationRadiusVertical   = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.captivation.v_radius") + ": ", "", 0, 128, 0, false, true);
 		
-		txtCaptivationRadiusHorizontal = new TextField(0, 0, 50);
-		txtCaptivationRadiusVertical   = new TextField(0, 0, 50);
+		txtCaptivationRadiusHorizontal = new TextFieldExt(0, 0, 50);
+		txtCaptivationRadiusVertical   = new TextFieldExt(0, 0, 50);
 		
 		slCaptivationBlacklist = new StringList(0, 0, 50, 50, null);
 		
@@ -601,6 +602,11 @@ public class MAConfigGUI extends ExtendedScreen {
 		});
 		txtCaptivationRadiusVertical.setReturnAction(() -> {
 			sldCaptivationRadiusVertical.setValue(Double.parseDouble(txtCaptivationRadiusVertical.getText()));
+		});
+		
+		slCaptivationBlacklist.setUpdatedCallback(() -> {
+			MAConfig.CLIENT.captivation.setBlacklist(slCaptivationBlacklist.getListValues());
+			MAConfig.clientSpec.save();
 		});
 		
 		this.addComponent(lblTitleCaptivation, 1);
@@ -768,8 +774,8 @@ public class MAConfigGUI extends ExtendedScreen {
 		sldPathanationWidth  = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.pathanation.path_width") + ": ", "", 1, 16, 1, false, true);
 		sldPathanationLength = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.pathanation.path_length") + ": ", "", 1, 64, 1, false, true);
 		
-		txtPathanationWidth  = new TextField(0, 0, 50);
-		txtPathanationLength = new TextField(0, 0, 50);
+		txtPathanationWidth  = new TextFieldExt(0, 0, 50);
+		txtPathanationLength = new TextFieldExt(0, 0, 50);
 		
 		txtPathanationWidth.setText(String.valueOf(MAConfig.CLIENT.pathanation.pathWidth()));
 		txtPathanationLength.setText(String.valueOf(MAConfig.CLIENT.pathanation.pathLength()));
@@ -845,7 +851,7 @@ public class MAConfigGUI extends ExtendedScreen {
 		
 		sldIlluminationLightLevel = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.illumination.light_level") + ": ", "", 0, 16, 0, false, true);
 		
-		txtIlluminationLightLevel = new TextField(0, 0, 50);
+		txtIlluminationLightLevel = new TextFieldExt(0, 0, 50);
 		
 		chkIlluminationEnabled.setTooltips(SplitTooltips(Functions.localize("minersadvantage.illumination.enabled.comment")));
 		chkIlluminationUseBlockLight.setTooltips(SplitTooltips(Functions.localize("minersadvantage.illumination.use_block_light.comment")));
@@ -915,8 +921,8 @@ public class MAConfigGUI extends ExtendedScreen {
 		sldLumbinationLeafRange  = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.lumbination.leaf_range") + ": ", "", 0, 16, 0, false, true);
 		sldLumbinationTrunkRange = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.lumbination.trunk_range") + ": ", "", 8, 128, 8, false, true);
 		
-		txtLumbinationLeafRange  = new TextField(0, 0, 50);
-		txtLumbinationTrunkRange = new TextField(0, 0, 50);
+		txtLumbinationLeafRange  = new TextFieldExt(0, 0, 50);
+		txtLumbinationTrunkRange = new TextFieldExt(0, 0, 50);
 		
 		txtLumbinationLeafRange.setText(String.valueOf(MAConfig.CLIENT.lumbination.leafRange()));
 		txtLumbinationTrunkRange.setText(String.valueOf(MAConfig.CLIENT.lumbination.trunkRange()));
@@ -1033,14 +1039,14 @@ public class MAConfigGUI extends ExtendedScreen {
 		sldShaftanationShaftHeight = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.shaftanation.shaft_h") + ": ", "", 2, 16, 2, false, true);
 		sldShaftanationShaftWidth  = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.shaftanation.shaft_w") + ": ", "", 1, 16, 1, false, true);
 		
-		esldShaftanationTorchPlacement = new <TorchPlacement>EnumSlider(0, 0, 300, 20, Functions.localize("minersadvantage.shaftanation.torch_placement") + ": ", "", TorchPlacement.class, TorchPlacement.FLOOR, true, () -> {
+		esldShaftanationTorchPlacement = new <TorchPlacement>EnumSliderExt(0, 0, 300, 20, Functions.localize("minersadvantage.shaftanation.torch_placement") + ": ", "", TorchPlacement.class, TorchPlacement.FLOOR, true, () -> {
 			MAConfig.CLIENT.shaftanation.setTorchPlacement((TorchPlacement) esldShaftanationTorchPlacement.getEnum());
 			MAConfig.clientSpec.save();
 		});
 		
-		txtShaftanationShaftLength = new TextField(0, 0, 50);
-		txtShaftanationShaftHeight = new TextField(0, 0, 50);
-		txtShaftanationShaftWidth  = new TextField(0, 0, 50);
+		txtShaftanationShaftLength = new TextFieldExt(0, 0, 50);
+		txtShaftanationShaftHeight = new TextFieldExt(0, 0, 50);
+		txtShaftanationShaftWidth  = new TextFieldExt(0, 0, 50);
 		
 		chkShaftanationEnabled.setTooltips(SplitTooltips(Functions.localize("minersadvantage.shaftanation.enabled.comment")));
 		esldShaftanationTorchPlacement.setTooltips(SplitTooltips(Functions.localize("minersadvantage.shaftanation.torch_placement.comment")));
@@ -1113,7 +1119,7 @@ public class MAConfigGUI extends ExtendedScreen {
 		
 		chkShaftanationEnabled.setIsChecked(!applyDefaults ? MAConfig.CLIENT.shaftanation.enabled() : MAConfig_Defaults.Shaftanation.enabled);
 		
-		// esldShaftanationTorchPlacement.setEnum(!applyDefaults ? MAConfig.CLIENT.shaftanation.torchPlacement() : MAConfig_Defaults.Shaftanation.torchPlacement);
+		esldShaftanationTorchPlacement.setEnum(!applyDefaults ? MAConfig.CLIENT.shaftanation.torchPlacement() : MAConfig_Defaults.Shaftanation.torchPlacement);
 		
 		sldShaftanationShaftLength.setValue(!applyDefaults ? MAConfig.CLIENT.shaftanation.shaftLength() : MAConfig_Defaults.Shaftanation.shaftLength);
 		sldShaftanationShaftHeight.setValue(!applyDefaults ? MAConfig.CLIENT.shaftanation.shaftHeight() : MAConfig_Defaults.Shaftanation.shaftHeight);
@@ -1233,26 +1239,37 @@ public class MAConfigGUI extends ExtendedScreen {
 	
 	private void resetDefaults(Button btn) {
 		
-		if (btn == btnResetCommon) {
+		if (btn == btnResetCommon || btn == btnFullReset) {
 			applyCommonValues(true);
 			applyClientValues(true);
-		} else if (btn == btnResetCaptivation) {
+		}
+		if (btn == btnResetCaptivation || btn == btnFullReset) {
 			applyCaptivationValues(true);
-		} else if (btn == btnResetCropination) {
+		}
+		if (btn == btnResetCropination || btn == btnFullReset) {
 			applyCropinationValues(true);
-		} else if (btn == btnResetExcavation) {
+		}
+		if (btn == btnResetExcavation || btn == btnFullReset) {
 			applyExcavationValues(true);
-		} else if (btn == btnResetIllumination) {
+		}
+		if (btn == btnResetIllumination || btn == btnFullReset) {
 			applyIlluminationValues(true);
-		} else if (btn == btnResetLumbination) {
+		}
+		if (btn == btnResetLumbination || btn == btnFullReset) {
 			applyLumbinationValues(true);
-		} else if (btn == btnResetPathanation) {
+		}
+		if (btn == btnResetPathanation || btn == btnFullReset) {
 			applyPathanationValues(true);
-		} else if (btn == btnResetShaftanation) {
+		}
+		if (btn == btnResetShaftanation || btn == btnFullReset) {
 			applyShaftanationValues(true);
-		} else if (btn == btnResetSubstitution) {
+		}
+		if (btn == btnResetSubstitution || btn == btnFullReset) {
 			applySubstitutionValues(true);
-		} else if (btn == btnResetVeination) applyVeinationValues(true);
+		}
+		if (btn == btnResetVeination || btn == btnFullReset) {
+			applyVeinationValues(true);
+		}
 		
 	}
 }
