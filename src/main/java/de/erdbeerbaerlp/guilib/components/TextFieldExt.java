@@ -7,9 +7,9 @@ import javax.swing.Timer;
 
 public class TextFieldExt extends TextField {
 	
-	private int      waitInterval    = 1500;
+	private int      waitInterval  = 1500;
 	private Runnable idleCallback;
-	private boolean  keyBeingPressed = false;
+	private boolean  keyWasPressed = false;
 	
 	/**
 	 * Creates an new text field
@@ -35,7 +35,7 @@ public class TextFieldExt extends TextField {
 	}
 	
 	public boolean isKeyBeingPressed() {
-		return keyBeingPressed;
+		return keyWasPressed;
 	}
 	
 	/**
@@ -61,14 +61,14 @@ public class TextFieldExt extends TextField {
 	
 	@Override
 	public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
-		keyBeingPressed = false;
 		
 		// Setup and execute timer to fire stopped typing event
 		TextFieldExt _this = this;
 		Timer        timer = new Timer(waitInterval, new ActionListener() {
 								@Override
 								public void actionPerformed(ActionEvent arg0) {
-									if (!keyBeingPressed && _this.idleCallback != null) _this.idleCallback.run();
+									if (keyWasPressed && _this.idleCallback != null) _this.idleCallback.run();
+									keyWasPressed = false;
 								}
 							});
 		timer.setRepeats(false); // Only execute once
@@ -79,7 +79,7 @@ public class TextFieldExt extends TextField {
 	
 	@Override
 	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-		keyBeingPressed = true;
+		keyWasPressed = true;
 		
 		return super.keyPressed(keyCode, scanCode, modifiers);
 	}

@@ -641,13 +641,10 @@ public class MAConfigGUI extends ExtendedScreen {
 		sldCaptivationRadiusVertical.setPosition(col_1, startY + (rowStartY * 5));
 		txtCaptivationRadiusVertical.setPosition(col_1 + sliderWidth + 10, startY + (rowStartY * 5));
 		
-		slCaptivationBlacklist.setPosition(col_1, startY + (rowStartY * 6));
-		slCaptivationBlacklist.setWidth(width - col_1 - 20);
-		slCaptivationBlacklist.setHeight(height - slCaptivationBlacklist.getY() - 60);
-		slCaptivationBlacklist.setPositions();
+		slCaptivationBlacklist.adjustLayout(col_1, startY + (rowStartY * 6), width - col_1 - 20, height - slCaptivationBlacklist.getY() - 60);
+		
 	}
 	
-	@SuppressWarnings("unchecked")
 	private void applyCaptivationValues(boolean applyDefaults) {
 		
 		chkCaptivationEnabled.setIsChecked(!applyDefaults ? MAConfig.CLIENT.captivation.enabled() : MAConfig_Defaults.Captivation.enabled);
@@ -661,7 +658,7 @@ public class MAConfigGUI extends ExtendedScreen {
 		txtCaptivationRadiusHorizontal.setText(String.valueOf(!applyDefaults ? MAConfig.CLIENT.captivation.radiusHorizontal() : MAConfig_Defaults.Captivation.radiusHorizontal));
 		txtCaptivationRadiusVertical.setText(String.valueOf(!applyDefaults ? MAConfig.CLIENT.captivation.radiusVertical() : MAConfig_Defaults.Captivation.radiusVertical));
 		
-		slCaptivationBlacklist.setListValues(!applyDefaults ? (List<String>) MAConfig.CLIENT.captivation.blacklist() : MAConfig_Defaults.Captivation.blacklist);
+		slCaptivationBlacklist.setListValues(new ArrayList<String>(!applyDefaults ? MAConfig.CLIENT.captivation.blacklist() : MAConfig_Defaults.Captivation.blacklist));
 	}
 	
 	private void generateCropinationControls() {

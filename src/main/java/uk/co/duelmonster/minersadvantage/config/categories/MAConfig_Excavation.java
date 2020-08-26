@@ -13,10 +13,10 @@ public class MAConfig_Excavation extends MAConfig_BaseCategory {
 	// = Config variables - !! NOT TO BE USED DIRECTLY !!
 	// = Use the retrieval and modification functions below at all times!
 	// ====================================================================================================
-	private final BooleanValue							toggleMode;
-	private final BooleanValue							ignoreBlockVariants;
-	private final BooleanValue							isBlockWhitelist;
-	private final ConfigValue<List<? extends String>>	blockBlacklist;
+	private final BooleanValue                        toggleMode;
+	private final BooleanValue                        ignoreBlockVariants;
+	private final BooleanValue                        isBlockWhitelist;
+	private final ConfigValue<List<? extends String>> blockBlacklist;
 	
 	// ====================================================================================================
 	// = Initialisation
@@ -66,7 +66,7 @@ public class MAConfig_Excavation extends MAConfig_BaseCategory {
 	
 	/**
 	 * @param ignoreBlockVariants
-	 *                            Sets ignoreBlockVariants
+	 *        Sets ignoreBlockVariants
 	 */
 	public void setIgnoreBlockVariants(boolean value) {
 		ignoreBlockVariants.set(value);
@@ -84,7 +84,7 @@ public class MAConfig_Excavation extends MAConfig_BaseCategory {
 	
 	/**
 	 * @param toggleMode
-	 *                   Sets toggleMode
+	 *        Sets toggleMode
 	 */
 	public void setToggleMode(boolean value) {
 		toggleMode.set(value);
@@ -102,7 +102,7 @@ public class MAConfig_Excavation extends MAConfig_BaseCategory {
 	
 	/**
 	 * @param isBlockWhitelist
-	 *                         Sets isBlockWhitelist
+	 *        Sets isBlockWhitelist
 	 */
 	public void setIsBlockWhitelist(boolean value) {
 		isBlockWhitelist.set(value);
@@ -120,7 +120,7 @@ public class MAConfig_Excavation extends MAConfig_BaseCategory {
 	
 	/**
 	 * @param blockBlacklist
-	 *                       Sets blockBlacklist
+	 *        Sets blockBlacklist
 	 */
 	public void setBlockBlacklist(List<String> value) {
 		blockBlacklist.set(value);

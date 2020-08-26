@@ -14,12 +14,12 @@ public class MAConfig_Captivation extends MAConfig_BaseCategory {
 	// = Config variables - !! NOT TO BE USED DIRECTLY !!
 	// = Use the retrieval and modification functions below at all times!
 	// ====================================================================================================
-	private final BooleanValue							allowInGUI;
-	private final DoubleValue							radiusHorizontal;
-	private final DoubleValue							radiusVertical;
-	private final BooleanValue							isWhitelist;
-	private final BooleanValue							unconditionalBlacklist;
-	private final ConfigValue<List<? extends String>>	blacklist;
+	private final BooleanValue                        allowInGUI;
+	private final DoubleValue                         radiusHorizontal;
+	private final DoubleValue                         radiusVertical;
+	private final BooleanValue                        isWhitelist;
+	private final BooleanValue                        unconditionalBlacklist;
+	private final ConfigValue<List<? extends String>> blacklist;
 	
 	// ====================================================================================================
 	// = Initialisation

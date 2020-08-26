@@ -2,7 +2,6 @@ package de.erdbeerbaerlp.guilib.components;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import org.lwjgl.opengl.GL11;
 
@@ -34,7 +33,7 @@ public class StringList extends GuiComponent {
 	private int                           barLeft;
 	private boolean                       scrolling;
 	private int                           contentHeight;
-	private List<String>                  listValues;
+	private ArrayList<String>             listValues;
 	private final Button                  btnAdd              = new Button(0, 0, 20, "+");
 	private Runnable                      valuesUpdated;
 	
@@ -47,7 +46,7 @@ public class StringList extends GuiComponent {
 	 * @param height Text Field height
 	 * @param values List of array values
 	 */
-	public StringList(int x, int y, int width, int height, List<String> values) {
+	public StringList(int x, int y, int width, int height, ArrayList<String> values) {
 		super(x, y, width, height);
 		
 		setContentHeight(height);
@@ -74,7 +73,7 @@ public class StringList extends GuiComponent {
 		
 		addComponent(btnAdd);
 		
-		setPositions();
+		fineTuneControls();
 	}
 	
 	private void generateRow(int yPos, String value) {
@@ -103,7 +102,14 @@ public class StringList extends GuiComponent {
 		textFields.clear();
 	}
 	
-	public void setPositions() {
+	public void adjustLayout(int _x, int _y, int _width, int _height) {
+		this.setPosition(_x, _y);
+		this.setWidth(_width);
+		this.setHeight(_height);
+		this.fineTuneControls();
+	}
+	
+	private void fineTuneControls() {
 		int yPos = border;
 		
 		for (int indx = 0; indx < removeButtons.size(); indx++) {
@@ -118,7 +124,11 @@ public class StringList extends GuiComponent {
 			btnRemove.setClickListener(() -> {
 				String value = txtValue.getText();
 				if (value != null && !value.isEmpty() && listValues.contains(value)) {
+					
+					System.out.println("Removed: " + value);
+					
 					listValues.remove(value);
+					
 					if (valuesUpdated != null) valuesUpdated.run();
 					
 					generateListControls();
@@ -126,11 +136,17 @@ public class StringList extends GuiComponent {
 			});
 			
 			txtValue.setIdleCallback(() -> {
-				String value = txtValue.getText();
-				if (value.isEmpty() || !listValues.contains(value)) {
-					listValues.add(value);
-					if (valuesUpdated != null) valuesUpdated.run();
+				System.out.println("IdleCallback: " + txtValue.getText());
+				
+				listValues.clear();
+				for (TextFieldExt nextText : textFields) {
+					String value = nextText.getText();
+					if (value.isEmpty() || !listValues.contains(value)) {
+						listValues.add(value);
+					}
 				}
+				
+				if (valuesUpdated != null) valuesUpdated.run();
 			});
 			
 			// final int txtY = yPos + 25;
@@ -146,23 +162,21 @@ public class StringList extends GuiComponent {
 		}
 		
 		btnAdd.setPosition(width - barWidth - 25, yPos - 25);
-		// btnAdd.setPosition(width - barWidth - 25, border);
 		
-		// setContentHeight((25 * removeButtons.size()) + 10);
 		fitContent();
 	}
 	
 	/**
 	 * @return the listValues
 	 */
-	public List<String> getListValues() {
+	public ArrayList<String> getListValues() {
 		return listValues;
 	}
 	
 	/**
 	 * @param listValues the listValues to set
 	 */
-	public void setListValues(List<String> listValues) {
+	public void setListValues(ArrayList<String> listValues) {
 		this.listValues = listValues;
 		if (valuesUpdated != null) valuesUpdated.run();
 		generateListControls();
