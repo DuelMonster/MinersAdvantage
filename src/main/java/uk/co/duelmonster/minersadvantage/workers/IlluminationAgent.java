@@ -25,16 +25,16 @@ import uk.co.duelmonster.minersadvantage.network.packets.PacketIlluminate;
 
 public class IlluminationAgent extends Agent {
 	
-	private List<BlockPos>	illuminationPositions	= null;
-	private boolean			singleTorch				= false;
-	private TorchPlacement	torchPlacement			= TorchPlacement.FLOOR;
+	private List<BlockPos> illuminationPositions = null;
+	private boolean        singleTorch           = false;
+	private TorchPlacement torchPlacement        = TorchPlacement.FLOOR;
 	
 	public IlluminationAgent(ServerPlayerEntity player, PacketIlluminate pkt) {
 		super(player, pkt);
 		
-		this.originPos = pkt.areaStartPos;
-		this.faceHit = pkt.faceHit;
-		this.singleTorch = pkt.singleTorch;
+		this.originPos      = pkt.areaStartPos;
+		this.faceHit        = pkt.faceHit;
+		this.singleTorch    = pkt.singleTorch;
 		this.torchPlacement = pkt.torchPlacement;
 		
 		if (singleTorch) {
@@ -44,11 +44,11 @@ public class IlluminationAgent extends Agent {
 			
 		} else {
 			
-			refinedArea = new AxisAlignedBB(pkt.areaStartPos, pkt.areaEndPos);
+			refinedArea           = new AxisAlignedBB(pkt.areaStartPos, pkt.areaEndPos);
 			illuminationPositions = IlluminationHelper.INSTANCE.getTorchablePositionsInArea(world, refinedArea);
 			
 			// If the first torchable position is close to the player we reverse the positions list.
-			// This helps make it look as though the fakePlayer is working it's way back to illuminate the area.
+			// This helps make it look as though we are working our way back to illuminate the area.
 			AxisAlignedBB playerArea = player.getBoundingBox().grow(4);
 			if (Functions.isWithinArea(illuminationPositions.get(0), playerArea)) {
 				Collections.reverse(illuminationPositions);
@@ -77,8 +77,8 @@ public class IlluminationAgent extends Agent {
 	}
 	
 	public boolean autoIlluminate(BlockPos pos) {
-		Direction	placeOnFace	= faceHit;
-		BlockPos	finalPos	= pos;
+		Direction placeOnFace = faceHit;
+		BlockPos  finalPos    = pos;
 		
 		if (torchPlacement != TorchPlacement.FLOOR) {
 			finalPos = pos.up();
@@ -122,9 +122,9 @@ public class IlluminationAgent extends Agent {
 		}
 		
 		// Offset the torch placement position to allow block updates to calculate light levels
-		BlockPos	lightCheckPos		= pos;												// (packetId == PacketId.Shaftanate ? pos.offset(faceHit, 3) : pos);
-		BlockPos	torchPlacePos		= finalPos;											// (packetId == PacketId.Shaftanate ? finalPos.offset(faceHit, 3) : finalPos);
-		BlockPos	torchPlaceOnFacePos	= torchPlacePos.offset(placeOnFace.getOpposite());
+		BlockPos lightCheckPos       = pos;                                            // (packetId == PacketId.Shaftanate ? pos.offset(faceHit, 3) : pos);
+		BlockPos torchPlacePos       = finalPos;                                       // (packetId == PacketId.Shaftanate ? finalPos.offset(faceHit, 3) : finalPos);
+		BlockPos torchPlaceOnFacePos = torchPlacePos.offset(placeOnFace.getOpposite());
 		// BlockState statePlaceOnFace = world.getBlockState(torchPlaceOnFacePos);
 		BlockState statePlace = world.getBlockState(torchPlacePos);
 		

@@ -26,14 +26,14 @@ public class MAConfigGUI extends ExtendedScreen {
 	
 	private final String PressEnter = "... press Enter to update ...";
 	
-	private final int startY      = 100;
+	private final int startY      = 40;
 	private final int categoryX   = 50;
 	private final int rowHeight   = 20;
 	private final int rowSpace    = 10;
 	private final int rowStartY   = rowHeight + rowSpace;
 	private final int col_1       = 275;
 	private final int col_2       = 500;
-	private final int sliderWidth = 300;
+	private final int sliderWidth = 265;
 	
 	private int centerX() {
 		return width / 2;
@@ -143,6 +143,12 @@ public class MAConfigGUI extends ExtendedScreen {
 	private TextFieldExt txtShaftanationShaftWidth;
 	
 	private StringList slCaptivationBlacklist;
+	private StringList slExcavationBlacklist;
+	private StringList slLumbinationAxes;
+	private StringList slLumbinationLeaves;
+	private StringList slLumbinationLogs;
+	private StringList slSubstitutionBlacklist;
+	private StringList slVeinationOres;
 	
 	@Override
 	public void buildGui() {
@@ -225,7 +231,7 @@ public class MAConfigGUI extends ExtendedScreen {
 	@Override
 	public void updateGui() {
 		
-		lblTitleCategory.setPosition(categoryX + 100, 75);
+		lblTitleCategory.setPosition(categoryX + 100, 25);
 		
 		btnCommon.setPosition(categoryX, startY);
 		btnCaptivation.setPosition(categoryX, startY + (rowStartY * 1));
@@ -358,10 +364,10 @@ public class MAConfigGUI extends ExtendedScreen {
 		chkCommonAutoIllum         = new CheckBox(0, 0, Functions.localize("minersadvantage.common.auto_illum"), false);
 		chkCommonBreakAtToolSpeeds = new CheckBox(0, 0, Functions.localize("minersadvantage.common.break_at_tool_speeds"), false);
 		
-		sldCommonTickDelay     = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.common.tick_delay") + ": ", "", 1, 20, 1, false, true);
-		sldCommonBlocksPerTick = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.common.blocks_per_tick") + ": ", "", 1, 16, 1, false, true);
-		sldCommonBlockLimit    = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.common.limit") + ": ", "", Constants.MIN_BLOCKLIMIT, Constants.MAX_BLOCKLIMIT, Constants.MIN_BLOCKLIMIT, false, true);
-		sldCommonBlockRadius   = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.common.radius") + ": ", "", Constants.MIN_BLOCKRADIUS, Constants.MAX_BLOCKRADIUS, Constants.MIN_BLOCKRADIUS, false, true);
+		sldCommonTickDelay     = new Slider(0, 0, sliderWidth, 20, Functions.localize("minersadvantage.common.tick_delay") + ": ", "", 1, 20, 1, false, true);
+		sldCommonBlocksPerTick = new Slider(0, 0, sliderWidth, 20, Functions.localize("minersadvantage.common.blocks_per_tick") + ": ", "", 1, 16, 1, false, true);
+		sldCommonBlockLimit    = new Slider(0, 0, sliderWidth, 20, Functions.localize("minersadvantage.common.limit") + ": ", "", Constants.MIN_BLOCKLIMIT, Constants.MAX_BLOCKLIMIT, Constants.MIN_BLOCKLIMIT, false, true);
+		sldCommonBlockRadius   = new Slider(0, 0, sliderWidth, 20, Functions.localize("minersadvantage.common.radius") + ": ", "", Constants.MIN_BLOCKRADIUS, Constants.MAX_BLOCKRADIUS, Constants.MIN_BLOCKRADIUS, false, true);
 		
 		txtCommonTickDelay     = new TextFieldExt(0, 0, 50);
 		txtCommonBlocksPerTick = new TextFieldExt(0, 0, 50);
@@ -465,7 +471,7 @@ public class MAConfigGUI extends ExtendedScreen {
 	
 	private void positionCommonControls() {
 		
-		lblTitleCommon.setPosition(centerX(), 75);
+		lblTitleCommon.setPosition(centerX(), 25);
 		
 		chkCommonEnableTickDelay.setPosition(col_1, startY + 5);
 		chkCommonTPSGuard.setPosition(col_2, startY + 5);
@@ -553,13 +559,13 @@ public class MAConfigGUI extends ExtendedScreen {
 		chkCaptivationIsWhitelist            = new CheckBox(0, 0, Functions.localize("minersadvantage.captivation.is_whitelist"), false);
 		chkCaptivationUnconditionalBlacklist = new CheckBox(0, 0, Functions.localize("minersadvantage.captivation.unconditional_blacklist"), false);
 		
-		sldCaptivationRadiusHorizontal = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.captivation.h_radius") + ": ", "", 0, 128, 0, false, true);
-		sldCaptivationRadiusVertical   = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.captivation.v_radius") + ": ", "", 0, 128, 0, false, true);
+		sldCaptivationRadiusHorizontal = new Slider(0, 0, sliderWidth, 20, Functions.localize("minersadvantage.captivation.h_radius") + ": ", "", 0, 128, 0, false, true);
+		sldCaptivationRadiusVertical   = new Slider(0, 0, sliderWidth, 20, Functions.localize("minersadvantage.captivation.v_radius") + ": ", "", 0, 128, 0, false, true);
 		
 		txtCaptivationRadiusHorizontal = new TextFieldExt(0, 0, 50);
 		txtCaptivationRadiusVertical   = new TextFieldExt(0, 0, 50);
 		
-		slCaptivationBlacklist = new StringList(0, 0, 50, 50, null);
+		slCaptivationBlacklist = new StringList(0, 0, 50, 50, Functions.localize("minersadvantage.captivation.blacklist"), null);
 		
 		chkCaptivationEnabled.setTooltips(SplitTooltips(Functions.localize("minersadvantage.captivation.enabled.comment")));
 		chkCaptivationAllowInGUI.setTooltips(SplitTooltips(Functions.localize("minersadvantage.captivation.allow_in_gui.comment")));
@@ -628,7 +634,7 @@ public class MAConfigGUI extends ExtendedScreen {
 	
 	private void positionCaptivationControls() {
 		
-		lblTitleCaptivation.setPosition(centerX(), 75);
+		lblTitleCaptivation.setPosition(centerX(), 25);
 		
 		chkCaptivationEnabled.setPosition(col_1, startY + 5);
 		chkCaptivationAllowInGUI.setPosition(col_1, startY + rowStartY + 5);
@@ -641,7 +647,7 @@ public class MAConfigGUI extends ExtendedScreen {
 		sldCaptivationRadiusVertical.setPosition(col_1, startY + (rowStartY * 5));
 		txtCaptivationRadiusVertical.setPosition(col_1 + sliderWidth + 10, startY + (rowStartY * 5));
 		
-		slCaptivationBlacklist.adjustLayout(col_1, startY + (rowStartY * 6), width - col_1 - 20, height - slCaptivationBlacklist.getY() - 60);
+		slCaptivationBlacklist.adjustLayout(col_1, startY + (rowStartY * 6), width - col_1 - 20, height - (startY + (rowStartY * 6)) - 60);
 		
 	}
 	
@@ -659,6 +665,7 @@ public class MAConfigGUI extends ExtendedScreen {
 		txtCaptivationRadiusVertical.setText(String.valueOf(!applyDefaults ? MAConfig.CLIENT.captivation.radiusVertical() : MAConfig_Defaults.Captivation.radiusVertical));
 		
 		slCaptivationBlacklist.setListValues(new ArrayList<String>(!applyDefaults ? MAConfig.CLIENT.captivation.blacklist() : MAConfig_Defaults.Captivation.blacklist));
+		
 	}
 	
 	private void generateCropinationControls() {
@@ -688,7 +695,7 @@ public class MAConfigGUI extends ExtendedScreen {
 	}
 	
 	private void positionCropinationControls() {
-		lblTitleCropination.setPosition(centerX(), 75);
+		lblTitleCropination.setPosition(centerX(), 25);
 		
 		chkCropinationEnabled.setPosition(col_1, startY + 5);
 		chkCropinationHarvestSeeds.setPosition(col_1, startY + rowStartY + 5);
@@ -716,6 +723,8 @@ public class MAConfigGUI extends ExtendedScreen {
 		chkExcavationIgnoreBlockVariants.setTooltips(SplitTooltips(Functions.localize("minersadvantage.excavation.ignore_variants.comment")));
 		chkExcavationIsBlockWhitelist.setTooltips(SplitTooltips(Functions.localize("minersadvantage.excavation.is_block_whitelist.comment")));
 		
+		slExcavationBlacklist = new StringList(0, 0, 50, 50, Functions.localize("minersadvantage.excavation.block_blacklist"), null);
+		
 		chkExcavationEnabled.setChangeListener(() -> {
 			MAConfig.CLIENT.excavation.setEnabled(chkExcavationEnabled.isChecked());
 			MAConfig.clientSpec.save();
@@ -733,23 +742,31 @@ public class MAConfigGUI extends ExtendedScreen {
 			MAConfig.clientSpec.save();
 		});
 		
+		slExcavationBlacklist.setUpdatedCallback(() -> {
+			MAConfig.CLIENT.excavation.setBlockBlacklist(slExcavationBlacklist.getListValues());
+			MAConfig.clientSpec.save();
+		});
+		
 		this.addComponent(lblTitleExcavation, 3);
 		this.addComponent(chkExcavationEnabled, 3);
 		this.addComponent(chkExcavationToggleMode, 3);
 		this.addComponent(chkExcavationIgnoreBlockVariants, 3);
 		this.addComponent(chkExcavationIsBlockWhitelist, 3);
+		this.addComponent(slExcavationBlacklist, 3);
 		
 		applyExcavationValues(false);
 	}
 	
 	private void positionExcavationControls() {
 		
-		lblTitleExcavation.setPosition(centerX(), 75);
+		lblTitleExcavation.setPosition(centerX(), 25);
 		
 		chkExcavationEnabled.setPosition(col_1, startY + 5);
 		chkExcavationToggleMode.setPosition(col_1, startY + rowStartY + 5);
 		chkExcavationIgnoreBlockVariants.setPosition(col_1, startY + (rowStartY * 2) + 5);
 		chkExcavationIsBlockWhitelist.setPosition(col_1, startY + (rowStartY * 3) + 5);
+		
+		slExcavationBlacklist.adjustLayout(col_1, startY + (rowStartY * 4), width - col_1 - 20, height - (startY + (rowStartY * 4)) - 60);
 		
 	}
 	
@@ -760,6 +777,8 @@ public class MAConfigGUI extends ExtendedScreen {
 		chkExcavationIgnoreBlockVariants.setIsChecked(!applyDefaults ? MAConfig.CLIENT.excavation.ignoreBlockVariants() : MAConfig_Defaults.Excavation.ignoreBlockVariants);
 		chkExcavationIsBlockWhitelist.setIsChecked(!applyDefaults ? MAConfig.CLIENT.excavation.isBlockWhitelist() : MAConfig_Defaults.Excavation.isBlockWhitelist);
 		
+		slExcavationBlacklist.setListValues(new ArrayList<String>(!applyDefaults ? MAConfig.CLIENT.excavation.blockBlacklist() : MAConfig_Defaults.Excavation.blockBlacklist));
+		
 	}
 	
 	private void generatePathanationControls() {
@@ -768,8 +787,8 @@ public class MAConfigGUI extends ExtendedScreen {
 		
 		chkPathanationEnabled = new CheckBox(0, 0, Functions.localize("minersadvantage.pathanation.enabled"), false);
 		
-		sldPathanationWidth  = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.pathanation.path_width") + ": ", "", 1, 16, 1, false, true);
-		sldPathanationLength = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.pathanation.path_length") + ": ", "", 1, 64, 1, false, true);
+		sldPathanationWidth  = new Slider(0, 0, sliderWidth, 20, Functions.localize("minersadvantage.pathanation.path_width") + ": ", "", 1, 16, 1, false, true);
+		sldPathanationLength = new Slider(0, 0, sliderWidth, 20, Functions.localize("minersadvantage.pathanation.path_length") + ": ", "", 1, 64, 1, false, true);
 		
 		txtPathanationWidth  = new TextFieldExt(0, 0, 50);
 		txtPathanationLength = new TextFieldExt(0, 0, 50);
@@ -815,7 +834,7 @@ public class MAConfigGUI extends ExtendedScreen {
 	}
 	
 	private void positionPathanationControls() {
-		lblTitlePathanation.setPosition(centerX(), 75);
+		lblTitlePathanation.setPosition(centerX(), 25);
 		
 		chkPathanationEnabled.setPosition(col_1, startY + 5);
 		
@@ -846,7 +865,7 @@ public class MAConfigGUI extends ExtendedScreen {
 		chkIlluminationEnabled       = new CheckBox(0, 0, Functions.localize("minersadvantage.illumination.enabled"), false);
 		chkIlluminationUseBlockLight = new CheckBox(0, 0, Functions.localize("minersadvantage.illumination.use_block_light"), false);
 		
-		sldIlluminationLightLevel = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.illumination.light_level") + ": ", "", 0, 16, 0, false, true);
+		sldIlluminationLightLevel = new Slider(0, 0, sliderWidth, 20, Functions.localize("minersadvantage.illumination.light_level") + ": ", "", 0, 16, 0, false, true);
 		
 		txtIlluminationLightLevel = new TextFieldExt(0, 0, 50);
 		
@@ -883,7 +902,7 @@ public class MAConfigGUI extends ExtendedScreen {
 	}
 	
 	private void positionIlluminationControls() {
-		lblTitleIllumination.setPosition(centerX(), 75);
+		lblTitleIllumination.setPosition(centerX(), 25);
 		
 		chkIlluminationEnabled.setPosition(col_1, startY + 5);
 		chkIlluminationUseBlockLight.setPosition(col_1, startY + rowStartY + 5);
@@ -915,11 +934,15 @@ public class MAConfigGUI extends ExtendedScreen {
 		chkLumbinationReplantSaplings        = new CheckBox(0, 0, Functions.localize("minersadvantage.lumbination.replant_saplings"), false);
 		chkLumbinationUseShearsOnLeaves      = new CheckBox(0, 0, Functions.localize("minersadvantage.lumbination.use_shears"), false);
 		
-		sldLumbinationLeafRange  = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.lumbination.leaf_range") + ": ", "", 0, 16, 0, false, true);
-		sldLumbinationTrunkRange = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.lumbination.trunk_range") + ": ", "", 8, 128, 8, false, true);
+		sldLumbinationLeafRange  = new Slider(0, 0, sliderWidth, 20, Functions.localize("minersadvantage.lumbination.leaf_range") + ": ", "", 0, 16, 0, false, true);
+		sldLumbinationTrunkRange = new Slider(0, 0, sliderWidth, 20, Functions.localize("minersadvantage.lumbination.trunk_range") + ": ", "", 8, 128, 8, false, true);
 		
 		txtLumbinationLeafRange  = new TextFieldExt(0, 0, 50);
 		txtLumbinationTrunkRange = new TextFieldExt(0, 0, 50);
+		
+		slLumbinationAxes   = new StringList(0, 0, 50, 50, Functions.localize("minersadvantage.lumbination.axes"), null);
+		slLumbinationLeaves = new StringList(0, 0, 50, 50, Functions.localize("minersadvantage.lumbination.leaves"), null);
+		slLumbinationLogs   = new StringList(0, 0, 50, 50, Functions.localize("minersadvantage.lumbination.logs"), null);
 		
 		txtLumbinationLeafRange.setText(String.valueOf(MAConfig.CLIENT.lumbination.leafRange()));
 		txtLumbinationTrunkRange.setText(String.valueOf(MAConfig.CLIENT.lumbination.trunkRange()));
@@ -976,6 +999,21 @@ public class MAConfigGUI extends ExtendedScreen {
 			sldLumbinationTrunkRange.setValue(Double.parseDouble(txtLumbinationTrunkRange.getText()));
 		});
 		
+		slLumbinationAxes.setUpdatedCallback(() -> {
+			MAConfig.CLIENT.lumbination.setAxes(slLumbinationAxes.getListValues());
+			MAConfig.clientSpec.save();
+		});
+		
+		slLumbinationLeaves.setUpdatedCallback(() -> {
+			MAConfig.CLIENT.lumbination.setLeaves(slLumbinationLeaves.getListValues());
+			MAConfig.clientSpec.save();
+		});
+		
+		slLumbinationLogs.setUpdatedCallback(() -> {
+			MAConfig.CLIENT.lumbination.setLogs(slLumbinationLogs.getListValues());
+			MAConfig.clientSpec.save();
+		});
+		
 		this.addComponent(lblTitleLumbination, 6);
 		this.addComponent(chkLumbinationEnabled, 6);
 		this.addComponent(chkLumbinationChopTreeBelow, 6);
@@ -987,12 +1025,15 @@ public class MAConfigGUI extends ExtendedScreen {
 		this.addComponent(sldLumbinationTrunkRange, 6);
 		this.addComponent(txtLumbinationLeafRange, 6);
 		this.addComponent(txtLumbinationTrunkRange, 6);
+		this.addComponent(slLumbinationAxes, 6);
+		this.addComponent(slLumbinationLeaves, 6);
+		this.addComponent(slLumbinationLogs, 6);
 		
 		applyLumbinationValues(false);
 	}
 	
 	private void positionLumbinationControls() {
-		lblTitleLumbination.setPosition(centerX(), 75);
+		lblTitleLumbination.setPosition(centerX(), 25);
 		
 		chkLumbinationEnabled.setPosition(col_1, startY + 5);
 		chkLumbinationChopTreeBelow.setPosition(col_1, startY + rowStartY + 5);
@@ -1006,6 +1047,13 @@ public class MAConfigGUI extends ExtendedScreen {
 		
 		sldLumbinationTrunkRange.setPosition(col_1, startY + (rowStartY * 7));
 		txtLumbinationTrunkRange.setPosition(col_1 + sliderWidth + 10, startY + (rowStartY * 7));
+		
+		int listWidth = ((width - col_1 - 20) / 2) - 5;
+		int col2      = (col_1 + listWidth + 10);
+		slLumbinationAxes.adjustLayout(col2, startY, listWidth, rowStartY * 8);
+		
+		slLumbinationLeaves.adjustLayout(col_1, startY + (rowStartY * 8), listWidth, rowStartY * 7);
+		slLumbinationLogs.adjustLayout(col2, startY + (rowStartY * 8), listWidth, rowStartY * 7);
 		
 	}
 	
@@ -1024,6 +1072,10 @@ public class MAConfigGUI extends ExtendedScreen {
 		txtLumbinationLeafRange.setText(String.valueOf(!applyDefaults ? MAConfig.CLIENT.lumbination.leafRange() : MAConfig_Defaults.Lumbination.leafRange));
 		txtLumbinationTrunkRange.setText(String.valueOf(!applyDefaults ? MAConfig.CLIENT.lumbination.trunkRange() : MAConfig_Defaults.Lumbination.trunkRange));
 		
+		slLumbinationAxes.setListValues(new ArrayList<String>(!applyDefaults ? MAConfig.CLIENT.lumbination.axes() : MAConfig_Defaults.Lumbination.axes));
+		slLumbinationLeaves.setListValues(new ArrayList<String>(!applyDefaults ? MAConfig.CLIENT.lumbination.leaves() : MAConfig_Defaults.Lumbination.leaves));
+		slLumbinationLogs.setListValues(new ArrayList<String>(!applyDefaults ? MAConfig.CLIENT.lumbination.logs() : MAConfig_Defaults.Lumbination.logs));
+		
 	}
 	
 	private void generateShaftanationControls() {
@@ -1032,11 +1084,11 @@ public class MAConfigGUI extends ExtendedScreen {
 		
 		chkShaftanationEnabled = new CheckBox(0, 0, Functions.localize("minersadvantage.shaftanation.enabled"), false);
 		
-		sldShaftanationShaftLength = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.shaftanation.shaft_l") + ": ", "", 4, 128, 4, false, true);
-		sldShaftanationShaftHeight = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.shaftanation.shaft_h") + ": ", "", 2, 16, 2, false, true);
-		sldShaftanationShaftWidth  = new Slider(0, 0, 300, 20, Functions.localize("minersadvantage.shaftanation.shaft_w") + ": ", "", 1, 16, 1, false, true);
+		sldShaftanationShaftLength = new Slider(0, 0, sliderWidth, 20, Functions.localize("minersadvantage.shaftanation.shaft_l") + ": ", "", 4, 128, 4, false, true);
+		sldShaftanationShaftHeight = new Slider(0, 0, sliderWidth, 20, Functions.localize("minersadvantage.shaftanation.shaft_h") + ": ", "", 2, 16, 2, false, true);
+		sldShaftanationShaftWidth  = new Slider(0, 0, sliderWidth, 20, Functions.localize("minersadvantage.shaftanation.shaft_w") + ": ", "", 1, 16, 1, false, true);
 		
-		esldShaftanationTorchPlacement = new <TorchPlacement>EnumSliderExt(0, 0, 300, 20, Functions.localize("minersadvantage.shaftanation.torch_placement") + ": ", "", TorchPlacement.class, TorchPlacement.FLOOR, true, () -> {
+		esldShaftanationTorchPlacement = new <TorchPlacement>EnumSliderExt(0, 0, sliderWidth, 20, Functions.localize("minersadvantage.shaftanation.torch_placement") + ": ", "", TorchPlacement.class, TorchPlacement.FLOOR, true, () -> {
 			MAConfig.CLIENT.shaftanation.setTorchPlacement((TorchPlacement) esldShaftanationTorchPlacement.getEnum());
 			MAConfig.clientSpec.save();
 		});
@@ -1096,7 +1148,7 @@ public class MAConfigGUI extends ExtendedScreen {
 	}
 	
 	private void positionShaftanationControls() {
-		lblTitleShaftanation.setPosition(centerX(), 75);
+		lblTitleShaftanation.setPosition(centerX(), 25);
 		
 		chkShaftanationEnabled.setPosition(col_1, startY + 5);
 		
@@ -1139,6 +1191,8 @@ public class MAConfigGUI extends ExtendedScreen {
 		chkSubstitutionIgnoreIfValidTool = new CheckBox(0, 0, Functions.localize("minersadvantage.substitution.ignore_valid"), false);
 		chkSubstitutionIgnorePassiveMobs = new CheckBox(0, 0, Functions.localize("minersadvantage.substitution.ignore_passive"), false);
 		
+		slSubstitutionBlacklist = new StringList(0, 0, 50, 50, Functions.localize("minersadvantage.substitution.blacklist"), null);
+		
 		chkSubstitutionEnabled.setTooltips(SplitTooltips(Functions.localize("minersadvantage.substitution.enabled.comment")));
 		chkSubstitutionSwitchBack.setTooltips(SplitTooltips(Functions.localize("minersadvantage.substitution.switchback.comment")));
 		chkSubstitutionFavourSilkTouch.setTooltips(SplitTooltips(Functions.localize("minersadvantage.substitution.favour_silk.comment")));
@@ -1171,6 +1225,11 @@ public class MAConfigGUI extends ExtendedScreen {
 			MAConfig.clientSpec.save();
 		});
 		
+		slSubstitutionBlacklist.setUpdatedCallback(() -> {
+			MAConfig.CLIENT.substitution.setToolBlacklist(slSubstitutionBlacklist.getListValues());
+			MAConfig.clientSpec.save();
+		});
+		
 		this.addComponent(lblTitleSubstitution, 8);
 		this.addComponent(chkSubstitutionEnabled, 8);
 		this.addComponent(chkSubstitutionSwitchBack, 8);
@@ -1178,12 +1237,14 @@ public class MAConfigGUI extends ExtendedScreen {
 		this.addComponent(chkSubstitutionFavourFortune, 8);
 		this.addComponent(chkSubstitutionIgnoreIfValidTool, 8);
 		this.addComponent(chkSubstitutionIgnorePassiveMobs, 8);
+		this.addComponent(slSubstitutionBlacklist, 8);
 		
 		applySubstitutionValues(false);
 	}
 	
 	private void positionSubstitutionControls() {
-		lblTitleSubstitution.setPosition(centerX(), 75);
+		
+		lblTitleSubstitution.setPosition(centerX(), 25);
 		
 		chkSubstitutionEnabled.setPosition(col_1, startY + 5);
 		chkSubstitutionSwitchBack.setPosition(col_1, startY + rowStartY + 5);
@@ -1191,6 +1252,9 @@ public class MAConfigGUI extends ExtendedScreen {
 		chkSubstitutionFavourFortune.setPosition(col_1, startY + (rowStartY * 3) + 5);
 		chkSubstitutionIgnoreIfValidTool.setPosition(col_1, startY + (rowStartY * 4) + 5);
 		chkSubstitutionIgnorePassiveMobs.setPosition(col_1, startY + (rowStartY * 5) + 5);
+		
+		slSubstitutionBlacklist.adjustLayout(col_1, startY + (rowStartY * 6), width - col_1 - 20, height - (startY + (rowStartY * 6)) - 60);
+		
 	}
 	
 	private void applySubstitutionValues(boolean applyDefaults) {
@@ -1201,6 +1265,9 @@ public class MAConfigGUI extends ExtendedScreen {
 		chkSubstitutionFavourFortune.setIsChecked(!applyDefaults ? MAConfig.CLIENT.substitution.favourFortune() : MAConfig_Defaults.Substitution.favourFortune);
 		chkSubstitutionIgnoreIfValidTool.setIsChecked(!applyDefaults ? MAConfig.CLIENT.substitution.ignoreIfValidTool() : MAConfig_Defaults.Substitution.ignoreIfValidTool);
 		chkSubstitutionIgnorePassiveMobs.setIsChecked(!applyDefaults ? MAConfig.CLIENT.substitution.ignorePassiveMobs() : MAConfig_Defaults.Substitution.ignorePassiveMobs);
+		
+		slSubstitutionBlacklist.setListValues(new ArrayList<String>(!applyDefaults ? MAConfig.CLIENT.substitution.blacklist() : MAConfig_Defaults.Substitution.blacklist));
+		
 	}
 	
 	private void generateVeinationControls() {
@@ -1209,6 +1276,8 @@ public class MAConfigGUI extends ExtendedScreen {
 		
 		chkVeinationEnabled = new CheckBox(0, 0, Functions.localize("minersadvantage.veination.enabled"), false);
 		
+		slVeinationOres = new StringList(0, 0, 50, 50, Functions.localize("minersadvantage.veination.ores"), null);
+		
 		chkVeinationEnabled.setTooltips(SplitTooltips(Functions.localize("minersadvantage.veination.enabled.comment")));
 		
 		chkVeinationEnabled.setChangeListener(() -> {
@@ -1216,21 +1285,33 @@ public class MAConfigGUI extends ExtendedScreen {
 			MAConfig.clientSpec.save();
 		});
 		
+		slVeinationOres.setUpdatedCallback(() -> {
+			MAConfig.CLIENT.veination.setOres(slVeinationOres.getListValues());
+			MAConfig.clientSpec.save();
+		});
+		
 		this.addComponent(lblTitleVeination, 9);
 		this.addComponent(chkVeinationEnabled, 9);
+		this.addComponent(slVeinationOres, 9);
 		
 		applyVeinationValues(false);
 	}
 	
 	private void positionVeinationControls() {
-		lblTitleVeination.setPosition(centerX(), 75);
+		
+		lblTitleVeination.setPosition(centerX(), 25);
 		
 		chkVeinationEnabled.setPosition(col_1, startY + 5);
+		
+		slVeinationOres.adjustLayout(col_1, startY + rowStartY, width - col_1 - 20, height - (startY + rowStartY) - 60);
+		
 	}
 	
 	private void applyVeinationValues(boolean applyDefaults) {
 		
 		chkVeinationEnabled.setIsChecked(!applyDefaults ? MAConfig.CLIENT.veination.enabled() : MAConfig_Defaults.Veination.enabled);
+		
+		slVeinationOres.setListValues(new ArrayList<String>(!applyDefaults ? MAConfig.CLIENT.veination.ores() : MAConfig_Defaults.Veination.ores));
 		
 	}
 	

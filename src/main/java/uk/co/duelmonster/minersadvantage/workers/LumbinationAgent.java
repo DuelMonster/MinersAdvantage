@@ -90,7 +90,7 @@ public class LumbinationAgent extends Agent {
 			boolean	isWood		= state.getMaterial() == Material.WOOD;
 			
 			// Process the current block if it is valid.
-			if (!fakePlayer().func_234569_d_(state) || (isLeaves && !clientConfig.lumbination.destroyLeaves)) {
+			if (!getPlayer().func_234569_d_(state) || (isLeaves && !clientConfig.lumbination.destroyLeaves)) {
 				// Avoid the non-harvestable blocks.
 				processed.add(oPos);
 				continue;
@@ -98,7 +98,7 @@ public class LumbinationAgent extends Agent {
 				// Harvest the leaves using the players shears
 				
 				// Set the Fake Players held item to the players shears
-				this.fakePlayer().setHeldItem(Hand.MAIN_HAND, lumbinationHelper.getPlayersShears());
+				this.getPlayer().setHeldItem(Hand.MAIN_HAND, lumbinationHelper.getPlayersShears());
 				
 				HarvestBlock(oPos);
 				reportProgessToClient(oPos, soundtype.getBreakSound());
@@ -108,17 +108,17 @@ public class LumbinationAgent extends Agent {
 				processed.add(oPos);
 				
 				// Reset the Fake Players held item back to the players initial held item
-				this.fakePlayer().setHeldItem(Hand.MAIN_HAND, this.heldItemStack);
+				this.getPlayer().setHeldItem(Hand.MAIN_HAND, this.heldItemStack);
 				
 			} else if (isLeaves && !clientConfig.lumbination.leavesAffectDurability) {
 				// Remove the Leaves without damaging the tool.
-				if (state.removedByPlayer(world, oPos, fakePlayer(), true, state.getFluidState())) {
+				if (state.removedByPlayer(world, oPos, getPlayer(), true, state.getFluidState())) {
 					world.playSound(player, oPos, SoundEvents.BLOCK_GRASS_BREAK, SoundCategory.BLOCKS, 1.0F, 1.0F);
 					
 					block.onPlayerDestroy(world, oPos, state);
 					try {
 						block.harvestBlock(world,
-								fakePlayer(),
+								getPlayer(),
 								oPos,
 								state,
 								world.getTileEntity(oPos),
@@ -141,7 +141,7 @@ public class LumbinationAgent extends Agent {
 				boolean bBlockHarvested = false;
 				
 				if (clientConfig.common.breakAtToolSpeeds) {
-					this.breakController = new BreakBlockController(fakePlayer());
+					this.breakController = new BreakBlockController(getPlayer());
 					
 					breakController.onPlayerDamageBlock(oPos, faceHit);
 					if (breakController.bBlockDestroyed)

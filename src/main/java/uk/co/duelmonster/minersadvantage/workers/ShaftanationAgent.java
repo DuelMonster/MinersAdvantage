@@ -65,7 +65,7 @@ public class ShaftanationAgent extends Agent {
 			BlockState	state	= world.getBlockState(oPos);
 			Block		block	= state.getBlock();
 			
-			if (!fakePlayer().func_234569_d_(state)) {
+			if (!getPlayer().func_234569_d_(state)) {
 				// Avoid the non-harvestable blocks.
 				processed.add(oPos);
 				continue;
@@ -82,7 +82,7 @@ public class ShaftanationAgent extends Agent {
 				boolean bBlockHarvested = false;
 				
 				if (clientConfig.common.breakAtToolSpeeds) {
-					this.breakController = new BreakBlockController(fakePlayer());
+					this.breakController = new BreakBlockController(getPlayer());
 					breakController.onPlayerDamageBlock(oPos, faceHit);
 					if (breakController.bBlockDestroyed)
 						bBlockHarvested = HarvestBlock(oPos);
@@ -160,7 +160,7 @@ public class ShaftanationAgent extends Agent {
 	public void addToQueue(BlockPos oPos) {
 		BlockState state = world.getBlockState(oPos);
 		
-		if (fakePlayer().func_234569_d_(state))
+		if (getPlayer().func_234569_d_(state))
 			super.addToQueue(oPos);
 	}
 	

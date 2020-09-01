@@ -4,10 +4,8 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 import com.google.common.base.Stopwatch;
-import com.mojang.authlib.GameProfile;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -31,8 +29,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.util.BlockSnapshot;
 import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.common.util.FakePlayerFactory;
-import uk.co.duelmonster.minersadvantage.common.Constants;
 import uk.co.duelmonster.minersadvantage.common.Functions;
 import uk.co.duelmonster.minersadvantage.common.Variables;
 import uk.co.duelmonster.minersadvantage.config.MAConfig_Client;
@@ -44,54 +40,55 @@ import uk.co.duelmonster.minersadvantage.network.packets.PacketVeinate;
 
 public abstract class Agent {
 	
-	public final World				world;
-	public final ServerPlayerEntity	player;
-	public final SyncedClientConfig	clientConfig;
+	public final World              world;
+	public final ServerPlayerEntity player;
+	public final SyncedClientConfig clientConfig;
 	
 	public List<Entity> dropsHistory = Collections.synchronizedList(new ArrayList<Entity>());
 	
 	public WeakReference<FakePlayer> _fakePlayer;
 	
-	public FakePlayer fakePlayer() {
-		FakePlayer ret = _fakePlayer != null ? _fakePlayer.get() : null;
-		if (ret == null) {
-			ret = FakePlayerFactory.get(player.getServerWorld(), new GameProfile(UUID.randomUUID(), Constants.MOD_NAME));
-			_fakePlayer = new WeakReference<FakePlayer>(ret);
-		}
-		return ret;
+	public ServerPlayerEntity getPlayer() {
+		return player;
+		// FakePlayer ret = _fakePlayer != null ? _fakePlayer.get() : null;
+		// if (ret == null) {
+		// ret = FakePlayerFactory.get(player.getServerWorld(), new GameProfile(UUID.randomUUID(), Constants.MOD_NAME));
+		// _fakePlayer = new WeakReference<FakePlayer>(ret);
+		// }
+		// return ret;
 	}
 	
 	public PacketId packetId = PacketId.INVALID;
 	
-	public Stopwatch			timer						= Stopwatch.createUnstarted();
-	public ItemStack			heldItemStack				= null;
-	public Item					heldItem					= null;
-	public int					heldItemSlot				= -1;
-	public Direction			playerFacing;
-	public Direction			faceHit						= Direction.SOUTH;
-	public int					feetPos						= 0;
-	public BlockPos				originPos;
-	public BlockState			originState					= null;
-	public Block				originBlock					= null;
-	public boolean				isRedStone					= false;
-	public BreakBlockController	breakController				= null;
-	public boolean				awaitingAutoIllumination	= false;
-	public boolean				shouldAutoIlluminate		= false;
+	public Stopwatch            timer                    = Stopwatch.createUnstarted();
+	public ItemStack            heldItemStack            = null;
+	public Item                 heldItem                 = null;
+	public int                  heldItemSlot             = -1;
+	public Direction            playerFacing;
+	public Direction            faceHit                  = Direction.SOUTH;
+	public int                  feetPos                  = 0;
+	public BlockPos             originPos;
+	public BlockState           originState              = null;
+	public Block                originBlock              = null;
+	public boolean              isRedStone               = false;
+	public BreakBlockController breakController          = null;
+	public boolean              awaitingAutoIllumination = false;
+	public boolean              shouldAutoIlluminate     = false;
 	
-	public AxisAlignedBB	interimArea	= null;
-	public AxisAlignedBB	refinedArea	= null;
-	public BlockPos			minAreaPos	= BlockPos.ZERO;
-	public BlockPos			maxAreaPos	= BlockPos.ZERO;
+	public AxisAlignedBB interimArea = null;
+	public AxisAlignedBB refinedArea = null;
+	public BlockPos      minAreaPos  = BlockPos.ZERO;
+	public BlockPos      maxAreaPos  = BlockPos.ZERO;
 	
-	public List<BlockPos>	processed	= new ArrayList<BlockPos>();
-	public List<BlockPos>	queued		= new ArrayList<BlockPos>();
+	public List<BlockPos> processed = new ArrayList<BlockPos>();
+	public List<BlockPos> queued    = new ArrayList<BlockPos>();
 	
 	public Agent(ServerPlayerEntity player, IMAPacket pkt) {
 		
 		this.packetId = (PacketId) pkt.getPacketId();
 		
-		this.world = player.world;
-		this.player = player;
+		this.world        = player.world;
+		this.player       = player;
 		this.clientConfig = MAConfig_Client.getPlayerConfig(player.getUniqueID());
 		
 		this.feetPos = (int) player.getBoundingBox().minY;
@@ -99,36 +96,36 @@ public abstract class Agent {
 		this.playerFacing = Functions.getPlayerFacing(player);
 		
 		this.heldItemStack = Functions.getHeldItemStack(player);
-		this.heldItem = Functions.getHeldItem(player);
-		this.heldItemSlot = player.inventory.currentItem;
+		this.heldItem      = Functions.getHeldItem(player);
+		this.heldItemSlot  = player.inventory.currentItem;
 		
-		this.fakePlayer().connection = player.connection;
+		this.getPlayer().connection = player.connection;
 		if (this.heldItemStack != null)
-			this.fakePlayer().setHeldItem(Hand.MAIN_HAND, this.heldItemStack);
+			this.getPlayer().setHeldItem(Hand.MAIN_HAND, this.heldItemStack);
 	}
 	
 	protected void setupHarvestArea() {
 		// Shaft area info
 		int blockRadius = (packetId != PacketId.Veinate ? clientConfig.common.blockRadius - 1 : 16);
 		
-		int	xStart	= 0;
-		int	xEnd	= 0;
-		int	yBottom	= feetPos;
-		int	yTop	= feetPos + (blockRadius - 1);
-		int	zStart	= 0;
-		int	zEnd	= 0;
+		int xStart  = 0;
+		int xEnd    = 0;
+		int yBottom = feetPos;
+		int yTop    = feetPos + (blockRadius - 1);
+		int zStart  = 0;
+		int zEnd    = 0;
 		
 		// if the ShaftWidth is divisible by 2 we don't want to do anything
 		double dDivision = ((blockRadius & 1) != 0 ? 0 : 0.5);
 		
 		int iHalfRadius = ((int) ((blockRadius / 2) - dDivision));
 		
-		xStart = originPos.getX() + iHalfRadius;
-		xEnd = originPos.getX() - iHalfRadius;
-		yTop = originPos.getY() + iHalfRadius;
+		xStart  = originPos.getX() + iHalfRadius;
+		xEnd    = originPos.getX() - iHalfRadius;
+		yTop    = originPos.getY() + iHalfRadius;
 		yBottom = originPos.getY() - iHalfRadius;
-		zStart = originPos.getZ() + iHalfRadius;
-		zEnd = originPos.getZ() - iHalfRadius;
+		zStart  = originPos.getZ() + iHalfRadius;
+		zEnd    = originPos.getZ() - iHalfRadius;
 		
 		if (packetId == PacketId.Excavate || packetId == PacketId.Shaftanate || packetId == PacketId.Pathinate || packetId == PacketId.Illuminate) {
 			
@@ -301,11 +298,11 @@ public abstract class Agent {
 	
 	public boolean HarvestBlock(BlockPos pos) {
 		
-		boolean bResult = fakePlayer().interactionManager.tryHarvestBlock(pos);
+		boolean bResult = getPlayer().interactionManager.tryHarvestBlock(pos);
 		player.connection.sendPacket(new SChangeBlockPacket(world, pos));
 		
-		final int	range	= 20;
-		BlockState	state	= world.getBlockState(pos);
+		final int  range = 20;
+		BlockState state = world.getBlockState(pos);
 		
 		List<ServerPlayerEntity> localPlayers = world.getEntitiesWithinAABB(ServerPlayerEntity.class, new AxisAlignedBB(pos.add(-range, -range, -range), pos.add(range, range, range)));
 		

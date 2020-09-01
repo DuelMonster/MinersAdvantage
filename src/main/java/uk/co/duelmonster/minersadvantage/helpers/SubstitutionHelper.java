@@ -45,27 +45,27 @@ import uk.co.duelmonster.minersadvantage.network.packets.PacketSubstituteTool;
 
 public class SubstitutionHelper {
 	
-	private World			world		= null;
-	private PlayerEntity	player		= null;
-	private Variables		variables	= null;
+	private World        world     = null;
+	private PlayerEntity player    = null;
+	private Variables    variables = null;
 	
-	private int				optimalRankIndx	= -99;
-	private float			optimalDigSpeed	= -99;
-	private RankAndLevel	optimalRank		= null;
+	private int          optimalRankIndx = -99;
+	private float        optimalDigSpeed = -99;
+	private RankAndLevel optimalRank     = null;
 	
-	private List<Ranking>					rankings	= Constants.RANKING_DEFAULT;
-	private HashMap<Integer, RankAndLevel>	rankingMap	= new HashMap<Integer, RankAndLevel>();
-	private BlockPos						oPos		= null;
-	private BlockState						state		= null;
-	private Block							block		= null;
+	private List<Ranking>                  rankings   = Constants.RANKING_DEFAULT;
+	private HashMap<Integer, RankAndLevel> rankingMap = new HashMap<Integer, RankAndLevel>();
+	private BlockPos                       oPos       = null;
+	private BlockState                     state      = null;
+	private Block                          block      = null;
 	
 	public void processToolSubtitution(ServerPlayerEntity _player, BlockPos _pos) {
-		this.player = _player;
-		this.world = player.world;
+		this.player    = _player;
+		this.world     = player.world;
 		this.variables = Variables.get(player.getUniqueID());
 		SyncedClientConfig clientConfig = MAConfig_Client.getPlayerConfig(player.getUniqueID());
 		
-		this.oPos = _pos;
+		this.oPos  = _pos;
 		this.state = world.getBlockState(oPos);
 		this.block = state.getBlock();
 		
@@ -76,7 +76,7 @@ public class SubstitutionHelper {
 		PlayerInventory inventory = player.inventory;
 		
 		// LootContext.Builder ctx = new LootContext.Builder((ServerWorld) world).withParameter(LootParameters.BLOCK_STATE, state).withParameter(LootParameters.POSITION, oPos).withParameter(LootParameters.TOOL, Constants.DUMMY_SILKTOUCH);
-		LootContext.Builder ctx = new LootContext.Builder((ServerWorld) world).withParameter(LootParameters.BLOCK_STATE, state).withParameter(LootParameters.TOOL, Constants.DUMMY_SILKTOUCH);
+		LootContext.Builder ctx = new LootContext.Builder((ServerWorld) world).withParameter(LootParameters.BLOCK_STATE, state).withParameter(LootParameters.field_237457_g_, state.getOffset(world, oPos)).withParameter(LootParameters.TOOL, Constants.DUMMY_SILKTOUCH);
 		
 		boolean silkTouchable = state.getDrops(ctx).contains(new ItemStack(block.asItem()));
 		
@@ -138,9 +138,9 @@ public class SubstitutionHelper {
 		rankings.forEach(rank -> {
 			rankingMap.entrySet().forEach(rankedSlot -> {
 				
-				RankAndLevel	rankAndLevel		= rankedSlot.getValue();
-				int				iCurrentRankIndx	= rankings.size() - rankings.indexOf(rank);
-				float			iCurrentToolSpeed	= getToolSpeed(inventory.getStackInSlot(rankAndLevel.SlotID));
+				RankAndLevel rankAndLevel      = rankedSlot.getValue();
+				int          iCurrentRankIndx  = rankings.size() - rankings.indexOf(rank);
+				float        iCurrentToolSpeed = getToolSpeed(inventory.getStackInSlot(rankAndLevel.SlotID));
 				
 				if (optimalDigSpeed < iCurrentToolSpeed ||
 						(optimalDigSpeed <= iCurrentToolSpeed && optimalRankIndx <= iCurrentRankIndx && rankAndLevel.rank.ordinal() == rank.ordinal() &&
@@ -149,19 +149,19 @@ public class SubstitutionHelper {
 												rankAndLevel.Level_1 > optimalRank.Level_1 &&
 												(rankAndLevel.Level_2 == -1 || rankAndLevel.Level_2 > optimalRank.Level_2))))) {
 					variables.optimalSlot = rankAndLevel.SlotID;
-					optimalRankIndx = iCurrentRankIndx;
-					optimalRank = rankAndLevel;
-					optimalDigSpeed = iCurrentToolSpeed;
+					optimalRankIndx       = iCurrentRankIndx;
+					optimalRank           = rankAndLevel;
+					optimalDigSpeed       = iCurrentToolSpeed;
 				}
 			});
 		});
 		
 		// Substitute the Players current item with the most optimal tool for the job
 		if (variables.optimalSlot >= 0 && variables.optimalSlot != inventory.currentItem) {
-			// System.out.println("Switching to Optimal slot ( " + iOptimalSlot + " )");
+			System.out.println("Switching to Optimal slot ( " + variables.optimalSlot + " )");
 			
-			variables.prevSlot = inventory.currentItem;
-			variables.shouldSwitchBack = clientConfig.substitution.switchBack;
+			variables.prevSlot          = inventory.currentItem;
+			variables.shouldSwitchBack  = clientConfig.substitution.switchBack;
 			variables.currentlySwitched = true;
 			
 			MA.NETWORK.sendTo((ServerPlayerEntity) player, new PacketSubstituteTool(variables.optimalSlot));
@@ -218,7 +218,7 @@ public class SubstitutionHelper {
 	
 	@OnlyIn(Dist.CLIENT)
 	public boolean processWeaponSubtitution(ClientPlayerEntity _player, Entity target) {
-		this.player = _player;
+		this.player    = _player;
 		this.variables = Variables.get(player.getUniqueID());
 		
 		PlayerInventory inventory = player.inventory;
@@ -246,30 +246,30 @@ public class SubstitutionHelper {
 	
 	private boolean isBestWeapon(ItemStack currentWeapon, ItemStack compareWeapon, LivingEntity target) {
 		
-		boolean	isTargetPlayer	= target instanceof PlayerEntity;
-		double	oldDamage		= getFullItemStackDamage(currentWeapon, target);
-		double	newDamage		= getFullItemStackDamage(compareWeapon, target);
+		boolean isTargetPlayer = target instanceof PlayerEntity;
+		double  oldDamage      = getFullItemStackDamage(currentWeapon, target);
+		double  newDamage      = getFullItemStackDamage(compareWeapon, target);
 		
 		if (isTargetPlayer) {
 			return (newDamage > oldDamage);
 		} else {
 			
-			int	oldHits	= (oldDamage == 0 ? Integer.MAX_VALUE : MathHelper.ceil(target.getMaxHealth() / oldDamage));
-			int	newHits	= (newDamage == 0 ? Integer.MAX_VALUE : MathHelper.ceil(target.getMaxHealth() / newDamage));
+			int oldHits = (oldDamage == 0 ? Integer.MAX_VALUE : MathHelper.ceil(target.getMaxHealth() / oldDamage));
+			int newHits = (newDamage == 0 ? Integer.MAX_VALUE : MathHelper.ceil(target.getMaxHealth() / newDamage));
 			
 			if (newHits != oldHits)
 				return (newHits < oldHits);
 		}
 		
-		int	newLootingLevel		= EnchantmentHelper.getEnchantmentLevel(Enchantments.LOOTING, compareWeapon);
-		int	newFireAspectLevel	= EnchantmentHelper.getEnchantmentLevel(Enchantments.FIRE_ASPECT, compareWeapon);
-		int	newKnockbackLevel	= EnchantmentHelper.getEnchantmentLevel(Enchantments.KNOCKBACK, compareWeapon);
-		int	newUnbreakingLevel	= EnchantmentHelper.getEnchantmentLevel(Enchantments.UNBREAKING, compareWeapon);
+		int newLootingLevel    = EnchantmentHelper.getEnchantmentLevel(Enchantments.LOOTING, compareWeapon);
+		int newFireAspectLevel = EnchantmentHelper.getEnchantmentLevel(Enchantments.FIRE_ASPECT, compareWeapon);
+		int newKnockbackLevel  = EnchantmentHelper.getEnchantmentLevel(Enchantments.KNOCKBACK, compareWeapon);
+		int newUnbreakingLevel = EnchantmentHelper.getEnchantmentLevel(Enchantments.UNBREAKING, compareWeapon);
 		
-		int	oldLootingLevel		= EnchantmentHelper.getEnchantmentLevel(Enchantments.LOOTING, currentWeapon);
-		int	oldFireAspectLevel	= EnchantmentHelper.getEnchantmentLevel(Enchantments.FIRE_ASPECT, currentWeapon);
-		int	oldKnockbackLevel	= EnchantmentHelper.getEnchantmentLevel(Enchantments.KNOCKBACK, currentWeapon);
-		int	oldUnbreakingLevel	= EnchantmentHelper.getEnchantmentLevel(Enchantments.UNBREAKING, currentWeapon);
+		int oldLootingLevel    = EnchantmentHelper.getEnchantmentLevel(Enchantments.LOOTING, currentWeapon);
+		int oldFireAspectLevel = EnchantmentHelper.getEnchantmentLevel(Enchantments.FIRE_ASPECT, currentWeapon);
+		int oldKnockbackLevel  = EnchantmentHelper.getEnchantmentLevel(Enchantments.KNOCKBACK, currentWeapon);
+		int oldUnbreakingLevel = EnchantmentHelper.getEnchantmentLevel(Enchantments.UNBREAKING, currentWeapon);
 		
 		if (!isTargetPlayer && newLootingLevel != oldLootingLevel)
 			return (newLootingLevel > oldLootingLevel);
@@ -283,8 +283,8 @@ public class SubstitutionHelper {
 		Set<Enchantment> bothItemsEnchantments = getNonstandardNondamageEnchantmentsOnBothStacks(compareWeapon, currentWeapon);
 		
 		for (Enchantment enchantment : bothItemsEnchantments) {
-			int	oldLevel	= EnchantmentHelper.getEnchantmentLevel(enchantment, currentWeapon);
-			int	newLevel	= EnchantmentHelper.getEnchantmentLevel(enchantment, compareWeapon);
+			int oldLevel = EnchantmentHelper.getEnchantmentLevel(enchantment, currentWeapon);
+			int newLevel = EnchantmentHelper.getEnchantmentLevel(enchantment, compareWeapon);
 			if (newLevel > oldLevel) {
 				return true;
 			} else if (newLevel < oldLevel) {
@@ -305,8 +305,8 @@ public class SubstitutionHelper {
 			return false;
 		}
 		
-		boolean	newDamageable	= isItemStackDamageable(compareWeapon);
-		boolean	oldDamageable	= isItemStackDamageable(currentWeapon);
+		boolean newDamageable = isItemStackDamageable(compareWeapon);
+		boolean oldDamageable = isItemStackDamageable(currentWeapon);
 		
 		if (newDamageable && !oldDamageable) {
 			return false;

@@ -76,7 +76,7 @@ public class ExcavationAgent extends Agent {
 			BlockState	state	= world.getBlockState(oPos);
 			Block		block	= state.getBlock();
 			
-			if (!fakePlayer().func_234569_d_(state)) {
+			if (!getPlayer().func_234569_d_(state)) {
 				// Avoid the non-harvestable blocks.
 				processed.add(oPos);
 				continue;
@@ -96,7 +96,7 @@ public class ExcavationAgent extends Agent {
 				boolean bBlockHarvested = false;
 				
 				if (clientConfig.common.breakAtToolSpeeds) {
-					this.breakController = new BreakBlockController(fakePlayer());
+					this.breakController = new BreakBlockController(getPlayer());
 					
 					breakController.onPlayerDamageBlock(oPos, faceHit);
 					if (breakController.bBlockDestroyed)
@@ -165,7 +165,7 @@ public class ExcavationAgent extends Agent {
 	public void addToQueue(BlockPos oPos) {
 		BlockState state = world.getBlockState(oPos);
 		
-		if (fakePlayer().func_234569_d_(state)) {
+		if (getPlayer().func_234569_d_(state)) {
 			Block block = state.getBlock();
 			
 			if ((clientConfig.common.mineVeins && state.isIn(Tags.Blocks.ORES))

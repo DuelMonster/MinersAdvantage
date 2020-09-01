@@ -36,12 +36,12 @@
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="C:/Users/DuelMonster/.gradle/caches/forge_gradle/minecraft_user_repo/net/minecraftforge/forge/1.16.2-33.0.21_mapped_snapshot_20200723-1.16.1/forge-1.16.2-33.0.21_mapped_snapshot_20200723-1.16.1-sources.jar" kind="lib" path="C:/Users/DuelMonster/.gradle/caches/forge_gradle/minecraft_user_repo/net/minecraftforge/forge/1.16.2-33.0.21_mapped_snapshot_20200723-1.16.1/forge-1.16.2-33.0.21_mapped_snapshot_20200723-1.16.1-recomp.jar">
+	<classpathentry sourcepath="C:/Users/DuelMonster/.gradle/caches/forge_gradle/minecraft_user_repo/net/minecraftforge/forge/1.16.2-33.0.32_mapped_snapshot_20200723-1.16.1/forge-1.16.2-33.0.32_mapped_snapshot_20200723-1.16.1-sources.jar" kind="lib" path="C:/Users/DuelMonster/.gradle/caches/forge_gradle/minecraft_user_repo/net/minecraftforge/forge/1.16.2-33.0.32_mapped_snapshot_20200723-1.16.1/forge-1.16.2-33.0.32_mapped_snapshot_20200723-1.16.1.jar">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="C:/Users/DuelMonster/.gradle/caches/forge_gradle/minecraft_user_repo/net/minecraftforge/forge/1.16.2-33.0.21_mapped_snapshot_20200723-1.16.1/forge-1.16.2-33.0.21_mapped_snapshot_20200723-1.16.1-sources.jar" kind="lib" path="C:/Users/DuelMonster/.gradle/caches/forge_gradle/minecraft_user_repo/net/minecraftforge/forge/1.16.2-33.0.21_mapped_snapshot_20200723-1.16.1/forge-1.16.2-33.0.21_mapped_snapshot_20200723-1.16.1-launcher.jar">
+	<classpathentry sourcepath="C:/Users/DuelMonster/.gradle/caches/forge_gradle/minecraft_user_repo/net/minecraftforge/forge/1.16.2-33.0.32_mapped_snapshot_20200723-1.16.1/forge-1.16.2-33.0.32_mapped_snapshot_20200723-1.16.1-sources.jar" kind="lib" path="C:/Users/DuelMonster/.gradle/caches/forge_gradle/minecraft_user_repo/net/minecraftforge/forge/1.16.2-33.0.32_mapped_snapshot_20200723-1.16.1/forge-1.16.2-33.0.32_mapped_snapshot_20200723-1.16.1-launcher.jar">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>

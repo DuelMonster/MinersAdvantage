@@ -9,7 +9,7 @@
     <mapEntry key="MOD_CLASSES" value="minersadvantage%%C:\$MC\Mod Source\~MinersAdvantage\Source\bin\main;minersadvantage%%C:\$MC\Mod Source\~MinersAdvantage\Source\bin\main"/>
     <mapEntry key="MCP_MAPPINGS" value="snapshot_20200723-1.16.1"/>
     <mapEntry key="MCP_VERSION" value="20200812.004259"/>
-    <mapEntry key="FORGE_VERSION" value="33.0.21"/>
+    <mapEntry key="FORGE_VERSION" value="33.0.32"/>
     <mapEntry key="FORGE_GROUP" value="net.minecraftforge"/>
     <mapEntry key="target" value="fmluserdevserver"/>
     <mapEntry key="MC_VERSION" value="1.16.2"/>

@@ -62,24 +62,27 @@ public class TextFieldExt extends TextField {
 	@Override
 	public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
 		
-		// Setup and execute timer to fire stopped typing event
-		TextFieldExt _this = this;
-		Timer        timer = new Timer(waitInterval, new ActionListener() {
-								@Override
-								public void actionPerformed(ActionEvent arg0) {
-									if (keyWasPressed && _this.idleCallback != null) _this.idleCallback.run();
-									keyWasPressed = false;
-								}
-							});
-		timer.setRepeats(false); // Only execute once
-		timer.start(); // Go go go!
-		
+		if (this.isFocused()) {
+			// Setup and execute timer to fire stopped typing event
+			TextFieldExt _this = this;
+			Timer        timer = new Timer(waitInterval, new ActionListener() {
+									@Override
+									public void actionPerformed(ActionEvent arg0) {
+										if (keyWasPressed && _this.idleCallback != null) _this.idleCallback.run();
+										keyWasPressed = false;
+									}
+								});
+			timer.setRepeats(false); // Only execute once
+			timer.start(); // Go go go!
+		}
 		return super.keyReleased(keyCode, scanCode, modifiers);
 	}
 	
 	@Override
 	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-		keyWasPressed = true;
+		if (this.isFocused()) {
+			keyWasPressed = true;
+		}
 		
 		return super.keyPressed(keyCode, scanCode, modifiers);
 	}

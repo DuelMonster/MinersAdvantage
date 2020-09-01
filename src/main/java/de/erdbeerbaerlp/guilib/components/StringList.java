@@ -18,7 +18,8 @@ import net.minecraftforge.fml.client.gui.GuiUtils;
 
 public class StringList extends GuiComponent {
 	
-	protected final int                   border              = 4;
+	protected final int                   offsetTop           = 18;
+	protected final int                   offsetLeft          = 4;
 	private final int                     barWidth            = 6;
 	private final ArrayList<GuiComponent> components          = new ArrayList<>();
 	private final ArrayList<Button>       removeButtons       = new ArrayList<>();
@@ -35,6 +36,7 @@ public class StringList extends GuiComponent {
 	private int                           contentHeight;
 	private ArrayList<String>             listValues;
 	private final Button                  btnAdd              = new Button(0, 0, 20, "+");
+	private final Label                   lblTitle;
 	private Runnable                      valuesUpdated;
 	
 	/**
@@ -46,10 +48,14 @@ public class StringList extends GuiComponent {
 	 * @param height Text Field height
 	 * @param values List of array values
 	 */
-	public StringList(int x, int y, int width, int height, ArrayList<String> values) {
+	public StringList(int x, int y, int width, int height, String title, ArrayList<String> values) {
 		super(x, y, width, height);
 		
 		setContentHeight(height);
+		
+		title    += (title.endsWith(":") ? "" : ":");
+		lblTitle  = new Label(title, 6, 10);
+		addComponent(lblTitle);
 		
 		setListValues(values != null ? values : new ArrayList<String>());
 		
@@ -59,7 +65,7 @@ public class StringList extends GuiComponent {
 	}
 	
 	private void generateListControls() {
-		int yPos = border;
+		int yPos = offsetTop;
 		
 		if (listValues != null && listValues.size() > 0) {
 			clearRows();
@@ -69,6 +75,7 @@ public class StringList extends GuiComponent {
 				
 				yPos += 25;
 			}
+			
 		}
 		
 		addComponent(btnAdd);
@@ -78,8 +85,8 @@ public class StringList extends GuiComponent {
 	
 	private void generateRow(int yPos, String value) {
 		
-		Button       btnRemove = new Button(border, yPos, 20, "-");
-		TextFieldExt txtValue  = new TextFieldExt(60, yPos, width - barWidth - border);
+		Button       btnRemove = new Button(offsetLeft, yPos, 20, "-");
+		TextFieldExt txtValue  = new TextFieldExt(60, yPos, width - barWidth - offsetLeft);
 		
 		if (value != null) {
 			txtValue.setText(value);
@@ -110,58 +117,67 @@ public class StringList extends GuiComponent {
 	}
 	
 	private void fineTuneControls() {
-		int yPos = border;
 		
-		for (int indx = 0; indx < removeButtons.size(); indx++) {
-			Button       btnRemove = removeButtons.get(indx);
-			TextFieldExt txtValue  = textFields.get(indx);
+		if (removeButtons.isEmpty()) {
 			
-			btnRemove.setPosition(border, yPos);
+			btnAdd.setPosition(offsetLeft, offsetTop);
 			
-			txtValue.setPosition(30, yPos);
-			txtValue.setWidth(width - barWidth - 60);
+		} else {
+			int yPos = offsetTop;
 			
-			btnRemove.setClickListener(() -> {
-				String value = txtValue.getText();
-				if (value != null && !value.isEmpty() && listValues.contains(value)) {
+			for (int indx1 = 0; indx1 < removeButtons.size(); indx1++) {
+				Button       btnRemove = removeButtons.get(indx1);
+				TextFieldExt txtValue  = textFields.get(indx1);
+				
+				btnRemove.setPosition(offsetLeft, yPos);
+				
+				txtValue.setPosition(30, yPos);
+				txtValue.setWidth(width - barWidth - 60);
+				
+				btnRemove.setClickListener(() -> {
+					String value = txtValue.getText();
+					if (value != null && !value.isEmpty() && listValues.contains(value)) {
+						
+						// System.out.println("Removed: " + value);
+						
+						listValues.remove(value);
+						if (valuesUpdated != null) valuesUpdated.run();
+						
+						if (listValues.isEmpty()) {
+							txtValue.setText("");
+							btnRemove.disable();
+						} else {
+							generateListControls();
+						}
+					}
+				});
+				
+				txtValue.setIdleCallback(() -> {
+					// System.out.println("IdleCallback: " + txtValue.getText());
 					
-					System.out.println("Removed: " + value);
-					
-					listValues.remove(value);
+					listValues.clear();
+					for (int indx2 = 0; indx2 < textFields.size(); indx2++) {
+						String value = textFields.get(indx2).getText();
+						if (!value.isEmpty() && !listValues.contains(value)) {
+							listValues.add(value);
+						}
+					}
 					
 					if (valuesUpdated != null) valuesUpdated.run();
 					
 					generateListControls();
-				}
-			});
-			
-			txtValue.setIdleCallback(() -> {
-				System.out.println("IdleCallback: " + txtValue.getText());
+				});
 				
-				listValues.clear();
-				for (TextFieldExt nextText : textFields) {
-					String value = nextText.getText();
-					if (value.isEmpty() || !listValues.contains(value)) {
-						listValues.add(value);
-					}
-				}
+				final int lastY = (25 * removeButtons.size()) + 5;
+				txtValue.setReturnAction(() -> {
+					generateRow(lastY, null);
+				});
 				
-				if (valuesUpdated != null) valuesUpdated.run();
-			});
+				yPos += 25;
+			}
 			
-			// final int txtY = yPos + 25;
-			// txtValue.setReturnAction(() -> {
-			// String value = txtValue.getText();
-			// if (value.isEmpty() || !listValues.contains(value)) {
-			// listValues.add(value);
-			// generateRow(txtY, null);
-			// }
-			// });
-			
-			yPos += 25;
+			btnAdd.setPosition(width - barWidth - 25, yPos - 25);
 		}
-		
-		btnAdd.setPosition(width - barWidth - 25, yPos - 25);
 		
 		fitContent();
 	}
@@ -258,7 +274,7 @@ public class StringList extends GuiComponent {
 	private ArrayList<String> tooltips = new ArrayList<>();
 	
 	private int getMaxScroll() {
-		return getContentHeight() - (height - border);
+		return getContentHeight() - (height - offsetTop);
 	}
 	
 	private void applyScrollLimits() {
@@ -304,8 +320,8 @@ public class StringList extends GuiComponent {
 	 */
 	public void fitContent() {
 		for (final GuiComponent c : components) {
-			if (((c.getY() - c.scrollOffsetY) + c.getHeight() + border * 2) > contentHeight) {
-				contentHeight = (c.getY() - c.scrollOffsetY) + c.getHeight() + border * 2;
+			if (((c.getY() - c.scrollOffsetY) + c.getHeight() + offsetTop + offsetLeft) > contentHeight) {
+				contentHeight = (c.getY() - c.scrollOffsetY) + c.getHeight() + offsetTop + offsetLeft;
 			}
 		}
 	}
@@ -362,8 +378,8 @@ public class StringList extends GuiComponent {
 		
 		if (barHeight < 32) barHeight = 32;
 		
-		if (barHeight > height - border * 2)
-			barHeight = height - border * 2;
+		if (barHeight > height - offsetLeft * 2)
+			barHeight = height - offsetLeft * 2;
 		
 		return barHeight;
 	}
@@ -472,7 +488,7 @@ public class StringList extends GuiComponent {
 		
 		RenderSystem.disableDepthTest();
 		
-		int extraHeight = (getContentHeight() + border) - height;
+		int extraHeight = (getContentHeight() + offsetTop) - height;
 		if (extraHeight > 0) {
 			int barHeight = getBarHeight();
 			
