@@ -264,6 +264,10 @@ if (curseForgeApiKey != '') {
 			releaseType = 'release'
 
 			addGameVersion mcversion
+					
+			relations {
+			  requiredDependency 'eguilib'
+			}
 
 			mainArtifact jar
 			addArtifact  srcJar

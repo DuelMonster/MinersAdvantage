@@ -3,7 +3,7 @@ Build: 1.16.2-1.8.2.150
 	compatible with Forge 33.0.32+
 	fix: licence failure
 	feature: add configuration GUI with help from "Erdbeerbaer's GUI Library" [ https://www.curseforge.com/minecraft/mc-mods/eguilib ]
-	fix: remove FakePlayer references to aid in cross-mod-compatiblity
+	fix: remove FakePlayer references to aid in cross-mod-compatibility
 		
 =========
 
