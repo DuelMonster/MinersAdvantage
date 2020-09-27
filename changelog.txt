@@ -1,4 +1,9 @@
 
+Build: 1.16.2-1.6.3.151
+	fix: server crash issue due to config GUI changes in last version
+		
+=========
+
 Build: 1.16.2-1.8.2.150
 	compatible with Forge 33.0.32+
 	fix: licence failure

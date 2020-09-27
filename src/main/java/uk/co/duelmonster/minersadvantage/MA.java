@@ -1,7 +1,5 @@
 package uk.co.duelmonster.minersadvantage;
 
-import de.erdbeerbaerlp.guilib.IHasConfigGUI;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.DistExecutor;
@@ -9,7 +7,6 @@ import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import uk.co.duelmonster.minersadvantage.client.GUI.MAConfigGUI;
 import uk.co.duelmonster.minersadvantage.common.Constants;
 import uk.co.duelmonster.minersadvantage.config.MAConfig;
 import uk.co.duelmonster.minersadvantage.network.NetworkHandler;
@@ -18,7 +15,7 @@ import uk.co.duelmonster.minersadvantage.setup.CommonSetup;
 import uk.co.duelmonster.minersadvantage.setup.ServerSetup;
 
 @Mod(Constants.MOD_ID)
-public class MA implements IHasConfigGUI {
+public class MA {
 	
 	public static final NetworkHandler NETWORK = new NetworkHandler();
 	
@@ -36,10 +33,5 @@ public class MA implements IHasConfigGUI {
 		// Register the CommonSetup methods for modloading
 		CommonSetup commonSetup = new CommonSetup();
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(commonSetup::onCommonSetup);
-	}
-	
-	@Override
-	public Screen getConfigGUI(final Screen modList) {
-		return new MAConfigGUI(modList);
 	}
 }
