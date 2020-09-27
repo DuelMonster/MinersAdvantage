@@ -5,7 +5,7 @@ import java.util.List;
 
 import de.erdbeerbaerlp.guilib.components.Button;
 import de.erdbeerbaerlp.guilib.components.CheckBox;
-import de.erdbeerbaerlp.guilib.components.EnumSliderExt;
+import de.erdbeerbaerlp.guilib.components.EnumSlider;
 import de.erdbeerbaerlp.guilib.components.Label;
 import de.erdbeerbaerlp.guilib.components.Slider;
 import de.erdbeerbaerlp.guilib.components.StringList;
@@ -125,7 +125,7 @@ public class MAConfigGUI extends ExtendedScreen {
 	private Slider sldShaftanationShaftHeight;
 	private Slider sldShaftanationShaftWidth;
 	
-	private EnumSliderExt esldShaftanationTorchPlacement;
+	private EnumSlider esldShaftanationTorchPlacement;
 	
 	private TextFieldExt txtCommonTickDelay;
 	private TextFieldExt txtCommonBlocksPerTick;
@@ -1088,7 +1088,7 @@ public class MAConfigGUI extends ExtendedScreen {
 		sldShaftanationShaftHeight = new Slider(0, 0, sliderWidth, 20, Functions.localize("minersadvantage.shaftanation.shaft_h") + ": ", "", 2, 16, 2, false, true);
 		sldShaftanationShaftWidth  = new Slider(0, 0, sliderWidth, 20, Functions.localize("minersadvantage.shaftanation.shaft_w") + ": ", "", 1, 16, 1, false, true);
 		
-		esldShaftanationTorchPlacement = new <TorchPlacement>EnumSliderExt(0, 0, sliderWidth, 20, Functions.localize("minersadvantage.shaftanation.torch_placement") + ": ", "", TorchPlacement.class, TorchPlacement.FLOOR, true, () -> {
+		esldShaftanationTorchPlacement = new <TorchPlacement>EnumSlider(0, 0, sliderWidth, 20, Functions.localize("minersadvantage.shaftanation.torch_placement") + ": ", "", TorchPlacement.class, TorchPlacement.FLOOR, true, () -> {
 			MAConfig.CLIENT.shaftanation.setTorchPlacement((TorchPlacement) esldShaftanationTorchPlacement.getEnum());
 			MAConfig.clientSpec.save();
 		});

@@ -1,0 +1,9 @@
+{
+  "package": "de.erdbeerbaerlp.guilib.mixin",
+  "refmap": "mixins.eguilib.refmap.json",
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_8",
+  "client": [
+    "MixinModListScreen"
+  ]
+}

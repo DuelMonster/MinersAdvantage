@@ -14,8 +14,11 @@ import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.client.gui.GuiUtils;
 
+@OnlyIn(Dist.CLIENT)
 public class StringList extends GuiComponent {
 	
 	protected final int                   offsetTop           = 18;
@@ -347,8 +350,8 @@ public class StringList extends GuiComponent {
 	}
 	
 	@Override
-	// public boolean charTyped(char typedChar, int keyCode) {
-	public boolean func_231042_a_(char typedChar, int keyCode) {
+	public boolean charTyped(char typedChar, int keyCode) {
+		// public boolean func_231042_a_(char typedChar, int keyCode) {
 		if (isEnabled())
 			for (GuiComponent comp : components) {
 				comp.charTyped(typedChar, keyCode);
@@ -458,8 +461,8 @@ public class StringList extends GuiComponent {
 	}
 	
 	@Override
-	// public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-	public void func_230430_a_(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+	public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+		// public void func_230430_a_(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
 		drawBackground();
 		Tessellator   tess   = Tessellator.getInstance();
 		BufferBuilder worldr = tess.getBuffer();

@@ -45,13 +45,14 @@ import uk.co.duelmonster.minersadvantage.network.packets.PacketVeinate;
 import uk.co.duelmonster.minersadvantage.workers.AgentProcessor;
 import uk.co.duelmonster.minersadvantage.workers.DropsSpawner;
 
+@SuppressWarnings("deprecation")
 public class ServerEventHandler {
 	
 	// Player Logged In event
 	@SubscribeEvent
 	public void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-		ServerPlayerEntity player = (ServerPlayerEntity) event.getPlayer();
-		Variables variables = Variables.get(player.getUniqueID());
+		ServerPlayerEntity player    = (ServerPlayerEntity) event.getPlayer();
+		Variables          variables = Variables.get(player.getUniqueID());
 		
 		variables.HasPlayerSpawned = true;
 		
@@ -62,8 +63,8 @@ public class ServerEventHandler {
 	// Player Logged Out event
 	@SubscribeEvent
 	public void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
-		ServerPlayerEntity player = (ServerPlayerEntity) event.getPlayer();
-		Variables variables = Variables.get(player.getUniqueID());
+		ServerPlayerEntity player    = (ServerPlayerEntity) event.getPlayer();
+		Variables          variables = Variables.get(player.getUniqueID());
 		
 		variables.HasPlayerSpawned = false;
 		
@@ -117,7 +118,7 @@ public class ServerEventHandler {
 	
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void onEntitySpawn(EntityJoinWorldEvent event) {
-		World world = event.getWorld();
+		World  world  = event.getWorld();
 		Entity entity = event.getEntity();
 		if (!(entity instanceof LivingEntity)) {
 			if (world.isRemote
@@ -161,12 +162,12 @@ public class ServerEventHandler {
 				!AgentProcessor.INSTANCE.getCurrentAgent(player.getUniqueID()).shouldProcess(event.getPos()))
 			return;
 		
-		Variables variables = Variables.get(player.getUniqueID());
+		Variables          variables    = Variables.get(player.getUniqueID());
 		SyncedClientConfig clientConfig = MAConfig_Client.getPlayerConfig(player.getUniqueID());
 		
-		BlockPos pos = event.getPos();
-		BlockState state = event.getState();
-		Direction faceHit = variables.faceHit;
+		BlockPos   pos     = event.getPos();
+		BlockState state   = event.getState();
+		Direction  faceHit = variables.faceHit;
 		
 		ItemStack heldItem = player.getHeldItem(Hand.MAIN_HAND);
 		if (heldItem.isEmpty())
@@ -198,14 +199,14 @@ public class ServerEventHandler {
 	
 	@SubscribeEvent
 	public void onUseHoeEvent(UseHoeEvent event) {
-		World world = event.getContext().getWorld();
+		World        world        = event.getContext().getWorld();
 		PlayerEntity playerEntity = event.getPlayer();
 		if (world.isRemote || !(playerEntity instanceof ServerPlayerEntity) || (playerEntity instanceof FakePlayer))
 			return;
 		
 		ServerPlayerEntity player = (ServerPlayerEntity) playerEntity;
-		BlockPos pos = event.getContext().getPos();
-		Block block = world.getBlockState(pos).getBlock();
+		BlockPos           pos    = event.getContext().getPos();
+		Block              block  = world.getBlockState(pos).getBlock();
 		
 		if (Constants.DIRT_BLOCKS.contains(block)) {
 			

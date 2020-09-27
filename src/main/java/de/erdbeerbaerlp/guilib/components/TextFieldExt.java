@@ -5,6 +5,10 @@ import java.awt.event.ActionListener;
 
 import javax.swing.Timer;
 
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
+@OnlyIn(Dist.CLIENT)
 public class TextFieldExt extends TextField {
 	
 	private int      waitInterval  = 1500;
