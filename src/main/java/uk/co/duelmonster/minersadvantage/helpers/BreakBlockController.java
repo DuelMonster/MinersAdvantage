@@ -21,35 +21,35 @@ import uk.co.duelmonster.minersadvantage.common.Functions;
 
 public class BreakBlockController {
 	
-	public final World				world;
-	public final ServerPlayerEntity	player;
+	public final World              world;
+	public final ServerPlayerEntity player;
 	// private final NetHandlerPlayClient connection;
 	
 	/** The Item currently being used to destroy a block */
-	public ItemStack	heldItemStack	= null;
-	public Item			heldItem		= null;
-	public int			heldItemSlot	= -1;
-	public Direction	faceHit			= Direction.SOUTH;
-	public boolean		bBlockDestroyed	= false;
+	public ItemStack heldItemStack   = null;
+	public Item      heldItem        = null;
+	public int       heldItemSlot    = -1;
+	public Direction faceHit         = Direction.SOUTH;
+	public boolean   bBlockDestroyed = false;
 	
-	private BlockPos	currentBlockPos	= new BlockPos(-1, -1, -1);
+	private BlockPos currentBlockPos = new BlockPos(-1, -1, -1);
 	/** Current block damage (MP) */
-	private float		curBlockDamageMP;
+	private float    curBlockDamageMP;
 	/** Tick counter, when it hits 4 it resets back to 0 and plays the step sound */
-	private float		stepSoundTickCounter;
+	private float    stepSoundTickCounter;
 	/** Delays the first damage on the block after the first click on the block */
-	private int			blockHitDelay;
+	private int      blockHitDelay;
 	/** Tells if the player is hitting a block */
-	private boolean		isHittingBlock;
+	private boolean  isHittingBlock;
 	
 	public BreakBlockController(ServerPlayerEntity player) {
-		this.world = player.world;
+		this.world  = player.world;
 		this.player = player;
 		// this.connection = player.connection;
 		
 		this.heldItemStack = Functions.getHeldItemStack(player);
-		this.heldItem = Functions.getHeldItem(player);
-		this.heldItemSlot = player.inventory.currentItem;
+		this.heldItem      = Functions.getHeldItem(player);
+		this.heldItemSlot  = player.inventory.currentItem;
 	}
 	
 	public boolean DestroyBlock(BlockPos oPos) {
@@ -65,8 +65,8 @@ public class BreakBlockController {
 		
 		final TileEntity te = world.getTileEntity(oPos); // OHHHHH YEEEEAAAH
 		
-		boolean	canHarvest	= state.canHarvestBlock(world, oPos, player);
-		boolean	isRemoved	= removeBlock(oPos, state, canHarvest);
+		boolean canHarvest = state.canHarvestBlock(world, oPos, player);
+		boolean isRemoved  = removeBlock(oPos, state, canHarvest);
 		if (isRemoved && canHarvest) {
 			state.getBlock().harvestBlock(world, player, oPos, state, te, heldItemStack);
 			world.playEvent(player, 2001, oPos, Block.getStateId(state));
@@ -89,17 +89,17 @@ public class BreakBlockController {
 			--this.blockHitDelay;
 			return true;
 		} else if (this.isHittingPosition(posBlock)) {
-			BlockState	iblockstate	= world.getBlockState(posBlock);
-			Block		block		= iblockstate.getBlock();
+			BlockState state = world.getBlockState(posBlock);
+			Block      block = state.getBlock();
 			
-			if (iblockstate.isAir(world, posBlock)) {
+			if (block.isAir(state, world, posBlock)) {
 				this.isHittingBlock = false;
 				return false;
 			} else {
-				this.curBlockDamageMP += iblockstate.getPlayerRelativeBlockHardness(player, world, posBlock);
+				this.curBlockDamageMP += state.getPlayerRelativeBlockHardness(player, world, posBlock);
 				
 				if (this.stepSoundTickCounter % 4.0F == 0.0F) {
-					SoundType soundType = block.getSoundType(iblockstate, world, posBlock, player);
+					SoundType soundType = block.getSoundType(state, world, posBlock, player);
 					Functions.playSound(world, posBlock, soundType.getHitSound(), SoundCategory.NEUTRAL, (soundType.getVolume() + 1.0F) / 8.0F, soundType.getPitch() * 0.5F);
 				}
 				
@@ -109,10 +109,10 @@ public class BreakBlockController {
 					this.isHittingBlock = false;
 					// this.connection.sendPacket(new
 					// CPacketPlayerDigging(CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, posBlock, directionFacing));
-					bBlockDestroyed = true;// this.onPlayerDestroyBlock(posBlock);
-					this.curBlockDamageMP = 0.0F;
+					bBlockDestroyed           = true;// this.onPlayerDestroyBlock(posBlock);
+					this.curBlockDamageMP     = 0.0F;
 					this.stepSoundTickCounter = 0.0F;
-					this.blockHitDelay = 5;
+					this.blockHitDelay        = 5;
 				}
 				
 				world.sendBlockBreakProgress(player.getEntityId(), this.currentBlockPos, (int) (this.curBlockDamageMP * 10.0F) - 1);
@@ -135,22 +135,23 @@ public class BreakBlockController {
 			// this.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.ABORT_DESTROY_BLOCK,
 			// this.currentBlockPos, face));
 			
-			BlockState iblockstate = world.getBlockState(pos);
+			BlockState state = world.getBlockState(pos);
+			Block      block = state.getBlock();
 			
 			// this.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, loc,
 			// face));
-			boolean isAir = iblockstate.isAir(world, pos);
+			boolean isAir = block.isAir(state, world, pos);
 			
 			if (isAir && this.curBlockDamageMP == 0.0F) {
-				iblockstate.onBlockClicked(world, pos, player);
+				state.onBlockClicked(world, pos, player);
 			}
 			
-			if (isAir && iblockstate.getPlayerRelativeBlockHardness(player, world, pos) >= 1.0F) {
+			if (isAir && state.getPlayerRelativeBlockHardness(player, world, pos) >= 1.0F) {
 				this.onPlayerDestroyBlock(pos);
 			} else {
-				this.isHittingBlock = true;
-				this.currentBlockPos = pos;
-				this.curBlockDamageMP = 0.0F;
+				this.isHittingBlock       = true;
+				this.currentBlockPos      = pos;
+				this.curBlockDamageMP     = 0.0F;
 				this.stepSoundTickCounter = 0.0F;
 				world.sendBlockBreakProgress(player.getEntityId(), this.currentBlockPos, (int) (this.curBlockDamageMP * 10.0F) - 1);
 			}
@@ -166,12 +167,12 @@ public class BreakBlockController {
 		if (!this.heldItemStack.isEmpty() && this.heldItem.onBlockStartBreak(this.heldItemStack, pos, player))
 			return false;
 		
-		BlockState	state	= world.getBlockState(pos);
-		Block		block	= state.getBlock();
+		BlockState state = world.getBlockState(pos);
+		Block      block = state.getBlock();
 		
 		if ((block instanceof CommandBlockBlock || block instanceof StructureBlock) && !player.canUseCommandBlock()) {
 			return false;
-		} else if (state.isAir(world, pos)) {
+		} else if (block.isAir(state, world, pos)) {
 			return false;
 		} else {
 			world.playEvent(2001, pos, Block.getStateId(state));

@@ -22,11 +22,12 @@ public class ShaftanationAgent extends Agent {
 	public ShaftanationAgent(ServerPlayerEntity player, PacketShaftanate pkt) {
 		super(player, pkt);
 		
-		this.originPos = pkt.pos;
-		this.faceHit = pkt.faceHit;
+		this.originPos   = pkt.pos;
+		this.faceHit     = pkt.faceHit;
 		this.originState = Block.getStateById(pkt.stateID);
+		final Block block = originState.getBlock();
 		
-		if (originState == null || originState.isAir(world, originPos))
+		if (originState == null || block.isAir(originState, world, originPos))
 			Constants.LOGGER.log(Level.INFO, "Invalid BlockState ID recieved from message packet. [ " + pkt.stateID + " ]");
 		
 		this.originBlock = originState.getBlock();
@@ -62,8 +63,8 @@ public class ShaftanationAgent extends Agent {
 			if (oPos == null || !Functions.isWithinArea(oPos, interimArea) || world.getBlockState(oPos).getBlock() == Blocks.TORCH)
 				continue;
 			
-			BlockState	state	= world.getBlockState(oPos);
-			Block		block	= state.getBlock();
+			BlockState state = world.getBlockState(oPos);
+			Block      block = state.getBlock();
 			
 			if (!getPlayer().func_234569_d_(state)) {
 				// Avoid the non-harvestable blocks.
@@ -111,12 +112,12 @@ public class ShaftanationAgent extends Agent {
 	
 	private void setupShaft() {
 		// Shaft area info
-		int	xStart	= 0;
-		int	xEnd	= 0;
-		int	yBottom	= feetPos;
-		int	yTop	= feetPos + (clientConfig.shaftanation.shaftHeight - 1);
-		int	zStart	= 0;
-		int	zEnd	= 0;
+		int xStart  = 0;
+		int xEnd    = 0;
+		int yBottom = feetPos;
+		int yTop    = feetPos + (clientConfig.shaftanation.shaftHeight - 1);
+		int zStart  = 0;
+		int zEnd    = 0;
 		
 		// if the ShaftWidth is divisible by 2 we don't want to do anything
 		double dDivision = ((clientConfig.shaftanation.shaftWidth & 1) != 0 ? 0 : 0.5);

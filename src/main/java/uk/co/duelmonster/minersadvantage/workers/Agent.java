@@ -195,8 +195,9 @@ public abstract class Agent {
 	// Adds the block position to the current block queue.
 	public void addToQueue(BlockPos pos) {
 		final BlockState state = world.getBlockState(pos);
+		final Block      block = state.getBlock();
 		
-		if (state == null || state.isAir(world, originPos) ||
+		if (state == null || block.isAir(state, world, originPos) ||
 				state.getBlock() == Blocks.TORCH || state.getBlock() == Blocks.BEDROCK ||
 				state.getMaterial() == Material.WATER || state.getMaterial() == Material.LAVA ||
 				pos == null || processed.contains(pos) || queued.contains(pos) ||

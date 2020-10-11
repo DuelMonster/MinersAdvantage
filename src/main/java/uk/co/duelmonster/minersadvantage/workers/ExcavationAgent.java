@@ -25,11 +25,12 @@ public class ExcavationAgent extends Agent {
 	public ExcavationAgent(ServerPlayerEntity player, BaseBlockPacket pkt) {
 		super(player, pkt);
 		
-		this.originPos = pkt.pos;
-		this.faceHit = pkt.faceHit;
+		this.originPos   = pkt.pos;
+		this.faceHit     = pkt.faceHit;
 		this.originState = Block.getStateById(pkt.stateID);
+		final Block block = originState.getBlock();
 		
-		if (originState == null || originState.isAir(world, originPos))
+		if (originState == null || block.isAir(originState, world, originPos))
 			Constants.LOGGER.log(Level.INFO, "Invalid BlockState ID recieved from message packet. [ " + pkt.stateID + " ]");
 		
 		this.originBlock = originState.getBlock();
@@ -73,8 +74,8 @@ public class ExcavationAgent extends Agent {
 			if (oPos == null)
 				continue;
 			
-			BlockState	state	= world.getBlockState(oPos);
-			Block		block	= state.getBlock();
+			BlockState state = world.getBlockState(oPos);
+			Block      block = state.getBlock();
 			
 			if (!getPlayer().func_234569_d_(state)) {
 				// Avoid the non-harvestable blocks.
@@ -123,8 +124,8 @@ public class ExcavationAgent extends Agent {
 	
 	@Override
 	public void addConnectedToQueue(BlockPos oPos) {
-		int	xStart	= -1, yStart = -1, zStart = -1;
-		int	xEnd	= 1, yEnd = 1, zEnd = 1;
+		int xStart = -1, yStart = -1, zStart = -1;
+		int xEnd   = 1, yEnd = 1, zEnd = 1;
 		
 		if (packetId == PacketId.Excavate && (oPos.getX() == originPos.getX() || oPos.getY() == originPos.getY() || oPos.getZ() == originPos.getZ()))
 			switch (faceHit.getOpposite()) {
@@ -152,7 +153,7 @@ public class ExcavationAgent extends Agent {
 			
 		if (bIsSingleLayerToggled) {
 			yStart = 0;
-			yEnd = 0;
+			yEnd   = 0;
 		}
 		
 		for (int xOffset = xStart; xOffset <= xEnd; xOffset++)

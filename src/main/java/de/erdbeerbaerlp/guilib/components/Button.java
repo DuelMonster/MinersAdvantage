@@ -1,6 +1,6 @@
 package de.erdbeerbaerlp.guilib.components;
 
-import java.io.IOException;
+// import java.io.IOException;
 import java.net.URL;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -9,7 +9,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 
-import de.erdbeerbaerlp.guilib.util.ImageUtil;
+// import de.erdbeerbaerlp.guilib.util.ImageUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.NativeImage;
@@ -102,12 +102,12 @@ public class Button extends GuiComponent {
 	 */
 	public Button(int xPos, int yPos, int width, int height, String displayString, String iconURL) {
 		this(xPos, yPos, width, height, displayString);
-		try {
-			this.BUTTON_ICON_IMAGE = new DynamicTexture(ImageUtil.getImageFromIS(ImageUtil.getInputStreamFromImageURL(iconURL), false, 16, 16, true));
-		}
-		catch (IOException e) {
-			errorTooltip = e.getCause().getLocalizedMessage();
-		}
+		// try {
+		// this.BUTTON_ICON_IMAGE = new DynamicTexture(ImageUtil.getImageFromIS(ImageUtil.getInputStreamFromImageURL(iconURL), false, 16, 16, true));
+		// }
+		// catch (IOException e) {
+		// errorTooltip = e.getCause().getLocalizedMessage();
+		// }
 		this.displayString = displayString;
 	}
 	

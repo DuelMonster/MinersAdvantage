@@ -35,8 +35,8 @@ public class ClientEventHandler {
 		IDLE, SWITCHED
 	}
 	
-	private static AttackStage			currentAttackStage	= AttackStage.IDLE;
-	private static SubstitutionHelper	substitutionHelper	= new SubstitutionHelper();
+	private static AttackStage        currentAttackStage = AttackStage.IDLE;
+	private static SubstitutionHelper substitutionHelper = new SubstitutionHelper();
 	
 	// Client Tick event
 	@SubscribeEvent
@@ -45,7 +45,7 @@ public class ClientEventHandler {
 		if (event.phase != Phase.END || ClientFunctions.mc == null)
 			return;
 		
-		Minecraft mc = ClientFunctions.mc;
+		Minecraft          mc     = ClientFunctions.mc;
 		ClientPlayerEntity player = ClientFunctions.getPlayer();
 		if (player == null || mc.playerController.isSpectatorMode())
 			return;
@@ -86,12 +86,12 @@ public class ClientEventHandler {
 		if (variables.IsPlayerAttacking && mc.objectMouseOver != null && mc.objectMouseOver instanceof BlockRayTraceResult) {
 			
 			if (MAConfig.CLIENT.substitution.enabled() && !variables.currentlySwitched) {
-				World world = player.getEntityWorld();
-				BlockPos pos = blockResult.getPos();
+				World      world = player.getEntityWorld();
+				BlockPos   pos   = blockResult.getPos();
 				BlockState state = world.getBlockState(pos);
-				Block block = state.getBlock();
+				Block      block = state.getBlock();
 				
-				if (block == null || state.isAir(world, pos) || Blocks.BEDROCK == block)
+				if (block == null || block.isAir(state, world, pos) || Blocks.BEDROCK == block)
 					return;
 				
 				MA.NETWORK.sendToServer(new PacketSubstituteTool(pos));
@@ -160,8 +160,8 @@ public class ClientEventHandler {
 				&& ClientFunctions.mc.objectMouseOver instanceof BlockRayTraceResult) {
 			
 			BlockRayTraceResult blockResult = (BlockRayTraceResult) ClientFunctions.mc.objectMouseOver;
-			BlockPos pos = blockResult.getPos();
-			Block block = world.getBlockState(pos).getBlock();
+			BlockPos            pos         = blockResult.getPos();
+			Block               block       = world.getBlockState(pos).getBlock();
 			
 			if (Constants.DIRT_BLOCKS.contains(block) || block.equals(Blocks.GRASS_PATH)) {
 				MA.NETWORK.sendToServer(new PacketPathanate(pos));
