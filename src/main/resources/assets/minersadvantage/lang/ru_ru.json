@@ -3,6 +3,13 @@
     "minersadvantage.hungry": "Вы слишком голодны, чтобы использовать",
     "minersadvantage.about.agents": "Прервать процессы",
     "minersadvantage.supremevantage": "§aПОЗДРАВЛЯЕМ: §7Вы получили §6SupremeVantage§7!",
+    
+    "minersadvantage.config.gui.close": "Закрыть",
+    "minersadvantage.config.gui.category": "Категория",
+    "minersadvantage.config.gui.common": "Общие",
+    "minersadvantage.config.gui.reset.comment": "Сбросить категории по умолчанию",
+    "minersadvantage.config.gui.fullreset": "Полный сброс",
+    "minersadvantage.config.gui.fullreset.comment": "Сбросить все значения по умолчанию",
 
     "minersadvantage.client.comment": "Параметры для клиента",
     "minersadvantage.client.disable_particle_effects": "Отключить эффекты частиц",
@@ -133,7 +140,7 @@
     "minersadvantage.pathanation.path_width": "Ширина пути",
     "minersadvantage.pathanation.path_width.comment": "Как широко прокладывать путь.",
     "minersadvantage.pathanation.path_length": "Длина пути",
-    "minersadvantage.pathanation.path_length.comment": "Как долго прокладывать путь.",
+    "minersadvantage.pathanation.path_length.comment": "Как далеко прокладывать путь.",
 
     "minersadvantage.shaftanation.comment": "Параметры Shaftanation",
     "minersadvantage.shaftanation.enabled": "Shaftanation включен",
@@ -146,12 +153,12 @@
     "minersadvantage.shaftanation.shaft_w": "Ширина шахты",
     "minersadvantage.shaftanation.shaft_w.comment": "Количество блоков ширины шахты.",
     "minersadvantage.shaftanation.torch_placement": "Размещение факела",
-    "minersadvantage.shaftanation.torch_placement.comment": "Где следует размещать факелы при включенном авто-освещении: На полу (по умолчанию), L_Wall или R_Wall (2 блока от пола шахты).",
+    "minersadvantage.shaftanation.torch_placement.comment": "Где следует размещать факелы при включенном авто-освещении: На полу (по умолчанию), L_Wall (левая стена) или R_Wall (правая стена) - 2 блока от пола шахты.",
 
     "minersadvantage.substitution.comment": "Параметры Substitution",
     "minersadvantage.substitution.enabled": "Substitution включен",
     "minersadvantage.substitution.enabled.comment": "Включение/выключение Substitution",
-    "minersadvantage.substitution.switchback": "Сменить назад",
+    "minersadvantage.substitution.switchback": "Сменить обратно",
     "minersadvantage.substitution.switchback.comment": "Если «true», то вернётся к ранее выбранному предмету.",
     "minersadvantage.substitution.favour_silk": "SilkTouch избранный",
     "minersadvantage.substitution.favour_silk.comment": "Выбирать инструмент SilkTouch поверх любого другого инструмента.",
