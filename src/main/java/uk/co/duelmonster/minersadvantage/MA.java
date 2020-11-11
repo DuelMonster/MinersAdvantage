@@ -17,7 +17,8 @@ import uk.co.duelmonster.minersadvantage.setup.ServerSetup;
 @Mod(Constants.MOD_ID)
 public class MA {
 	
-	public static final NetworkHandler NETWORK = new NetworkHandler();
+	public static final NetworkHandler NETWORK     = new NetworkHandler();
+	public static ClientSetup          clientSetup = null;
 	
 	public MA() {
 		DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> ClientSetup::new);

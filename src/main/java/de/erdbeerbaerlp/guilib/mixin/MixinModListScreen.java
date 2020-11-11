@@ -1,6 +1,5 @@
 package de.erdbeerbaerlp.guilib.mixin;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -19,6 +18,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.client.gui.screen.ModListScreen;
 import net.minecraftforge.fml.client.gui.widget.ModListWidget;
+import uk.co.duelmonster.minersadvantage.MA;
 
 @OnlyIn(Dist.CLIENT)
 @Mixin(ModListScreen.class)
@@ -42,7 +42,8 @@ public abstract class MixinModListScreen extends Screen {
 		if (selected != null) {
 			if (ModList.get().getModObjectById(selected.getInfo().getModId()).isPresent()) {
 				final Object mod = ModList.get().getModObjectById(selected.getInfo().getModId()).get();
-				if (ArrayUtils.contains(mod.getClass().getInterfaces(), IHasConfigGUI.class)) {
+				
+				if (ArrayUtils.contains(mod.getClass().getInterfaces(), IHasConfigGUI.class) || mod.getClass() == MA.class) {
 					configButton.active = true;
 				}
 			}
@@ -53,22 +54,30 @@ public abstract class MixinModListScreen extends Screen {
 			at = @At("HEAD"),
 			remap = false)
 	private void displayConfig(CallbackInfo ci) {
-		if (selected != null) {
+		if (selected == null) return;
+		
+		try {
 			if (ModList.get().getModObjectById(selected.getInfo().getModId()).isPresent()) {
 				final Object mod = ModList.get().getModObjectById(selected.getInfo().getModId()).get();
+				
 				if (ArrayUtils.contains(mod.getClass().getInterfaces(), IHasConfigGUI.class)) {
-					try {
-						final Method getCfg = mod.getClass().getDeclaredMethod("getConfigGUI", Screen.class);
-						final Screen s      = (Screen) getCfg.invoke(mod, this);
-						minecraft.displayGuiScreen(s);
-					}
-					catch (NoSuchMethodException | SecurityException | IllegalAccessException | InvocationTargetException e) {
-						e.printStackTrace();
-					}
+					
+					final Method getCfg = mod.getClass().getDeclaredMethod("getConfigGUI", Screen.class);
+					final Screen screen = (Screen) getCfg.invoke(mod, this);
+					minecraft.displayGuiScreen(screen);
+					
+				} else if (mod.getClass() == MA.class) {
+					
+					final Method getCfg = MA.clientSetup.getClass().getDeclaredMethod("getConfigGUI", Screen.class);
+					final Screen screen = (Screen) getCfg.invoke(MA.clientSetup, this);
+					minecraft.displayGuiScreen(screen);
+					
 				}
 			}
 		}
-		
+		catch (final Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 }

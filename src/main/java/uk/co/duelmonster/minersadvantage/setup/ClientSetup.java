@@ -10,6 +10,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import uk.co.duelmonster.minersadvantage.MA;
 import uk.co.duelmonster.minersadvantage.client.ClientFunctions;
 import uk.co.duelmonster.minersadvantage.client.KeyBindings;
 import uk.co.duelmonster.minersadvantage.client.MAParticleManager;
@@ -23,6 +24,8 @@ public class ClientSetup implements IHasConfigGUI {
 	
 	public ClientSetup() {
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onClientSetup);
+		
+		MA.clientSetup = this;
 	}
 	
 	@Override

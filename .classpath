@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="de/erdbeerbaerlp/guilib/components/GifThread.java|de/erdbeerbaerlp/guilib/components/Image.java|de/erdbeerbaerlp/guilib/components/Spinner.java|de/erdbeerbaerlp/guilib/util/ImageUtil.java|de/erdbeerbaerlp/guilib/ExampleGUI.java" output="bin/main" kind="src" path="src/main/java">
+	<classpathentry output="bin/main" kind="src" path="src/main/java">
 		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="C:\$MC\Mod Source\~MinersAdvantage\Source\build\natives"/>
 			<attribute name="gradle_scope" value="main"/>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="C:\$MC\Mod Source\~MinersAdvantage\Source\build\natives"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry output="bin/main" kind="src" path="src/main/resources">
 		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="C:\$MC\Mod Source\~MinersAdvantage\Source\build\natives"/>
 			<attribute name="gradle_scope" value="main"/>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="C:\$MC\Mod Source\~MinersAdvantage\Source\build\natives"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.buildship.core.gradleclasspathcontainer"/>
+	<classpathentry kind="output" path="bin/default"/>
 	<classpathentry output="bin/test" kind="src" path="src/test/java">
 		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="C:\$MC\Mod Source\~MinersAdvantage\Source\build\natives"/>
 			<attribute name="gradle_scope" value="test"/>
 			<attribute name="gradle_used_by_scope" value="test"/>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="C:\$MC\Mod Source\~MinersAdvantage\Source\build\natives"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry output="bin/test" kind="src" path="src/test/resources">
 		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="C:\$MC\Mod Source\~MinersAdvantage\Source\build\natives"/>
 			<attribute name="gradle_scope" value="test"/>
 			<attribute name="gradle_used_by_scope" value="test"/>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="C:\$MC\Mod Source\~MinersAdvantage\Source\build\natives"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="output" path="bin/default"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8/"/>
 	<classpathentry sourcepath="C:/Users/DuelMonster/.gradle/caches/modules-2/files-2.1/com.github.dragon66/icafe/26c49d5d40/bb4f182129d60c684324ba89352ef6deb0ed6871/icafe-26c49d5d40-sources.jar" kind="lib" path="C:/Users/DuelMonster/.gradle/caches/modules-2/files-2.1/com.github.dragon66/icafe/26c49d5d40/636ef83d0a4c28de9736259ba1384d5d8f298c17/icafe-26c49d5d40.jar">
 		<attributes>
@@ -41,12 +41,12 @@
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="C:/$MC/Mod Source/~MinersAdvantage/Source/build/fg_cache/net/minecraftforge/forge/1.16.3-34.1.0_mapped_snapshot_20200916-1.16.2/forge-1.16.3-34.1.0_mapped_snapshot_20200916-1.16.2-sources.jar" kind="lib" path="C:/$MC/Mod Source/~MinersAdvantage/Source/build/fg_cache/net/minecraftforge/forge/1.16.3-34.1.0_mapped_snapshot_20200916-1.16.2/forge-1.16.3-34.1.0_mapped_snapshot_20200916-1.16.2.jar">
+	<classpathentry sourcepath="C:/$MC/Mod Source/~MinersAdvantage/Source/build/fg_cache/net/minecraftforge/forge/1.16.4-35.0.2_mapped_snapshot_20201028-1.16.3/forge-1.16.4-35.0.2_mapped_snapshot_20201028-1.16.3-sources.jar" kind="lib" path="C:/$MC/Mod Source/~MinersAdvantage/Source/build/fg_cache/net/minecraftforge/forge/1.16.4-35.0.2_mapped_snapshot_20201028-1.16.3/forge-1.16.4-35.0.2_mapped_snapshot_20201028-1.16.3-recomp.jar">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="C:/$MC/Mod Source/~MinersAdvantage/Source/build/fg_cache/net/minecraftforge/forge/1.16.3-34.1.0_mapped_snapshot_20200916-1.16.2/forge-1.16.3-34.1.0_mapped_snapshot_20200916-1.16.2-sources.jar" kind="lib" path="C:/$MC/Mod Source/~MinersAdvantage/Source/build/fg_cache/net/minecraftforge/forge/1.16.3-34.1.0_mapped_snapshot_20200916-1.16.2/forge-1.16.3-34.1.0_mapped_snapshot_20200916-1.16.2-launcher.jar">
+	<classpathentry sourcepath="C:/$MC/Mod Source/~MinersAdvantage/Source/build/fg_cache/net/minecraftforge/forge/1.16.4-35.0.2_mapped_snapshot_20201028-1.16.3/forge-1.16.4-35.0.2_mapped_snapshot_20201028-1.16.3-sources.jar" kind="lib" path="C:/$MC/Mod Source/~MinersAdvantage/Source/build/fg_cache/net/minecraftforge/forge/1.16.4-35.0.2_mapped_snapshot_20201028-1.16.3/forge-1.16.4-35.0.2_mapped_snapshot_20201028-1.16.3-launcher.jar">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
@@ -61,7 +61,7 @@
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/DuelMonster/.gradle/caches/forge_gradle/minecraft_repo/versions/1.16.3/client-extra.jar">
+	<classpathentry kind="lib" path="C:/Users/DuelMonster/.gradle/caches/forge_gradle/minecraft_repo/versions/1.16.4/client-extra.jar">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
@@ -81,17 +81,17 @@
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="C:/Users/DuelMonster/.gradle/caches/modules-2/files-2.1/net.minecraftforge/forgespi/3.1.1/f045ae91097e879ed4bdcda7e898746e23d3f7f7/forgespi-3.1.1-sources.jar" kind="lib" path="C:/Users/DuelMonster/.gradle/caches/modules-2/files-2.1/net.minecraftforge/forgespi/3.1.1/f258f875d9252d5ee83d8f0f2d03f71123f37650/forgespi-3.1.1.jar">
+	<classpathentry sourcepath="C:/Users/DuelMonster/.gradle/caches/modules-2/files-2.1/net.minecraftforge/forgespi/3.2.0/56b92992f07b8bd2f99c8769ff91e18d64746cde/forgespi-3.2.0-sources.jar" kind="lib" path="C:/Users/DuelMonster/.gradle/caches/modules-2/files-2.1/net.minecraftforge/forgespi/3.2.0/c6ca4e4e4a0343701407c760e642537b613b543/forgespi-3.2.0.jar">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="C:/Users/DuelMonster/.gradle/caches/modules-2/files-2.1/cpw.mods/modlauncher/7.0.1/6932e864dc94a2ace88bb5bb195a5e3c32bf903a/modlauncher-7.0.1-sources.jar" kind="lib" path="C:/Users/DuelMonster/.gradle/caches/modules-2/files-2.1/cpw.mods/modlauncher/7.0.1/e66e347c2a4c61781198f86be5cc43f19c1dfb92/modlauncher-7.0.1.jar">
+	<classpathentry sourcepath="C:/Users/DuelMonster/.gradle/caches/modules-2/files-2.1/cpw.mods/modlauncher/8.0.6/e95b14db2f0134458c92cdcf74adf78b336646da/modlauncher-8.0.6-sources.jar" kind="lib" path="C:/Users/DuelMonster/.gradle/caches/modules-2/files-2.1/cpw.mods/modlauncher/8.0.6/70155a85837ebb17d36815ab4d12a3b464963df8/modlauncher-8.0.6.jar">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="C:/Users/DuelMonster/.gradle/caches/modules-2/files-2.1/cpw.mods/modlauncher/7.0.1/6932e864dc94a2ace88bb5bb195a5e3c32bf903a/modlauncher-7.0.1-sources.jar" kind="lib" path="C:/Users/DuelMonster/.gradle/caches/modules-2/files-2.1/cpw.mods/modlauncher/7.0.1/46cf400820b6640e2d3231dd1644d1ee179f16f8/modlauncher-7.0.1-api.jar">
+	<classpathentry sourcepath="C:/Users/DuelMonster/.gradle/caches/modules-2/files-2.1/cpw.mods/modlauncher/8.0.6/e95b14db2f0134458c92cdcf74adf78b336646da/modlauncher-8.0.6-sources.jar" kind="lib" path="C:/Users/DuelMonster/.gradle/caches/modules-2/files-2.1/cpw.mods/modlauncher/8.0.6/5cc4b2ec5be0b92660497a918a66337118b71c78/modlauncher-8.0.6-api.jar">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
@@ -106,7 +106,7 @@
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/DuelMonster/.gradle/caches/forge_gradle/maven_downloader/de/oceanlabs/mcp/mcp_snapshot/20200916-1.16.2/mcp_snapshot-20200916-1.16.2.zip">
+	<classpathentry kind="lib" path="C:/Users/DuelMonster/.gradle/caches/forge_gradle/maven_downloader/de/oceanlabs/mcp/mcp_snapshot/20201028-1.16.3/mcp_snapshot-20201028-1.16.3.zip">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
@@ -191,7 +191,7 @@
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="C:/Users/DuelMonster/.gradle/caches/modules-2/files-2.1/org.spongepowered/mixin/0.8.1/dd8bcf2d81183a1d6ebdd4c6b286de3809e7dda3/mixin-0.8.1-sources.jar" kind="lib" path="C:/Users/DuelMonster/.gradle/caches/modules-2/files-2.1/org.spongepowered/mixin/0.8.1/3099ac85bce29d37a22d3561073d01eb99b0cf4b/mixin-0.8.1.jar">
+	<classpathentry sourcepath="C:/Users/DuelMonster/.gradle/caches/modules-2/files-2.1/org.spongepowered/mixin/0.8.2/caccc1f7d6fc35b3dc93246d44d3458d2f141334/mixin-0.8.2-sources.jar" kind="lib" path="C:/Users/DuelMonster/.gradle/caches/modules-2/files-2.1/org.spongepowered/mixin/0.8.2/1cf212283d26f706fd3074318870bebd14d2a9ed/mixin-0.8.2.jar">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
@@ -281,7 +281,7 @@
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="C:/Users/DuelMonster/.gradle/caches/modules-2/files-2.1/com.mojang/authlib/1.6.25/de9a1ba1e01d2f3e03a0b5812f4f4e51624a671e/authlib-1.6.25-sources.jar" kind="lib" path="C:/Users/DuelMonster/.gradle/caches/modules-2/files-2.1/com.mojang/authlib/1.6.25/5bd0ce00c1e1f483641f85bccb02d1956dd77ec0/authlib-1.6.25.jar">
+	<classpathentry sourcepath="C:/Users/DuelMonster/.gradle/caches/modules-2/files-2.1/com.mojang/authlib/2.0.27/352ddcc8122ef9043e386724387733041b5ff8d/authlib-2.0.27-sources.jar" kind="lib" path="C:/Users/DuelMonster/.gradle/caches/modules-2/files-2.1/com.mojang/authlib/2.0.27/cc36c2be8b0de3e200efbb23f0eb2d28055cd98f/authlib-2.0.27.jar">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>

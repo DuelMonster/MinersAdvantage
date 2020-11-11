@@ -1,12 +1,7 @@
-Build: 1.16.3-1.7.4.159
-	Compatible with Forge 34.1.0+
-	fix: crash issue on start up
 
-=========
-
-Build: 1.16.3-1.7.3.153
-	Ported to MC 1.16.3
-	Compatible with Forge 34.1.0+
+Build: 1.16.4-1.8.0.174
+	Ported to MC 1.16.4
+	Compatible with Forge 35.0.2+
 	fix: server crash issue due to config GUI changes in last version
 		
 =========

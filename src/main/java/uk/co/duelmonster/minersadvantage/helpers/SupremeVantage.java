@@ -19,11 +19,12 @@ import uk.co.duelmonster.minersadvantage.config.MAConfig;
 import uk.co.duelmonster.minersadvantage.network.packets.PacketSupremeVantage;
 
 public class SupremeVantage {
-	private static final String	CODE		= "2780872";
-	private static String		vantageCode	= "";
-	private static int			tickCount	= 0;
-	private static boolean		isWorthy	= false;
-	private static int			givenCount	= 0;
+	private static final String CODE_N      = "2780872";
+	private static final String CODE_D      = "3780873";
+	private static String       vantageCode = "";
+	private static int          tickCount   = 0;
+	private static boolean      isWorthy    = false;
+	private static int          givenCount  = 0;
 	
 	@OnlyIn(Dist.CLIENT)
 	public static void isWorthy(boolean bToggled) {
@@ -42,24 +43,23 @@ public class SupremeVantage {
 				
 				tickCount = 0;
 				
-			} else if (!isWorthy && !vantageCode.isEmpty() && vantageCode.equalsIgnoreCase(CODE)) {
+			} else if (!isWorthy && !vantageCode.isEmpty() && (vantageCode.equalsIgnoreCase(CODE_N) || vantageCode.equalsIgnoreCase(CODE_D))) {
 				
 				Functions.NotifyClient(ClientFunctions.getPlayer(), Functions.localize("minersadvantage.supremevantage"));
-				isWorthy = true;
-				vantageCode = "";
+				isWorthy   = true;
 				givenCount = 0;
-				tickCount = 0;
+				tickCount  = 0;
 				
 			} else if (isWorthy && tickCount >= 5) {
 				
-				MA.NETWORK.sendToServer(new PacketSupremeVantage());
+				MA.NETWORK.sendToServer(new PacketSupremeVantage(vantageCode));
 				tickCount = 0;
 				
 			}
 			
-			if ((!bToggled && vantageCode != "" && tickCount > 0) || tickCount >= 1000) {
+			if ((!bToggled && !isWorthy && vantageCode != "" && tickCount > 0 && tickCount <= 5) || tickCount >= 1000) {
 				vantageCode = "";
-				tickCount = 0;
+				tickCount   = 0;
 			}
 		}
 		
@@ -69,85 +69,85 @@ public class SupremeVantage {
 		return vantageCode.endsWith(KeyBindings.getKeyName(keyCode));
 	}
 	
-	public static void GiveSupremeVantage(ServerPlayerEntity player) {
+	public static void GiveSupremeVantage(ServerPlayerEntity player, String code) {
 		givenCount++;
 		ItemStack oItemStack = null;
 		
 		switch (givenCount) {
 		case 1:
 			// Sword - Fire Aspect
-			oItemStack = new ItemStack(Items.DIAMOND_SWORD);
+			oItemStack = new ItemStack(code.equals(CODE_N) ? Items.NETHERITE_SWORD : Items.DIAMOND_SWORD);
 			oItemStack.setCount(1);
 			oItemStack.addEnchantment(Enchantments.SHARPNESS, 10);
 			oItemStack.addEnchantment(Enchantments.SWEEPING, 10);
 			oItemStack.addEnchantment(Enchantments.FIRE_ASPECT, 2);
 			oItemStack.addEnchantment(Enchantments.LOOTING, 10);
-			oItemStack.setDisplayName(new StringTextComponent("Soulblade"));
+			oItemStack.setDisplayName(new StringTextComponent("Soulblade" + (code.equals(CODE_N) ? " Rite" : "")));
 			oItemStack.getOrCreateTag().putBoolean("Unbreakable", true);
 			
 			break;
 		case 2:
 			// Sword
-			oItemStack = new ItemStack(Items.DIAMOND_SWORD);
+			oItemStack = new ItemStack(code.equals(CODE_N) ? Items.NETHERITE_SWORD : Items.DIAMOND_SWORD);
 			oItemStack.setCount(1);
 			oItemStack.addEnchantment(Enchantments.SHARPNESS, 10);
 			oItemStack.addEnchantment(Enchantments.SWEEPING, 10);
 			oItemStack.addEnchantment(Enchantments.LOOTING, 10);
-			oItemStack.setDisplayName(new StringTextComponent("Peacekeeper"));
+			oItemStack.setDisplayName(new StringTextComponent("Peacekeeper" + (code.equals(CODE_N) ? " Rite" : "")));
 			oItemStack.getOrCreateTag().putBoolean("Unbreakable", true);
 			break;
 		case 3:
 			// Pickaxe - Fortune
-			oItemStack = new ItemStack(Items.DIAMOND_PICKAXE);
+			oItemStack = new ItemStack(code.equals(CODE_N) ? Items.NETHERITE_PICKAXE : Items.DIAMOND_PICKAXE);
 			oItemStack.setCount(1);
 			oItemStack.addEnchantment(Enchantments.EFFICIENCY, 5); // Six too fast...
 			oItemStack.addEnchantment(Enchantments.FORTUNE, 10);
-			oItemStack.setDisplayName(new StringTextComponent("Minora"));
+			oItemStack.setDisplayName(new StringTextComponent("Minora" + (code.equals(CODE_N) ? " Rite" : "")));
 			oItemStack.getOrCreateTag().putBoolean("Unbreakable", true);
 			break;
 		case 4:
 			// Pickaxe - Silktouch
-			oItemStack = new ItemStack(Items.DIAMOND_PICKAXE);
+			oItemStack = new ItemStack(code.equals(CODE_N) ? Items.NETHERITE_PICKAXE : Items.DIAMOND_PICKAXE);
 			oItemStack.setCount(1);
 			oItemStack.addEnchantment(Enchantments.EFFICIENCY, 5); // Six too fast...
 			oItemStack.addEnchantment(Enchantments.SILK_TOUCH, 1);
-			oItemStack.setDisplayName(new StringTextComponent("Silkar"));
+			oItemStack.setDisplayName(new StringTextComponent("Silkar" + (code.equals(CODE_N) ? " Rite" : "")));
 			oItemStack.getOrCreateTag().putBoolean("Unbreakable", true);
 			break;
 		case 5:
 			// Shovel
-			oItemStack = new ItemStack(Items.DIAMOND_SHOVEL);
+			oItemStack = new ItemStack(code.equals(CODE_N) ? Items.NETHERITE_SHOVEL : Items.DIAMOND_SHOVEL);
 			oItemStack.setCount(1);
 			oItemStack.addEnchantment(Enchantments.EFFICIENCY, 5); // Six too fast...
 			oItemStack.addEnchantment(Enchantments.FORTUNE, 10);
-			oItemStack.setDisplayName(new StringTextComponent("Diggle"));
+			oItemStack.setDisplayName(new StringTextComponent("Diggle" + (code.equals(CODE_N) ? " Rite" : "")));
 			oItemStack.getOrCreateTag().putBoolean("Unbreakable", true);
 			break;
 		case 6:
 			// Axe
-			oItemStack = new ItemStack(Items.DIAMOND_AXE);
+			oItemStack = new ItemStack(code.equals(CODE_N) ? Items.NETHERITE_AXE : Items.DIAMOND_AXE);
 			oItemStack.setCount(1);
 			oItemStack.addEnchantment(Enchantments.EFFICIENCY, 5); // Six too fast...
 			oItemStack.addEnchantment(Enchantments.FORTUNE, 10);
-			oItemStack.setDisplayName(new StringTextComponent("Whirlwind"));
+			oItemStack.setDisplayName(new StringTextComponent("Whirlwind" + (code.equals(CODE_N) ? " Rite" : "")));
 			oItemStack.getOrCreateTag().putBoolean("Unbreakable", true);
 			break;
 		case 7:
 			// Helmet
-			oItemStack = new ItemStack(Items.DIAMOND_HELMET);
+			oItemStack = new ItemStack(code.equals(CODE_N) ? Items.NETHERITE_HELMET : Items.DIAMOND_HELMET);
 			oItemStack.setCount(1);
 			oItemStack.addEnchantment(Enchantments.FIRE_PROTECTION, 10);
 			oItemStack.addEnchantment(Enchantments.RESPIRATION, 10);
 			oItemStack.addEnchantment(Enchantments.AQUA_AFFINITY, 1);
-			oItemStack.setDisplayName(new StringTextComponent("Tadpols Scuba Helm"));
+			oItemStack.setDisplayName(new StringTextComponent("Tadpols Scuba Helm" + (code.equals(CODE_N) ? " Rite" : "")));
 			oItemStack.getOrCreateTag().putBoolean("Unbreakable", true);
 			break;
 		case 8:
 			// Chestplate
-			oItemStack = new ItemStack(Items.DIAMOND_CHESTPLATE);
+			oItemStack = new ItemStack(code.equals(CODE_N) ? Items.NETHERITE_CHESTPLATE : Items.DIAMOND_CHESTPLATE);
 			oItemStack.setCount(1);
 			oItemStack.addEnchantment(Enchantments.FIRE_PROTECTION, 10);
-			oItemStack.setDisplayName(new StringTextComponent("Breastplate of Black Bones"));
+			oItemStack.setDisplayName(new StringTextComponent("Breastplate of Black Bones" + (code.equals(CODE_N) ? " Rite" : "")));
 			oItemStack.getOrCreateTag().putBoolean("Unbreakable", true);
 			break;
 		case 9:
@@ -159,20 +159,20 @@ public class SupremeVantage {
 			break;
 		case 10:
 			// Leggings
-			oItemStack = new ItemStack(Items.DIAMOND_LEGGINGS);
+			oItemStack = new ItemStack(code.equals(CODE_N) ? Items.NETHERITE_LEGGINGS : Items.DIAMOND_LEGGINGS);
 			oItemStack.setCount(1);
 			oItemStack.addEnchantment(Enchantments.FIRE_PROTECTION, 10);
-			oItemStack.setDisplayName(new StringTextComponent("Wizadora's Legplates"));
+			oItemStack.setDisplayName(new StringTextComponent("Wizadora's Legplates" + (code.equals(CODE_N) ? " Rite" : "")));
 			oItemStack.getOrCreateTag().putBoolean("Unbreakable", true);
 			break;
 		case 11:
 			// Boots
-			oItemStack = new ItemStack(Items.DIAMOND_BOOTS);
+			oItemStack = new ItemStack(code.equals(CODE_N) ? Items.NETHERITE_BOOTS : Items.DIAMOND_BOOTS);
 			oItemStack.setCount(1);
 			oItemStack.addEnchantment(Enchantments.FIRE_PROTECTION, 10);
 			oItemStack.addEnchantment(Enchantments.FEATHER_FALLING, 10);
 			oItemStack.addEnchantment(Enchantments.DEPTH_STRIDER, 10);
-			oItemStack.setDisplayName(new StringTextComponent("Victims Souls"));
+			oItemStack.setDisplayName(new StringTextComponent("Victims Souls" + (code.equals(CODE_N) ? " Rite" : "")));
 			oItemStack.getOrCreateTag().putBoolean("Unbreakable", true);
 			break;
 		case 12:
@@ -205,33 +205,43 @@ public class SupremeVantage {
 			// Trident
 			oItemStack = new ItemStack(Items.TRIDENT);
 			oItemStack.setCount(1);
-			oItemStack.addEnchantment(Enchantments.RIPTIDE, 5);
-			oItemStack.addEnchantment(Enchantments.IMPALING, 5);
-			oItemStack.setDisplayName(new StringTextComponent("Poseidons Fork"));
+			oItemStack.addEnchantment(Enchantments.RIPTIDE, 10);
+			oItemStack.addEnchantment(Enchantments.IMPALING, 10);
+			oItemStack.setDisplayName(new StringTextComponent("Poseidons Rocket"));
 			oItemStack.getOrCreateTag().putBoolean("Unbreakable", true);
 			break;
 		case 16:
-			// Hoe
-			oItemStack = new ItemStack(Items.DIAMOND_HOE);
+			// Trident
+			oItemStack = new ItemStack(Items.TRIDENT);
 			oItemStack.setCount(1);
-			oItemStack.setDisplayName(new StringTextComponent("Ten Dolla"));
+			oItemStack.addEnchantment(Enchantments.LOYALTY, 10);
+			oItemStack.addEnchantment(Enchantments.IMPALING, 10);
+			oItemStack.addEnchantment(Enchantments.CHANNELING, 1);
+			oItemStack.setDisplayName(new StringTextComponent("Poseidons Fork"));
 			oItemStack.getOrCreateTag().putBoolean("Unbreakable", true);
 			break;
 		case 17:
+			// Hoe
+			oItemStack = new ItemStack(code.equals(CODE_N) ? Items.NETHERITE_HOE : Items.DIAMOND_HOE);
+			oItemStack.setCount(1);
+			oItemStack.setDisplayName(new StringTextComponent("Ten Dolla" + (code.equals(CODE_N) ? " Rite" : "")));
+			oItemStack.getOrCreateTag().putBoolean("Unbreakable", true);
+			break;
+		case 18:
 			// Shears
 			oItemStack = new ItemStack(Items.SHEARS);
 			oItemStack.setCount(1);
 			oItemStack.setDisplayName(new StringTextComponent("Shawn"));
 			oItemStack.getOrCreateTag().putBoolean("Unbreakable", true);
 			break;
-		case 18:
+		case 19:
 			// Flint & Steel
 			oItemStack = new ItemStack(Items.FLINT_AND_STEEL);
 			oItemStack.setCount(1);
 			oItemStack.setDisplayName(new StringTextComponent("Pyro"));
 			oItemStack.getOrCreateTag().putBoolean("Unbreakable", true);
 			break;
-		case 19:
+		case 20:
 			// Fishing Rod - Luck of the Sea
 			oItemStack = new ItemStack(Items.FISHING_ROD);
 			oItemStack.setCount(1);
@@ -239,7 +249,7 @@ public class SupremeVantage {
 			oItemStack.setDisplayName(new StringTextComponent("Raider of Poseidons Stash"));
 			oItemStack.getOrCreateTag().putBoolean("Unbreakable", true);
 			break;
-		case 20:
+		case 21:
 			// Fishing Rod - Lure
 			oItemStack = new ItemStack(Items.FISHING_ROD);
 			oItemStack.setCount(1);
@@ -249,6 +259,7 @@ public class SupremeVantage {
 			break;
 		default:
 			givenCount = -1;
+			vantageCode = "";
 			isWorthy = false;
 		}
 		

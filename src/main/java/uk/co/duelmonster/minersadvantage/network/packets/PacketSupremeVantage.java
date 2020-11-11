@@ -10,16 +10,24 @@ import uk.co.duelmonster.minersadvantage.network.packetids.PacketId;
 
 public class PacketSupremeVantage implements IMAPacket {
 	
-	public PacketSupremeVantage() {}
+	private final String code;
 	
-	public PacketSupremeVantage(PacketBuffer buf) {}
+	public PacketSupremeVantage(String _code) {
+		this.code = _code;
+	}
+	
+	public PacketSupremeVantage(PacketBuffer buf) {
+		this.code = buf.readString();
+	}
 	
 	@Override
 	public PacketId getPacketId() {
 		return PacketId.SupremeVantage;
 	}
 	
-	public static void encode(PacketSupremeVantage pkt, PacketBuffer buf) {}
+	public static void encode(PacketSupremeVantage pkt, PacketBuffer buf) {
+		buf.writeString(pkt.code);
+	}
 	
 	public static PacketSupremeVantage decode(PacketBuffer buf) {
 		return new PacketSupremeVantage(buf);
@@ -30,7 +38,7 @@ public class PacketSupremeVantage implements IMAPacket {
 			// Work that needs to be threadsafe (most work)
 			ServerPlayerEntity player = ctx.get().getSender(); // the client that sent this packet
 			// do stuff
-			SupremeVantage.GiveSupremeVantage(player);
+			SupremeVantage.GiveSupremeVantage(player, pkt.code);
 		});
 		ctx.get().setPacketHandled(true);
 	}
