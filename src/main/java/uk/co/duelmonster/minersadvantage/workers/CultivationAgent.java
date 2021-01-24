@@ -70,10 +70,10 @@ public class CultivationAgent extends Agent {
 				if (heldItemStack != null && heldItemStack.isDamageable()) {
 					heldItemStack.damageItem(1, player, null);
 					
-					if (heldItemStack.getMaxDamage() <= 0) {
-						player.inventory.removeStackFromSlot(player.inventory.currentItem);
-						player.openContainer.detectAndSendChanges();
-					}
+					// if (heldItemStack.getMaxDamage() <= 0) {
+					// player.inventory.removeStackFromSlot(player.inventory.currentItem);
+					// player.openContainer.detectAndSendChanges();
+					// }
 				}
 				
 				processBlockSnapshots();

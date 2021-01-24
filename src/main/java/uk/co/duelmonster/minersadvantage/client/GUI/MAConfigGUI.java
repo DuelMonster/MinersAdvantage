@@ -1201,7 +1201,7 @@ public class MAConfigGUI extends ExtendedScreen {
 		chkSubstitutionIgnorePassiveMobs.setTooltips(SplitTooltips(Functions.localize("minersadvantage.substitution.ignore_passive.comment")));
 		
 		chkSubstitutionEnabled.setChangeListener(() -> {
-			MAConfig.CLIENT.substitution.setEnabled(chkShaftanationEnabled.isChecked());
+			MAConfig.CLIENT.substitution.setEnabled(chkSubstitutionEnabled.isChecked());
 			MAConfig.clientSpec.save();
 		});
 		chkSubstitutionSwitchBack.setChangeListener(() -> {

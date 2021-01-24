@@ -127,23 +127,23 @@ public class ShaftanationAgent extends Agent {
 			xStart = originPos.getX() + ((int) ((clientConfig.shaftanation.shaftWidth / 2) - dDivision));
 			xEnd = originPos.getX() - (clientConfig.shaftanation.shaftWidth / 2);
 			zStart = originPos.getZ();
-			zEnd = originPos.getZ() - clientConfig.shaftanation.shaftLength;
+			zEnd = originPos.getZ() - (clientConfig.shaftanation.shaftLength - 1);
 			break;
 		case NORTH: // Negative Z
 			xStart = originPos.getX() - (clientConfig.shaftanation.shaftWidth / 2);
 			xEnd = originPos.getX() + ((int) ((clientConfig.shaftanation.shaftWidth / 2) - dDivision));
 			zStart = originPos.getZ();
-			zEnd = originPos.getZ() + clientConfig.shaftanation.shaftLength;
+			zEnd = originPos.getZ() + (clientConfig.shaftanation.shaftLength - 1);
 			break;
 		case EAST: // Positive X
 			xStart = originPos.getX();
-			xEnd = originPos.getX() - clientConfig.shaftanation.shaftLength;
+			xEnd = originPos.getX() - (clientConfig.shaftanation.shaftLength - 1);
 			zStart = originPos.getZ() + ((int) ((clientConfig.shaftanation.shaftWidth / 2) - dDivision));
 			zEnd = originPos.getZ() - (clientConfig.shaftanation.shaftWidth / 2);
 			break;
 		case WEST: // Negative X
 			xStart = originPos.getX();
-			xEnd = originPos.getX() + clientConfig.shaftanation.shaftLength;
+			xEnd = originPos.getX() + (clientConfig.shaftanation.shaftLength - 1);
 			zStart = originPos.getZ() - (clientConfig.shaftanation.shaftWidth / 2);
 			zEnd = originPos.getZ() + ((int) ((clientConfig.shaftanation.shaftWidth / 2) - dDivision));
 			break;

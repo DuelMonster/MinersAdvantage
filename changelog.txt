@@ -1,7 +1,10 @@
 
-Build: 1.16.4-1.8.0.174
-	Ported to MC 1.16.4
-	Compatible with Forge 35.0.2+
+Build: 1.16.5-1.9.2.180
+	Ported to MC 1.16.5
+	Compatible with Forge 36.0.1+
 	fix: server crash issue due to config GUI changes in last version
+	fix: config GUI not setting Substitution enabled correctly
+    fix: shaft length being setting + 1
+    fix: when hoe breaks cultivation causes crash
 		
 =========

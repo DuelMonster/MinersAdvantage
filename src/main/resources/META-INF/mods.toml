@@ -15,81 +15,47 @@ issueTrackerURL="https://github.com/DuelMonster/MinersAdvantage/issues" #optiona
 
 # A list of mods - how many allowed here is determined by the individual mod loader
 [[mods]] #mandatory
-	# The modid of the mod
-	modId="minersadvantage" #mandatory
-	# The version number of the mod - there's a few well known ${} variables useable here or just hardcode it
-	version="${file.jarVersion}" #mandatory
-	 # A display name for the mod
-	displayName="MinersAdvantage" #mandatory
-	# A URL to query for updates for this mod. See the JSON update specification <here>
-	# updateJSONURL="" #optional
-	# A URL for the "homepage" for this mod, displayed in the mod UI
-	displayURL="https://www.curseforge.com/minecraft/mc-mods/minersadvantage" #optional
-	# A file name (in the root of the mod JAR) containing a logo for display
-	logoFile="MinersAdvantage_Logo.png" #optional
-	# A text field displayed in the mod UI
-	credits="Thanks for downloading" #optional
-	# A text field displayed in the mod UI
-	authors="DuelMonster" #optional
-	# The description text for the mod (multi line!) (#mandatory)
-	# A file name (in the root of the mod JAR) containing a logo for display
-	description='''
-	MinersAdvantage is a reimagening of my previous mod 'SuperMiner'.
-	It is a rewrite from the ground up that aims to solve all previous issues and to add additional features.
-	'''
+    # The modid of the mod
+    modId="minersadvantage" #mandatory
+    # The version number of the mod - there's a few well known ${} variables useable here or just hardcode it
+    version="${file.jarVersion}" #mandatory
+     # A display name for the mod
+    displayName="MinersAdvantage" #mandatory
+    # A URL to query for updates for this mod. See the JSON update specification <here>
+    # updateJSONURL="" #optional
+    # A URL for the "homepage" for this mod, displayed in the mod UI
+    displayURL="https://www.curseforge.com/minecraft/mc-mods/minersadvantage" #optional
+    # A file name (in the root of the mod JAR) containing a logo for display
+    logoFile="MinersAdvantage_Logo.png" #optional
+    # A text field displayed in the mod UI
+    credits="Thanks for downloading" #optional
+    # A text field displayed in the mod UI
+    authors="DuelMonster" #optional
+    # The description text for the mod (multi line!) (#mandatory)
+    # A file name (in the root of the mod JAR) containing a logo for display
+    description='''
+    MinersAdvantage is a reimagening of my previous mod 'SuperMiner'.
+    It is a rewrite from the ground up that aims to solve all previous issues and to add additional features.
+    
+    Options for MinersAdvantage can be accessed whilst in game by pressing Ctrl+Insert
+    '''
 
-	# A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
-	[[dependencies.minersadvantage]] #optional
-		# the modid of the dependency
-		modId="forge" #mandatory
-		# Does this dependency have to exist - if not, ordering below must be specified
-		mandatory=true #mandatory
-		# The version range of the dependency
-		versionRange="[35,)" #mandatory
-		# An ordering relationship for the dependency - BEFORE or AFTER required if the relationship is not mandatory
-		ordering="NONE"
-		# Side this dependency is applied on - BOTH, CLIENT or SERVER
-		side="BOTH"
-		
-	[[dependencies.minersadvantage]]
-		modId="minecraft"
-		mandatory=true
-		versionRange="[1.16,)"
-		ordering="NONE"
-		side="BOTH"
-
-	# [[dependencies.minersadvantage]]
-	# 	modId="eguilib"
-	# 	mandatory=true
-	# 	versionRange="[1,)"
-	# 	ordering="NONE"
-	# 	side="CLIENT"
-	
-# [[mods]] #mandatory
-# 	# The modid of the mod
-# 	modId="eguilib" #mandatory
-# 	# The version number of the mod - there's a few well known ${} variables useable here or just hardcode it
-# 	version="${file.jarVersion}" #mandatory
-# 	 # A display name for the mod
-# 	displayName="Erdbeerbaer's GUI Library" #mandatory
-# 	# A URL for the "homepage" for this mod, displayed in the mod UI
-# 	displayURL="https://github.com/ErdbeerbaerLP/ErdbeerbaerGuiLib/wiki/Documentation" #optional
-# 	# A text field displayed in the mod UI
-# 	authors="ErdbeerbaerLP" #optional
-# 	# The description text for the mod (multi line!) (#mandatory)
-# 	description='''
-# 	A easy-to-use gui library
-# 	'''
-# 	
-# 	[[dependencies.eguilib]]
-# 		modId="minecraft"
-# 		mandatory=true
-# 		versionRange="[1.16.3]"
-# 		ordering="NONE"
-# 		side="CLIENT"
-# 	[[dependencies.eguilib]]
-# 		modId="forge"
-# 		mandatory=true
-# 		versionRange="[34,)"
-# 		ordering="NONE"
-# 		side="CLIENT"
+    # A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
+    [[dependencies.minersadvantage]] #optional
+        # the modid of the dependency
+        modId="forge" #mandatory
+        # Does this dependency have to exist - if not, ordering below must be specified
+        mandatory=true #mandatory
+        # The version range of the dependency
+        versionRange="[36,)" #mandatory
+        # An ordering relationship for the dependency - BEFORE or AFTER required if the relationship is not mandatory
+        ordering="NONE"
+        # Side this dependency is applied on - BOTH, CLIENT or SERVER
+        side="BOTH"
+        
+    [[dependencies.minersadvantage]]
+        modId="minecraft"
+        mandatory=true
+        versionRange="[1.16,)"
+        ordering="NONE"
+        side="BOTH"
