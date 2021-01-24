@@ -1,9 +1,14 @@
 Build: 1.12.2-1.3.21
-	fix: Substitution not working consistently
+	fix: encoded string too long
 
 =========
 
 Build: 1.12.2-1.3.20
+	fix: Substitution not working consistently
+
+=========
+
+Build: 1.12.2-1.3.19
 	fix: Pathanation ignoring enabled state
 	fix: null object exception avoidance by checking parrentConfig
 	feature: improve Substitution algorithm
