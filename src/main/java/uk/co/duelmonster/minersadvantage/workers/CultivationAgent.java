@@ -2,13 +2,13 @@ package uk.co.duelmonster.minersadvantage.workers;
 
 import java.util.concurrent.TimeUnit;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.FarmlandBlock;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.FarmBlock;
 import uk.co.duelmonster.minersadvantage.common.Constants;
 import uk.co.duelmonster.minersadvantage.common.Functions;
 import uk.co.duelmonster.minersadvantage.helpers.FarmingHelper;
@@ -16,7 +16,7 @@ import uk.co.duelmonster.minersadvantage.network.packets.PacketCultivate;
 
 public class CultivationAgent extends Agent {
 
-  public CultivationAgent(ServerPlayerEntity player, final PacketCultivate pkt) {
+  public CultivationAgent(ServerPlayer player, final PacketCultivate pkt) {
     super(player, pkt);
 
     this.originPos = pkt.pos;
@@ -50,7 +50,7 @@ public class CultivationAgent extends Agent {
         continue;
 
       Block block = world.getBlockState(oPos).getBlock();
-      if (!Constants.DIRT_BLOCKS.contains(block) && !block.equals(Blocks.GRASS_PATH)) {
+      if (!Constants.DIRT_BLOCKS.contains(block) && !block.equals(Blocks.DIRT_PATH)) {
         // Add the non-harvestable blocks to the processed list so that they can be avoided.
         processed.add(oPos);
         iQueueCount--;
@@ -61,19 +61,19 @@ public class CultivationAgent extends Agent {
       world.capturedBlockSnapshots.clear();
 
       if (world.isEmptyBlock(oPos.above()) || world.getBlockState(oPos.above()).getMaterial().isReplaceable()) {
-        Functions.playSound(world, oPos, SoundEvents.HOE_TILL, SoundCategory.PLAYERS, 1.0F, world.random.nextFloat() + 0.5F);
+        Functions.playSound(world, oPos, SoundEvents.HOE_TILL, SoundSource.PLAYERS, 1.0F, world.random.nextFloat() + 0.5F);
 
         if (!world.isEmptyBlock(oPos.above())) {
           world.setBlockAndUpdate(oPos.above(), Blocks.AIR.defaultBlockState());
         }
 
-        world.setBlockAndUpdate(oPos, Blocks.FARMLAND.defaultBlockState().setValue(FarmlandBlock.MOISTURE, Integer.valueOf(7)));
+        world.setBlockAndUpdate(oPos, Blocks.FARMLAND.defaultBlockState().setValue(FarmBlock.MOISTURE, Integer.valueOf(7)));
 
         if (heldItemStack != null && heldItemStack.isDamageableItem()) {
           heldItemStack.hurtAndBreak(1, player, null);
 
           // if (heldItemStack.getMaxDamage() <= 0) {
-          // player.inventory.removeStackFromSlot(player.inventory.selected);
+          // player.getInventory().removeStackFromSlot(player.getInventory().selected);
           // player.openContainer.detectAndSendChanges();
           // }
         }
@@ -91,7 +91,7 @@ public class CultivationAgent extends Agent {
   @Override
   public void addToQueue(BlockPos oPos) {
     Block block = world.getBlockState(oPos).getBlock();
-    if (Constants.DIRT_BLOCKS.contains(block) || block.equals(Blocks.GRASS_PATH))
+    if (Constants.DIRT_BLOCKS.contains(block) || block.equals(Blocks.DIRT_PATH))
       super.addToQueue(oPos);
   }
 }

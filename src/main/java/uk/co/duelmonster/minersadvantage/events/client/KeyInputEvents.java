@@ -1,6 +1,6 @@
 package uk.co.duelmonster.minersadvantage.events.client;
 
-import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import uk.co.duelmonster.minersadvantage.MA;
@@ -119,8 +119,8 @@ public class KeyInputEvents {
       }
 
       // Record the block face being attacked
-      if (ClientFunctions.mc.hitResult instanceof BlockRayTraceResult) {
-        variables.faceHit = ((BlockRayTraceResult) ClientFunctions.mc.hitResult).getDirection();
+      if (ClientFunctions.mc.hitResult instanceof BlockHitResult) {
+        variables.faceHit = ((BlockHitResult) ClientFunctions.mc.hitResult).getDirection();
       }
 
       // Sync modified variables to the server

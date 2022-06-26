@@ -1,8 +1,8 @@
 package uk.co.duelmonster.minersadvantage.network.packets;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.FriendlyByteBuf;
 
 public abstract class BaseBlockPacket implements IMAPacket {
 
@@ -22,7 +22,7 @@ public abstract class BaseBlockPacket implements IMAPacket {
     stateID = _stateID;
   }
 
-  public BaseBlockPacket(PacketBuffer buf) {
+  public BaseBlockPacket(FriendlyByteBuf buf) {
     pos     = buf.readBlockPos();
     faceHit = buf.readEnum(Direction.class);
     stateID = buf.readInt();

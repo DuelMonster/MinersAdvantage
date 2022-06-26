@@ -7,12 +7,12 @@ import javax.annotation.Nullable;
 
 import com.google.common.collect.Maps;
 
-import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.StringRepresentable;
 
 // ====================================================================================================
 // = TorchPlacement enum
 // ====================================================================================================
-public enum TorchPlacement implements IStringSerializable {
+public enum TorchPlacement implements StringRepresentable {
   INACTIVE(0, "INACTIVE"), FLOOR(1, "FLOOR"), LEFT_WALL(2, "LEFT_WALL"), RIGHT_WALL(3, "RIGHT_WALL"), BOTH_WALLS(4, "BOTH_WALLS");
 
   private final int    index;

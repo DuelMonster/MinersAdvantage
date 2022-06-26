@@ -3,25 +3,25 @@ package uk.co.duelmonster.minersadvantage.helpers;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.LeavesBlock;
-import net.minecraft.block.RotatedPillarBlock;
-import net.minecraft.block.SaplingBlock;
-import net.minecraft.block.material.Material;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.AxeItem;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ShearsItem;
+import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.AxeItem;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ShearsItem;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.LeavesBlock;
+import net.minecraft.world.level.block.RotatedPillarBlock;
+import net.minecraft.world.level.block.SaplingBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.IPlantable;
 import uk.co.duelmonster.minersadvantage.common.Functions;
 import uk.co.duelmonster.minersadvantage.config.MAConfig_Base;
@@ -31,19 +31,19 @@ import uk.co.duelmonster.minersadvantage.workers.DropsSpawner;
 
 public class LumbinationHelper {
 
-  private World        world;
-  private PlayerEntity player;
+  private Level  world;
+  private Player player;
 
   public int            iTreeWidthPlusX = 0, iTreeWidthMinusX = 0;
   public int            iTreeWidthPlusZ = 0, iTreeWidthMinusZ = 0;
   public int            iTrunkWidth     = 0, iTrunkTopY = 0;
   public int            iTreeRootY      = 0;
-  public AxisAlignedBB  trunkArea       = null;
+  public AABB           trunkArea       = null;
   public List<BlockPos> trunkPositions  = new ArrayList<BlockPos>();
-  private AxisAlignedBB plantationArea  = null;
+  private AABB          plantationArea  = null;
   private ItemStack     oShears         = null;
 
-  public void setPlayer(PlayerEntity player) {
+  public void setPlayer(Player player) {
     this.player = player;
     this.world  = player.level;
   }
@@ -93,9 +93,9 @@ public class LumbinationHelper {
             && clientConfig.lumbination.axes.contains(Functions.getName(heldItem)));
   }
 
-  public AxisAlignedBB identifyTree(BlockPos oPos, BlockState state) {
-    AxisAlignedBB rtrnBB = new AxisAlignedBB(oPos, oPos);
-    Block         block  = state.getBlock();
+  public AABB identifyTree(BlockPos oPos, BlockState state) {
+    AABB  rtrnBB = new AABB(oPos, oPos);
+    Block block  = state.getBlock();
 
     if (isValidLog(state)) {
       BlockPos leafPos = getLeafPos(oPos);
@@ -159,7 +159,7 @@ public class LumbinationHelper {
     return iRootLevel;
   }
 
-  private AxisAlignedBB getPlantationArea(BlockPos oPos, Block wood) {
+  private AABB getPlantationArea(BlockPos oPos, Block wood) {
     // Retrieve tree root positions
     List<BlockPos> areaPositions = getPlantationAreaPositions(new ArrayList<BlockPos>(), oPos, wood);
 
@@ -176,7 +176,7 @@ public class LumbinationHelper {
         iEndZ = oCheckPos.getZ();
     }
 
-    return new AxisAlignedBB(new BlockPos(iStartX, oPos.getY(), iStartZ), new BlockPos(iEndX, oPos.getY(), iEndZ));
+    return new AABB(new BlockPos(iStartX, oPos.getY(), iStartZ), new BlockPos(iEndX, oPos.getY(), iEndZ));
   }
 
   private List<BlockPos> getPlantationAreaPositions(List<BlockPos> pAreaPositions, BlockPos oPos, Block wood) {
@@ -198,7 +198,7 @@ public class LumbinationHelper {
     return pAreaPositions;
   }
 
-  private AxisAlignedBB getTrunkSize(BlockPos oPos, Block block) {
+  private AABB getTrunkSize(BlockPos oPos, Block block) {
     SyncedClientConfig clientConfig = MAConfig_Client.getPlayerConfig(player.getUUID());
 
     for (int iPass = 0; iPass < 2; iPass++)
@@ -277,7 +277,7 @@ public class LumbinationHelper {
         iTrunkTopY = log.getY();
     });
 
-    return new AxisAlignedBB(
+    return new AABB(
         oPos.getX() + iTrunkWidth, iTreeRootY, oPos.getZ() + iTrunkWidth,
         oPos.getX() - iTrunkWidth, iTrunkTopY, oPos.getZ() - iTrunkWidth);
 
@@ -290,7 +290,7 @@ public class LumbinationHelper {
       BlockItem saplingItem = DropsSpawner.getDropOfBlockTypeFromList(SaplingBlock.class, dropsHistory);
 
       // Get sapling(s) from players inventory
-      List<ItemStack> allSaplingStacks = Functions.getAllStacksOfClassTypeFromInventory(player.inventory, SaplingBlock.class);
+      List<ItemStack> allSaplingStacks = Functions.getAllStacksOfClassTypeFromInventory(player.getInventory(), SaplingBlock.class);
 
       // Ensure the sapling stacks returned match the tree type being harvested
       for (ItemStack stack : allSaplingStacks) {
@@ -315,13 +315,13 @@ public class LumbinationHelper {
                 && (world.isEmptyBlock(oPos) || world.getBlockState(oPos).getMaterial().isReplaceable())) {
               // Re-plant a sapling
               world.setBlockAndUpdate(oPos, oPlantable.defaultBlockState().setValue(SaplingBlock.STAGE, Integer.valueOf(0)));
-              Functions.playSound(world, oPos, SoundEvents.GRASS_PLACE, SoundCategory.BLOCKS, 1.0F, world.random.nextFloat() + 0.5F);
+              Functions.playSound(world, oPos, SoundEvents.GRASS_PLACE, SoundSource.BLOCKS, 1.0F, world.random.nextFloat() + 0.5F);
               iPlantedCount++;
             }
           }
 
         // Decrease the size of the sapling stack be one
-        player.inventory.removeItem(Functions.getSlotFromInventory(player, saplingStack), iPlantedCount);
+        player.getInventory().removeItem(Functions.getSlotFromInventory(player, saplingStack), iPlantedCount);
       }
     }
   }
@@ -332,7 +332,7 @@ public class LumbinationHelper {
 
   public ItemStack getPlayersShears() {
     if (oShears == null)
-      oShears = Functions.getStackOfClassTypeFromHotBar(player.inventory, ShearsItem.class);
+      oShears = Functions.getStackOfClassTypeFromHotBar(player.getInventory(), ShearsItem.class);
 
     return oShears;
   }

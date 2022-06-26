@@ -7,26 +7,26 @@ import java.util.List;
 
 import com.google.common.base.Stopwatch;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.FallingBlock;
-import net.minecraft.block.material.Material;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.play.server.SChangeBlockPacket;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.FallingBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.util.BlockSnapshot;
 import net.minecraftforge.common.util.FakePlayer;
 import uk.co.duelmonster.minersadvantage.common.Functions;
@@ -39,15 +39,15 @@ import uk.co.duelmonster.minersadvantage.network.packets.PacketVeinate;
 
 public abstract class Agent {
 
-  public final World              world;
-  public final ServerPlayerEntity player;
+  public final Level              world;
+  public final ServerPlayer       player;
   public final SyncedClientConfig clientConfig;
 
   public List<Entity> dropsHistory = Collections.synchronizedList(new ArrayList<Entity>());
 
   public WeakReference<FakePlayer> _fakePlayer;
 
-  public ServerPlayerEntity getPlayer() {
+  public ServerPlayer getPlayer() {
     return player;
     // FakePlayer ret = _fakePlayer != null ? _fakePlayer.get() : null;
     // if (ret == null) {
@@ -74,15 +74,15 @@ public abstract class Agent {
   public boolean    awaitingAutoIllumination = false;
   public boolean    shouldAutoIlluminate     = false;
 
-  public AxisAlignedBB interimArea = null;
-  public AxisAlignedBB refinedArea = null;
-  public BlockPos      minAreaPos  = BlockPos.ZERO;
-  public BlockPos      maxAreaPos  = BlockPos.ZERO;
+  public AABB     interimArea = null;
+  public AABB     refinedArea = null;
+  public BlockPos minAreaPos  = BlockPos.ZERO;
+  public BlockPos maxAreaPos  = BlockPos.ZERO;
 
   public List<BlockPos> processed = new ArrayList<BlockPos>();
   public List<BlockPos> queued    = new ArrayList<BlockPos>();
 
-  public Agent(ServerPlayerEntity player, IMAPacket pkt) {
+  public Agent(ServerPlayer player, IMAPacket pkt) {
 
     this.packetId = (PacketId) pkt.getPacketId();
 
@@ -96,11 +96,11 @@ public abstract class Agent {
 
     this.heldItemStack = Functions.getHeldItemStack(player);
     this.heldItem      = Functions.getHeldItem(player);
-    this.heldItemSlot  = player.inventory.selected;
+    this.heldItemSlot  = player.getInventory().selected;
 
     this.getPlayer().connection = player.connection;
     if (this.heldItemStack != null)
-      this.getPlayer().setItemInHand(Hand.MAIN_HAND, this.heldItemStack);
+      this.getPlayer().setItemInHand(InteractionHand.MAIN_HAND, this.heldItemStack);
   }
 
   protected void setupHarvestArea() {
@@ -162,7 +162,7 @@ public abstract class Agent {
       }
     }
 
-    interimArea = new AxisAlignedBB(
+    interimArea = new AABB(
         xStart, yBottom, zStart,
         xEnd, yTop, zEnd);
 
@@ -194,9 +194,8 @@ public abstract class Agent {
   // Adds the block position to the current block queue.
   public void addToQueue(BlockPos pos) {
     final BlockState state = world.getBlockState(pos);
-    final Block      block = state.getBlock();
 
-    if (state == null || block.isAir(state, world, originPos) ||
+    if (state == null || state.isAir() ||
         state.getBlock() == Blocks.TORCH || state.getBlock() == Blocks.BEDROCK ||
         state.getMaterial() == Material.WATER || state.getMaterial() == Material.LAVA ||
         pos == null || processed.contains(pos) || queued.contains(pos) ||
@@ -240,7 +239,7 @@ public abstract class Agent {
     }
 
     // Update the refined harvest area for auto illumination usage
-    refinedArea = new AxisAlignedBB(minAreaPos, maxAreaPos);
+    refinedArea = new AABB(minAreaPos, maxAreaPos);
   }
 
   // Returns true when complete or cancelled
@@ -260,8 +259,8 @@ public abstract class Agent {
       world.markAndNotifyBlock(
           snap.getPos(),
           world.getChunk(snap.getPos().getX() >> 4, snap.getPos().getZ() >> 4),
-          snap.getReplacedBlock().getBlockState(),
-          snap.getCurrentBlock().getBlockState(),
+          snap.getReplacedBlock(),
+          snap.getCurrentBlock(),
           snap.getFlag(),
           1); // 1 = force diagonal neighbour updates
     }
@@ -288,9 +287,9 @@ public abstract class Agent {
   }
 
   public void reportProgessToClient(BlockPos pos, SoundEvent soundType) {
-    if (world instanceof ServerWorld) {
+    if (world instanceof ServerLevel) {
 
-      Functions.playSound(world, pos, soundType, SoundCategory.BLOCKS, 1.0F, 1.0F);
+      Functions.playSound(world, pos, soundType, SoundSource.BLOCKS, 1.0F, 1.0F);
       Functions.spawnAreaEffectCloud(world, getPlayer(), pos);
 
     }
@@ -299,12 +298,12 @@ public abstract class Agent {
   public boolean HarvestBlock(BlockPos pos) {
 
     boolean bResult = getPlayer().gameMode.destroyBlock(pos);
-    getPlayer().connection.send(new SChangeBlockPacket(world, pos));
+    getPlayer().connection.send(new ClientboundBlockUpdatePacket(world, pos));
 
     final int  range = 20;
     BlockState state = world.getBlockState(pos);
 
-    List<ServerPlayerEntity> localPlayers = world.getEntitiesOfClass(ServerPlayerEntity.class, new AxisAlignedBB(pos.offset(-range, -range, -range), pos.offset(range, range, range)));
+    List<ServerPlayer> localPlayers = world.getEntitiesOfClass(ServerPlayer.class, new AABB(pos.offset(-range, -range, -range), pos.offset(range, range, range)));
 
     world.globalLevelEvent(2001, pos, Block.getId(state));
     world.getChunkSource().getLightEngine().checkBlock(pos);
@@ -312,7 +311,7 @@ public abstract class Agent {
     Block blockAbove = Functions.getBlockFromWorld(world, pos.above());
     if (blockAbove instanceof FallingBlock && HarvestBlock(pos.above())) {
       for (Entity entity : localPlayers)
-        Functions.spawnAreaEffectCloud(world, (PlayerEntity) entity, pos);
+        Functions.spawnAreaEffectCloud(world, (Player) entity, pos);
     }
 
     return bResult;

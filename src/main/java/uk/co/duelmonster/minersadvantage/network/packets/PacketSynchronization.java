@@ -3,10 +3,10 @@ package uk.co.duelmonster.minersadvantage.network.packets;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkDirection;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.network.NetworkDirection;
+import net.minecraftforge.network.NetworkEvent.Context;
 import uk.co.duelmonster.minersadvantage.common.SyncType;
 import uk.co.duelmonster.minersadvantage.common.Variables;
 import uk.co.duelmonster.minersadvantage.config.MAConfig_Server;
@@ -30,7 +30,7 @@ public class PacketSynchronization implements IMAPacket {
     this.payload  = payload;
   }
 
-  public PacketSynchronization(PacketBuffer buf) {
+  public PacketSynchronization(FriendlyByteBuf buf) {
     this.uuid = buf.readUUID();
 
     this.syncType = buf.readEnum(SyncType.class);
@@ -39,7 +39,7 @@ public class PacketSynchronization implements IMAPacket {
     this.payload = buf.readUtf(payloadLength);
   }
 
-  public static void encode(PacketSynchronization pkt, PacketBuffer buf) {
+  public static void encode(PacketSynchronization pkt, FriendlyByteBuf buf) {
     buf.writeUUID(pkt.uuid);
 
     buf.writeEnum(pkt.syncType);
@@ -48,7 +48,7 @@ public class PacketSynchronization implements IMAPacket {
     buf.writeUtf(pkt.payload);
   }
 
-  public static PacketSynchronization decode(PacketBuffer buf) {
+  public static PacketSynchronization decode(FriendlyByteBuf buf) {
     return new PacketSynchronization(buf);
   }
 
@@ -56,7 +56,7 @@ public class PacketSynchronization implements IMAPacket {
     ctx.get().enqueueWork(() -> {
       // Work that needs to be threadsafe (most work)
       if (ctx.get().getDirection() == NetworkDirection.PLAY_TO_SERVER) {
-        ServerPlayerEntity sender = ctx.get().getSender(); // the client that sent this packet
+        ServerPlayer sender = ctx.get().getSender(); // the client that sent this packet
 
         // do stuff
         if (pkt.syncType == SyncType.Variables) {

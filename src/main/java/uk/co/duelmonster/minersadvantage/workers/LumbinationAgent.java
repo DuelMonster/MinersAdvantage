@@ -4,15 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.SoundType;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import uk.co.duelmonster.minersadvantage.common.Functions;
 import uk.co.duelmonster.minersadvantage.helpers.LumbinationHelper;
 import uk.co.duelmonster.minersadvantage.network.packets.PacketLumbinate;
@@ -24,10 +24,10 @@ public class LumbinationAgent extends Agent {
   private BlockPos       originLeafPos   = null;
   private BlockState     originLeafState = null;
   private Block          originLeafBlock = null;
-  private AxisAlignedBB  trunkArea       = null;
+  private AABB           trunkArea       = null;
   private List<BlockPos> trunkPositions  = new ArrayList<BlockPos>();
 
-  public LumbinationAgent(ServerPlayerEntity player, PacketLumbinate pkt) {
+  public LumbinationAgent(ServerPlayer player, PacketLumbinate pkt) {
     super(player, pkt);
 
     this.originPos   = pkt.pos;
@@ -99,7 +99,7 @@ public class LumbinationAgent extends Agent {
 
       } else if (isLeaves && clientConfig.lumbination.useShearsOnLeaves && lumbinationHelper.playerHasShears()) {
         // Harvest the leaves using the players shears
-        this.getPlayer().setItemInHand(Hand.MAIN_HAND, lumbinationHelper.getPlayersShears());
+        this.getPlayer().setItemInHand(InteractionHand.MAIN_HAND, lumbinationHelper.getPlayersShears());
 
         if (HarvestBlock(oPos)) {
           HarvestBlock(oPos);
@@ -111,7 +111,7 @@ public class LumbinationAgent extends Agent {
         }
 
         // Reset the Players held item back to the players initial held item
-        this.getPlayer().setItemInHand(Hand.MAIN_HAND, this.heldItemStack);
+        this.getPlayer().setItemInHand(InteractionHand.MAIN_HAND, this.heldItemStack);
 
         System.out.print(" -> playerHasShears");
 
@@ -126,7 +126,7 @@ public class LumbinationAgent extends Agent {
 
           processed.add(oPos);
 
-          this.getPlayer().setItemSlot(EquipmentSlotType.MAINHAND, originalStack);
+          this.getPlayer().setItemSlot(EquipmentSlot.MAINHAND, originalStack);
         }
 
         System.out.print(" -> durabilityReset");

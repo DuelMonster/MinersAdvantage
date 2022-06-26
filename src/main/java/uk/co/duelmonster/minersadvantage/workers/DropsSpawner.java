@@ -6,12 +6,12 @@ import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.UUID;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.ExperienceOrbEntity;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.item.BlockItem;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.ExperienceOrb;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.level.Level;
 import uk.co.duelmonster.minersadvantage.common.Constants;
 import uk.co.duelmonster.minersadvantage.common.Functions;
 import uk.co.duelmonster.minersadvantage.config.MAConfig_Client;
@@ -49,7 +49,7 @@ public class DropsSpawner {
     return null;
   }
 
-  public static void spawnDrops(UUID playerUID, World world, BlockPos spawnPos) {
+  public static void spawnDrops(UUID playerUID, Level world, BlockPos spawnPos) {
     if (spawnPos != null)
       try {
         SyncedClientConfig clientConfig = MAConfig_Client.getPlayerConfig(playerUID);
@@ -72,7 +72,7 @@ public class DropsSpawner {
 
           // Respawn the recorded XP
           if (recordedXPCount > 0) {
-            ExperienceOrbEntity entity = new ExperienceOrbEntity(world, spawnPos.getX() + 0.5D, spawnPos.getY() + 0.5D, spawnPos.getZ() + 0.5D, recordedXPCount);
+            ExperienceOrb entity = new ExperienceOrb(world, spawnPos.getX() + 0.5D, spawnPos.getY() + 0.5D, spawnPos.getZ() + 0.5D, recordedXPCount);
 
             world.addFreshEntity(entity);
             recordedXPCount = 0;

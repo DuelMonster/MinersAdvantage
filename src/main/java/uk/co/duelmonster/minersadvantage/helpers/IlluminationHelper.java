@@ -3,19 +3,18 @@ package uk.co.duelmonster.minersadvantage.helpers;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import uk.co.duelmonster.minersadvantage.MA;
@@ -32,7 +31,7 @@ public class IlluminationHelper {
   public int      torchStackCount   = 0;
   public int      torchIndx         = -1;
 
-  public void getTorchSlot(ServerPlayerEntity player) {
+  public void getTorchSlot(ServerPlayer player) {
     // Reset the count and index to ensure we don't use torches that the player
     // doesn't have!
     torchStackCount = 0;
@@ -41,8 +40,8 @@ public class IlluminationHelper {
     Item torchItem = Blocks.TORCH.asItem();
 
     // Locate the players torches
-    for (int i = 0; i < player.inventory.items.size(); i++) {
-      ItemStack stack = player.inventory.items.get(i);
+    for (int i = 0; i < player.getInventory().items.size(); i++) {
+      ItemStack stack = player.getInventory().items.get(i);
       if (stack != null && stack.getItem().equals(torchItem)) {
         torchStackCount++;
         torchIndx = Functions.getSlotFromInventory(player, stack);
@@ -50,8 +49,8 @@ public class IlluminationHelper {
     }
 
     if (torchIndx == -1) {
-      for (int i = 0; i < player.inventory.offhand.size(); i++) {
-        ItemStack stack = player.inventory.offhand.get(i);
+      for (int i = 0; i < player.getInventory().offhand.size(); i++) {
+        ItemStack stack = player.getInventory().offhand.get(i);
         if (stack != null && stack.getItem().equals(torchItem)) {
           torchStackCount++;
           torchIndx = Functions.getSlotFromInventory(player, stack);
@@ -60,7 +59,7 @@ public class IlluminationHelper {
     }
   }
 
-  public List<BlockPos> getTorchablePositionsInArea(World world, AxisAlignedBB area) {
+  public List<BlockPos> getTorchablePositionsInArea(Level world, AABB area) {
     List<BlockPos> positions   = new ArrayList<BlockPos>();
     BlockPos       previousPos = null;
 
@@ -82,10 +81,10 @@ public class IlluminationHelper {
   public void PlaceTorch() {
     Minecraft mc = ClientFunctions.mc;
 
-    if (mc.hitResult != null && mc.hitResult.getType() == RayTraceResult.Type.BLOCK) {
+    if (mc.hitResult != null && mc.hitResult instanceof BlockHitResult) {
 
-      BlockRayTraceResult blockResult = (BlockRayTraceResult) mc.hitResult;
-      BlockPos            oPos        = blockResult.getBlockPos();
+      BlockHitResult blockResult = (BlockHitResult) mc.hitResult;
+      BlockPos       oPos        = blockResult.getBlockPos();
 
       if (mc.level.getBlockState(oPos).getBlock() != Blocks.TORCH) {
         Direction faceHit  = blockResult.getDirection();
@@ -135,14 +134,14 @@ public class IlluminationHelper {
 
   @OnlyIn(Dist.CLIENT)
   public void IlluminateArea() {
-    AxisAlignedBB illuminationArea = ClientFunctions.mc.player.getBoundingBox().inflate(8);
-    BlockPos      startPos         = new BlockPos(illuminationArea.minX, illuminationArea.minY, illuminationArea.minZ);
-    BlockPos      endPos           = new BlockPos(illuminationArea.maxX, illuminationArea.maxY, illuminationArea.maxZ);
+    AABB     illuminationArea = ClientFunctions.mc.player.getBoundingBox().inflate(8);
+    BlockPos startPos         = new BlockPos(illuminationArea.minX, illuminationArea.minY, illuminationArea.minZ);
+    BlockPos endPos           = new BlockPos(illuminationArea.maxX, illuminationArea.maxY, illuminationArea.maxZ);
 
     MA.NETWORK.sendToServer(new PacketIlluminate(startPos, endPos, TorchPlacement.FLOOR));
   }
 
-  public boolean canPlaceTorchOnFace(World world, BlockPos pos, Direction face) {
+  public boolean canPlaceTorchOnFace(Level world, BlockPos pos, Direction face) {
     BlockState state = world.getBlockState(pos);
     Block      block = state.getBlock();
 

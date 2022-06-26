@@ -2,22 +2,22 @@ package uk.co.duelmonster.minersadvantage.workers;
 
 import java.util.concurrent.TimeUnit;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.SoundType;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import uk.co.duelmonster.minersadvantage.common.Constants;
 import uk.co.duelmonster.minersadvantage.common.Functions;
 import uk.co.duelmonster.minersadvantage.network.packets.PacketPathanate;
 
 public class PathanationAgent extends Agent {
 
-  public PathanationAgent(ServerPlayerEntity player, PacketPathanate pkt) {
+  public PathanationAgent(ServerPlayer player, PacketPathanate pkt) {
     super(player, pkt);
 
     this.originPos = pkt.pos;
@@ -62,13 +62,13 @@ public class PathanationAgent extends Agent {
       world.capturedBlockSnapshots.clear();
 
       if (world.isEmptyBlock(oPos.above()) || world.getBlockState(oPos.above()).getMaterial().isReplaceable()) {
-        world.playSound(player, oPos, SoundEvents.SHOVEL_FLATTEN, SoundCategory.BLOCKS, 1.0F, 1.0F);
+        world.playSound(player, oPos, SoundEvents.SHOVEL_FLATTEN, SoundSource.BLOCKS, 1.0F, 1.0F);
 
         if (!world.isEmptyBlock(oPos.above())) {
           world.setBlockAndUpdate(oPos.above(), Blocks.AIR.defaultBlockState());
         }
 
-        world.setBlockAndUpdate(oPos, Blocks.GRASS_PATH.defaultBlockState());
+        world.setBlockAndUpdate(oPos, Blocks.DIRT_PATH.defaultBlockState());
 
         if (heldItemStack != null && heldItemStack.isDamageableItem()) {
           heldItemStack.hurtAndBreak(1, player, null);
@@ -138,7 +138,7 @@ public class PathanationAgent extends Agent {
         break;
     }
 
-    interimArea = new AxisAlignedBB(
+    interimArea = new AABB(
         xStart, yBottom, zStart,
         xEnd, yTop, zEnd);
   }

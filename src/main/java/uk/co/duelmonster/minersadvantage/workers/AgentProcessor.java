@@ -5,9 +5,9 @@ import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.world.World;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.Level;
 import uk.co.duelmonster.minersadvantage.common.Variables;
 import uk.co.duelmonster.minersadvantage.network.packetids.PacketId;
 import uk.co.duelmonster.minersadvantage.network.packets.PacketIlluminate;
@@ -34,7 +34,7 @@ public class AgentProcessor {
    * happens every 0.05
    * seconds. An in-game day lasts exactly 24000 ticks, or 20 minutes.
    */
-  public void fireAgentTicks(World world) {
+  public void fireAgentTicks(Level world) {
     // tickCount++;
 
     Iterator<Entry<UUID, ConcurrentHashMap<Integer, Agent>>> allAgents = activeAgents.entrySet().iterator();
@@ -88,7 +88,7 @@ public class AgentProcessor {
     }
   }
 
-  public Agent startProcessing(ServerPlayerEntity player, Agent agent) {
+  public Agent startProcessing(ServerPlayer player, Agent agent) {
     UUID                              uid          = player.getUUID();
     ConcurrentHashMap<Integer, Agent> playerAgents = activeAgents.get(uid);
 
@@ -102,7 +102,7 @@ public class AgentProcessor {
     return agent;
   }
 
-  public void stopProcessing(ServerPlayerEntity player) {
+  public void stopProcessing(ServerPlayer player) {
     UUID uid = player.getUUID();
 
     if (activeAgents.containsKey(uid)) {

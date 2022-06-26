@@ -8,21 +8,21 @@ import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.fml.loading.FMLPaths;
 
 public class Constants {
 
   public static final Logger LOGGER = LogManager.getLogger();
 
-  public static final ItemStack EMPTY_ITEMSTACK;
-  public static final ItemStack DUMMY_SILKTOUCH;
+  public static final net.minecraft.world.item.ItemStack EMPTY_ITEMSTACK;
+  public static final ItemStack                          DUMMY_SILKTOUCH;
 
   static {
     ItemStack emptyStack;
@@ -60,7 +60,7 @@ public class Constants {
 
   public static final String MOD_ID       = "minersadvantage";
   public static final String MOD_NAME     = "MinersAdvantage";
-  public static final String MOD_NAME_MSG = TextFormatting.DARK_PURPLE + "[" + Constants.MOD_NAME + "] ";
+  public static final String MOD_NAME_MSG = ChatFormatting.DARK_PURPLE + "[" + Constants.MOD_NAME + "] ";
 
   // This number is incremented every time we remove deprecated code or make major changes, never
   // reset

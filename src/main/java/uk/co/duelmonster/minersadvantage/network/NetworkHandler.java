@@ -1,12 +1,12 @@
 package uk.co.duelmonster.minersadvantage.network;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.fml.network.NetworkDirection;
-import net.minecraftforge.fml.network.NetworkRegistry;
-import net.minecraftforge.fml.network.simple.SimpleChannel;
+import net.minecraftforge.network.NetworkDirection;
+import net.minecraftforge.network.NetworkRegistry;
+import net.minecraftforge.network.simple.SimpleChannel;
 import uk.co.duelmonster.minersadvantage.common.Constants;
 import uk.co.duelmonster.minersadvantage.network.packets.PacketAbortAgents;
 import uk.co.duelmonster.minersadvantage.network.packets.PacketCaptivate;
@@ -126,7 +126,7 @@ public class NetworkHandler {
    * Send a packet to a specific player.<br>
    * Must be called Server side.
    */
-  public void sendTo(ServerPlayerEntity player, Object msg) {
+  public void sendTo(ServerPlayer player, Object msg) {
     if (!(player instanceof FakePlayer)) {
       CHANNEL.sendTo(msg, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
     }

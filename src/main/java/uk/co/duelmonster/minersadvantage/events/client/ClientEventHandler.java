@@ -1,15 +1,15 @@
 package uk.co.duelmonster.minersadvantage.events.client;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.world.GameType;
-import net.minecraft.world.World;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
@@ -42,8 +42,8 @@ public class ClientEventHandler {
     if (event.phase != Phase.END || ClientFunctions.mc == null)
       return;
 
-    Minecraft          mc     = ClientFunctions.mc;
-    ClientPlayerEntity player = ClientFunctions.getPlayer();
+    Minecraft   mc     = ClientFunctions.mc;
+    LocalPlayer player = ClientFunctions.getPlayer();
     if (player == null || mc.gameMode.getPlayerMode() == GameType.SPECTATOR)
       return;
 
@@ -65,9 +65,9 @@ public class ClientEventHandler {
     if (mc.gameMode.getPlayerMode() == GameType.CREATIVE)
       return;
 
-    BlockRayTraceResult blockResult = null;
-    if (mc.hitResult instanceof BlockRayTraceResult) {
-      blockResult = (BlockRayTraceResult) mc.hitResult;
+    BlockHitResult blockResult = null;
+    if (mc.hitResult instanceof BlockHitResult) {
+      blockResult = (BlockHitResult) mc.hitResult;
 
       // Record the block face being attacked
       variables.faceHit = blockResult.getDirection();
@@ -80,15 +80,15 @@ public class ClientEventHandler {
 
     SupremeVantage.isWorthy(variables.IsExcavationToggled);
 
-    if (variables.IsPlayerAttacking && mc.hitResult != null && mc.hitResult instanceof BlockRayTraceResult) {
+    if (variables.IsPlayerAttacking && mc.hitResult != null && mc.hitResult instanceof BlockHitResult) {
 
       if (MAConfig.CLIENT.substitution.enabled() && !variables.currentlySwitched) {
-        World      world = player.clientLevel;
-        BlockPos   pos   = blockResult.getBlockPos();
-        BlockState state = world.getBlockState(pos);
-        Block      block = state.getBlock();
+        ClientLevel world = player.clientLevel;
+        BlockPos    pos   = blockResult.getBlockPos();
+        BlockState  state = world.getBlockState(pos);
+        Block       block = state.getBlock();
 
-        if (block == null || block.isAir(state, world, pos) || Blocks.BEDROCK == block)
+        if (block == null || state.isAir() || Blocks.BEDROCK == block)
           return;
 
         MA.NETWORK.sendToServer(new PacketSubstituteTool(pos));
@@ -98,7 +98,7 @@ public class ClientEventHandler {
     // Switch back to previously held item if Substitution is enabled
     if (MAConfig.CLIENT.substitution.enabled() && (!variables.IsPlayerAttacking || variables.IsVeinating)
         && variables.shouldSwitchBack && variables.currentlySwitched
-        && variables.prevSlot >= 0 && player.inventory.selected != variables.prevSlot) {
+        && variables.prevSlot >= 0 && player.getInventory().selected != variables.prevSlot) {
 
       ClientFunctions.syncCurrentPlayItem(variables.prevSlot);
 
@@ -109,12 +109,12 @@ public class ClientEventHandler {
 
   @SubscribeEvent
   public void onAttackEntity(AttackEntityEvent event) {
-    if (!MAConfig.CLIENT.substitution.enabled() || !(event.getPlayer() instanceof ClientPlayerEntity) || (event.getPlayer() instanceof FakePlayer))
+    if (!MAConfig.CLIENT.substitution.enabled() || !(event.getPlayer() instanceof LocalPlayer) || (event.getPlayer() instanceof FakePlayer))
       return;
 
-    ClientPlayerEntity player = (ClientPlayerEntity) event.getPlayer();
+    LocalPlayer player = (LocalPlayer) event.getPlayer();
 
-    if (MAConfig.CLIENT.substitution.ignorePassiveMobs() && !(event.getTarget() instanceof MobEntity))
+    if (MAConfig.CLIENT.substitution.ignorePassiveMobs() && !(event.getTarget() instanceof Mob))
       return;
 
     if (currentAttackStage == AttackStage.IDLE && substitutionHelper.processWeaponSubtitution(player, event.getTarget())) {

@@ -4,12 +4,12 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.Level;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.SoundType;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.Tags;
 import uk.co.duelmonster.minersadvantage.common.Constants;
 import uk.co.duelmonster.minersadvantage.common.Functions;
@@ -21,15 +21,14 @@ public class ExcavationAgent extends Agent {
 
   private boolean bIsSingleLayerToggled = false;
 
-  public ExcavationAgent(ServerPlayerEntity player, BaseBlockPacket pkt) {
+  public ExcavationAgent(ServerPlayer player, BaseBlockPacket pkt) {
     super(player, pkt);
 
     this.originPos   = pkt.pos;
     this.faceHit     = pkt.faceHit;
     this.originState = Block.stateById(pkt.stateID);
-    final Block block = originState.getBlock();
 
-    if (originState == null || block.isAir(originState, world, originPos))
+    if (originState == null || originState.isAir())
       Constants.LOGGER.log(Level.INFO, "Invalid BlockState ID recieved from message packet. [ " + pkt.stateID + " ]");
 
     this.originBlock = originState.getBlock();
@@ -41,7 +40,7 @@ public class ExcavationAgent extends Agent {
     setupHarvestArea();
 
     if (this.bIsSingleLayerToggled) {
-      interimArea = new AxisAlignedBB(
+      interimArea = new AABB(
           interimArea.minX, originPos.getY(), interimArea.minZ,
           interimArea.maxX, originPos.getY(), interimArea.maxZ);
     }

@@ -1,44 +1,44 @@
 package uk.co.duelmonster.minersadvantage.client;
 
-import net.minecraft.client.particle.DiggingParticle;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.ParticleManager;
+import net.minecraft.client.particle.ParticleEngine;
+import net.minecraft.client.particle.TerrainParticle;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.client.world.ClientWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import uk.co.duelmonster.minersadvantage.config.MAConfig;
 
 @OnlyIn(Dist.CLIENT)
-public class MAParticleManager extends ParticleManager {
+public class MAParticleManager extends ParticleEngine {
 
-  private static ParticleManager MA_ParticleManager;
-  private static ParticleManager MC_ParticleManager;
+  private static ParticleEngine MA_ParticleManager;
+  private static ParticleEngine MC_ParticleManager;
 
-  public MAParticleManager(ClientWorld worldIn, TextureManager rendererIn) {
+  public MAParticleManager(ClientLevel worldIn, TextureManager rendererIn) {
     super(worldIn, rendererIn);
   }
 
-  public static ParticleManager get() {
+  public static ParticleEngine get() {
     return MA_ParticleManager;
   }
 
-  public static ParticleManager set(MAParticleManager value) {
+  public static ParticleEngine set(MAParticleManager value) {
     MA_ParticleManager = value;
     return value;
   }
 
-  public static ParticleManager getOriginal() {
+  public static ParticleEngine getOriginal() {
     return MC_ParticleManager;
   }
 
-  public static void setOriginal(ParticleManager value) {
+  public static void setOriginal(ParticleEngine value) {
     MC_ParticleManager = value;
   }
 
   @Override
   public void add(Particle effect) {
-    if (!MAConfig.CLIENT.disableParticleEffects() || !(effect instanceof DiggingParticle))
+    if (!MAConfig.CLIENT.disableParticleEffects() || !(effect instanceof TerrainParticle))
       super.add(effect);
   }
 }

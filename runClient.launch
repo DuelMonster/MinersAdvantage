@@ -7,27 +7,16 @@
         <listEntry value="4"/>
     </listAttribute>
     <mapAttribute key="org.eclipse.debug.core.environmentVariables">
-        <mapEntry key="FORGE_GROUP" value="net.minecraftforge"/>
-        <mapEntry key="FORGE_VERSION" value="36.2.35"/>
-        <mapEntry key="MCP_MAPPINGS" value="official_1.16.5"/>
-        <mapEntry key="MCP_VERSION" value="20210115.111550"/>
-        <mapEntry key="MC_VERSION" value="1.16.5"/>
-        <mapEntry key="MOD_CLASSES" value="examplemod%%C:\_MC\Mod Source\~MinersAdvantage\Source\bin\main;examplemod%%C:\_MC\Mod Source\~MinersAdvantage\Source\bin\main"/>
-        <mapEntry key="assetDirectory" value="C:\Users\DuelM\.gradle\caches\forge_gradle\assets"/>
-        <mapEntry key="assetIndex" value="1.16"/>
-        <mapEntry key="nativesDirectory" value="C:\_MC\Mod Source\~MinersAdvantage\Source\build\natives"/>
-        <mapEntry key="target" value="fmluserdevclient"/>
+        <mapEntry key="MCP_MAPPINGS" value="official_1.18.2"/>
+        <mapEntry key="MOD_CLASSES" value="minersadvantage%%C:\_MC\Mod Source\~MinersAdvantage\Source\bin\main;minersadvantage%%C:\_MC\Mod Source\~MinersAdvantage\Source\bin\main"/>
     </mapAttribute>
-    <listAttribute key="org.eclipse.debug.ui.favoriteGroups">
-        <listEntry value="org.eclipse.debug.ui.launchGroup.debug"/>
-        <listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
-    </listAttribute>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_ATTR_USE_ARGFILE" value="false"/>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_SHOW_CODEDETAILS_IN_EXCEPTION_MESSAGES" value="true"/>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_CLASSPATH_ONLY_JAR" value="false"/>
-    <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="net.minecraftforge.userdev.LaunchTesting"/>
+    <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="cpw.mods.bootstraplauncher.BootstrapLauncher"/>
     <stringAttribute key="org.eclipse.jdt.launching.MODULE_NAME" value="Source"/>
+    <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="--launchTarget forgeclientuserdev --version MOD_DEV --assetIndex 1.18 --assetsDir C:\Users\DuelM\.gradle\caches\forge_gradle\assets --gameDir . --fml.forgeVersion 40.1.0 --fml.mcVersion 1.18.2 --fml.forgeGroup net.minecraftforge --fml.mcpVersion 20220404.173914"/>
     <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="Source"/>
-    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dforge.logging.console.level=debug -Dforge.logging.markers=REGISTRIES -XX:+IgnoreUnrecognizedVMOptions --add-exports=java.base/sun.security.util=ALL-UNNAMED --add-exports=jdk.naming.dns/com.sun.jndi.dns=java.naming --add-opens=java.base/java.util.jar=ALL-UNNAMED -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump &quot;-Dos.name=Windows 10&quot; -Dos.version=10.0"/>
-    <stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="C:\_MC\Mod Source\~MinersAdvantage\Test_Client_1.16.5"/>
+    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dforge.logging.console.level=debug -Dforge.logging.markers=REGISTRIES &quot;-DlegacyClassPath.file=C:\_MC\Mod Source\~MinersAdvantage\Source\build\classpath\runClient_minecraftClasspath.txt&quot; -DignoreList=bootstraplauncher,securejarhandler,asm-commons,asm-util,asm-analysis,asm-tree,asm,client-extra,fmlcore,javafmllanguage,mclanguage,forge- &quot;-DnativesDirectory=C:\_MC\Mod Source\~MinersAdvantage\Source\build\natives&quot; -DmergeModules=jna-5.10.0.jar,jna-platform-5.10.0.jar,java-objc-bridge-1.0.0.jar -Dforge.enableGameTest=true -p C:\Users\DuelM\.gradle\caches\modules-2\files-2.1\cpw.mods\bootstraplauncher\1.0.0\f55ddbb35612c6745cefc47d1a0d6dbfb25d3982\bootstraplauncher-1.0.0.jar;C:\Users\DuelM\.gradle\caches\modules-2\files-2.1\cpw.mods\securejarhandler\1.0.3\acbf5e3c8a38fb8bf824a54fe45eee121c510392\securejarhandler-1.0.3.jar;C:\Users\DuelM\.gradle\caches\modules-2\files-2.1\org.ow2.asm\asm-commons\9.2\f4d7f0fc9054386f2893b602454d48e07d4fbead\asm-commons-9.2.jar;C:\Users\DuelM\.gradle\caches\modules-2\files-2.1\org.ow2.asm\asm-util\9.2\fbc178fc5ba3dab50fd7e8a5317b8b647c8e8946\asm-util-9.2.jar;C:\Users\DuelM\.gradle\caches\modules-2\files-2.1\org.ow2.asm\asm-analysis\9.2\7487dd756daf96cab9986e44b9d7bcb796a61c10\asm-analysis-9.2.jar;C:\Users\DuelM\.gradle\caches\modules-2\files-2.1\org.ow2.asm\asm-tree\9.2\d96c99a30f5e1a19b0e609dbb19a44d8518ac01e\asm-tree-9.2.jar;C:\Users\DuelM\.gradle\caches\modules-2\files-2.1\org.ow2.asm\asm\9.2\81a03f76019c67362299c40e0ba13405f5467bff\asm-9.2.jar --add-modules ALL-MODULE-PATH --add-opens java.base/java.util.jar=cpw.mods.securejarhandler --add-exports java.base/sun.security.util=cpw.mods.securejarhandler --add-exports jdk.naming.dns/com.sun.jndi.dns=java.naming -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump &quot;-Dos.name=Windows 10&quot; -Dos.version=10.0"/>
+    <stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="C:\_MC\Mod Source\~MinersAdvantage\Test_Client_1.18.2"/>
 </launchConfiguration>

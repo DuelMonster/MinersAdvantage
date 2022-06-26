@@ -2,11 +2,11 @@ package uk.co.duelmonster.minersadvantage.network.packets;
 
 import java.util.function.Supplier;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.network.NetworkDirection;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.network.NetworkDirection;
+import net.minecraftforge.network.NetworkEvent.Context;
 import uk.co.duelmonster.minersadvantage.client.ClientFunctions;
 import uk.co.duelmonster.minersadvantage.helpers.SubstitutionHelper;
 import uk.co.duelmonster.minersadvantage.network.packetids.PacketId;
@@ -26,7 +26,7 @@ public class PacketSubstituteTool implements IMAPacket {
     optimalSlot = _optimalSlot;
   }
 
-  public PacketSubstituteTool(PacketBuffer buf) {
+  public PacketSubstituteTool(FriendlyByteBuf buf) {
     pos         = buf.readBlockPos();
     optimalSlot = buf.readInt();
   }
@@ -36,12 +36,12 @@ public class PacketSubstituteTool implements IMAPacket {
     return PacketId.Substitute;
   }
 
-  public static void encode(PacketSubstituteTool pkt, PacketBuffer buf) {
+  public static void encode(PacketSubstituteTool pkt, FriendlyByteBuf buf) {
     buf.writeBlockPos(pkt.pos);
     buf.writeInt(pkt.optimalSlot);
   }
 
-  public static PacketSubstituteTool decode(PacketBuffer buf) {
+  public static PacketSubstituteTool decode(FriendlyByteBuf buf) {
     return new PacketSubstituteTool(buf);
   }
 
@@ -49,7 +49,7 @@ public class PacketSubstituteTool implements IMAPacket {
     ctx.get().enqueueWork(() -> {
       // Work that needs to be threadsafe (most work)
       if (ctx.get().getDirection() == NetworkDirection.PLAY_TO_SERVER) {
-        ServerPlayerEntity player = ctx.get().getSender(); // the client that sent this packet
+        ServerPlayer player = ctx.get().getSender(); // the client that sent this packet
 
         new SubstitutionHelper().processToolSubtitution(player, pkt.pos);
 

@@ -2,11 +2,11 @@ package uk.co.duelmonster.minersadvantage.network.packets;
 
 import java.util.function.Supplier;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.concurrent.TickDelayedTask;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.TickTask;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.network.NetworkEvent.Context;
 import uk.co.duelmonster.minersadvantage.network.packetids.PacketId;
 import uk.co.duelmonster.minersadvantage.workers.AgentProcessor;
 import uk.co.duelmonster.minersadvantage.workers.CropinationAgent;
@@ -19,7 +19,7 @@ public class PacketCropinate implements IMAPacket {
     pos = _pos;
   }
 
-  public PacketCropinate(PacketBuffer buf) {
+  public PacketCropinate(FriendlyByteBuf buf) {
     pos = buf.readBlockPos();
   }
 
@@ -28,18 +28,18 @@ public class PacketCropinate implements IMAPacket {
     return PacketId.Cropinate;
   }
 
-  public static void encode(PacketCropinate pkt, PacketBuffer buf) {
+  public static void encode(PacketCropinate pkt, FriendlyByteBuf buf) {
     buf.writeBlockPos(pkt.pos);
   }
 
-  public static PacketCropinate decode(PacketBuffer buf) {
+  public static PacketCropinate decode(FriendlyByteBuf buf) {
     return new PacketCropinate(buf);
   }
 
   public static void handle(final PacketCropinate pkt, Supplier<Context> ctx) {
     ctx.get().enqueueWork(() -> {
       // Work that needs to be threadsafe (most work)
-      ServerPlayerEntity player = ctx.get().getSender(); // the client that sent this packet
+      ServerPlayer player = ctx.get().getSender(); // the client that sent this packet
 
       // do stuff
       process(player, pkt);
@@ -48,8 +48,8 @@ public class PacketCropinate implements IMAPacket {
     ctx.get().setPacketHandled(true);
   }
 
-  public static void process(ServerPlayerEntity player, final PacketCropinate pkt) {
-    player.getServer().tell(new TickDelayedTask(player.getServer().getTickCount(), () -> {
+  public static void process(ServerPlayer player, final PacketCropinate pkt) {
+    player.getServer().tell(new TickTask(player.getServer().getTickCount(), () -> {
       AgentProcessor.INSTANCE.startProcessing(player, new CropinationAgent(player, pkt));
     }));
   }

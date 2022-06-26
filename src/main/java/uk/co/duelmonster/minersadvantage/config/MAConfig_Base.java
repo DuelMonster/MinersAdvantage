@@ -3,7 +3,7 @@ package uk.co.duelmonster.minersadvantage.config;
 import java.util.HashMap;
 import java.util.UUID;
 
-import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.ForgeConfigSpec;
@@ -56,7 +56,7 @@ public class MAConfig_Base {
   @OnlyIn(Dist.CLIENT)
   public void syncPlayerConfigToServer() {
 
-    ClientPlayerEntity player = ClientFunctions.getPlayer();
+    LocalPlayer player = ClientFunctions.getPlayer();
     if (player != null) {
       SyncedClientConfig config = getCurrentPlayerConfig();
       if (config.hasChanged()) {

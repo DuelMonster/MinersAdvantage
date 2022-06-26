@@ -5,21 +5,20 @@ import java.util.concurrent.TimeUnit;
 
 import com.google.common.collect.Lists;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.CropsBlock;
-import net.minecraft.block.IGrowable;
-import net.minecraft.block.NetherWartBlock;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.BlockNamedItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Hand;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.BonemealableBlock;
+import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.NetherWartBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraftforge.common.IPlantable;
 import uk.co.duelmonster.minersadvantage.common.Functions;
 import uk.co.duelmonster.minersadvantage.helpers.FarmingHelper;
@@ -29,7 +28,7 @@ public class CropinationAgent extends Agent {
 
   private int iHarvestedCount = 0;
 
-  public CropinationAgent(ServerPlayerEntity player, final PacketCropinate pkt) {
+  public CropinationAgent(ServerPlayer player, final PacketCropinate pkt) {
     super(player, pkt);
 
     this.originPos = pkt.pos;
@@ -72,7 +71,7 @@ public class CropinationAgent extends Agent {
         BlockState newState = block.defaultBlockState();
 
         // Get Block drops
-        List<ItemStack> drops = Block.getDrops(state, (ServerWorld) world, oPos, (TileEntity) null, player, Functions.getHeldItemStack(player));
+        List<ItemStack> drops = Block.getDrops(state, (ServerLevel) world, oPos, null, player, Functions.getHeldItemStack(player));
 
         // Identify the plantable drops and spawn the non-plantable drops
         List<ItemStack> plantables = Lists.newArrayList();
@@ -84,18 +83,18 @@ public class CropinationAgent extends Agent {
         }
 
         // Decrease the plantable drops by one to simulate re-planting
-        boolean        bReplanted = false;
-        BlockNamedItem oSeeds     = null;
+        boolean   bReplanted = false;
+        BlockItem oSeeds     = null;
         for (ItemStack plantable : plantables) {
           if (!bReplanted) {
-            if (plantable.getItem() instanceof BlockNamedItem)
-              oSeeds = (BlockNamedItem) plantable.getItem();
+            if (plantable.getItem() instanceof BlockItem)
+              oSeeds = (BlockItem) plantable.getItem();
 
             plantable.setCount(plantable.getCount() - 1);
             bReplanted = true;
           }
           // Spawn drop if it's not a seed or harvestSeeds is enabled
-          if (plantable.getCount() > 0 && (clientConfig.cropination.harvestSeeds || !(plantable.getItem() instanceof BlockNamedItem)))
+          if (plantable.getCount() > 0 && (clientConfig.cropination.harvestSeeds || !(plantable.getItem() instanceof BlockItem)))
             Block.popResource(world, oPos, plantable);
         }
 
@@ -117,13 +116,13 @@ public class CropinationAgent extends Agent {
         if (iHarvestedCount > 0 && iHarvestedCount % 4 == 0
             && heldItemStack != null && heldItemStack.isDamageableItem()) {
           heldItemStack.hurtAndBreak(1, player, (player) -> {
-            player.broadcastBreakEvent(Hand.MAIN_HAND);
+            player.broadcastBreakEvent(EquipmentSlot.MAINHAND);
           });
         }
 
         processBlockSnapshots();
 
-        Functions.playSound(world, oPos, SoundEvents.HOE_TILL, SoundCategory.PLAYERS, 1.0F, world.random.nextFloat() + 0.5F);
+        Functions.playSound(world, oPos, SoundEvents.HOE_TILL, SoundSource.PLAYERS, 1.0F, world.random.nextFloat() + 0.5F);
       } else {
         // Minus one from the queue count so that the current position is not included
         // in the block per tick
@@ -153,24 +152,24 @@ public class CropinationAgent extends Agent {
     BlockState state = world.getBlockState(oPos);
     Block      block = state.getBlock();
 
-    if ((block instanceof IGrowable && block instanceof IPlantable) || block instanceof CropsBlock || block instanceof NetherWartBlock)
+    if ((block instanceof BonemealableBlock && block instanceof IPlantable) || block instanceof CropBlock || block instanceof NetherWartBlock)
       super.addToQueue(oPos);
   }
 
-  private void decreaseSeedsInInventory(BlockNamedItem oSeeds) {
+  private void decreaseSeedsInInventory(BlockItem oSeeds) {
     ItemStack stack = null;
 
     // Locate the players seeds in the main inventory
-    for (int i = 0; i < player.inventory.items.size(); i++) {
-      stack = player.inventory.items.get(i);
+    for (int i = 0; i < player.getInventory().items.size(); i++) {
+      stack = player.getInventory().items.get(i);
       if (stack != null && stack.getItem().equals(oSeeds))
         break;
     }
 
     if (stack == null) {
       // Seeds not found in the main inventory check the off hand inventory
-      for (int i = 0; i < player.inventory.offhand.size(); i++) {
-        stack = player.inventory.offhand.get(i);
+      for (int i = 0; i < player.getInventory().offhand.size(); i++) {
+        stack = player.getInventory().offhand.get(i);
         if (stack != null && stack.getItem().equals(oSeeds))
           break;
       }
@@ -178,7 +177,7 @@ public class CropinationAgent extends Agent {
 
     // If seeds were found then decrease the size of the stack by one
     if (stack != null && stack.getCount() > 0)
-      player.inventory.removeItem(Functions.getSlotFromInventory(player, stack), 1);
+      player.getInventory().removeItem(Functions.getSlotFromInventory(player, stack), 1);
 
   }
 }

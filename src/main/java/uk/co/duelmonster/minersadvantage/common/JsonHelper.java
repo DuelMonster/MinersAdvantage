@@ -26,7 +26,7 @@ public class JsonHelper {
   private static final Gson gson = new Gson();
 
   public static JsonObject ParseObject(String json) {
-    return new JsonParser().parse(json).getAsJsonObject();
+    return JsonParser.parseString(json).getAsJsonObject();
   }
 
   public static JsonObject ParseObject(String[] stringList) {

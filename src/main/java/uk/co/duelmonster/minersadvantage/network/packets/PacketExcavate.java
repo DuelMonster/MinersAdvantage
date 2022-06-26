@@ -2,12 +2,12 @@ package uk.co.duelmonster.minersadvantage.network.packets;
 
 import java.util.function.Supplier;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.Direction;
-import net.minecraft.util.concurrent.TickDelayedTask;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.TickTask;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.network.NetworkEvent.Context;
 import uk.co.duelmonster.minersadvantage.network.packetids.PacketId;
 import uk.co.duelmonster.minersadvantage.workers.AgentProcessor;
 import uk.co.duelmonster.minersadvantage.workers.ExcavationAgent;
@@ -18,7 +18,7 @@ public class PacketExcavate extends BaseBlockPacket {
     super(_pos, _sideHit, _stateID);
   }
 
-  public PacketExcavate(PacketBuffer buf) {
+  public PacketExcavate(FriendlyByteBuf buf) {
     super(buf);
   }
 
@@ -27,20 +27,20 @@ public class PacketExcavate extends BaseBlockPacket {
     return PacketId.Excavate;
   }
 
-  public static void encode(PacketExcavate pkt, PacketBuffer buf) {
+  public static void encode(PacketExcavate pkt, FriendlyByteBuf buf) {
     buf.writeBlockPos(pkt.pos);
     buf.writeEnum(pkt.faceHit);
     buf.writeInt(pkt.stateID);
   }
 
-  public static PacketExcavate decode(PacketBuffer buf) {
+  public static PacketExcavate decode(FriendlyByteBuf buf) {
     return new PacketExcavate(buf);
   }
 
   public static void handle(final PacketExcavate pkt, Supplier<Context> ctx) {
     ctx.get().enqueueWork(() -> {
       // Work that needs to be threadsafe (most work)
-      ServerPlayerEntity player = ctx.get().getSender(); // the client that sent this packet
+      ServerPlayer player = ctx.get().getSender(); // the client that sent this packet
 
       // do stuff
       process(player, pkt);
@@ -49,8 +49,8 @@ public class PacketExcavate extends BaseBlockPacket {
     ctx.get().setPacketHandled(true);
   }
 
-  public static void process(ServerPlayerEntity player, final PacketExcavate pkt) {
-    player.getServer().tell(new TickDelayedTask(player.getServer().getTickCount(), () -> {
+  public static void process(ServerPlayer player, final PacketExcavate pkt) {
+    player.getServer().tell(new TickTask(player.getServer().getTickCount(), () -> {
       AgentProcessor.INSTANCE.startProcessing(player, new ExcavationAgent(player, pkt));
     }));
   }

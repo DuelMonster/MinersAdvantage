@@ -3,10 +3,10 @@ package uk.co.duelmonster.minersadvantage.common;
 import java.util.HashMap;
 import java.util.UUID;
 
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
 import uk.co.duelmonster.minersadvantage.MA;
 import uk.co.duelmonster.minersadvantage.client.ClientFunctions;
 import uk.co.duelmonster.minersadvantage.network.packets.PacketSynchronization;
@@ -46,7 +46,7 @@ public class Variables {
     this.prevHeldItem = Constants.EMPTY_ITEMSTACK;
   }
 
-  public static void syncToPlayer(ServerPlayerEntity playerEntity) {
+  public static void syncToPlayer(ServerPlayer playerEntity) {
 
     if (playerEntity != null) {
       Variables variables = Variables.get();
@@ -58,7 +58,7 @@ public class Variables {
 
   public static void syncToServer() {
 
-    ClientPlayerEntity player = ClientFunctions.getPlayer();
+    LocalPlayer player = ClientFunctions.getPlayer();
     if (player != null) {
       Variables variables = Variables.get();
       if (variables.hasChanged())

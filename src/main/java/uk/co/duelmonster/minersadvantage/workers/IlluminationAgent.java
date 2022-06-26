@@ -5,17 +5,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import net.minecraft.block.Blocks;
-import net.minecraft.block.WallTorchBlock;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.World;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.WallTorchBlock;
+import net.minecraft.world.phys.AABB;
 import uk.co.duelmonster.minersadvantage.common.Functions;
 import uk.co.duelmonster.minersadvantage.common.TorchPlacement;
 import uk.co.duelmonster.minersadvantage.helpers.IlluminationHelper;
@@ -27,7 +27,7 @@ public class IlluminationAgent extends Agent {
   private boolean        singleTorch           = false;
   private TorchPlacement torchPlacement        = TorchPlacement.FLOOR;
 
-  public IlluminationAgent(ServerPlayerEntity player, PacketIlluminate pkt) {
+  public IlluminationAgent(ServerPlayer player, PacketIlluminate pkt) {
     super(player, pkt);
 
     this.originPos      = pkt.areaStartPos;
@@ -42,13 +42,13 @@ public class IlluminationAgent extends Agent {
 
     } else {
 
-      refinedArea           = new AxisAlignedBB(pkt.areaStartPos, pkt.areaEndPos);
+      refinedArea           = new AABB(pkt.areaStartPos, pkt.areaEndPos);
       illuminationPositions = IlluminationHelper.INSTANCE.getTorchablePositionsInArea(world, refinedArea);
 
       if (!illuminationPositions.isEmpty()) {
         // If the first torchable position is close to the player we reverse the positions list.
         // This helps make it look as though we are working our way back to illuminate the area.
-        AxisAlignedBB playerArea = player.getBoundingBox().inflate(4);
+        AABB playerArea = player.getBoundingBox().inflate(4);
         if (Functions.isWithinArea(illuminationPositions.get(0), playerArea)) {
           Collections.reverse(illuminationPositions);
         }
@@ -148,7 +148,7 @@ public class IlluminationAgent extends Agent {
   }
 
   private void placeTorchInWorld(BlockPos pos, Direction placeOnFace) {
-    final World world = player.level;
+    final Level world = player.level;
 
     IlluminationHelper.INSTANCE.getTorchSlot(player);
 
@@ -160,9 +160,9 @@ public class IlluminationAgent extends Agent {
       } else {
         world.setBlockAndUpdate(pos, Blocks.WALL_TORCH.defaultBlockState().setValue(WallTorchBlock.FACING, placeOnFace));
       }
-      Functions.playSound(world, pos, SoundEvents.WOOD_HIT, SoundCategory.BLOCKS, 1.0F, world.random.nextFloat() + 0.5F);
+      Functions.playSound(world, pos, SoundEvents.WOOD_HIT, SoundSource.BLOCKS, 1.0F, world.random.nextFloat() + 0.5F);
 
-      ItemStack torchStack = player.inventory.removeItem(IlluminationHelper.INSTANCE.torchIndx, 1);
+      ItemStack torchStack = player.getInventory().removeItem(IlluminationHelper.INSTANCE.torchIndx, 1);
 
       if (torchStack.getCount() <= 0) {
         IlluminationHelper.INSTANCE.lastTorchLocation = null;
@@ -170,7 +170,7 @@ public class IlluminationAgent extends Agent {
       }
 
       if (IlluminationHelper.INSTANCE.torchStackCount == 0)
-        Functions.NotifyClient(player, TextFormatting.GOLD + "Illumination: " + TextFormatting.WHITE + Functions.localize("minersadvantage.illumination.no_torches"));
+        Functions.NotifyClient(player, ChatFormatting.GOLD + "Illumination: " + ChatFormatting.WHITE + Functions.localize("minersadvantage.illumination.no_torches"));
     }
   }
 

@@ -7,29 +7,29 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.SwordItem;
-import net.minecraft.loot.LootContext;
-import net.minecraft.loot.LootParameters;
-import net.minecraft.potion.Effects;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.SwordItem;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import uk.co.duelmonster.minersadvantage.MA;
@@ -45,9 +45,9 @@ import uk.co.duelmonster.minersadvantage.network.packets.PacketSubstituteTool;
 
 public class SubstitutionHelper {
 
-  private World        world     = null;
-  private PlayerEntity player    = null;
-  private Variables    variables = null;
+  private Level     world     = null;
+  private Player    player    = null;
+  private Variables variables = null;
 
   private int          optimalRankIndx = -99;
   private float        optimalDigSpeed = -99;
@@ -59,7 +59,7 @@ public class SubstitutionHelper {
   private BlockState                     state      = null;
   private Block                          block      = null;
 
-  public void processToolSubtitution(ServerPlayerEntity _player, BlockPos _pos) {
+  public void processToolSubtitution(ServerPlayer _player, BlockPos _pos) {
     this.player    = _player;
     this.world     = player.level;
     this.variables = Variables.get(player.getUUID());
@@ -71,16 +71,16 @@ public class SubstitutionHelper {
 
     // If ignoreIfValidTool is enabled and the currently held item can break the block we cancel the
     // substitution
-    if (clientConfig.substitution.ignoreIfValidTool && player.inventory.getSelected() != null && player.inventory.getSelected().isCorrectToolForDrops(this.state))
+    if (clientConfig.substitution.ignoreIfValidTool && player.getInventory().getSelected() != null && player.getInventory().getSelected().isCorrectToolForDrops(this.state))
       return;
 
-    PlayerInventory inventory = player.inventory;
+    Inventory inventory = player.getInventory();
 
     // LootContext.Builder ctx = new LootContext.Builder((ServerWorld)
     // world).withParameter(LootParameters.BLOCK_STATE,
     // state).withParameter(LootParameters.POSITION, oPos).withParameter(LootParameters.TOOL,
     // Constants.DUMMY_SILKTOUCH);
-    LootContext.Builder ctx = new LootContext.Builder((ServerWorld) world).withParameter(LootParameters.BLOCK_STATE, state).withParameter(LootParameters.ORIGIN, state.getOffset(world, oPos)).withParameter(LootParameters.TOOL, Constants.DUMMY_SILKTOUCH);
+    LootContext.Builder ctx = new LootContext.Builder((ServerLevel) world).withParameter(LootContextParams.BLOCK_STATE, state).withParameter(LootContextParams.ORIGIN, state.getOffset(world, oPos)).withParameter(LootContextParams.TOOL, Constants.DUMMY_SILKTOUCH);
 
     boolean silkTouchable = state.getDrops(ctx).contains(new ItemStack(block.asItem()));
 
@@ -168,7 +168,7 @@ public class SubstitutionHelper {
       variables.shouldSwitchBack  = clientConfig.substitution.switchBack;
       variables.currentlySwitched = true;
 
-      MA.NETWORK.sendTo((ServerPlayerEntity) player, new PacketSubstituteTool(variables.optimalSlot));
+      MA.NETWORK.sendTo((ServerPlayer) player, new PacketSubstituteTool(variables.optimalSlot));
     }
   }
 
@@ -186,13 +186,13 @@ public class SubstitutionHelper {
       }
     }
 
-    if (player.hasEffect(Effects.MOVEMENT_SPEED))
-      f *= 1.0F + (player.getEffect(Effects.MOVEMENT_SPEED).getAmplifier() + 1) * 0.2F;
+    if (player.hasEffect(MobEffects.MOVEMENT_SPEED))
+      f *= 1.0F + (player.getEffect(MobEffects.MOVEMENT_SPEED).getAmplifier() + 1) * 0.2F;
 
-    if (player.hasEffect(Effects.DIG_SLOWDOWN)) {
+    if (player.hasEffect(MobEffects.DIG_SLOWDOWN)) {
       float f1;
 
-      switch (player.getEffect(Effects.DIG_SLOWDOWN).getAmplifier()) {
+      switch (player.getEffect(MobEffects.DIG_SLOWDOWN).getAmplifier()) {
         case 0:
           f1 = 0.3F;
           break;
@@ -221,11 +221,11 @@ public class SubstitutionHelper {
   }
 
   @OnlyIn(Dist.CLIENT)
-  public boolean processWeaponSubtitution(ClientPlayerEntity _player, Entity target) {
+  public boolean processWeaponSubtitution(LocalPlayer _player, Entity target) {
     this.player    = _player;
     this.variables = Variables.get(player.getUUID());
 
-    PlayerInventory inventory = player.inventory;
+    Inventory inventory = player.getInventory();
 
     for (int iCurrentIndx = 0; iCurrentIndx < 9; iCurrentIndx++) {
       if (iCurrentIndx == variables.optimalSlot)
@@ -250,7 +250,7 @@ public class SubstitutionHelper {
 
   private boolean isBestWeapon(ItemStack currentWeapon, ItemStack compareWeapon, LivingEntity target) {
 
-    boolean isTargetPlayer = target instanceof PlayerEntity;
+    boolean isTargetPlayer = target instanceof Player;
     double  oldDamage      = getFullItemStackDamage(currentWeapon, target);
     double  newDamage      = getFullItemStackDamage(compareWeapon, target);
 
@@ -258,8 +258,8 @@ public class SubstitutionHelper {
       return (newDamage > oldDamage);
     } else {
 
-      int oldHits = (oldDamage == 0 ? Integer.MAX_VALUE : MathHelper.ceil(target.getMaxHealth() / oldDamage));
-      int newHits = (newDamage == 0 ? Integer.MAX_VALUE : MathHelper.ceil(target.getMaxHealth() / newDamage));
+      int oldHits = (oldDamage == 0 ? Integer.MAX_VALUE : Mth.ceil(target.getMaxHealth() / oldDamage));
+      int newHits = (newDamage == 0 ? Integer.MAX_VALUE : Mth.ceil(target.getMaxHealth() / newDamage));
 
       if (newHits != oldHits)
         return (newHits < oldHits);
@@ -336,13 +336,13 @@ public class SubstitutionHelper {
   }
 
   private void fakeItemForPlayer(ItemStack itemstack) {
-    variables.prevHeldItem = player.inventory.getItem(player.inventory.selected);
-    player.inventory.setItem(player.inventory.selected, itemstack);
+    variables.prevHeldItem = player.getInventory().getItem(player.getInventory().selected);
+    player.getInventory().setItem(player.getInventory().selected, itemstack);
     if (!isItemStackEmpty(variables.prevHeldItem)) {
-      player.getAttributes().removeAttributeModifiers(variables.prevHeldItem.getAttributeModifiers(EquipmentSlotType.MAINHAND));
+      player.getAttributes().removeAttributeModifiers(variables.prevHeldItem.getAttributeModifiers(EquipmentSlot.MAINHAND));
     }
     if (!isItemStackEmpty(itemstack)) {
-      player.getAttributes().addTransientAttributeModifiers(itemstack.getAttributeModifiers(EquipmentSlotType.MAINHAND));
+      player.getAttributes().addTransientAttributeModifiers(itemstack.getAttributeModifiers(EquipmentSlot.MAINHAND));
     }
   }
 
@@ -362,7 +362,7 @@ public class SubstitutionHelper {
       boolean critical = player.fallDistance > 0.0F
           && player.isFallFlying() && !player.onClimbable()
           && !player.isInWater()
-          && !player.hasEffect(Effects.BLINDNESS)
+          && !player.hasEffect(MobEffects.BLINDNESS)
           && !player.isPassenger();
 
       if (critical && damage > 0) {
@@ -425,13 +425,13 @@ public class SubstitutionHelper {
   }
 
   private void unFakeItemForPlayer() {
-    ItemStack fakedStack = player.inventory.getItem(player.inventory.selected);
-    player.inventory.setItem(player.inventory.selected, variables.prevHeldItem);
+    ItemStack fakedStack = player.getInventory().getItem(player.getInventory().selected);
+    player.getInventory().setItem(player.getInventory().selected, variables.prevHeldItem);
     if (!isItemStackEmpty(fakedStack)) {
-      player.getAttributes().removeAttributeModifiers(fakedStack.getAttributeModifiers(EquipmentSlotType.MAINHAND));
+      player.getAttributes().removeAttributeModifiers(fakedStack.getAttributeModifiers(EquipmentSlot.MAINHAND));
     }
     if (!isItemStackEmpty(variables.prevHeldItem)) {
-      player.getAttributes().addTransientAttributeModifiers(variables.prevHeldItem.getAttributeModifiers(EquipmentSlotType.MAINHAND));
+      player.getAttributes().addTransientAttributeModifiers(variables.prevHeldItem.getAttributeModifiers(EquipmentSlot.MAINHAND));
     }
   }
 }

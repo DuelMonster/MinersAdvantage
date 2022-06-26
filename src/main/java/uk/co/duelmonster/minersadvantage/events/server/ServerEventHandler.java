@@ -2,26 +2,26 @@ package uk.co.duelmonster.minersadvantage.events.server;
 
 import java.util.List;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.CropsBlock;
-import net.minecraft.block.IGrowable;
-import net.minecraft.block.NetherWartBlock;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.item.ExperienceOrbEntity;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.ExperienceOrb;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.BonemealableBlock;
+import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.NetherWartBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.IPlantable;
-import net.minecraftforge.common.ToolType;
+import net.minecraftforge.common.ToolActions;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
@@ -30,7 +30,9 @@ import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
+import net.minecraftforge.server.ServerLifecycleHooks;
 import uk.co.duelmonster.minersadvantage.common.Constants;
 import uk.co.duelmonster.minersadvantage.common.Functions;
 import uk.co.duelmonster.minersadvantage.common.Variables;
@@ -47,13 +49,15 @@ import uk.co.duelmonster.minersadvantage.network.packets.PacketVeinate;
 import uk.co.duelmonster.minersadvantage.workers.AgentProcessor;
 import uk.co.duelmonster.minersadvantage.workers.DropsSpawner;
 
+@Mod.EventBusSubscriber(modid = Constants.MOD_ID,
+                        bus = Bus.FORGE)
 public class ServerEventHandler {
 
   // Player Logged In event
   @SubscribeEvent
   public void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-    ServerPlayerEntity player    = (ServerPlayerEntity) event.getPlayer();
-    Variables          variables = Variables.get(player.getUUID());
+    ServerPlayer player    = (ServerPlayer) event.getPlayer();
+    Variables    variables = Variables.get(player.getUUID());
 
     variables.HasPlayerSpawned = true;
 
@@ -64,8 +68,8 @@ public class ServerEventHandler {
   // Player Logged Out event
   @SubscribeEvent
   public void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
-    ServerPlayerEntity player    = (ServerPlayerEntity) event.getPlayer();
-    Variables          variables = Variables.get(player.getUUID());
+    ServerPlayer player    = (ServerPlayer) event.getPlayer();
+    Variables    variables = Variables.get(player.getUUID());
 
     variables.HasPlayerSpawned = false;
 
@@ -82,9 +86,9 @@ public class ServerEventHandler {
     if (null == server)
       return;
 
-    List<ServerPlayerEntity> players = server.getPlayerList().getPlayers();
+    List<ServerPlayer> players = server.getPlayerList().getPlayers();
     if (players != null && !players.isEmpty()) {
-      for (ServerPlayerEntity player : players) {
+      for (ServerPlayer player : players) {
         Variables vars = Variables.get(player.getUUID());
 
         if (vars != null) {
@@ -110,7 +114,7 @@ public class ServerEventHandler {
 
   @SubscribeEvent
   public void onWorldUnload(WorldEvent.Unload event) {
-    World world = (World) event.getWorld();
+    Level world = (Level) event.getWorld();
     if (world.isClientSide || world.getServer().isRunning())
       return;
 
@@ -119,13 +123,13 @@ public class ServerEventHandler {
 
   @SubscribeEvent(priority = EventPriority.LOWEST)
   public void onEntitySpawn(EntityJoinWorldEvent event) {
-    World  world  = event.getWorld();
+    Level  world  = event.getWorld();
     Entity entity = event.getEntity();
     if (!(entity instanceof LivingEntity)) {
       if (world.isClientSide
           || !event.getEntity().isAlive()
           || event.isCanceled()
-          || (!(entity instanceof ItemEntity) && !(entity instanceof ExperienceOrbEntity))) {
+          || (!(entity instanceof ItemEntity) && !(entity instanceof ExperienceOrb))) {
         return;
       }
 
@@ -136,8 +140,8 @@ public class ServerEventHandler {
           DropsSpawner.recordDrop(eItem);
 
           event.setCanceled(true);
-        } else if (event.getEntity() instanceof ExperienceOrbEntity) {
-          ExperienceOrbEntity orb = (ExperienceOrbEntity) event.getEntity();
+        } else if (event.getEntity() instanceof ExperienceOrb) {
+          ExperienceOrb orb = (ExperienceOrb) event.getEntity();
 
           DropsSpawner.addXP(orb.getValue());
 
@@ -150,12 +154,12 @@ public class ServerEventHandler {
   @SubscribeEvent
   public void onBlockBreak(BlockEvent.BreakEvent event) {
 
-    if (!(event.getPlayer() instanceof ServerPlayerEntity)
+    if (!(event.getPlayer() instanceof ServerPlayer)
         || (event.getPlayer() instanceof FakePlayer)
-        || event.getState().getBlock().isAir(event.getState(), event.getWorld(), event.getPos()))
+        || event.getState().isAir())
       return;
 
-    ServerPlayerEntity player = (ServerPlayerEntity) event.getPlayer();
+    ServerPlayer player = (ServerPlayer) event.getPlayer();
 
     // Ensure that the currently active agent wasn't responsible for this Break Event
     if (!AgentProcessor.INSTANCE.currentAgents.isEmpty() &&
@@ -170,7 +174,7 @@ public class ServerEventHandler {
     BlockState state   = event.getState();
     Direction  faceHit = variables.faceHit;
 
-    ItemStack heldItem = player.getItemInHand(Hand.MAIN_HAND);
+    ItemStack heldItem = player.getItemInHand(InteractionHand.MAIN_HAND);
     if (heldItem.isEmpty())
       return;
 
@@ -199,21 +203,21 @@ public class ServerEventHandler {
   }
 
   @SubscribeEvent
-  public void onBlockBreak(BlockEvent.BlockToolInteractEvent event) {
-    boolean isHoe    = event.getToolType() == ToolType.HOE;
-    boolean isShovel = event.getToolType() == ToolType.SHOVEL;
+  public void onBlockBreak(BlockEvent.BlockToolModificationEvent event) {
+    boolean isHoe    = event.getToolAction() == ToolActions.HOE_TILL;
+    boolean isShovel = event.getToolAction() == ToolActions.SHOVEL_FLATTEN;
 
     if (isHoe || isShovel) {
-      PlayerEntity playerEntity = event.getPlayer();
-      World        world        = playerEntity.level;
-      if (world.isClientSide || !(playerEntity instanceof ServerPlayerEntity) || (playerEntity instanceof FakePlayer))
+      Player playerEntity = event.getPlayer();
+      Level  world        = playerEntity.level;
+      if (world.isClientSide || !(playerEntity instanceof ServerPlayer) || (playerEntity instanceof FakePlayer))
         return;
 
-      ServerPlayerEntity player = (ServerPlayerEntity) playerEntity;
-      BlockPos           pos    = event.getPos();
-      Block              block  = event.getState().getBlock();
+      ServerPlayer player = (ServerPlayer) playerEntity;
+      BlockPos     pos    = event.getPos();
+      Block        block  = event.getState().getBlock();
 
-      if (Constants.DIRT_BLOCKS.contains(block) || block.equals(Blocks.GRASS_PATH)) {
+      if (Constants.DIRT_BLOCKS.contains(block) || block.equals(Blocks.DIRT_PATH)) {
         if (isShovel) {
 
           PacketPathanate.process(player, new PacketPathanate(pos));
@@ -223,7 +227,7 @@ public class ServerEventHandler {
           PacketCultivate.process(player, new PacketCultivate(pos));
 
         }
-      } else if (isHoe && (block instanceof IGrowable || block instanceof IPlantable || block instanceof CropsBlock || block instanceof NetherWartBlock)) {
+      } else if (isHoe && (block instanceof BonemealableBlock || block instanceof IPlantable || block instanceof CropBlock || block instanceof NetherWartBlock)) {
 
         PacketCropinate.process(player, new PacketCropinate(pos));
 

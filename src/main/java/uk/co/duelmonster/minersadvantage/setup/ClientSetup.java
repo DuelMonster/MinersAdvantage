@@ -3,7 +3,7 @@ package uk.co.duelmonster.minersadvantage.setup;
 import java.lang.reflect.Field;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.IReloadableResourceManager;
+import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -39,7 +39,7 @@ public class ClientSetup {
 
         Functions.setFinalFieldValue(mc, particlesField, MAParticleManager.set(new MAParticleManager(mc.level, mc.getTextureManager())));
 
-        ((IReloadableResourceManager) mc.getResourceManager()).registerReloadListener(mc.particleEngine);
+        ((ReloadableResourceManager) mc.getResourceManager()).registerReloadListener(mc.particleEngine);
       } catch (Exception e) {}
     }
 

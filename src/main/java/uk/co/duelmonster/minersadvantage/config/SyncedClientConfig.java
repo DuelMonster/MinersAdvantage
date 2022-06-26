@@ -2,8 +2,8 @@ package uk.co.duelmonster.minersadvantage.config;
 
 import java.util.List;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import uk.co.duelmonster.minersadvantage.common.Functions;
 import uk.co.duelmonster.minersadvantage.common.JsonHelper;
 import uk.co.duelmonster.minersadvantage.common.TorchPlacement;

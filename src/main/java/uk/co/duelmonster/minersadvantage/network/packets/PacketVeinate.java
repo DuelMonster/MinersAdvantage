@@ -2,12 +2,12 @@ package uk.co.duelmonster.minersadvantage.network.packets;
 
 import java.util.function.Supplier;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.Direction;
-import net.minecraft.util.concurrent.TickDelayedTask;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.TickTask;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.network.NetworkEvent.Context;
 import uk.co.duelmonster.minersadvantage.network.packetids.PacketId;
 import uk.co.duelmonster.minersadvantage.workers.AgentProcessor;
 import uk.co.duelmonster.minersadvantage.workers.ExcavationAgent;
@@ -18,7 +18,7 @@ public class PacketVeinate extends BaseBlockPacket {
     super(_pos, _sideHit, _stateID);
   }
 
-  public PacketVeinate(PacketBuffer buf) {
+  public PacketVeinate(FriendlyByteBuf buf) {
     super(buf);
   }
 
@@ -27,20 +27,20 @@ public class PacketVeinate extends BaseBlockPacket {
     return PacketId.Veinate;
   }
 
-  public static void encode(PacketVeinate pkt, PacketBuffer buf) {
+  public static void encode(PacketVeinate pkt, FriendlyByteBuf buf) {
     buf.writeBlockPos(pkt.pos);
     buf.writeEnum(pkt.faceHit);
     buf.writeInt(pkt.stateID);
   }
 
-  public static PacketVeinate decode(PacketBuffer buf) {
+  public static PacketVeinate decode(FriendlyByteBuf buf) {
     return new PacketVeinate(buf);
   }
 
   public static void handle(final PacketVeinate pkt, Supplier<Context> ctx) {
     ctx.get().enqueueWork(() -> {
       // Work that needs to be threadsafe (most work)
-      ServerPlayerEntity player = ctx.get().getSender(); // the client that sent this packet
+      ServerPlayer player = ctx.get().getSender(); // the client that sent this packet
 
       // do stuff
       process(player, pkt);
@@ -49,8 +49,8 @@ public class PacketVeinate extends BaseBlockPacket {
     ctx.get().setPacketHandled(true);
   }
 
-  public static void process(ServerPlayerEntity player, final PacketVeinate pkt) {
-    player.getServer().tell(new TickDelayedTask(player.getServer().getTickCount(), () -> {
+  public static void process(ServerPlayer player, final PacketVeinate pkt) {
+    player.getServer().tell(new TickTask(player.getServer().getTickCount(), () -> {
       AgentProcessor.INSTANCE.startProcessing(player, new ExcavationAgent(player, pkt));
     }));
   }

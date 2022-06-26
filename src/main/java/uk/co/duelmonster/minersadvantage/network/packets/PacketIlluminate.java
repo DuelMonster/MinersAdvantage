@@ -2,12 +2,12 @@ package uk.co.duelmonster.minersadvantage.network.packets;
 
 import java.util.function.Supplier;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.Direction;
-import net.minecraft.util.concurrent.TickDelayedTask;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.TickTask;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.network.NetworkEvent.Context;
 import uk.co.duelmonster.minersadvantage.common.TorchPlacement;
 import uk.co.duelmonster.minersadvantage.network.packetids.PacketId;
 import uk.co.duelmonster.minersadvantage.workers.AgentProcessor;
@@ -45,7 +45,7 @@ public class PacketIlluminate implements IMAPacket {
     this.torchPlacement = torchPlacement;
   }
 
-  public PacketIlluminate(PacketBuffer buf) {
+  public PacketIlluminate(FriendlyByteBuf buf) {
     this.areaStartPos   = buf.readBlockPos();
     this.areaEndPos     = buf.readBlockPos();
     this.faceHit        = buf.readEnum(Direction.class);
@@ -58,7 +58,7 @@ public class PacketIlluminate implements IMAPacket {
     return PacketId.Illuminate;
   }
 
-  public static void encode(PacketIlluminate pkt, PacketBuffer buf) {
+  public static void encode(PacketIlluminate pkt, FriendlyByteBuf buf) {
     buf.writeBlockPos(pkt.areaStartPos);
     buf.writeBlockPos(pkt.areaEndPos);
     buf.writeEnum(pkt.faceHit);
@@ -66,14 +66,14 @@ public class PacketIlluminate implements IMAPacket {
     buf.writeEnum(pkt.torchPlacement);
   }
 
-  public static PacketIlluminate decode(PacketBuffer buf) {
+  public static PacketIlluminate decode(FriendlyByteBuf buf) {
     return new PacketIlluminate(buf);
   }
 
   public static void handle(final PacketIlluminate pkt, Supplier<Context> ctx) {
     ctx.get().enqueueWork(() -> {
       // Work that needs to be threadsafe (most work)
-      final ServerPlayerEntity player = ctx.get().getSender(); // the client that sent this packet
+      final ServerPlayer player = ctx.get().getSender(); // the client that sent this packet
 
       // do stuff
       process(player, pkt);
@@ -82,8 +82,8 @@ public class PacketIlluminate implements IMAPacket {
     ctx.get().setPacketHandled(true);
   }
 
-  public static void process(ServerPlayerEntity player, final PacketIlluminate pkt) {
-    player.getServer().tell(new TickDelayedTask(player.getServer().getTickCount(), () -> {
+  public static void process(ServerPlayer player, final PacketIlluminate pkt) {
+    player.getServer().tell(new TickTask(player.getServer().getTickCount(), () -> {
       AgentProcessor.INSTANCE.startProcessing(player, new IlluminationAgent(player, pkt));
     }));
   }
