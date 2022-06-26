@@ -11,34 +11,34 @@ import uk.co.duelmonster.minersadvantage.config.MAConfig;
 
 @OnlyIn(Dist.CLIENT)
 public class MAParticleManager extends ParticleManager {
-	
-	private static ParticleManager	MA_ParticleManager;
-	private static ParticleManager	MC_ParticleManager;
-	
-	public MAParticleManager(ClientWorld worldIn, TextureManager rendererIn) {
-		super(worldIn, rendererIn);
-	}
-	
-	public static ParticleManager get() {
-		return MA_ParticleManager;
-	}
-	
-	public static ParticleManager set(MAParticleManager value) {
-		MA_ParticleManager = value;
-		return value;
-	}
-	
-	public static ParticleManager getOriginal() {
-		return MC_ParticleManager;
-	}
-	
-	public static void setOriginal(ParticleManager value) {
-		MC_ParticleManager = value;
-	}
-	
-	@Override
-	public void addEffect(Particle effect) {
-		if (!MAConfig.CLIENT.disableParticleEffects() || !(effect instanceof DiggingParticle))
-			super.addEffect(effect);
-	}
+
+  private static ParticleManager MA_ParticleManager;
+  private static ParticleManager MC_ParticleManager;
+
+  public MAParticleManager(ClientWorld worldIn, TextureManager rendererIn) {
+    super(worldIn, rendererIn);
+  }
+
+  public static ParticleManager get() {
+    return MA_ParticleManager;
+  }
+
+  public static ParticleManager set(MAParticleManager value) {
+    MA_ParticleManager = value;
+    return value;
+  }
+
+  public static ParticleManager getOriginal() {
+    return MC_ParticleManager;
+  }
+
+  public static void setOriginal(ParticleManager value) {
+    MC_ParticleManager = value;
+  }
+
+  @Override
+  public void add(Particle effect) {
+    if (!MAConfig.CLIENT.disableParticleEffects() || !(effect instanceof DiggingParticle))
+      super.add(effect);
+  }
 }

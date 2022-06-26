@@ -1,3 +1,3 @@
 @echo off
 cls
-Call gradlew genEclipseRuns eclipse
+Call gradlew eclipse hideOfficialWarningUntilChanged

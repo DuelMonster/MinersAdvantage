@@ -6,8 +6,8 @@ import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import uk.co.duelmonster.minersadvantage.events.server.ServerEventHandler;
 
 public class ServerSetup {
-	@SubscribeEvent
-	public void onServerStarting(FMLServerStartingEvent e) {
-		MinecraftForge.EVENT_BUS.register(new ServerEventHandler());
-	}
+  @SubscribeEvent
+  public void onServerStarting(FMLServerStartingEvent e) {
+    MinecraftForge.EVENT_BUS.register(new ServerEventHandler());
+  }
 }

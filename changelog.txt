@@ -1,3 +1,7 @@
+Build: 1.16.5-1.9.26.211
+  Compatible with Forge 36.2.35+
+  Converted to use mojmap
+  Removed config GUI - try "Configured" by MrCrayfish instead
 
 Build: 1.16.5-1.9.2.180
 	Ported to MC 1.16.5

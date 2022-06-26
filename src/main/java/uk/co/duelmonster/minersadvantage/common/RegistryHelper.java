@@ -8,29 +8,29 @@ import net.minecraftforge.registries.IForgeRegistry;
 
 public class RegistryHelper {
 
-	private static IForgeRegistry<Block> blockRegistry = null;
-	private static IForgeRegistry<Item> itemRegistry = null;
-	private static IForgeRegistry<Enchantment> enchantmentRegistry = null;
+  private static IForgeRegistry<Block>       blockRegistry       = null;
+  private static IForgeRegistry<Item>        itemRegistry        = null;
+  private static IForgeRegistry<Enchantment> enchantmentRegistry = null;
 
-	public static IForgeRegistry<Block> getBlockRegistry() {
-		if (blockRegistry == null)
-			blockRegistry = GameRegistry.findRegistry(Block.class);
+  public static IForgeRegistry<Block> getBlockRegistry() {
+    if (blockRegistry == null)
+      blockRegistry = GameRegistry.findRegistry(Block.class);
 
-		return blockRegistry;
-	}
+    return blockRegistry;
+  }
 
-	public static IForgeRegistry<Item> getItemRegistry() {
-		if (itemRegistry == null)
-			itemRegistry = GameRegistry.findRegistry(Item.class);
+  public static IForgeRegistry<Item> getItemRegistry() {
+    if (itemRegistry == null)
+      itemRegistry = GameRegistry.findRegistry(Item.class);
 
-		return itemRegistry;
-	}
+    return itemRegistry;
+  }
 
-	public static IForgeRegistry<Enchantment> getEnchantmentRegistry() {
-		if (enchantmentRegistry == null)
-			enchantmentRegistry = GameRegistry.findRegistry(Enchantment.class);
+  public static IForgeRegistry<Enchantment> getEnchantmentRegistry() {
+    if (enchantmentRegistry == null)
+      enchantmentRegistry = GameRegistry.findRegistry(Enchantment.class);
 
-		return enchantmentRegistry;
-	}
+    return enchantmentRegistry;
+  }
 
 }

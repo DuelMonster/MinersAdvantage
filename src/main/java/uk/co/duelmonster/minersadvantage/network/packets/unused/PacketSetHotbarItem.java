@@ -10,36 +10,41 @@ import uk.co.duelmonster.minersadvantage.network.packetids.PacketId;
 import uk.co.duelmonster.minersadvantage.utils.UtilsServer;
 
 public class PacketSetHotbarItem {
-	
-	private final ItemStack itemStack;
-	private final int hotbarSlot;
 
-	public PacketSetHotbarItem(ItemStack _itemStack, int _hotbarSlot) {
-		this.itemStack = _itemStack;
-		this.hotbarSlot = _hotbarSlot;
-	}
-	public PacketSetHotbarItem(PacketBuffer buf) {
-		this.itemStack = buf.readItemStack();
-		this.hotbarSlot = buf.readVarInt();
-	}
+  private final ItemStack itemStack;
+  private final int       hotbarSlot;
 
-	public PacketId getPacketId() { return PacketId.SetHotbarItem; }
+  public PacketSetHotbarItem(ItemStack _itemStack, int _hotbarSlot) {
+    this.itemStack  = _itemStack;
+    this.hotbarSlot = _hotbarSlot;
+  }
 
-	public static void encode(PacketSetHotbarItem pkt, PacketBuffer buf) {
-		buf.writeItemStack(pkt.itemStack);
-		buf.writeVarInt(pkt.hotbarSlot);
-	}
+  public PacketSetHotbarItem(PacketBuffer buf) {
+    this.itemStack  = buf.readItem();
+    this.hotbarSlot = buf.readVarInt();
+  }
 
-	public static PacketSetHotbarItem decode(PacketBuffer buf) { return new PacketSetHotbarItem(buf); }
+  public PacketId getPacketId() {
+    return PacketId.SetHotbarItem;
+  }
 
-	public static void handle(final PacketSetHotbarItem pkt, Supplier<Context> ctx) {
-		ctx.get().enqueueWork(() -> {
-			// Work that needs to be threadsafe (most work)
-			ServerPlayerEntity sender = ctx.get().getSender(); // the client that sent this packet
-			// do stuff
-			ItemStack itemStack = pkt.itemStack;
-			if (!itemStack.isEmpty())
-				UtilsServer.setHotbarSlot(sender, itemStack, pkt.hotbarSlot);
-		});
-	}
+  public static void encode(PacketSetHotbarItem pkt, PacketBuffer buf) {
+    buf.writeItem(pkt.itemStack);
+    buf.writeVarInt(pkt.hotbarSlot);
+  }
+
+  public static PacketSetHotbarItem decode(PacketBuffer buf) {
+    return new PacketSetHotbarItem(buf);
+  }
+
+  public static void handle(final PacketSetHotbarItem pkt, Supplier<Context> ctx) {
+    ctx.get().enqueueWork(() -> {
+      // Work that needs to be threadsafe (most work)
+      ServerPlayerEntity sender = ctx.get().getSender(); // the client that sent this packet
+      // do stuff
+      ItemStack itemStack = pkt.itemStack;
+      if (!itemStack.isEmpty())
+        UtilsServer.setHotbarSlot(sender, itemStack, pkt.hotbarSlot);
+    });
+  }
 }

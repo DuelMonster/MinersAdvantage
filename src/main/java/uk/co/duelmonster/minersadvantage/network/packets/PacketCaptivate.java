@@ -16,50 +16,50 @@ import uk.co.duelmonster.minersadvantage.config.SyncedClientConfig;
 import uk.co.duelmonster.minersadvantage.network.packetids.PacketId;
 
 public class PacketCaptivate implements IMAPacket {
-	
-	public PacketCaptivate() {}
-	
-	public PacketCaptivate(PacketBuffer buf) {}
-	
-	@Override
-	public PacketId getPacketId() {
-		return PacketId.Captivate;
-	}
-	
-	public static void encode(PacketCaptivate pkt, PacketBuffer buf) {}
-	
-	public static PacketCaptivate decode(PacketBuffer buf) {
-		return new PacketCaptivate(buf);
-	}
-	
-	public static void handle(final PacketCaptivate pkt, Supplier<Context> ctx) {
-		ctx.get().enqueueWork(() -> {
-			// Work that needs to be threadsafe (most work)
-			ServerPlayerEntity sender = ctx.get().getSender(); // the client that sent this packet
-			
-			// do stuff
-			SyncedClientConfig clientConfig = MAConfig_Client.getPlayerConfig(sender.getUniqueID());
-			if (clientConfig != null) {
-				AxisAlignedBB captivateArea = sender.getBoundingBox().grow(clientConfig.captivation.radiusHorizontal, clientConfig.captivation.radiusVertical, clientConfig.captivation.radiusHorizontal);
-				
-				if (sender.world != null) {
-					List<Entity> localDrops = Functions.getNearbyEntities(sender.world, captivateArea);
-					if (localDrops != null && !localDrops.isEmpty()) {
-						for (Entity entity : localDrops) {
-							if (entity instanceof ItemEntity) {
-								ItemEntity eItem = (ItemEntity) entity;
-								
-								if (!eItem.cannotPickup() && (clientConfig.captivation.blacklist == null || clientConfig.captivation.blacklist.size() == 0
-										|| !clientConfig.captivation.blacklist.contains(Functions.getName(eItem))))
-									entity.onCollideWithPlayer(sender);
-								
-							} else if (entity instanceof ExperienceOrbEntity)
-								entity.onCollideWithPlayer(sender);
-						}
-					}
-				}
-			}
-		});
-		ctx.get().setPacketHandled(true);
-	}
+
+  public PacketCaptivate() {}
+
+  public PacketCaptivate(PacketBuffer buf) {}
+
+  @Override
+  public PacketId getPacketId() {
+    return PacketId.Captivate;
+  }
+
+  public static void encode(PacketCaptivate pkt, PacketBuffer buf) {}
+
+  public static PacketCaptivate decode(PacketBuffer buf) {
+    return new PacketCaptivate(buf);
+  }
+
+  public static void handle(final PacketCaptivate pkt, Supplier<Context> ctx) {
+    ctx.get().enqueueWork(() -> {
+      // Work that needs to be threadsafe (most work)
+      ServerPlayerEntity sender = ctx.get().getSender(); // the client that sent this packet
+
+      // do stuff
+      SyncedClientConfig clientConfig = MAConfig_Client.getPlayerConfig(sender.getUUID());
+      if (clientConfig != null) {
+        AxisAlignedBB captivateArea = sender.getBoundingBox().inflate(clientConfig.captivation.radiusHorizontal, clientConfig.captivation.radiusVertical, clientConfig.captivation.radiusHorizontal);
+
+        if (sender.level != null) {
+          List<Entity> localDrops = Functions.getNearbyEntities(sender.level, captivateArea);
+          if (localDrops != null && !localDrops.isEmpty()) {
+            for (Entity entity : localDrops) {
+              if (entity instanceof ItemEntity) {
+                ItemEntity eItem = (ItemEntity) entity;
+
+                if (!eItem.hasPickUpDelay() && (clientConfig.captivation.blacklist == null || clientConfig.captivation.blacklist.size() == 0
+                    || !clientConfig.captivation.blacklist.contains(Functions.getName(eItem))))
+                  entity.playerTouch(sender);
+
+              } else if (entity instanceof ExperienceOrbEntity)
+                entity.playerTouch(sender);
+            }
+          }
+        }
+      }
+    });
+    ctx.get().setPacketHandled(true);
+  }
 }
