@@ -30,8 +30,6 @@ import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.minecraftforge.server.ServerLifecycleHooks;
 import uk.co.duelmonster.minersadvantage.common.Constants;
 import uk.co.duelmonster.minersadvantage.common.Functions;
@@ -49,8 +47,6 @@ import uk.co.duelmonster.minersadvantage.network.packets.PacketVeinate;
 import uk.co.duelmonster.minersadvantage.workers.AgentProcessor;
 import uk.co.duelmonster.minersadvantage.workers.DropsSpawner;
 
-@Mod.EventBusSubscriber(modid = Constants.MOD_ID,
-                        bus = Bus.FORGE)
 public class ServerEventHandler {
 
   // Player Logged In event
