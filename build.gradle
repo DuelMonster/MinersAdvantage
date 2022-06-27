@@ -335,7 +335,7 @@ if (curseForgeApiKey != '') {
       addGameVersion mcversion
 
       relations {
-        requiredDependency 'mixinbootstrap'
+        // requiredDependency 'mixinbootstrap'
         //requiredDependency 'eguilib'
       }
 
