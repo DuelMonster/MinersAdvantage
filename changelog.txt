@@ -1,6 +1,6 @@
 
-Build: 1.18.2-1.10.2.215
-	Ported to MC 1.18.2
-	Compatible with Forge 40.1.0+
+Build: 1.19-1.11.1.217
+	Ported to MC 1.19
+	Compatible with Forge 41.0.45+
 		
 =========
