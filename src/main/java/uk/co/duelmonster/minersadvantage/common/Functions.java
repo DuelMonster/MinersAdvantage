@@ -9,8 +9,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -38,7 +37,7 @@ import uk.co.duelmonster.minersadvantage.config.SyncedClientConfig;
 public class Functions {
 
   public static String localize(String key) {
-    return (new TranslatableComponent(key)).getString();
+    return Component.translatable(key).toString();
   }
 
   public static boolean isDebug() {
@@ -58,11 +57,11 @@ public class Functions {
   }
 
   public static void NotifyClient(Player player, String sMsg) {
-    player.displayClientMessage(new TextComponent(Constants.MOD_NAME_MSG + sMsg), false);
+    player.displayClientMessage(Component.literal(Constants.MOD_NAME_MSG + sMsg), false);
   }
 
   public static void NotifyClient(Player player, boolean bIsOn, String sFeatureName) {
-    player.displayClientMessage(new TextComponent(Constants.MOD_NAME_MSG + ChatFormatting.GOLD + sFeatureName + " " + (bIsOn ? ChatFormatting.GREEN + "ON" : ChatFormatting.RED + "OFF")), false);
+    player.displayClientMessage(Component.literal(Constants.MOD_NAME_MSG + ChatFormatting.GOLD + sFeatureName + " " + (bIsOn ? ChatFormatting.GREEN + "ON" : ChatFormatting.RED + "OFF")), false);
   }
 
   public static ItemStack getHeldItemStack(Player player) {
@@ -254,15 +253,15 @@ public class Functions {
   }
 
   public static String getName(Item item) {
-    return item.getRegistryName().toString().trim();
+    return item.getDescription().getString();
   }
 
   public static String getName(Block block) {
-    return block.getRegistryName().toString().trim();
+    return block.getName().getString();
   }
 
   public static String getName(BlockState state) {
-    return state.getBlock().getRegistryName().toString().trim();
+    return state.getBlock().getName().getString();
   }
 
   public static Block getBlockFromWorld(Level world, BlockPos pos) {

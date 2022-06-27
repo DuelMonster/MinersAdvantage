@@ -334,10 +334,10 @@ if (curseForgeApiKey != '') {
 
       addGameVersion mcversion
 
-      relations {
-        // requiredDependency 'mixinbootstrap'
-        //requiredDependency 'eguilib'
-      }
+      // relations {
+      //   requiredDependency 'mixinbootstrap'
+      //   requiredDependency 'eguilib'
+      // }
 
       mainArtifact jar
       addArtifact srcJar

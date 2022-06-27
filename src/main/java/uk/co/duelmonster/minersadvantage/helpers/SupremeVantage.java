@@ -3,7 +3,7 @@ package uk.co.duelmonster.minersadvantage.helpers;
 import org.lwjgl.glfw.GLFW;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -82,7 +82,7 @@ public class SupremeVantage {
         oItemStack.enchant(Enchantments.SWEEPING_EDGE, 10);
         oItemStack.enchant(Enchantments.FIRE_ASPECT, 2);
         oItemStack.enchant(Enchantments.MOB_LOOTING, 10);
-        oItemStack.setHoverName(new TextComponent("Soulblade" + (code.equals(CODE_N) ? " Rite" : "")));
+        oItemStack.setHoverName(Component.literal("Soulblade" + (code.equals(CODE_N) ? " Rite" : "")));
         oItemStack.getOrCreateTag().putBoolean("Unbreakable", true);
 
         break;
@@ -93,7 +93,7 @@ public class SupremeVantage {
         oItemStack.enchant(Enchantments.SHARPNESS, 10);
         oItemStack.enchant(Enchantments.SWEEPING_EDGE, 10);
         oItemStack.enchant(Enchantments.MOB_LOOTING, 10);
-        oItemStack.setHoverName(new TextComponent("Peacekeeper" + (code.equals(CODE_N) ? " Rite" : "")));
+        oItemStack.setHoverName(Component.literal("Peacekeeper" + (code.equals(CODE_N) ? " Rite" : "")));
         oItemStack.getOrCreateTag().putBoolean("Unbreakable", true);
         break;
       case 3:
@@ -102,7 +102,7 @@ public class SupremeVantage {
         oItemStack.setCount(1);
         oItemStack.enchant(Enchantments.BLOCK_EFFICIENCY, 5); // Six too fast...
         oItemStack.enchant(Enchantments.BLOCK_FORTUNE, 10);
-        oItemStack.setHoverName(new TextComponent("Minora" + (code.equals(CODE_N) ? " Rite" : "")));
+        oItemStack.setHoverName(Component.literal("Minora" + (code.equals(CODE_N) ? " Rite" : "")));
         oItemStack.getOrCreateTag().putBoolean("Unbreakable", true);
         break;
       case 4:
@@ -111,7 +111,7 @@ public class SupremeVantage {
         oItemStack.setCount(1);
         oItemStack.enchant(Enchantments.BLOCK_EFFICIENCY, 5); // Six too fast...
         oItemStack.enchant(Enchantments.SILK_TOUCH, 1);
-        oItemStack.setHoverName(new TextComponent("Silkar" + (code.equals(CODE_N) ? " Rite" : "")));
+        oItemStack.setHoverName(Component.literal("Silkar" + (code.equals(CODE_N) ? " Rite" : "")));
         oItemStack.getOrCreateTag().putBoolean("Unbreakable", true);
         break;
       case 5:
@@ -120,7 +120,7 @@ public class SupremeVantage {
         oItemStack.setCount(1);
         oItemStack.enchant(Enchantments.BLOCK_EFFICIENCY, 5); // Six too fast...
         oItemStack.enchant(Enchantments.BLOCK_FORTUNE, 10);
-        oItemStack.setHoverName(new TextComponent("Diggle" + (code.equals(CODE_N) ? " Rite" : "")));
+        oItemStack.setHoverName(Component.literal("Diggle" + (code.equals(CODE_N) ? " Rite" : "")));
         oItemStack.getOrCreateTag().putBoolean("Unbreakable", true);
         break;
       case 6:
@@ -129,7 +129,7 @@ public class SupremeVantage {
         oItemStack.setCount(1);
         oItemStack.enchant(Enchantments.BLOCK_EFFICIENCY, 5); // Six too fast...
         oItemStack.enchant(Enchantments.BLOCK_FORTUNE, 10);
-        oItemStack.setHoverName(new TextComponent("Whirlwind" + (code.equals(CODE_N) ? " Rite" : "")));
+        oItemStack.setHoverName(Component.literal("Whirlwind" + (code.equals(CODE_N) ? " Rite" : "")));
         oItemStack.getOrCreateTag().putBoolean("Unbreakable", true);
         break;
       case 7:
@@ -139,7 +139,7 @@ public class SupremeVantage {
         oItemStack.enchant(Enchantments.FIRE_PROTECTION, 10);
         oItemStack.enchant(Enchantments.RESPIRATION, 10);
         oItemStack.enchant(Enchantments.AQUA_AFFINITY, 1);
-        oItemStack.setHoverName(new TextComponent("Tadpols Scuba Helm" + (code.equals(CODE_N) ? " Rite" : "")));
+        oItemStack.setHoverName(Component.literal("Tadpols Scuba Helm" + (code.equals(CODE_N) ? " Rite" : "")));
         oItemStack.getOrCreateTag().putBoolean("Unbreakable", true);
         break;
       case 8:
@@ -147,14 +147,14 @@ public class SupremeVantage {
         oItemStack = new ItemStack(code.equals(CODE_N) ? Items.NETHERITE_CHESTPLATE : Items.DIAMOND_CHESTPLATE);
         oItemStack.setCount(1);
         oItemStack.enchant(Enchantments.FIRE_PROTECTION, 10);
-        oItemStack.setHoverName(new TextComponent("Breastplate of Black Bones" + (code.equals(CODE_N) ? " Rite" : "")));
+        oItemStack.setHoverName(Component.literal("Breastplate of Black Bones" + (code.equals(CODE_N) ? " Rite" : "")));
         oItemStack.getOrCreateTag().putBoolean("Unbreakable", true);
         break;
       case 9:
         // Elytra
         oItemStack = new ItemStack(Items.ELYTRA);
         oItemStack.setCount(1);
-        oItemStack.setHoverName(new TextComponent("Pegasus' Wings"));
+        oItemStack.setHoverName(Component.literal("Pegasus' Wings"));
         oItemStack.getOrCreateTag().putBoolean("Unbreakable", true);
         break;
       case 10:
@@ -162,7 +162,7 @@ public class SupremeVantage {
         oItemStack = new ItemStack(code.equals(CODE_N) ? Items.NETHERITE_LEGGINGS : Items.DIAMOND_LEGGINGS);
         oItemStack.setCount(1);
         oItemStack.enchant(Enchantments.FIRE_PROTECTION, 10);
-        oItemStack.setHoverName(new TextComponent("Wizadora's Legplates" + (code.equals(CODE_N) ? " Rite" : "")));
+        oItemStack.setHoverName(Component.literal("Wizadora's Legplates" + (code.equals(CODE_N) ? " Rite" : "")));
         oItemStack.getOrCreateTag().putBoolean("Unbreakable", true);
         break;
       case 11:
@@ -172,7 +172,7 @@ public class SupremeVantage {
         oItemStack.enchant(Enchantments.FIRE_PROTECTION, 10);
         oItemStack.enchant(Enchantments.FALL_PROTECTION, 10);
         oItemStack.enchant(Enchantments.DEPTH_STRIDER, 10);
-        oItemStack.setHoverName(new TextComponent("Victims Souls" + (code.equals(CODE_N) ? " Rite" : "")));
+        oItemStack.setHoverName(Component.literal("Victims Souls" + (code.equals(CODE_N) ? " Rite" : "")));
         oItemStack.getOrCreateTag().putBoolean("Unbreakable", true);
         break;
       case 12:
@@ -182,14 +182,14 @@ public class SupremeVantage {
         oItemStack.enchant(Enchantments.POWER_ARROWS, 10);
         oItemStack.enchant(Enchantments.FLAMING_ARROWS, 1);
         oItemStack.enchant(Enchantments.INFINITY_ARROWS, 1);
-        oItemStack.setHoverName(new TextComponent("Firestarter"));
+        oItemStack.setHoverName(Component.literal("Firestarter"));
         oItemStack.getOrCreateTag().putBoolean("Unbreakable", true);
         break;
       case 13:
         // Single Arrow
         oItemStack = new ItemStack(Items.ARROW);
         oItemStack.setCount(1);
-        oItemStack.setHoverName(new TextComponent("Firestarter Ammo"));
+        oItemStack.setHoverName(Component.literal("Firestarter Ammo"));
         break;
       case 14:
         // Crossbow
@@ -198,7 +198,7 @@ public class SupremeVantage {
         oItemStack.enchant(Enchantments.MULTISHOT, 1);
         oItemStack.enchant(Enchantments.PIERCING, 5);
         oItemStack.enchant(Enchantments.QUICK_CHARGE, 5);
-        oItemStack.setHoverName(new TextComponent("Penertrator"));
+        oItemStack.setHoverName(Component.literal("Penertrator"));
         oItemStack.getOrCreateTag().putBoolean("Unbreakable", true);
         break;
       case 15:
@@ -207,7 +207,7 @@ public class SupremeVantage {
         oItemStack.setCount(1);
         oItemStack.enchant(Enchantments.RIPTIDE, 10);
         oItemStack.enchant(Enchantments.IMPALING, 10);
-        oItemStack.setHoverName(new TextComponent("Poseidons Rocket"));
+        oItemStack.setHoverName(Component.literal("Poseidons Rocket"));
         oItemStack.getOrCreateTag().putBoolean("Unbreakable", true);
         break;
       case 16:
@@ -217,28 +217,28 @@ public class SupremeVantage {
         oItemStack.enchant(Enchantments.LOYALTY, 10);
         oItemStack.enchant(Enchantments.IMPALING, 10);
         oItemStack.enchant(Enchantments.CHANNELING, 1);
-        oItemStack.setHoverName(new TextComponent("Poseidons Fork"));
+        oItemStack.setHoverName(Component.literal("Poseidons Fork"));
         oItemStack.getOrCreateTag().putBoolean("Unbreakable", true);
         break;
       case 17:
         // Hoe
         oItemStack = new ItemStack(code.equals(CODE_N) ? Items.NETHERITE_HOE : Items.DIAMOND_HOE);
         oItemStack.setCount(1);
-        oItemStack.setHoverName(new TextComponent("Ten Dolla" + (code.equals(CODE_N) ? " Rite" : "")));
+        oItemStack.setHoverName(Component.literal("Ten Dolla" + (code.equals(CODE_N) ? " Rite" : "")));
         oItemStack.getOrCreateTag().putBoolean("Unbreakable", true);
         break;
       case 18:
         // Shears
         oItemStack = new ItemStack(Items.SHEARS);
         oItemStack.setCount(1);
-        oItemStack.setHoverName(new TextComponent("Shawn"));
+        oItemStack.setHoverName(Component.literal("Shawn"));
         oItemStack.getOrCreateTag().putBoolean("Unbreakable", true);
         break;
       case 19:
         // Flint & Steel
         oItemStack = new ItemStack(Items.FLINT_AND_STEEL);
         oItemStack.setCount(1);
-        oItemStack.setHoverName(new TextComponent("Pyro"));
+        oItemStack.setHoverName(Component.literal("Pyro"));
         oItemStack.getOrCreateTag().putBoolean("Unbreakable", true);
         break;
       case 20:
@@ -246,7 +246,7 @@ public class SupremeVantage {
         oItemStack = new ItemStack(Items.FISHING_ROD);
         oItemStack.setCount(1);
         oItemStack.enchant(Enchantments.FISHING_LUCK, 100); // 61 = Luck of the Sea
-        oItemStack.setHoverName(new TextComponent("Raider of Poseidons Stash"));
+        oItemStack.setHoverName(Component.literal("Raider of Poseidons Stash"));
         oItemStack.getOrCreateTag().putBoolean("Unbreakable", true);
         break;
       case 21:
@@ -254,7 +254,7 @@ public class SupremeVantage {
         oItemStack = new ItemStack(Items.FISHING_ROD);
         oItemStack.setCount(1);
         oItemStack.enchant(Enchantments.FISHING_SPEED, 8); // 62 = Lure
-        oItemStack.setHoverName(new TextComponent("Rodney"));
+        oItemStack.setHoverName(Component.literal("Rodney"));
         oItemStack.getOrCreateTag().putBoolean("Unbreakable", true);
         break;
       default:

@@ -9,7 +9,6 @@ import java.util.Set;
 
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
@@ -265,15 +264,15 @@ public class SubstitutionHelper {
         return (newHits < oldHits);
     }
 
-    int newLootingLevel    = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.MOB_LOOTING, compareWeapon);
-    int newFireAspectLevel = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.FIRE_ASPECT, compareWeapon);
-    int newKnockbackLevel  = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.KNOCKBACK, compareWeapon);
-    int newUnbreakingLevel = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.UNBREAKING, compareWeapon);
+    int newLootingLevel    = EnchantmentHelper.getTagEnchantmentLevel(Enchantments.MOB_LOOTING, compareWeapon);
+    int newFireAspectLevel = EnchantmentHelper.getTagEnchantmentLevel(Enchantments.FIRE_ASPECT, compareWeapon);
+    int newKnockbackLevel  = EnchantmentHelper.getTagEnchantmentLevel(Enchantments.KNOCKBACK, compareWeapon);
+    int newUnbreakingLevel = EnchantmentHelper.getTagEnchantmentLevel(Enchantments.UNBREAKING, compareWeapon);
 
-    int oldLootingLevel    = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.MOB_LOOTING, currentWeapon);
-    int oldFireAspectLevel = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.FIRE_ASPECT, currentWeapon);
-    int oldKnockbackLevel  = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.KNOCKBACK, currentWeapon);
-    int oldUnbreakingLevel = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.UNBREAKING, currentWeapon);
+    int oldLootingLevel    = EnchantmentHelper.getTagEnchantmentLevel(Enchantments.MOB_LOOTING, currentWeapon);
+    int oldFireAspectLevel = EnchantmentHelper.getTagEnchantmentLevel(Enchantments.FIRE_ASPECT, currentWeapon);
+    int oldKnockbackLevel  = EnchantmentHelper.getTagEnchantmentLevel(Enchantments.KNOCKBACK, currentWeapon);
+    int oldUnbreakingLevel = EnchantmentHelper.getTagEnchantmentLevel(Enchantments.UNBREAKING, currentWeapon);
 
     if (!isTargetPlayer && newLootingLevel != oldLootingLevel)
       return (newLootingLevel > oldLootingLevel);
@@ -287,8 +286,8 @@ public class SubstitutionHelper {
     Set<Enchantment> bothItemsEnchantments = getNonstandardNondamageEnchantmentsOnBothStacks(compareWeapon, currentWeapon);
 
     for (Enchantment enchantment : bothItemsEnchantments) {
-      int oldLevel = EnchantmentHelper.getItemEnchantmentLevel(enchantment, currentWeapon);
-      int newLevel = EnchantmentHelper.getItemEnchantmentLevel(enchantment, compareWeapon);
+      int oldLevel = EnchantmentHelper.getTagEnchantmentLevel(enchantment, currentWeapon);
+      int newLevel = EnchantmentHelper.getTagEnchantmentLevel(enchantment, compareWeapon);
       if (newLevel > oldLevel) {
         return true;
       } else if (newLevel < oldLevel) {
@@ -396,10 +395,10 @@ public class SubstitutionHelper {
         iterator.remove();
         continue;
       }
-      ResourceLocation location = enchantment.getRegistryName();
-      if (location == null || location.toString().toLowerCase().startsWith("minecraft")) {
-        iterator.remove();
-      }
+      // ResourceLocation location = enchantment.getRegistryName();
+      // if (location == null || location.toString().toLowerCase().startsWith("minecraft")) {
+      // iterator.remove();
+      // }
     }
 
     return bothItemsEnchantments;

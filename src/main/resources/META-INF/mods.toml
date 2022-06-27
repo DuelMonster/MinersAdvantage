@@ -28,7 +28,7 @@ issueTrackerURL="https://github.com/DuelMonster/MinersAdvantage/issues" #optiona
     # A file name (in the root of the mod JAR) containing a logo for display
     logoFile="MinersAdvantage_Logo.png" #optional
     # A text field displayed in the mod UI
-    credits="Thanks for downloading" #optional
+    credits="Thanks for downloading" #optionalss
     # A text field displayed in the mod UI
     authors="DuelMonster" #optional
     # The description text for the mod (multi line!) (#mandatory)
@@ -56,6 +56,6 @@ issueTrackerURL="https://github.com/DuelMonster/MinersAdvantage/issues" #optiona
     [[dependencies.minersadvantage]]
         modId="minecraft"
         mandatory=true
-        versionRange="[1.19)"
+        versionRange="[1.19,)"
         ordering="NONE"
         side="BOTH"

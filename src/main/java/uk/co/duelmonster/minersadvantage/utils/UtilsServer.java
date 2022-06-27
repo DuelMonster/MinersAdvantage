@@ -4,7 +4,6 @@ import java.util.Random;
 
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.commands.GiveCommand;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -81,10 +80,10 @@ public final class UtilsServer {
   private static void notifyGive(ServerPlayer ServerPlayer, ItemStack stack) {
     int count = stack.getCount();
 
-    CommandSourceStack    commandSource = ServerPlayer.createCommandSourceStack();
-    Component             stackName     = stack.getHoverName();
-    Component             displayName   = ServerPlayer.getDisplayName();
-    TranslatableComponent message       = new TranslatableComponent("commands.give.success.single", count, stackName, displayName);
+    CommandSourceStack commandSource = ServerPlayer.createCommandSourceStack();
+    Component          stackName     = stack.getHoverName();
+    Component          displayName   = ServerPlayer.getDisplayName();
+    Component          message       = Component.translatable("commands.give.success.single", count, stackName, displayName);
 
     commandSource.sendSuccess(message, true);
   }
