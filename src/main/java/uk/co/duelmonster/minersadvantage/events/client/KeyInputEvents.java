@@ -99,8 +99,8 @@ public class KeyInputEvents {
         ClientFunctions.NotifyClient(MAConfig.CLIENT.shaftanation.enabled(), "Shaftanation");
       }
 
-      if (MAConfig.CLIENT.shaftanation.enabled() && variables.IsShaftanationToggled != KeyBindings.shaftanation_toggle.isDown()) {
-        variables.IsShaftanationToggled = KeyBindings.shaftanation_toggle.isDown();
+      if (MAConfig.CLIENT.shaftanation.enabled() && variables.IsShaftanationToggled != KeyBindings.shaft_vent_toggle.isDown()) {
+        variables.IsShaftanationToggled = KeyBindings.shaft_vent_toggle.isDown();
         ClientFunctions.DebugNotifyClient(variables.IsShaftanationToggled, "Shaftanation Toggled:");
       }
 

@@ -25,6 +25,7 @@ public class MAConfig_Server extends MAConfig_Base {
   public final BooleanValue enforceShaftanationSettings;
   public final BooleanValue enforceSubstitutionSettings;
   public final BooleanValue enforceVeinationSettings;
+  public final BooleanValue enforceVentilationSettings;
 
   // ====================================================================================================
   // = Initialisation
@@ -91,6 +92,11 @@ public class MAConfig_Server extends MAConfig_Base {
         .comment("When enabled, the Server side Veination feature settings will be enforced upon all Players connected to the server.")
         .translation("minersadvantage.server.enforce_veination_settings")
         .define("enforce_veination_settings", MAConfig_Defaults.Server.enforceVeinationSettings);
+
+    enforceVentilationSettings = builder
+        .comment("When enabled, the Server side Ventilation feature settings will be enforced upon all Players connected to the server.")
+        .translation("minersadvantage.server.enforce_ventilation_settings")
+        .define("enforce_ventilation_settings", MAConfig_Defaults.Server.enforceVentilationSettings);
 
     builder.pop();
   }

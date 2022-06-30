@@ -38,12 +38,12 @@ public class MAConfig_Common extends MAConfig_BaseCategory {
         .define("gather_drops", MAConfig_Defaults.Common.gatherDrops);
 
     autoIlluminate = builder
-        .comment("Automatically Illuminate dark areas, if the Illumination is enabled, while using Excavation, Shaftanation or Veination.")
+        .comment("Automatically Illuminate dark areas, if the Illumination is enabled, while using Excavation, Shaftanation or Ventilation.")
         .translation("minersadvantage.common.auto_illum")
         .define("auto_illum", MAConfig_Defaults.Common.autoIlluminate);
 
     mineVeins = builder
-        .comment("Automatically mine a vein of ore, if the Veination mod is enabled, while using Excavation, Shaftanation or Veination.")
+        .comment("Automatically mine a vein of ore, if the Veination mod is enabled, while using Excavation, Shaftanation or Ventilation.")
         .translation("minersadvantage.common.mine_veins")
         .define("mine_veins", MAConfig_Defaults.Common.mineVeins);
 

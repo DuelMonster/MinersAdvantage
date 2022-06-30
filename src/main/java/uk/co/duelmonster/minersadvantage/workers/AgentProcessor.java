@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
+import uk.co.duelmonster.minersadvantage.common.TorchPlacement;
 import uk.co.duelmonster.minersadvantage.common.Variables;
 import uk.co.duelmonster.minersadvantage.network.packetids.PacketId;
 import uk.co.duelmonster.minersadvantage.network.packets.PacketIlluminate;
@@ -72,6 +73,8 @@ public class AgentProcessor {
           if (agent.shouldAutoIlluminate) {
             if (agent.packetId == PacketId.Shaftanate) {
               PacketIlluminate.process(agent.player, new PacketIlluminate(agent.harvestAreaStartPos(), agent.harvestAreaEndPos(), agent.clientConfig.shaftanation.torchPlacement));
+            } else if (agent.packetId == PacketId.Ventilate) {
+              PacketIlluminate.process(agent.player, new PacketIlluminate(agent.harvestAreaStartPos(), agent.harvestAreaEndPos(), Direction.NORTH, TorchPlacement.BOTH_WALLS));
             } else {
               PacketIlluminate.process(agent.player, new PacketIlluminate(agent.harvestAreaStartPos(), agent.harvestAreaEndPos(), Direction.UP));
             }
@@ -155,6 +158,8 @@ public class AgentProcessor {
       variables.IsPathanating = false;
     else if (agent instanceof ShaftanationAgent)
       variables.IsShaftanating = false;
+    else if (agent instanceof VentilationAgent)
+      variables.IsVentilating = false;
 
     Variables.syncToPlayer(agent.player);
   }

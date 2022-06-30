@@ -32,6 +32,7 @@ public class MAConfig_Defaults {
     public static final boolean enforceShaftanationSettings = false;
     public static final boolean enforceSubstitutionSettings = false;
     public static final boolean enforceVeinationSettings    = false;
+    public static final boolean enforceVentilationSettings  = false;
 
   }
 
@@ -138,6 +139,15 @@ public class MAConfig_Defaults {
 
     public static final boolean      enabled = true;
     public static final List<String> ores    = Collections.emptyList();
+
+  }
+
+  public static class Ventilation {
+
+    public static final boolean enabled      = true;
+    public static final int     ventDiameter = 1;
+    public static final int     ventDepth    = 16;
+    public static final boolean placeLadders = true;
 
   }
 

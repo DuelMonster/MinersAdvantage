@@ -116,6 +116,7 @@ public class Variables {
   public boolean IsPathanating         = false;
   public boolean IsShaftanating        = false;
   public boolean IsVeinating           = false;
+  public boolean IsVentilating         = false;
 
   public boolean areAgentsProcessing() {
     return (IsCropinating ||
@@ -124,7 +125,8 @@ public class Variables {
         IsLumbinating ||
         IsPathanating ||
         IsShaftanating ||
-        IsVeinating);
+        IsVeinating ||
+        IsVentilating);
   }
 
   public boolean IsInToggleMode() {

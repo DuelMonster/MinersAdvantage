@@ -29,7 +29,7 @@ public class KeyBindings {
   public static final KeyMapping illumination_area;
   public static final KeyMapping lumbination;
   public static final KeyMapping shaftanation;
-  public static final KeyMapping shaftanation_toggle;
+  public static final KeyMapping shaft_vent_toggle;
   public static final KeyMapping substitution;
   public static final KeyMapping veination;
   public static final KeyMapping cropination;
@@ -53,7 +53,7 @@ public class KeyBindings {
         illumination_area = new KeyMapping(Constants.MOD_ID + ".illumination.area", KeyConflictContext.IN_GAME, KeyModifier.NONE, getKey(GLFW.GLFW_KEY_F12), Constants.MOD_NAME), // Keyboard.KEY_F12
         lumbination = new KeyMapping(Constants.MOD_ID + ".lumbination.enabled.comment", KeyConflictContext.IN_GAME, KeyModifier.NONE, getKey(GLFW.GLFW_KEY_KP_4), Constants.MOD_NAME), // Keyboard.KEY_NUMPAD4
         shaftanation = new KeyMapping(Constants.MOD_ID + ".shaftanation.enabled.comment", KeyConflictContext.IN_GAME, KeyModifier.NONE, getKey(GLFW.GLFW_KEY_KP_5), Constants.MOD_NAME), // Keyboard.KEY_NUMPAD5
-        shaftanation_toggle = new KeyMapping(Constants.MOD_ID + ".shaftanation.toggle", KeyConflictContext.IN_GAME, KeyModifier.NONE, getKey(GLFW.GLFW_KEY_LEFT_ALT), Constants.MOD_NAME), // Keyboard.KEY_LMENU
+        shaft_vent_toggle = new KeyMapping(Constants.MOD_ID + ".shaft.vent.toggle", KeyConflictContext.IN_GAME, KeyModifier.NONE, getKey(GLFW.GLFW_KEY_LEFT_ALT), Constants.MOD_NAME), // Keyboard.KEY_LMENU
         substitution = new KeyMapping(Constants.MOD_ID + ".substitution.enabled.comment", KeyConflictContext.IN_GAME, KeyModifier.NONE, getKey(GLFW.GLFW_KEY_KP_6), Constants.MOD_NAME), // Keyboard.KEY_NUMPAD6
         veination = new KeyMapping(Constants.MOD_ID + ".veination.enabled.comment", KeyConflictContext.IN_GAME, KeyModifier.NONE, getKey(GLFW.GLFW_KEY_KP_7), Constants.MOD_NAME), // Keyboard.KEY_NUMPAD7
         cropination = new KeyMapping(Constants.MOD_ID + ".cropination.enabled.comment", KeyConflictContext.IN_GAME, KeyModifier.NONE, getKey(GLFW.GLFW_KEY_KP_8), Constants.MOD_NAME), // Keyboard.KEY_NUMPAD8

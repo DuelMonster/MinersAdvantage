@@ -44,6 +44,7 @@ import uk.co.duelmonster.minersadvantage.network.packets.PacketLumbinate;
 import uk.co.duelmonster.minersadvantage.network.packets.PacketPathanate;
 import uk.co.duelmonster.minersadvantage.network.packets.PacketShaftanate;
 import uk.co.duelmonster.minersadvantage.network.packets.PacketVeinate;
+import uk.co.duelmonster.minersadvantage.network.packets.PacketVentilate;
 import uk.co.duelmonster.minersadvantage.workers.AgentProcessor;
 import uk.co.duelmonster.minersadvantage.workers.DropsSpawner;
 
@@ -176,24 +177,30 @@ public class ServerEventHandler {
 
     LumbinationHelper lumbinationHelper = new LumbinationHelper();
     lumbinationHelper.setPlayer(player);
-
-    if (variables.IsShaftanationToggled) {
-
-      PacketShaftanate.process(player, new PacketShaftanate(pos, faceHit, Block.getId(state)));
-
-    } else if (clientConfig.lumbination.enabled && lumbinationHelper.isValidAxe(heldItem.getItem())) {
-
-      PacketLumbinate.process(player, new PacketLumbinate(pos, faceHit, Block.getId(state)));
-
-    } else if (clientConfig.veination.enabled && Functions.isValidOre(state, clientConfig)) {
+    if (clientConfig.veination.enabled && Functions.isValidOre(state, clientConfig)) {
 
       PacketVeinate.process(player, new PacketVeinate(pos, faceHit, Block.getId(state)));
 
+    } else if (variables.IsShaftanationToggled) {
+
+      if (faceHit == Direction.UP || faceHit == Direction.DOWN) {
+
+        PacketVentilate.process(player, new PacketVentilate(pos, faceHit, Block.getId(state)));
+
+      } else {
+
+        PacketShaftanate.process(player, new PacketShaftanate(pos, faceHit, Block.getId(state)));
+
+      }
     } else if (variables.IsExcavationToggled || variables.IsSingleLayerToggled) {
       if (clientConfig.excavation.isBlacklisted(event.getState().getBlock()))
         return;
 
       PacketExcavate.process(player, new PacketExcavate(pos, faceHit, Block.getId(state)));
+
+    } else if (clientConfig.lumbination.enabled && lumbinationHelper.isValidAxe(heldItem.getItem())) {
+
+      PacketLumbinate.process(player, new PacketLumbinate(pos, faceHit, Block.getId(state)));
 
     }
   }

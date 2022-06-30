@@ -8,7 +8,7 @@ public enum PacketId implements IPacketId {
 
   Synchronization,
 
-  Captivate, Cropinate, Cultivate, Excavate, Illuminate, Lumbinate, Pathinate, Shaftanate, Substitute, Veinate,
+  Captivate, Cropinate, Cultivate, Excavate, Illuminate, Lumbinate, Pathinate, Shaftanate, Substitute, Veinate, Ventilate,
 
   AbortAgents,
 

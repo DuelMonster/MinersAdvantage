@@ -19,6 +19,7 @@ import net.minecraft.world.phys.AABB;
 import uk.co.duelmonster.minersadvantage.common.Functions;
 import uk.co.duelmonster.minersadvantage.common.TorchPlacement;
 import uk.co.duelmonster.minersadvantage.helpers.IlluminationHelper;
+import uk.co.duelmonster.minersadvantage.network.packetids.PacketId;
 import uk.co.duelmonster.minersadvantage.network.packets.PacketIlluminate;
 
 public class IlluminationAgent extends Agent {
@@ -34,6 +35,10 @@ public class IlluminationAgent extends Agent {
     this.faceHit        = pkt.faceHit;
     this.singleTorch    = pkt.singleTorch;
     this.torchPlacement = pkt.torchPlacement;
+
+    if (packetId == PacketId.Ventilate) {
+      this.playerFacing = Direction.NORTH;
+    }
 
     if (singleTorch) {
 
@@ -80,7 +85,9 @@ public class IlluminationAgent extends Agent {
     BlockPos  torchPlacePos = lightCheckPos;
 
     if (torchPlacement != TorchPlacement.FLOOR) {
-      torchPlacePos = lightCheckPos.above();
+      if (packetId != PacketId.Ventilate) {
+        torchPlacePos = lightCheckPos.above();
+      }
 
       switch (playerFacing) {
         case NORTH:

@@ -67,8 +67,7 @@ public class IlluminationHelper {
       for (double x = area.minX; x <= area.maxX; x++)
         for (double z = area.minZ; z <= area.maxZ; z++) {
           BlockPos pos = new BlockPos(x, y, z);
-          if (world.isEmptyBlock(pos) && !world.isEmptyBlock(pos.below())
-              && (previousPos == null || !Functions.isWithinRange(previousPos, pos, 5))) {
+          if (isTorchablePosition(world, pos) && (previousPos == null || !Functions.isWithinRange(previousPos, pos, 5))) {
             positions.add(pos);
 
             previousPos = pos;
@@ -139,6 +138,14 @@ public class IlluminationHelper {
     BlockPos endPos           = new BlockPos(illuminationArea.maxX, illuminationArea.maxY, illuminationArea.maxZ);
 
     MA.NETWORK.sendToServer(new PacketIlluminate(startPos, endPos, TorchPlacement.FLOOR));
+  }
+
+  public boolean isTorchablePosition(Level world, BlockPos pos) {
+    return world.isEmptyBlock(pos) && (!world.isEmptyBlock(pos.below()) ||
+        !world.isEmptyBlock(pos.north()) ||
+        !world.isEmptyBlock(pos.east()) ||
+        !world.isEmptyBlock(pos.south()) ||
+        !world.isEmptyBlock(pos.west()));
   }
 
   public boolean canPlaceTorchOnFace(Level world, BlockPos pos, Direction face) {

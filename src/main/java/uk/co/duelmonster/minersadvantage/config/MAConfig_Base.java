@@ -22,6 +22,7 @@ import uk.co.duelmonster.minersadvantage.config.categories.MAConfig_Pathanation;
 import uk.co.duelmonster.minersadvantage.config.categories.MAConfig_Shaftanation;
 import uk.co.duelmonster.minersadvantage.config.categories.MAConfig_Substitution;
 import uk.co.duelmonster.minersadvantage.config.categories.MAConfig_Veination;
+import uk.co.duelmonster.minersadvantage.config.categories.MAConfig_Ventilation;
 import uk.co.duelmonster.minersadvantage.network.packets.PacketSynchronization;
 
 public class MAConfig_Base {
@@ -142,6 +143,13 @@ public class MAConfig_Base {
     veination  = new MAConfig_Veination(subBuilder);
     builder.pop();
 
+    subBuilder = builder
+        .comment("Ventilation configuration for MinersAdvantage")
+        // .translation("minersadvantage.veination")
+        .push("ventilation");
+    ventilation = new MAConfig_Ventilation(subBuilder);
+    builder.pop();
+
     setSubCategoryParents();
   }
 
@@ -158,6 +166,7 @@ public class MAConfig_Base {
   public final MAConfig_Shaftanation shaftanation;
   public final MAConfig_Substitution substitution;
   public final MAConfig_Veination    veination;
+  public final MAConfig_Ventilation   ventilation;
 
   public void setSubCategoryParents() {
     common.SetParentConfig(this);
@@ -170,6 +179,7 @@ public class MAConfig_Base {
     shaftanation.SetParentConfig(this);
     substitution.SetParentConfig(this);
     veination.SetParentConfig(this);
+    ventilation.SetParentConfig(this);
   }
 
   // ====================================================================================================
@@ -177,7 +187,7 @@ public class MAConfig_Base {
   // ====================================================================================================
 
   public boolean allEnabled() {
-    return (captivation.enabled() &&
+    return captivation.enabled() &&
         cropination.enabled() &&
         excavation.enabled() &&
         lumbination.enabled() &&
@@ -185,7 +195,8 @@ public class MAConfig_Base {
         pathanation.enabled() &&
         shaftanation.enabled() &&
         substitution.enabled() &&
-        veination.enabled());
+        veination.enabled() &&
+        ventilation.enabled();
   }
 
 }

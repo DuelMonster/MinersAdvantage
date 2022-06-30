@@ -21,6 +21,7 @@ public class SyncedClientConfig {
   public Shaftanation shaftanation;
   public Substitution substitution;
   public Veination    veination;
+  public Ventilation  ventilation;
 
   private transient String history = null;
 
@@ -123,6 +124,12 @@ public class SyncedClientConfig {
     {
       config.veination.enabled = MAConfig.CLIENT.veination.enabled();
       config.veination.ores    = MAConfig.CLIENT.veination.ores();
+    }
+    config.ventilation = config.new Ventilation();
+    {
+      config.ventilation.enabled      = MAConfig.CLIENT.ventilation.enabled();
+      config.ventilation.ventDiameter = MAConfig.CLIENT.ventilation.ventDiameter();
+      config.ventilation.ventDepth    = MAConfig.CLIENT.ventilation.ventDepth();
     }
 
     return config;
@@ -248,6 +255,15 @@ public class SyncedClientConfig {
 
     public boolean                enabled;
     public List<? extends String> ores;
+
+  }
+
+  public class Ventilation {
+
+    public boolean enabled;
+    public int     ventDiameter;
+    public int     ventDepth;
+    public boolean placeLadders;
 
   }
 }

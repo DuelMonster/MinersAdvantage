@@ -45,6 +45,14 @@ public class PacketIlluminate implements IMAPacket {
     this.torchPlacement = torchPlacement;
   }
 
+  public PacketIlluminate(BlockPos areaStartPos, BlockPos areaEndPos, Direction _faceHit, TorchPlacement torchPlacement) {
+    this.areaStartPos   = areaStartPos;
+    this.areaEndPos     = areaEndPos;
+    this.faceHit        = _faceHit;
+    this.singleTorch    = false;
+    this.torchPlacement = torchPlacement;
+  }
+
   public PacketIlluminate(FriendlyByteBuf buf) {
     this.areaStartPos   = buf.readBlockPos();
     this.areaEndPos     = buf.readBlockPos();

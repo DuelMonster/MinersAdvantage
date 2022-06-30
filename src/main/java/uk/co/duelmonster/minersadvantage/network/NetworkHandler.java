@@ -21,6 +21,7 @@ import uk.co.duelmonster.minersadvantage.network.packets.PacketSubstituteTool;
 import uk.co.duelmonster.minersadvantage.network.packets.PacketSupremeVantage;
 import uk.co.duelmonster.minersadvantage.network.packets.PacketSynchronization;
 import uk.co.duelmonster.minersadvantage.network.packets.PacketVeinate;
+import uk.co.duelmonster.minersadvantage.network.packets.PacketVentilate;
 
 public class NetworkHandler {
 
@@ -111,6 +112,12 @@ public class NetworkHandler {
         PacketVeinate::encode,
         PacketVeinate::decode,
         PacketVeinate::handle);
+
+    CHANNEL.registerMessage(id++,
+        PacketVentilate.class,
+        PacketVentilate::encode,
+        PacketVentilate::decode,
+        PacketVentilate::handle);
   }
 
   /**
