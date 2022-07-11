@@ -27,16 +27,18 @@ public class IlluminationAgent extends Agent {
   private List<BlockPos> illuminationPositions = null;
   private boolean        singleTorch           = false;
   private TorchPlacement torchPlacement        = TorchPlacement.FLOOR;
+  private PacketId       originPacket          = PacketId.INVALID;
 
   public IlluminationAgent(ServerPlayer player, PacketIlluminate pkt) {
     super(player, pkt);
 
+    this.originPacket   = pkt.originPacket;
     this.originPos      = pkt.areaStartPos;
     this.faceHit        = pkt.faceHit;
     this.singleTorch    = pkt.singleTorch;
     this.torchPlacement = pkt.torchPlacement;
 
-    if (packetId == PacketId.Ventilate) {
+    if (originPacket == PacketId.Ventilate) {
       this.playerFacing = Direction.NORTH;
     }
 
@@ -85,7 +87,7 @@ public class IlluminationAgent extends Agent {
     BlockPos  torchPlacePos = lightCheckPos;
 
     if (torchPlacement != TorchPlacement.FLOOR) {
-      if (packetId != PacketId.Ventilate) {
+      if (originPacket != PacketId.Ventilate) {
         torchPlacePos = lightCheckPos.above();
       }
 
@@ -157,9 +159,7 @@ public class IlluminationAgent extends Agent {
   private void placeTorchInWorld(BlockPos pos, Direction placeOnFace) {
     final Level world = player.level;
 
-    IlluminationHelper.INSTANCE.getTorchSlot(player);
-
-    if (IlluminationHelper.INSTANCE.torchIndx >= 0) {
+    if (IlluminationHelper.INSTANCE.playerHasTorches(player)) {
       IlluminationHelper.INSTANCE.lastTorchLocation = new BlockPos(pos);
 
       if (placeOnFace == Direction.UP) {

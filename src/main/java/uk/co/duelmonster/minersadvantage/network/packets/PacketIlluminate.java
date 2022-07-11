@@ -15,6 +15,7 @@ import uk.co.duelmonster.minersadvantage.workers.IlluminationAgent;
 
 public class PacketIlluminate implements IMAPacket {
 
+  public final PacketId       originPacket;
   public final BlockPos       areaStartPos;
   public final BlockPos       areaEndPos;
   public final Direction      faceHit;
@@ -22,6 +23,7 @@ public class PacketIlluminate implements IMAPacket {
   public final TorchPlacement torchPlacement;
 
   public PacketIlluminate(BlockPos pos, Direction _faceHit) {
+    this.originPacket   = PacketId.Illuminate;
     this.areaStartPos   = pos;
     this.areaEndPos     = pos;
     this.faceHit        = _faceHit;
@@ -29,7 +31,8 @@ public class PacketIlluminate implements IMAPacket {
     this.torchPlacement = TorchPlacement.FLOOR;
   }
 
-  public PacketIlluminate(BlockPos areaStartPos, BlockPos areaEndPos, Direction _faceHit) {
+  public PacketIlluminate(PacketId originPacket, BlockPos areaStartPos, BlockPos areaEndPos, Direction _faceHit) {
+    this.originPacket   = originPacket;
     this.areaStartPos   = areaStartPos;
     this.areaEndPos     = areaEndPos;
     this.faceHit        = _faceHit;
@@ -37,7 +40,8 @@ public class PacketIlluminate implements IMAPacket {
     this.torchPlacement = TorchPlacement.FLOOR;
   }
 
-  public PacketIlluminate(BlockPos areaStartPos, BlockPos areaEndPos, TorchPlacement torchPlacement) {
+  public PacketIlluminate(PacketId originPacket, BlockPos areaStartPos, BlockPos areaEndPos, TorchPlacement torchPlacement) {
+    this.originPacket   = originPacket;
     this.areaStartPos   = areaStartPos;
     this.areaEndPos     = areaEndPos;
     this.faceHit        = Direction.UP;
@@ -45,7 +49,8 @@ public class PacketIlluminate implements IMAPacket {
     this.torchPlacement = torchPlacement;
   }
 
-  public PacketIlluminate(BlockPos areaStartPos, BlockPos areaEndPos, Direction _faceHit, TorchPlacement torchPlacement) {
+  public PacketIlluminate(PacketId originPacket, BlockPos areaStartPos, BlockPos areaEndPos, Direction _faceHit, TorchPlacement torchPlacement) {
+    this.originPacket   = originPacket;
     this.areaStartPos   = areaStartPos;
     this.areaEndPos     = areaEndPos;
     this.faceHit        = _faceHit;
@@ -54,6 +59,7 @@ public class PacketIlluminate implements IMAPacket {
   }
 
   public PacketIlluminate(FriendlyByteBuf buf) {
+    this.originPacket   = buf.readEnum(PacketId.class);
     this.areaStartPos   = buf.readBlockPos();
     this.areaEndPos     = buf.readBlockPos();
     this.faceHit        = buf.readEnum(Direction.class);
@@ -67,6 +73,7 @@ public class PacketIlluminate implements IMAPacket {
   }
 
   public static void encode(PacketIlluminate pkt, FriendlyByteBuf buf) {
+    buf.writeEnum(pkt.originPacket);
     buf.writeBlockPos(pkt.areaStartPos);
     buf.writeBlockPos(pkt.areaEndPos);
     buf.writeEnum(pkt.faceHit);

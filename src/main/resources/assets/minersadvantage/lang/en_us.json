@@ -188,5 +188,5 @@
     "minersadvantage.ventilation.vent_depth.comment": "The number of blocks deep the vent should be.",
     "minersadvantage.ventilation.place_ladders": "Place Ladders",
     "minersadvantage.ventilation.place_ladders.comment": "Place Ladders on one wall of the vent, from top to bottom, if Ladders are in the inventory.",
-    "minersadvantage.illumination.no_torches": "Ran out of Ladders..."
+    "minersadvantage.ventilation.no_ladders": "Ran out of Ladders..."
 }

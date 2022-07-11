@@ -4,9 +4,13 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.Level;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
@@ -15,9 +19,12 @@ import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.Tags;
 import uk.co.duelmonster.minersadvantage.common.Constants;
 import uk.co.duelmonster.minersadvantage.common.Functions;
+import uk.co.duelmonster.minersadvantage.helpers.VentilationHelper;
 import uk.co.duelmonster.minersadvantage.network.packets.PacketVentilate;
 
 public class VentilationAgent extends Agent {
+
+  public AABB ladderArea;
 
   public VentilationAgent(ServerPlayer player, PacketVentilate pkt) {
     super(player, pkt);
@@ -91,6 +98,8 @@ public class VentilationAgent extends Agent {
           processed.add(oPos);
         }
       }
+
+      placeLadder(oPos);
     }
 
     return (bIsComplete || queued.isEmpty());
@@ -99,12 +108,13 @@ public class VentilationAgent extends Agent {
   private void setupVent() {
     // if the vent Diameter is divisible by 2 we don't want to do anything
     double dDivision = ((clientConfig.ventilation.ventDiameter & 1) != 0 ? 0 : 0.5);
+    int    dCenter   = (clientConfig.ventilation.ventDiameter / 2);
 
     // Shaft area info
-    int xStart  = originPos.getX() + ((int) ((clientConfig.ventilation.ventDiameter / 2) - dDivision));
-    int xEnd    = originPos.getX() - (clientConfig.ventilation.ventDiameter / 2);
-    int zStart  = originPos.getZ() - (clientConfig.ventilation.ventDiameter / 2);
-    int zEnd    = originPos.getZ() + ((int) ((clientConfig.ventilation.ventDiameter / 2) - dDivision));
+    int xStart  = originPos.getX() + ((int) (dCenter - dDivision));
+    int xEnd    = originPos.getX() - dCenter;
+    int zStart  = originPos.getZ() - dCenter;
+    int zEnd    = originPos.getZ() + ((int) (dCenter - dDivision));
     int yTop    = originPos.getY();
     int yBottom = originPos.getY() - (clientConfig.ventilation.ventDepth - 1);
 
@@ -113,10 +123,9 @@ public class VentilationAgent extends Agent {
       yBottom = originPos.getY();
     }
 
-    interimArea = new AABB(
-        xStart, yTop, zStart,
-        xEnd, yBottom, zEnd);
+    interimArea = new AABB(xStart, yTop, zStart, xEnd, yBottom, zEnd);
 
+    ladderArea = new AABB(originPos.getX(), yTop, zEnd, originPos.getX(), yBottom, zEnd);
   }
 
   @Override
@@ -125,6 +134,25 @@ public class VentilationAgent extends Agent {
 
     if (getPlayer().hasCorrectToolForDrops(state))
       super.addToQueue(oPos);
+  }
+
+  private void placeLadder(BlockPos oPos) {
+    if (Functions.isWithinArea(oPos, ladderArea)) {
+      if (VentilationHelper.INSTANCE.playerHasLadders(player) && VentilationHelper.INSTANCE.isLadderablePosition(world, oPos)) {
+
+        world.setBlockAndUpdate(oPos, Blocks.LADDER.defaultBlockState());
+        Functions.playSound(world, oPos, SoundEvents.LADDER_PLACE, SoundSource.BLOCKS, 1.0F, world.random.nextFloat() + 0.5F);
+
+        ItemStack ladderStack = player.getInventory().removeItem(VentilationHelper.INSTANCE.ladderIndx, 1);
+
+        if (ladderStack.getCount() <= 0) {
+          VentilationHelper.INSTANCE.ladderStackCount--;
+        }
+
+        if (VentilationHelper.INSTANCE.ladderStackCount == 0)
+          Functions.NotifyClient(player, ChatFormatting.GOLD + "Ventilation: " + ChatFormatting.WHITE + Functions.localize("minersadvantage.ventilation.no_ladders"));
+      }
+    }
   }
 
 }

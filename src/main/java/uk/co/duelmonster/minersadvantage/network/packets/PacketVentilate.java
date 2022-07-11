@@ -24,7 +24,7 @@ public class PacketVentilate extends BaseBlockPacket {
 
   @Override
   public PacketId getPacketId() {
-    return PacketId.Shaftanate;
+    return PacketId.Ventilate;
   }
 
   public static void encode(PacketVentilate pkt, FriendlyByteBuf buf) {

@@ -72,11 +72,11 @@ public class AgentProcessor {
         if (isComplete) {
           if (agent.shouldAutoIlluminate) {
             if (agent.packetId == PacketId.Shaftanate) {
-              PacketIlluminate.process(agent.player, new PacketIlluminate(agent.harvestAreaStartPos(), agent.harvestAreaEndPos(), agent.clientConfig.shaftanation.torchPlacement));
+              PacketIlluminate.process(agent.player, new PacketIlluminate(agent.packetId, agent.harvestAreaStartPos(), agent.harvestAreaEndPos(), agent.clientConfig.shaftanation.torchPlacement));
             } else if (agent.packetId == PacketId.Ventilate) {
-              PacketIlluminate.process(agent.player, new PacketIlluminate(agent.harvestAreaStartPos(), agent.harvestAreaEndPos(), Direction.NORTH, TorchPlacement.BOTH_WALLS));
+              PacketIlluminate.process(agent.player, new PacketIlluminate(agent.packetId, agent.harvestAreaStartPos(), agent.harvestAreaEndPos(), Direction.NORTH, TorchPlacement.BOTH_WALLS));
             } else {
-              PacketIlluminate.process(agent.player, new PacketIlluminate(agent.harvestAreaStartPos(), agent.harvestAreaEndPos(), Direction.UP));
+              PacketIlluminate.process(agent.player, new PacketIlluminate(agent.packetId, agent.harvestAreaStartPos(), agent.harvestAreaEndPos(), Direction.UP));
             }
           }
 

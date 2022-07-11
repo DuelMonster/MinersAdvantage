@@ -21,6 +21,7 @@ import uk.co.duelmonster.minersadvantage.MA;
 import uk.co.duelmonster.minersadvantage.client.ClientFunctions;
 import uk.co.duelmonster.minersadvantage.common.Functions;
 import uk.co.duelmonster.minersadvantage.common.TorchPlacement;
+import uk.co.duelmonster.minersadvantage.network.packetids.PacketId;
 import uk.co.duelmonster.minersadvantage.network.packets.PacketIlluminate;
 
 public class IlluminationHelper {
@@ -30,6 +31,12 @@ public class IlluminationHelper {
   public BlockPos lastTorchLocation = null;
   public int      torchStackCount   = 0;
   public int      torchIndx         = -1;
+
+  public boolean playerHasTorches(ServerPlayer player) {
+    getTorchSlot(player);
+
+    return torchIndx >= 0;
+  }
 
   public void getTorchSlot(ServerPlayer player) {
     // Reset the count and index to ensure we don't use torches that the player
@@ -137,7 +144,7 @@ public class IlluminationHelper {
     BlockPos startPos         = new BlockPos(illuminationArea.minX, illuminationArea.minY, illuminationArea.minZ);
     BlockPos endPos           = new BlockPos(illuminationArea.maxX, illuminationArea.maxY, illuminationArea.maxZ);
 
-    MA.NETWORK.sendToServer(new PacketIlluminate(startPos, endPos, TorchPlacement.FLOOR));
+    MA.NETWORK.sendToServer(new PacketIlluminate(PacketId.Illuminate, startPos, endPos, TorchPlacement.FLOOR));
   }
 
   public boolean isTorchablePosition(Level world, BlockPos pos) {
