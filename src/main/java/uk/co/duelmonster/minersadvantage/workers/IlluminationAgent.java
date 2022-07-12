@@ -176,7 +176,7 @@ public class IlluminationAgent extends Agent {
         IlluminationHelper.INSTANCE.torchStackCount--;
       }
 
-      if (IlluminationHelper.INSTANCE.torchStackCount == 0)
+      if (IlluminationHelper.INSTANCE.torchStackCount <= 0)
         Functions.NotifyClient(player, ChatFormatting.GOLD + "Illumination: " + ChatFormatting.WHITE + Functions.localize("minersadvantage.illumination.no_torches"));
     }
   }
