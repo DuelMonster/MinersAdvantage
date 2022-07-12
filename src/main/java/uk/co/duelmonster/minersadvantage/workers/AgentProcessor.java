@@ -5,6 +5,7 @@ import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
@@ -71,12 +72,18 @@ public class AgentProcessor {
 
         if (isComplete) {
           if (agent.shouldAutoIlluminate) {
+            BlockPos startPos = agent.harvestAreaStartPos();
+            BlockPos endPos   = agent.harvestAreaEndPos();
+
             if (agent.packetId == PacketId.Shaftanate) {
-              PacketIlluminate.process(agent.player, new PacketIlluminate(agent.packetId, agent.harvestAreaStartPos(), agent.harvestAreaEndPos(), agent.clientConfig.shaftanation.torchPlacement));
+              // Adjust Area End Pos to only 1 Block high
+              BlockPos shaftEndPos = new BlockPos(endPos.getX(), Math.min(startPos.getY(), endPos.getY()), endPos.getZ());
+
+              PacketIlluminate.process(agent.player, new PacketIlluminate(agent.packetId, startPos, shaftEndPos, agent.clientConfig.shaftanation.torchPlacement));
             } else if (agent.packetId == PacketId.Ventilate) {
-              PacketIlluminate.process(agent.player, new PacketIlluminate(agent.packetId, agent.harvestAreaStartPos(), agent.harvestAreaEndPos(), Direction.NORTH, TorchPlacement.BOTH_WALLS));
+              PacketIlluminate.process(agent.player, new PacketIlluminate(agent.packetId, startPos, endPos, Direction.NORTH, TorchPlacement.BOTH_WALLS));
             } else {
-              PacketIlluminate.process(agent.player, new PacketIlluminate(agent.packetId, agent.harvestAreaStartPos(), agent.harvestAreaEndPos(), Direction.UP));
+              PacketIlluminate.process(agent.player, new PacketIlluminate(agent.packetId, startPos, endPos, Direction.UP));
             }
           }
 
