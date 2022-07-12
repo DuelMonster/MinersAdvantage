@@ -41,6 +41,7 @@ public class VentilationAgent extends Agent {
     this.shouldAutoIlluminate = clientConfig.common.autoIlluminate;
 
     setupVent();
+    placeLadder(originPos); // Fire place ladder for originPos to be sure first layer doesn't get missed
 
     addConnectedToQueue(originPos);
   }
@@ -137,21 +138,21 @@ public class VentilationAgent extends Agent {
   }
 
   private void placeLadder(BlockPos oPos) {
-    if (Functions.isWithinArea(oPos, ladderArea)) {
-      if (VentilationHelper.INSTANCE.playerHasLadders(player) && VentilationHelper.INSTANCE.isLadderablePosition(world, oPos)) {
+    if (Functions.isWithinArea(oPos, ladderArea) &&
+        VentilationHelper.INSTANCE.playerHasLadders(player) &&
+        (VentilationHelper.INSTANCE.isLadderablePosition(world, oPos) || Functions.isPosEqual(oPos, originPos))) {
 
-        world.setBlockAndUpdate(oPos, Blocks.LADDER.defaultBlockState());
-        Functions.playSound(world, oPos, SoundEvents.LADDER_PLACE, SoundSource.BLOCKS, 1.0F, world.random.nextFloat() + 0.5F);
+      world.setBlockAndUpdate(oPos, Blocks.LADDER.defaultBlockState());
+      Functions.playSound(world, oPos, SoundEvents.LADDER_PLACE, SoundSource.BLOCKS, 1.0F, world.random.nextFloat() + 0.5F);
 
-        ItemStack ladderStack = player.getInventory().removeItem(VentilationHelper.INSTANCE.ladderIndx, 1);
+      ItemStack ladderStack = player.getInventory().removeItem(VentilationHelper.INSTANCE.ladderIndx, 1);
 
-        if (ladderStack.getCount() <= 0) {
-          VentilationHelper.INSTANCE.ladderStackCount--;
-        }
-
-        if (VentilationHelper.INSTANCE.ladderStackCount == 0)
-          Functions.NotifyClient(player, ChatFormatting.GOLD + "Ventilation: " + ChatFormatting.WHITE + Functions.localize("minersadvantage.ventilation.no_ladders"));
+      if (ladderStack.getCount() <= 0) {
+        VentilationHelper.INSTANCE.ladderStackCount--;
       }
+
+      if (VentilationHelper.INSTANCE.ladderStackCount <= 0)
+        Functions.NotifyClient(player, ChatFormatting.GOLD + "Ventilation: " + ChatFormatting.WHITE + Functions.localize("minersadvantage.ventilation.no_ladders"));
     }
   }
 
