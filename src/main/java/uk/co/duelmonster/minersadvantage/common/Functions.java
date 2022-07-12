@@ -106,6 +106,13 @@ public class Functions {
     return ((distanceX * distanceX) + (distanceY * distanceY) + (distanceZ * distanceZ)) <= (range * range);
   }
 
+  public static boolean isPosEqual(BlockPos sourcePos, BlockPos comparePos) {
+    return comparePos != null && sourcePos != null &&
+        comparePos.getX() == sourcePos.getX() &&
+        comparePos.getY() == sourcePos.getY() &&
+        comparePos.getZ() == sourcePos.getZ();
+  }
+
   public static boolean isWithinArea(BlockPos pos, AABB area) {
     return area != null &&
         pos.getX() >= area.minX && pos.getX() <= area.maxX &&
