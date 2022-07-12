@@ -169,19 +169,13 @@ public abstract class Agent {
   }
 
   public BlockPos harvestAreaStartPos() {
-    if (refinedArea != null) {
-      return new BlockPos(refinedArea.minX, refinedArea.minY, refinedArea.minZ);
-    } else {
-      return new BlockPos(interimArea.minX, interimArea.minY, interimArea.minZ);
-    }
+    AABB area = refinedArea != null ? refinedArea : interimArea;
+    return new BlockPos(area.minX, area.minY, area.minZ);
   }
 
   public BlockPos harvestAreaEndPos() {
-    if (refinedArea != null) {
-      return new BlockPos(refinedArea.maxX, refinedArea.maxY, refinedArea.maxZ);
-    } else {
-      return new BlockPos(interimArea.maxX, interimArea.maxY, interimArea.maxZ);
-    }
+    AABB area = refinedArea != null ? refinedArea : interimArea;
+    return new BlockPos(area.maxX, area.maxY, area.maxZ);
   }
 
   public void addConnectedToQueue(BlockPos pos) {
