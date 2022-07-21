@@ -14,7 +14,7 @@ import uk.co.duelmonster.minersadvantage.network.packets.PacketAbortAgents;
 public class KeyInputEvents {
 
   @SubscribeEvent
-  public void onKeyInput(InputEvent.KeyInputEvent event) {
+  public void onKeyInput(InputEvent.Key event) {
     // checking inGameHasFocus prevents your keys from firing when the player is typing a chat
     // message
     // NOTE that the KeyInputEvent will NOT be posted when a gui screen such as the inventory is

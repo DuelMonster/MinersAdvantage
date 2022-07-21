@@ -24,10 +24,11 @@ import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.common.ToolActions;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.world.BlockEvent;
-import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.event.level.BlockEvent.BlockToolModificationEvent;
+import net.minecraftforge.event.level.BlockEvent.BreakEvent;
+import net.minecraftforge.event.level.LevelEvent.Unload;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.server.ServerLifecycleHooks;
@@ -53,7 +54,7 @@ public class ServerEventHandler {
   // Player Logged In event
   @SubscribeEvent
   public void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-    ServerPlayer player    = (ServerPlayer) event.getPlayer();
+    ServerPlayer player    = (ServerPlayer) event.getEntity();
     Variables    variables = Variables.get(player.getUUID());
 
     variables.HasPlayerSpawned = true;
@@ -65,7 +66,7 @@ public class ServerEventHandler {
   // Player Logged Out event
   @SubscribeEvent
   public void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
-    ServerPlayer player    = (ServerPlayer) event.getPlayer();
+    ServerPlayer player    = (ServerPlayer) event.getEntity();
     Variables    variables = Variables.get(player.getUUID());
 
     variables.HasPlayerSpawned = false;
@@ -110,8 +111,8 @@ public class ServerEventHandler {
   }
 
   @SubscribeEvent
-  public void onWorldUnload(WorldEvent.Unload event) {
-    Level world = (Level) event.getWorld();
+  public void onWorldUnload(Unload event) {
+    Level world = (Level) event.getLevel();
     if (world.isClientSide || world.getServer().isRunning())
       return;
 
@@ -119,8 +120,8 @@ public class ServerEventHandler {
   }
 
   @SubscribeEvent(priority = EventPriority.LOWEST)
-  public void onEntitySpawn(EntityJoinWorldEvent event) {
-    Level  world  = event.getWorld();
+  public void onEntitySpawn(EntityJoinLevelEvent event) {
+    Level  world  = event.getLevel();
     Entity entity = event.getEntity();
     if (!(entity instanceof LivingEntity)) {
       if (world.isClientSide
@@ -149,7 +150,7 @@ public class ServerEventHandler {
   }
 
   @SubscribeEvent
-  public void onBlockBreak(BlockEvent.BreakEvent event) {
+  public void onBlockBreak(BreakEvent event) {
 
     if (!(event.getPlayer() instanceof ServerPlayer)
         || (event.getPlayer() instanceof FakePlayer)
@@ -206,7 +207,7 @@ public class ServerEventHandler {
   }
 
   @SubscribeEvent
-  public void onBlockBreak(BlockEvent.BlockToolModificationEvent event) {
+  public void onBlockBreak(BlockToolModificationEvent event) {
     boolean isHoe    = event.getToolAction() == ToolActions.HOE_TILL;
     boolean isShovel = event.getToolAction() == ToolActions.SHOVEL_FLATTEN;
 

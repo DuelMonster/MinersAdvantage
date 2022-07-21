@@ -10,7 +10,6 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import uk.co.duelmonster.minersadvantage.MA;
 import uk.co.duelmonster.minersadvantage.client.ClientFunctions;
-import uk.co.duelmonster.minersadvantage.client.KeyBindings;
 import uk.co.duelmonster.minersadvantage.client.MAParticleManager;
 import uk.co.duelmonster.minersadvantage.common.Functions;
 import uk.co.duelmonster.minersadvantage.config.MAConfig;
@@ -44,7 +43,7 @@ public class ClientSetup {
     }
 
     // KeyBindings
-    KeyBindings.registerKeys();
+    // KeyBindings.registerKeys();
     MinecraftForge.EVENT_BUS.register(new KeyInputEvents());
 
     MinecraftForge.EVENT_BUS.register(new ClientEventHandler());

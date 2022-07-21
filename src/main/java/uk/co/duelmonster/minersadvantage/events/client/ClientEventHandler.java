@@ -109,10 +109,10 @@ public class ClientEventHandler {
 
   @SubscribeEvent
   public void onAttackEntity(AttackEntityEvent event) {
-    if (!MAConfig.CLIENT.substitution.enabled() || !(event.getPlayer() instanceof LocalPlayer) || (event.getPlayer() instanceof FakePlayer))
+    if (!MAConfig.CLIENT.substitution.enabled() || !(event.getTarget() instanceof LocalPlayer) || (event.getTarget() instanceof FakePlayer))
       return;
 
-    LocalPlayer player = (LocalPlayer) event.getPlayer();
+    LocalPlayer player = (LocalPlayer) event.getTarget();
 
     if (MAConfig.CLIENT.substitution.ignorePassiveMobs() && !(event.getTarget() instanceof Mob))
       return;
