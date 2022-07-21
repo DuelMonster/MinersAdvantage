@@ -182,9 +182,28 @@ Features:
 - Customizable Ore blocks list.
 </details>
 
-## Reviews/Spotlights:
-<details><summary><em>*None Yet*</em></summary>
+<details><summary><strong>Ventilation</strong> - Dig yourself a ventilation shaft.</summary>
 
+Ventilation help you to get to your desired mining level quicker and easier by digging a vent straight down, or get to the surface sooner by digging straight up.
+By default Ventilation will dig a vent one block wide and sixteen blocks deep. The size of the vent is fully customizable to suit your needs.
+Using the Mod options or the config file you can specify the vent Diamiter and Depth within the default limits.
+You are required to hold down a key while mining in order for it to work. This is the same key used by Shaftanation (default being 'Left Alt').
+
+If the vent Diamiter is greater than 1, you have Illumination enabled and the 'Auto Illuminate' option is switched on (default is on), then Ventilation will tell Illumination to place torches upon the walls of the vent so you don't have to.
+
+If you have Veination enabled and the 'Mine Ore Veins' option is switched on (default is off), then Ventilation will tell Veination to mine the ore veins that intersect the depth of the vent.
+
+As the vent is being dug out Ventilation will place Ladders in the center of the North wall of the vent.
+**NOTE:** *You are required to have ladders within your inventory.*
+
+_**Small Warning:** Keep an eye on your inventory space, as vent digging will fill your inventory quickly..._
+
+Features:
+- Customizable vent Diamiter - Limit of between 1 & 5.
+- Customizable vent Depth - Limit of between 1 & 128.
+- Works with Illumination to light the vent.
+- Works with Veination to mine the ore veins that intersect the vent.
+- Place Ladders on one wall of the vent, from top to bottom.
 </details>
 
 ## FAQ:
