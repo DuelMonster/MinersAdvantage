@@ -138,7 +138,8 @@ public class VentilationAgent extends Agent {
   }
 
   private void placeLadder(BlockPos oPos) {
-    if (Functions.isWithinArea(oPos, ladderArea) &&
+    if (clientConfig.ventilation.placeLadders &&
+        Functions.isWithinArea(oPos, ladderArea) &&
         VentilationHelper.INSTANCE.playerHasLadders(player) &&
         (VentilationHelper.INSTANCE.isLadderablePosition(world, oPos) || Functions.isPosEqual(oPos, originPos))) {
 

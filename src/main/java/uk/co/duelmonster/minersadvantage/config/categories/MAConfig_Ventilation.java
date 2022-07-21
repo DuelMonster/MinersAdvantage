@@ -33,7 +33,7 @@ public class MAConfig_Ventilation extends MAConfig_BaseCategory {
     ventDepth = builder
         .comment("The number of blocks deep the vent should be.")
         .translation("minersadvantage.ventilation.vent_depth")
-        .defineInRange("vent_depth", MAConfig_Defaults.Ventilation.ventDepth, 1, 256);
+        .defineInRange("vent_depth", MAConfig_Defaults.Ventilation.ventDepth, 1, 128);
 
     placeLadders = builder
         .comment("Place Ladders on one wall of the vent, from top to bottom, if Ladders are in the inventory.")
