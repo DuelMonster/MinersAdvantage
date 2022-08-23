@@ -1,9 +1,9 @@
 
-Build: 1.19-1.11.5.221
-  feature: Ventilation - Works much the same as Shaftanation, only up and down.
+Build: 1.19.2-1.11.4.228
+  feature: Ventilation - Works much the same as Shaftanation, only straight up and down.
   refactor: code simplification
   fix: no torches notification not shown
-  Compatible with Forge 41.0.105+
+  Compatible with Forge 43.1.1
 
 =========
 
