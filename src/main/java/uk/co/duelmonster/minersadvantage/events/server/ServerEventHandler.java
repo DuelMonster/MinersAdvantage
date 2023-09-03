@@ -102,7 +102,7 @@ public class ServerEventHandler {
           Variables.syncToPlayer(player);
 
           if (!shouldSkip) {
-            AgentProcessor.INSTANCE.fireAgentTicks(player.level);
+            AgentProcessor.INSTANCE.fireAgentTicks(player.level());
             AgentProcessor.INSTANCE.setCurrentAgent(player.getUUID(), null);
           }
         }
@@ -213,7 +213,7 @@ public class ServerEventHandler {
 
     if (isHoe || isShovel) {
       Player playerEntity = event.getPlayer();
-      Level  world        = playerEntity.level;
+      Level  world        = playerEntity.level();
       if (world.isClientSide || !(playerEntity instanceof ServerPlayer) || (playerEntity instanceof FakePlayer))
         return;
 

@@ -61,7 +61,7 @@ public class PathanationAgent extends Agent {
       world.captureBlockSnapshots = true;
       world.capturedBlockSnapshots.clear();
 
-      if (world.isEmptyBlock(oPos.above()) || world.getBlockState(oPos.above()).getMaterial().isReplaceable()) {
+      if (world.isEmptyBlock(oPos.above()) || world.getBlockState(oPos.above()).canBeReplaced()) {
         world.playSound(player, oPos, SoundEvents.SHOVEL_FLATTEN, SoundSource.BLOCKS, 1.0F, 1.0F);
 
         if (!world.isEmptyBlock(oPos.above())) {

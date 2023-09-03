@@ -130,9 +130,9 @@ public class Functions {
   public static List<BlockPos> getAllPositionsInArea(AABB area) {
     List<BlockPos> positions = new ArrayList<BlockPos>();
 
-    for (double y = area.minY; y <= area.maxY; y++)
-      for (double x = area.minX; x <= area.maxX; x++)
-        for (double z = area.minZ; z <= area.maxZ; z++)
+    for (int y = (int) area.minY; y <= area.maxY; y++)
+      for (int x = (int) area.minX; x <= area.maxX; x++)
+        for (int z = (int) area.minZ; z <= area.maxZ; z++)
           positions.add(new BlockPos(x, y, z));
 
     return positions;
@@ -210,7 +210,7 @@ public class Functions {
   public static int getSlotFromInventory(Player player, ItemStack stack) {
     for (int i = 0; i < player.getInventory().items.size(); ++i) {
       ItemStack compare = player.getInventory().items.get(i);
-      if (!compare.isEmpty() && stack.sameItem(compare))
+      if (!compare.isEmpty() && ItemStack.isSameItem(stack, compare))
         return i;
     }
     return -1;

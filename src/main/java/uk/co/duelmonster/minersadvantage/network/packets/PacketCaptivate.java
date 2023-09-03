@@ -42,8 +42,8 @@ public class PacketCaptivate implements IMAPacket {
       if (clientConfig != null) {
         AABB captivateArea = sender.getBoundingBox().inflate(clientConfig.captivation.radiusHorizontal, clientConfig.captivation.radiusVertical, clientConfig.captivation.radiusHorizontal);
 
-        if (sender.level != null) {
-          List<Entity> localDrops = Functions.getNearbyEntities(sender.level, captivateArea);
+        if (sender.level() != null) {
+          List<Entity> localDrops = Functions.getNearbyEntities(sender.level(), captivateArea);
           if (localDrops != null && !localDrops.isEmpty()) {
             for (Entity entity : localDrops) {
               if (entity instanceof ItemEntity) {

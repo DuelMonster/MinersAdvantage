@@ -61,7 +61,7 @@ public class VentilationHelper {
     BlockState state = world.getBlockState(pos);
     Block      block = state.getBlock();
 
-    boolean validFace = (state.isFaceSturdy(world, pos, Direction.NORTH) && world.getBlockState(pos.relative(Direction.NORTH)).getMaterial().isReplaceable());
+    boolean validFace = (state.isFaceSturdy(world, pos, Direction.NORTH) && world.getBlockState(pos.relative(Direction.NORTH)).canBeReplaced());
 
     boolean validBockType = (block != Blocks.END_GATEWAY && block != Blocks.JACK_O_LANTERN);
 

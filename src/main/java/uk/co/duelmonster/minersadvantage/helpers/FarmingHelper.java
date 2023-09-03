@@ -4,7 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
 
 public class FarmingHelper {
@@ -26,11 +26,11 @@ public class FarmingHelper {
       AABB box = new AABB(originPos, originPos);
       box = box.inflate(offset, 0, offset);
 
-      Iterable<BlockPos> positions = BlockPos.betweenClosed(new BlockPos(box.minX, originPos.getY(), box.minZ), new BlockPos(box.maxX, originPos.getY(), box.maxZ));
+      Iterable<BlockPos> positions = BlockPos.betweenClosed(new BlockPos((int) box.minX, originPos.getY(), (int) box.minZ), new BlockPos((int) box.maxX, originPos.getY(), (int) box.maxZ));
 
       for (BlockPos pos : positions) {
         BlockState state = world.getBlockState(pos);
-        if (state.getMaterial() == Material.WATER || (state.hasProperty(BlockStateProperties.WATERLOGGED) && state.getValue(BlockStateProperties.WATERLOGGED))) {
+        if (state.getFluidState().is(Fluids.WATER) || (state.hasProperty(BlockStateProperties.WATERLOGGED) && state.getValue(BlockStateProperties.WATERLOGGED))) {
           return pos;
         }
       }

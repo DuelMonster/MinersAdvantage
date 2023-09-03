@@ -1,6 +1,7 @@
 package uk.co.duelmonster.minersadvantage.utils;
 
 import java.util.Random;
+import java.util.function.Supplier;
 
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
@@ -39,7 +40,7 @@ public final class UtilsServer {
       ItemEntity entityitem = player.drop(itemStack, false);
       if (entityitem != null) {
         entityitem.setNoPickUpDelay();
-        entityitem.setOwner(player.getUUID());
+        entityitem.setThrower(player.getUUID());
       }
     }
 
@@ -54,7 +55,7 @@ public final class UtilsServer {
     }
 
     ItemStack stackInSlot = player.getInventory().getItem(hotbarSlot);
-    if (ItemStack.isSame(stackInSlot, itemStack))
+    if (ItemStack.isSameItem(stackInSlot, itemStack))
       return;
 
     ItemStack itemStackCopy = itemStack.copy();
@@ -85,7 +86,7 @@ public final class UtilsServer {
     Component          displayName   = ServerPlayer.getDisplayName();
     Component          message       = Component.translatable("commands.give.success.single", count, stackName, displayName);
 
-    commandSource.sendSuccess(message, true);
+    commandSource.sendSuccess((Supplier<Component>) message, true);
   }
 
 }

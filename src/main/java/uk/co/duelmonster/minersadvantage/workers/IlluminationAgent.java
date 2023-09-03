@@ -137,7 +137,7 @@ public class IlluminationAgent extends Agent {
 
     if ((canTorchBePlacedOnFace || canTorchBePlacedOnOppositeFace)
         && (singleTorch || lightLevel <= clientConfig.illumination.lowestLightLevel)
-        && (world.isEmptyBlock(torchPlacePos) || world.getBlockState(torchPlacePos).getMaterial().isReplaceable())) {
+        && (world.isEmptyBlock(torchPlacePos) || world.getBlockState(torchPlacePos).canBeReplaced())) {
 
       // System.out.print("[PLACING] canPlace = " + canTorchBePlacedOnFace);
       // System.out.print(" -> canPlaceOpp = " + canTorchBePlacedOnOppositeFace);
@@ -157,7 +157,7 @@ public class IlluminationAgent extends Agent {
   }
 
   private void placeTorchInWorld(BlockPos pos, Direction placeOnFace) {
-    final Level world = player.level;
+    final Level world = player.level();
 
     if (IlluminationHelper.INSTANCE.playerHasTorches(player)) {
       IlluminationHelper.INSTANCE.lastTorchLocation = new BlockPos(pos);

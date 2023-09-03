@@ -25,7 +25,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.util.BlockSnapshot;
 import net.minecraftforge.common.util.FakePlayer;
@@ -86,7 +86,7 @@ public abstract class Agent {
 
     this.packetId = (PacketId) pkt.getPacketId();
 
-    this.world        = player.level;
+    this.world        = player.level();
     this.player       = player;
     this.clientConfig = MAConfig_Client.getPlayerConfig(player.getUUID());
 
@@ -170,12 +170,12 @@ public abstract class Agent {
 
   public BlockPos harvestAreaStartPos() {
     AABB area = refinedArea != null ? refinedArea : interimArea;
-    return new BlockPos(area.minX, area.minY, area.minZ);
+    return new BlockPos((int) area.minX, (int) area.minY, (int) area.minZ);
   }
 
   public BlockPos harvestAreaEndPos() {
     AABB area = refinedArea != null ? refinedArea : interimArea;
-    return new BlockPos(area.maxX, area.maxY, area.maxZ);
+    return new BlockPos((int) area.maxX, (int) area.maxY, (int) area.maxZ);
   }
 
   public void addConnectedToQueue(BlockPos pos) {
@@ -191,7 +191,7 @@ public abstract class Agent {
 
     if (state == null || state.isAir() ||
         state.getBlock() == Blocks.TORCH || state.getBlock() == Blocks.BEDROCK ||
-        state.getMaterial() == Material.WATER || state.getMaterial() == Material.LAVA ||
+        state.getFluidState().is(Fluids.WATER) || state.getFluidState().is(Fluids.LAVA) ||
         pos == null || processed.contains(pos) || queued.contains(pos) ||
         (interimArea != null && !Functions.isWithinArea(pos, interimArea)))
       return;

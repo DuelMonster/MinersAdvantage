@@ -20,7 +20,6 @@ import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.SaplingBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.IPlantable;
 import uk.co.duelmonster.minersadvantage.common.Functions;
@@ -45,7 +44,7 @@ public class LumbinationHelper {
 
   public void setPlayer(Player player) {
     this.player = player;
-    this.world  = player.level;
+    this.world  = player.level();
   }
 
   public boolean isWood(BlockState state) {
@@ -57,16 +56,14 @@ public class LumbinationHelper {
         || state.is(BlockTags.WOODEN_PRESSURE_PLATES)
         || state.is(BlockTags.WOODEN_SLABS)
         || state.is(BlockTags.WOODEN_STAIRS)
-        || state.is(BlockTags.WOODEN_TRAPDOORS)
-        || state.getMaterial() == Material.WOOD;
+        || state.is(BlockTags.WOODEN_TRAPDOORS);
   }
 
   public boolean isValidLog(BlockState state) {
     SyncedClientConfig clientConfig = MAConfig_Base.getPlayerConfig(player.getUUID());
 
     return state.is(BlockTags.LOGS)
-        || (state.getBlock() instanceof RotatedPillarBlock
-            && state.getMaterial() == Material.WOOD)
+        || state.getBlock() instanceof RotatedPillarBlock
         || (clientConfig.lumbination.logs != null
             && clientConfig.lumbination.logs.isEmpty() == false
             && clientConfig.lumbination.logs.contains(Functions.getName(state.getBlock().asItem())));
@@ -77,8 +74,7 @@ public class LumbinationHelper {
 
     return state.is(BlockTags.LEAVES)
         || state.is(BlockTags.WART_BLOCKS)
-        || (state.getBlock() instanceof LeavesBlock
-            && state.getMaterial() == Material.LEAVES)
+        || state.getBlock() instanceof LeavesBlock
         || (clientConfig.lumbination.leaves != null
             && clientConfig.lumbination.leaves.isEmpty() == false
             && clientConfig.lumbination.leaves.contains(Functions.getName(state.getBlock().asItem())));
@@ -119,11 +115,11 @@ public class LumbinationHelper {
   public BlockPos getLeafPos(BlockPos oPos) {
     int airCount = 0;
 
-    for (int yLeaf = oPos.getY(); yLeaf < player.level.getHeight(); yLeaf++)
+    for (int yLeaf = oPos.getY(); yLeaf < player.level().getHeight(); yLeaf++)
       for (int xLeaf = -1; xLeaf < 1; xLeaf++)
         for (int zLeaf = -1; zLeaf < 1; zLeaf++) {
           BlockPos   leafPos   = new BlockPos(oPos.getX() + xLeaf, yLeaf, oPos.getZ() + zLeaf);
-          BlockState leafState = player.level.getBlockState(leafPos);
+          BlockState leafState = player.level().getBlockState(leafPos);
 
           if (isValidLeaves(leafState))
             return leafPos;
@@ -141,7 +137,7 @@ public class LumbinationHelper {
     // Get lowest point of the tree trunk
     for (int yLevel = oPos.getY() - 1; yLevel > 0; yLevel--) {
       BlockPos   checkPos   = new BlockPos(oPos.getX(), yLevel, oPos.getZ());
-      BlockState checkState = player.level.getBlockState(checkPos);
+      BlockState checkState = player.level().getBlockState(checkPos);
 
       if (isValidLog(checkState))
         iRootLevel = yLevel;
@@ -187,7 +183,7 @@ public class LumbinationHelper {
     for (int xOffset = -1; xOffset <= 1; xOffset++)
       for (int zOffset = -1; zOffset <= 1; zOffset++) {
         BlockPos   checkPos   = new BlockPos(oPos.getX() + xOffset, oPos.getY(), oPos.getZ() + zOffset);
-        BlockState checkState = player.level.getBlockState(checkPos);
+        BlockState checkState = player.level().getBlockState(checkPos);
         if (!pAreaPositions.contains(checkPos) &&
             isValidLog(checkState)) {
           pAreaPositions.add(checkPos);
@@ -206,7 +202,7 @@ public class LumbinationHelper {
         int        iAirCount      = 0;
         int        iLayerPosCount = trunkPositions.size();
         BlockPos   checkPos       = new BlockPos(oPos.getX(), yLevel, oPos.getZ());
-        BlockState checkState     = player.level.getBlockState(checkPos);
+        BlockState checkState     = player.level().getBlockState(checkPos);
         Block      checkBlock     = checkState.getBlock();
 
         if ((checkPos.equals(oPos) || isValidLog(checkState)) && !trunkPositions.contains(checkPos)) // &&
@@ -222,7 +218,7 @@ public class LumbinationHelper {
             if (xOffset == -iLoop || xOffset == iLoop) {
               for (int zOffset = -iLoop; zOffset <= iLoop; zOffset++) {
                 checkPos   = new BlockPos(oPos.getX() + xOffset, yLevel, oPos.getZ() + zOffset);
-                checkState = player.level.getBlockState(checkPos);
+                checkState = player.level().getBlockState(checkPos);
                 checkBlock = checkState.getBlock();
 
                 if (isValidLog(checkState)) {
@@ -241,7 +237,7 @@ public class LumbinationHelper {
               for (int zOffset = -iLoop; zOffset <= iLoop; zOffset++) {
                 if (zOffset == -iLoop || zOffset == iLoop) {
                   checkPos   = new BlockPos(oPos.getX() + xOffset, yLevel, oPos.getZ() + zOffset);
-                  checkState = player.level.getBlockState(checkPos);
+                  checkState = player.level().getBlockState(checkPos);
                   checkBlock = checkState.getBlock();
 
                   if (isValidLog(checkState) || clientConfig.lumbination.logs.contains(Functions.getName(checkBlock))) {
@@ -309,10 +305,10 @@ public class LumbinationHelper {
         for (double x = plantationArea.minX; x <= plantationArea.maxX; x++)
           for (double z = plantationArea.minZ; z <= plantationArea.maxZ; z++) {
             // Ensure the sapling can be planted on the block below
-            BlockPos oPos = new BlockPos(x, iTreeRootY, z);
+            BlockPos oPos = new BlockPos((int) x, iTreeRootY, (int) z);
             if (!world.isEmptyBlock(oPos.below())
                 && Functions.canSustainPlant(world, oPos.below(), (IPlantable) oPlantable)
-                && (world.isEmptyBlock(oPos) || world.getBlockState(oPos).getMaterial().isReplaceable())) {
+                && (world.isEmptyBlock(oPos) || world.getBlockState(oPos).canBeReplaced())) {
               // Re-plant a sapling
               world.setBlockAndUpdate(oPos, oPlantable.defaultBlockState().setValue(SaplingBlock.STAGE, Integer.valueOf(0)));
               Functions.playSound(world, oPos, SoundEvents.GRASS_PLACE, SoundSource.BLOCKS, 1.0F, world.random.nextFloat() + 0.5F);

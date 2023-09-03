@@ -60,7 +60,7 @@ public class CultivationAgent extends Agent {
       world.captureBlockSnapshots = true;
       world.capturedBlockSnapshots.clear();
 
-      if (world.isEmptyBlock(oPos.above()) || world.getBlockState(oPos.above()).getMaterial().isReplaceable()) {
+      if (world.isEmptyBlock(oPos.above()) || world.getBlockState(oPos.above()).canBeReplaced()) {
         Functions.playSound(world, oPos, SoundEvents.HOE_TILL, SoundSource.PLAYERS, 1.0F, world.random.nextFloat() + 0.5F);
 
         if (!world.isEmptyBlock(oPos.above())) {

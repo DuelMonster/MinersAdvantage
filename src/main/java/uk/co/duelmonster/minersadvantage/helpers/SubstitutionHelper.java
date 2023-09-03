@@ -27,7 +27,7 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -60,7 +60,7 @@ public class SubstitutionHelper {
 
   public void processToolSubtitution(ServerPlayer _player, BlockPos _pos) {
     this.player    = _player;
-    this.world     = player.level;
+    this.world     = player.level();
     this.variables = Variables.get(player.getUUID());
     SyncedClientConfig clientConfig = MAConfig_Client.getPlayerConfig(player.getUUID());
 
@@ -75,11 +75,7 @@ public class SubstitutionHelper {
 
     Inventory inventory = player.getInventory();
 
-    // LootContext.Builder ctx = new LootContext.Builder((ServerWorld)
-    // world).withParameter(LootParameters.BLOCK_STATE,
-    // state).withParameter(LootParameters.POSITION, oPos).withParameter(LootParameters.TOOL,
-    // Constants.DUMMY_SILKTOUCH);
-    LootContext.Builder ctx = new LootContext.Builder((ServerLevel) world).withParameter(LootContextParams.BLOCK_STATE, state).withParameter(LootContextParams.ORIGIN, state.getOffset(world, oPos)).withParameter(LootContextParams.TOOL, Constants.DUMMY_SILKTOUCH);
+    LootParams.Builder ctx = new LootParams.Builder((ServerLevel) world).withParameter(LootContextParams.BLOCK_STATE, state).withParameter(LootContextParams.ORIGIN, state.getOffset(world, oPos)).withParameter(LootContextParams.TOOL, Constants.DUMMY_SILKTOUCH);
 
     boolean silkTouchable = state.getDrops(ctx).contains(new ItemStack(block.asItem()));
 

@@ -122,7 +122,7 @@ public class AgentProcessor {
 
         Agent agent = playerAgents.next().getValue();
 
-        DropsSpawner.spawnDrops(uid, player.level, agent.originPos);
+        DropsSpawner.spawnDrops(uid, player.level(), agent.originPos);
 
         reportAgentCompletionToClient(agent, Variables.get(uid));
         playerAgents.remove();

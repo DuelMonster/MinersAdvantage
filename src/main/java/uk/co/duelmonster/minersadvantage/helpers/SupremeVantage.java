@@ -265,7 +265,7 @@ public class SupremeVantage {
 
     if (oItemStack != null) {
       BlockPos playerPos = player.blockPosition();
-      player.level.addFreshEntity(new ItemEntity(player.level, playerPos.getX(), playerPos.getY(), playerPos.getZ(), oItemStack));
+      player.level().addFreshEntity(new ItemEntity(player.level(), playerPos.getX(), playerPos.getY(), playerPos.getZ(), oItemStack));
     }
   }
 }

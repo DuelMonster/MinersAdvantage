@@ -73,7 +73,7 @@ public class IlluminationHelper {
     for (double y = area.minY; y <= area.maxY; y++)
       for (double x = area.minX; x <= area.maxX; x++)
         for (double z = area.minZ; z <= area.maxZ; z++) {
-          BlockPos pos = new BlockPos(x, y, z);
+          BlockPos pos = new BlockPos((int) x, (int) y, (int) z);
           if (isTorchablePosition(world, pos) && (previousPos == null || !Functions.isWithinRange(previousPos, pos, 5))) {
             positions.add(pos);
 
@@ -119,7 +119,7 @@ public class IlluminationHelper {
 
         BlockState state = mc.level.getBlockState(oPos);
 
-        if (state.getMaterial().isReplaceable() && canPlaceTorchOnFace(mc.level, oPos.below(), Direction.UP)) {
+        if (state.canBeReplaced() && canPlaceTorchOnFace(mc.level, oPos.below(), Direction.UP)) {
 
           MA.NETWORK.sendToServer(new PacketIlluminate(oPos, Direction.UP));
 
@@ -141,8 +141,8 @@ public class IlluminationHelper {
   @OnlyIn(Dist.CLIENT)
   public void IlluminateArea() {
     AABB     illuminationArea = ClientFunctions.mc.player.getBoundingBox().inflate(8);
-    BlockPos startPos         = new BlockPos(illuminationArea.minX, illuminationArea.minY, illuminationArea.minZ);
-    BlockPos endPos           = new BlockPos(illuminationArea.maxX, illuminationArea.maxY, illuminationArea.maxZ);
+    BlockPos startPos         = new BlockPos((int) illuminationArea.minX, (int) illuminationArea.minY, (int) illuminationArea.minZ);
+    BlockPos endPos           = new BlockPos((int) illuminationArea.maxX, (int) illuminationArea.maxY, (int) illuminationArea.maxZ);
 
     MA.NETWORK.sendToServer(new PacketIlluminate(PacketId.Illuminate, startPos, endPos, TorchPlacement.FLOOR));
   }
@@ -159,7 +159,7 @@ public class IlluminationHelper {
     BlockState state = world.getBlockState(pos);
     Block      block = state.getBlock();
 
-    boolean validFace = (face != Direction.DOWN && state.isFaceSturdy(world, pos, face) && world.getBlockState(pos.relative(face)).getMaterial().isReplaceable());
+    boolean validFace = (face != Direction.DOWN && state.isFaceSturdy(world, pos, face) && world.getBlockState(pos.relative(face)).canBeReplaced());
 
     boolean validBockType = (block != Blocks.END_GATEWAY && block != Blocks.JACK_O_LANTERN);
 
