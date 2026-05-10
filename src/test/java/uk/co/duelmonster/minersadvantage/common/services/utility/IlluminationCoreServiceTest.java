@@ -31,4 +31,25 @@ class IlluminationCoreServiceTest {
         assertEquals(9, service.expectedPlacementsInRadius(1, 1));
         assertEquals(25, service.expectedPlacementsInRadius(2, 2));
     }
+
+    @Test
+    void createsDecisionForDarkAreas() {
+        IlluminationCoreService service = new IlluminationCoreService();
+        IlluminationCoreService.IlluminationDecision decision =
+            service.decidePlacement(4, true, false, 2, 1);
+
+        assertTrue(decision.placeNow());
+        assertEquals(TorchPlacement.LEFT_WALL, decision.placement());
+        assertTrue(decision.plannedTorches() > 0);
+    }
+
+    @Test
+    void skipsPlacementWhenBrightEnough() {
+        IlluminationCoreService service = new IlluminationCoreService();
+        IlluminationCoreService.IlluminationDecision decision =
+            service.decidePlacement(12, true, true, 2, 2);
+
+        assertFalse(decision.placeNow());
+        assertEquals(0, decision.plannedTorches());
+    }
 }
