@@ -1,5 +1,7 @@
 package uk.co.duelmonster.minersadvantage.common.feature.utility;
 
+import java.util.List;
+
 import uk.co.duelmonster.minersadvantage.common.component.ComponentLifecycle;
     import uk.co.duelmonster.minersadvantage.common.component.ComponentTickHelper;
     import uk.co.duelmonster.minersadvantage.common.config.PathanationConfig;
@@ -9,6 +11,7 @@ public final class PathanationComponent implements ComponentLifecycle {
     private final PathanationConfig config;
     private final PathanationCoreService service;
     private boolean enabled;
+    private List<PathanationCoreService.PathStep> lastPath = List.of();
 
     public PathanationComponent(PathanationConfig config) {
         this.config = config;
@@ -25,6 +28,10 @@ public final class PathanationComponent implements ComponentLifecycle {
 
     public boolean isEnabled() {
         return enabled && config.enabled();
+    }
+
+    public List<PathanationCoreService.PathStep> lastPath() {
+        return lastPath;
     }
 
     @Override
@@ -50,12 +57,19 @@ public final class PathanationComponent implements ComponentLifecycle {
 
         var context = ComponentTickHelper.getContext();
         if (service.isTargetBlock(context.blockId())) {
-            // Clear path in target block range
+            lastPath = service.buildPath(
+                context.blockX(),
+                context.blockY(),
+                context.blockZ(),
+                config.targetBlockRange(),
+                config.targetBlockRange()
+            );
         }
     }
 
     @Override
     public void cleanup() {
         enabled = false;
+        lastPath = List.of();
     }
 }

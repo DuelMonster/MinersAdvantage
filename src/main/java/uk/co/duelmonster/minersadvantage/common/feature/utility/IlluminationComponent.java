@@ -1,14 +1,18 @@
 package uk.co.duelmonster.minersadvantage.common.feature.utility;
 
 import uk.co.duelmonster.minersadvantage.common.component.ComponentLifecycle;
-    import uk.co.duelmonster.minersadvantage.common.component.ComponentTickHelper;
-    import uk.co.duelmonster.minersadvantage.common.config.IlluminationConfig;
+import uk.co.duelmonster.minersadvantage.common.component.ComponentTickHelper;
+import uk.co.duelmonster.minersadvantage.common.config.IlluminationConfig;
 import uk.co.duelmonster.minersadvantage.common.services.utility.IlluminationCoreService;
+
+import uk.co.duelmonster.minersadvantage.common.services.utility.TorchPlacement;
 
 public final class IlluminationComponent implements ComponentLifecycle {
     private final IlluminationConfig config;
     private final IlluminationCoreService service;
     private boolean enabled;
+    private IlluminationCoreService.IlluminationDecision lastDecision =
+        new IlluminationCoreService.IlluminationDecision(TorchPlacement.FLOOR, 0, false);
 
     public IlluminationComponent(IlluminationConfig config) {
         this.config = config;
@@ -25,6 +29,10 @@ public final class IlluminationComponent implements ComponentLifecycle {
 
     public boolean isEnabled() {
         return enabled && config.enabled();
+    }
+
+    public IlluminationCoreService.IlluminationDecision lastDecision() {
+        return lastDecision;
     }
 
     @Override
@@ -48,14 +56,22 @@ public final class IlluminationComponent implements ComponentLifecycle {
             return;
         }
 
-        // Illumination dispatches during mining operations to place torches
-        if (service.shouldPlaceTorch(6)) {
-            // Place torch based on placement strategy
-        }
+        var context = ComponentTickHelper.getContext();
+        int lightLevel = Math.floorMod(context.blockY(), 16);
+        boolean leftWall = Math.floorMod(context.blockX(), 2) == 0;
+        boolean rightWall = Math.floorMod(context.blockZ(), 2) == 0;
+        lastDecision = service.decidePlacement(
+            lightLevel,
+            leftWall,
+            rightWall,
+            config.radiusHorizontal(),
+            config.radiusVertical()
+        );
     }
 
     @Override
     public void cleanup() {
         enabled = false;
+        lastDecision = new IlluminationCoreService.IlluminationDecision(TorchPlacement.FLOOR, 0, false);
     }
 }

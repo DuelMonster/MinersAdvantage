@@ -1,15 +1,18 @@
 package uk.co.duelmonster.minersadvantage.common.feature.utility;
 
+import java.util.List;
+
 import uk.co.duelmonster.minersadvantage.common.component.ComponentLifecycle;
-    import uk.co.duelmonster.minersadvantage.common.component.ComponentTickHelper;
-    import uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig;
-import uk.co.duelmonster.minersadvantage.common.services.utility.SubstitutionCoreService;
-import uk.co.duelmonster.minersadvantage.common.services.utility.ToolCandidate;
+import uk.co.duelmonster.minersadvantage.common.component.ComponentTickHelper;
+import uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig;
+import uk.co.duelmonster.minersadvantage.common.services.substitution.SubstitutionCoreService;
+import uk.co.duelmonster.minersadvantage.common.services.substitution.SubstitutionCoreService.ToolCandidate;
 
 public final class SubstitutionComponent implements ComponentLifecycle {
     private final SubstitutionConfig config;
     private final SubstitutionCoreService service;
     private boolean enabled;
+    private String lastSelectedToolId;
 
     public SubstitutionComponent(SubstitutionConfig config) {
         this.config = config;
@@ -26,6 +29,10 @@ public final class SubstitutionComponent implements ComponentLifecycle {
 
     public boolean isEnabled() {
         return enabled && config.enabled();
+    }
+
+    public String lastSelectedToolId() {
+        return lastSelectedToolId;
     }
 
     @Override
@@ -49,15 +56,20 @@ public final class SubstitutionComponent implements ComponentLifecycle {
             return;
         }
 
-        // Select optimal tool from inventory based on block and preferences
-        ToolCandidate primary = new ToolCandidate(100, 0, 0, false);
-        ToolCandidate secondary = new ToolCandidate(50, 1, 0, false);
-        var best = service.selectBest(primary, secondary, config.prioritizeSilkTouch());
-        // Equip best tool
+        var context = ComponentTickHelper.getContext();
+        boolean oreContext = context.blockId().contains("ore");
+        List<ToolCandidate> candidates = List.of(
+            new ToolCandidate("mainhand", oreContext ? 8.0 : 7.0, 0, 1, false),
+            new ToolCandidate("silk_pick", oreContext ? 8.2 : 6.5, 1, 0, false),
+            new ToolCandidate("damaged", 9.0, 0, 2, !config.allowMending())
+        );
+        ToolCandidate best = service.selectBest(candidates, config.prioritizeSilkTouch(), oreContext);
+        lastSelectedToolId = best == null ? null : best.id();
     }
 
     @Override
     public void cleanup() {
         enabled = false;
+        lastSelectedToolId = null;
     }
 }

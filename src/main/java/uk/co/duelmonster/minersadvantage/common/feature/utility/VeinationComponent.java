@@ -1,5 +1,7 @@
 package uk.co.duelmonster.minersadvantage.common.feature.utility;
 
+import java.util.List;
+
 import uk.co.duelmonster.minersadvantage.common.component.ComponentLifecycle;
     import uk.co.duelmonster.minersadvantage.common.component.ComponentTickHelper;
     import uk.co.duelmonster.minersadvantage.common.config.VeinationConfig;
@@ -9,6 +11,7 @@ public final class VeinationComponent implements ComponentLifecycle {
     private final VeinationConfig config;
     private final VeinationCoreService service;
     private boolean enabled;
+    private List<VeinationCoreService.VeinNode> lastVein = List.of();
 
     public VeinationComponent(VeinationConfig config) {
         this.config = config;
@@ -25,6 +28,10 @@ public final class VeinationComponent implements ComponentLifecycle {
 
     public boolean isEnabled() {
         return enabled && config.enabled();
+    }
+
+    public List<VeinationCoreService.VeinNode> lastVein() {
+        return lastVein;
     }
 
     @Override
@@ -49,14 +56,23 @@ public final class VeinationComponent implements ComponentLifecycle {
         }
 
         var context = ComponentTickHelper.getContext();
-        // Mine entire vein of connected ore blocks within maxVeinDistance
-        if (service.sameVein(context.blockId(), context.blockId())) {
-            // Traverse and harvest connected vein
+        if (context.blockId().contains("ore") && service.sameVein(context.blockId(), context.blockId())) {
+            int targetBlocks = service.estimatedBlocksInVein(config.maxVeinDistance(), 1);
+            lastVein = service.buildVeinNodes(
+                context.blockX(),
+                context.blockY(),
+                context.blockZ(),
+                config.maxVeinDistance(),
+                targetBlocks
+            );
+        } else {
+            lastVein = List.of();
         }
     }
 
     @Override
     public void cleanup() {
         enabled = false;
+        lastVein = List.of();
     }
 }
