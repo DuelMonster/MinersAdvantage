@@ -89,6 +89,7 @@ public final class ModEntry {
     public ModEntry(IEventBus modEventBus) {
         core.bootstrap();
         NeoForge.EVENT_BUS.addListener(this::onRightClickBlock);
+        NeoForge.EVENT_BUS.addListener(this::onLeftClickBlock);
         NeoForge.EVENT_BUS.addListener(this::onServerTick);
     }
 
@@ -98,6 +99,20 @@ public final class ModEntry {
         }
 
         routeToolUse(event.getItemStack(), event.getPos(), event.getLevel().getBlockState(event.getPos()));
+    }
+
+    private void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
+        if (event.getEntity() == null || event.getLevel().isClientSide()) {
+            return;
+        }
+
+        String blockId = BuiltInRegistries.BLOCK.getKey(event.getLevel().getBlockState(event.getPos()).getBlock()).toString();
+        core.workerRuntimeService().interceptLiveDropForPlayer(
+            event.getEntity().getUUID().getLeastSignificantBits(),
+            "item:" + blockId,
+            1,
+            true
+        );
     }
 
     private void onServerTick(ServerTickEvent.Post event) {
