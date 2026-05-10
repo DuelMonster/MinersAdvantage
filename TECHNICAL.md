@@ -64,6 +64,9 @@ Descriptor-driven registration is handled by ComponentRegistry.
 | substitution-core | SubstitutionCoreService | tool ranking and filtering |
 | tree-core | TreeCoreService | trunk/leaf heuristics |
 | farming-core | FarmingCoreService | hydration proximity checks |
+| cropination-core | CropinationCoreService | crop maturity, replant, and durability action decisions |
+| lumbination-core | LumbinationCoreService | trunk/leaf traversal planning and sapling replant intent |
+| captivation-core | CaptivationCoreService | item capture eligibility, GUI gate, and radius policy |
 | sync-core | SyncCoreService | per-player state snapshots |
 | policy-core | PolicyCoreService | config range clamping and server override gates |
 
@@ -94,6 +97,7 @@ Tests are unit-only and currently target deterministic services:
 - policy clamping and overrides
 - drop capture/flush semantics
 - component bootstrap coverage
+- farming/harvest/captivation runtime planning and decision outputs
 
 ## CI and Release
 

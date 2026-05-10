@@ -1,3 +1,10 @@
+## 0.2.0
+
+- Add runtime cropination harvest action evaluation with maturity, replant, and durability cadence decisions.
+- Add hydration-aware cultivation planning and lumbination trunk/leaf/sapling execution plans.
+- Add captivation runtime decision gating for GUI restrictions and radius checks.
+- Add focused runtime tests for farming, harvest, and captivation parity slices.
+
 ## 0.1.0
 
 - Reset repository into modernization workspace with legacy archive in releases/original.
