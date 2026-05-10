@@ -32,12 +32,15 @@ import uk.co.duelmonster.minersadvantage.common.feature.utility.PathanationCompo
 import uk.co.duelmonster.minersadvantage.common.feature.utility.SubstitutionComponent;
 import uk.co.duelmonster.minersadvantage.common.feature.utility.VeinationComponent;
 import uk.co.duelmonster.minersadvantage.common.network.AbortWorkersPacket;
+import uk.co.duelmonster.minersadvantage.common.network.ComponentTogglePacket;
 import uk.co.duelmonster.minersadvantage.common.network.PlayerStateSyncPacket;
+import uk.co.duelmonster.minersadvantage.common.network.SupremeVantagePacket;
 import uk.co.duelmonster.minersadvantage.common.services.core.PlayerStateService;
 import uk.co.duelmonster.minersadvantage.common.services.core.ServerTickOrchestrator;
 import uk.co.duelmonster.minersadvantage.common.services.policy.PolicyCoreService;
 import uk.co.duelmonster.minersadvantage.common.services.processing.WorkerRuntimeService;
 import uk.co.duelmonster.minersadvantage.common.services.sync.SyncCoreService;
+import uk.co.duelmonster.minersadvantage.common.services.utility.SupremeVantageService;
 
 public final class MinersAdvantageCore {
     private final ComponentRegistry componentRegistry = new ComponentRegistry();
@@ -46,6 +49,7 @@ public final class MinersAdvantageCore {
     private final ServerTickOrchestrator tickOrchestrator;
     private final PolicyCoreService policyCoreService;
     private final SyncCoreService syncCoreService;
+    private final SupremeVantageService supremeVantageService;
     private final SyncedClientConfig defaultConfig;
     private final ServerOverridesConfig defaultServerOverrides;
 
@@ -54,6 +58,7 @@ public final class MinersAdvantageCore {
         this.tickOrchestrator = new ServerTickOrchestrator(playerStateService);
         this.policyCoreService = new PolicyCoreService();
         this.syncCoreService = new SyncCoreService();
+        this.supremeVantageService = new SupremeVantageService();
         this.defaultConfig = SyncedClientConfig.defaults();
         this.defaultServerOverrides = new ServerOverridesConfig();
     }
@@ -180,6 +185,20 @@ public final class MinersAdvantageCore {
         return workerRuntimeService().abortAllForPlayerWithStats(packet.playerId());
     }
 
+    public boolean handleComponentTogglePacket(ComponentTogglePacket packet) {
+        ComponentLifecycle component = components.get(packet.feature());
+        if (component == null) {
+            return false;
+        }
+
+        if (packet.enabled()) {
+            component.enable();
+        } else {
+            component.disable();
+        }
+        return component.isEnabled();
+    }
+
     public SyncCoreService.PlayerSyncState handlePlayerStateSyncPacket(PlayerStateSyncPacket packet) {
         return syncCoreService.synchronize(
             packet.playerId(),
@@ -188,6 +207,10 @@ public final class MinersAdvantageCore {
             packet.serverOverrides(),
             policyCoreService
         );
+    }
+
+    public SupremeVantageService.RewardGrant handleSupremeVantagePacket(SupremeVantagePacket packet) {
+        return supremeVantageService.grantNextReward(packet.playerId(), packet.code());
     }
 
     public CommonConfig commonConfig() {
@@ -204,6 +227,10 @@ public final class MinersAdvantageCore {
 
     public SyncedClientConfig defaultConfig() {
         return defaultConfig;
+    }
+
+    public SupremeVantageService supremeVantageService() {
+        return supremeVantageService;
     }
 
     public ServerOverridesConfig defaultServerOverrides() {

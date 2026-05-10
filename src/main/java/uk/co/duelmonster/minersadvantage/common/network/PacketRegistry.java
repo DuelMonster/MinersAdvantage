@@ -11,6 +11,7 @@ public final class PacketRegistry {
     public static final int COMPONENT_TOGGLE = 2;
     public static final int HARVEST_COMPLETE = 3;
     public static final int ABORT_WORKERS = 4;
+    public static final int SUPREME_VANTAGE = 5;
 
     static {
         PACKET_TYPES.put(FEATURE_DISPATCH, "FeatureDispatchPacket");
@@ -18,6 +19,7 @@ public final class PacketRegistry {
         PACKET_TYPES.put(COMPONENT_TOGGLE, "ComponentTogglePacket");
         PACKET_TYPES.put(HARVEST_COMPLETE, "HarvestCompletePacket");
         PACKET_TYPES.put(ABORT_WORKERS, "AbortWorkersPacket");
+        PACKET_TYPES.put(SUPREME_VANTAGE, "SupremeVantagePacket");
     }
 
     public static String getPacketName(int id) {
