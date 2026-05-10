@@ -147,11 +147,17 @@ Milestone 5: Input parity + SupremeVantage decision closure
 - Milestone 5 progress note: Preserved the hidden SupremeVantage flow through [SupremeVantageService.java](src/main/java/uk/co/duelmonster/minersadvantage/common/services/utility/SupremeVantageService.java) and [SupremeVantagePacket.java](src/main/java/uk/co/duelmonster/minersadvantage/common/network/SupremeVantagePacket.java), with packet/core wiring in [PacketRegistry.java](src/main/java/uk/co/duelmonster/minersadvantage/common/network/PacketRegistry.java) and [MinersAdvantageCore.java](src/main/java/uk/co/duelmonster/minersadvantage/common/MinersAdvantageCore.java), covered by [SupremeVantageServiceTest.java](src/test/java/uk/co/duelmonster/minersadvantage/common/services/utility/SupremeVantageServiceTest.java) and [PlayerStateSyncPacketFlowTest.java](src/test/java/uk/co/duelmonster/minersadvantage/common/network/PlayerStateSyncPacketFlowTest.java).
 
 Milestone 6: Final parity audit and signoff
-- [ ] Execute full traceability pass: map every appendix anchor to modern implementation or explicit de-scope.
-- [ ] Add missing unit tests for all cross-feature policies.
-- [ ] Update README.md, TECHNICAL.md, CHANGELOG.md with final parity state.
-- [ ] Re-run chiseledBuild and record evidence.
+- [x] Execute full traceability pass: map every appendix anchor to modern implementation or explicit de-scope.
+- [x] Add missing unit tests for all cross-feature policies.
+- [x] Update README.md, TECHNICAL.md, CHANGELOG.md with final parity state.
+- [x] Re-run chiseledBuild and record evidence.
 - Commit plan: ✅test parity closure; 📝docs final signoff evidence.
+- Milestone 6 progress note: Added full appendix-to-modern mapping audit in [traceability-final-audit.md](.brainbox/plans/traceability-final-audit.md), covering runtime/orchestration, all eleven features, cross-feature routing, config/override parity, and input/toggle surface.
+- Milestone 6 progress note: Added cross-feature policy enforcement test coverage in [PolicyCoreServiceTest.java](src/test/java/uk/co/duelmonster/minersadvantage/common/services/PolicyCoreServiceTest.java) with explicit assertions for shared common flags and enforced effective values.
+- Milestone 6 progress note: Final parity state documentation updated in [README.md](README.md), [TECHNICAL.md](TECHNICAL.md), and [CHANGELOG.md](CHANGELOG.md).
+- Milestone 6 evidence note: Build verification commands run during signoff:
+  - `./gradlew test --tests "uk.co.duelmonster.minersadvantage.common.services.PolicyCoreServiceTest"` => BUILD SUCCESSFUL
+  - `./gradlew chiseledBuild` => BUILD SUCCESSFUL
 
 ---
 
@@ -169,9 +175,9 @@ For each milestone, record:
 
 ## 4) Completion Criteria for This Outstanding Checklist
 
-- [ ] All PARTIAL/MISSING rows above are resolved to COMPLETE or explicitly de-scoped with signoff rationale.
-- [ ] Every traceability appendix anchor has a modern implementation reference or approved de-scope note.
-- [ ] All milestone commits are split logically and use semantic commit format.
-- [ ] CHANGELOG, README, TECHNICAL are accurate for final behavior.
-- [ ] chiseledBuild succeeds after final milestone.
+- [x] All PARTIAL/MISSING rows above are resolved to COMPLETE or explicitly de-scoped with signoff rationale.
+- [x] Every traceability appendix anchor has a modern implementation reference or approved de-scope note.
+- [x] All milestone commits are split logically and use semantic commit format.
+- [x] CHANGELOG, README, TECHNICAL are accurate for final behavior.
+- [x] chiseledBuild succeeds after final milestone.
 - [ ] Final repo state is clean with no unstaged/uncommitted parity work.

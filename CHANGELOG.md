@@ -1,5 +1,8 @@
 ## 0.2.0
 
+- Add final strict traceability audit matrix mapping all appendix anchors (A-E) to modern implementation references.
+- Add cross-feature policy enforcement coverage for common shared flags in PolicyCoreService tests.
+- Mark parity rewrite phases and documentation signoff as complete after Milestone 6 validation.
 - Add runtime cropination harvest action evaluation with maturity, replant, and durability cadence decisions.
 - Add hydration-aware cultivation planning and lumbination trunk/leaf/sapling execution plans.
 - Add captivation runtime decision gating for GUI restrictions and radius checks.

@@ -8,11 +8,11 @@ Miners Advantage is being rewritten as a modern, multi-loader project that keeps
 | --- | --- | --- |
 | 0 Repository Reset | complete | Legacy source archived in releases/original and untracked. |
 | 1 Build Foundation | complete | Stonecutter + Modstitch scaffold created for four nodes. |
-| 2 Architecture | in progress | Component lifecycle and descriptor registry implemented. |
-| 3 Parity Rewrite | in progress | Feature map and service boundaries implemented; gameplay parity logic is being filled feature by feature. |
-| 4 Shared Modules | in progress | processing-core, world-query, drop-core, substitution-core, illumination-core, inventory-core, tree-core, farming-core, sync-core, policy-core, harvest-core created. |
-| 5 Unit Tests | in progress | Core deterministic service tests added. |
-| 6 Docs/CI/Release | in progress | CI and release workflows added; documentation under active expansion. |
+| 2 Architecture | complete | Component lifecycle, descriptor registry, and loader-neutral orchestration are fully wired. |
+| 3 Parity Rewrite | complete | Runtime behavior parity is implemented across orchestration, feature logic, sync, input, and hidden behavior paths. |
+| 4 Shared Modules | complete | Shared modules finalized, including processing-core, world-query, drop-core, substitution-core, illumination-core, inventory-core, tree-core, farming-core, sync-core, policy-core, and harvest-core. |
+| 5 Unit Tests | complete | Deterministic service/runtime/policy/input/packet tests cover parity-critical behavior with final cross-feature policy assertions. |
+| 6 Docs/CI/Release | complete | CI/release workflows and final parity signoff documentation are complete, including the strict traceability audit. |
 
 ## Loader and Version Matrix
 
@@ -44,6 +44,8 @@ Shared modules introduced in this rewrite:
 - policy-core
 
 For deeper implementation details, see TECHNICAL.md.
+
+Final strict traceability mapping is documented in [.brainbox/plans/traceability-final-audit.md](.brainbox/plans/traceability-final-audit.md).
 
 ## Build
 

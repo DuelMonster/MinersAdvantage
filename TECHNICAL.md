@@ -89,6 +89,12 @@ Descriptor-driven registration is handled by ComponentRegistry.
 - Decision: preserve.
 - The rewrite keeps the hidden excavation code path and represents rewards as deterministic `RewardGrant` data through `SupremeVantageService` and `SupremeVantagePacket`.
 
+## Parity Signoff
+
+- Final strict appendix traceability mapping is recorded in [.brainbox/plans/traceability-final-audit.md](.brainbox/plans/traceability-final-audit.md).
+- Milestone 6 closure includes explicit cross-feature policy assertions in [PolicyCoreServiceTest.java](src/test/java/uk/co/duelmonster/minersadvantage/common/services/PolicyCoreServiceTest.java).
+- Full matrix validation is confirmed by `./gradlew chiseledBuild` during final signoff.
+
 ## Feature descriptors
 
 The core bootstrap registers these components:
