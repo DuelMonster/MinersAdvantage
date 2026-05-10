@@ -46,4 +46,48 @@ class PolicyCoreServiceTest {
         assertTrue(effective.substitution().allowMending());
         assertFalse(effective.substitution().ignoreIfValidTool());
     }
+
+    @Test
+    void enforcesCrossFeatureCommonPolicyFlags() {
+        PolicyCoreService service = new PolicyCoreService();
+        SyncedClientConfig client = SyncedClientConfig.defaults();
+        SyncedClientConfig server = new SyncedClientConfig(
+            client.client(),
+            client.common(),
+            client.captivation(),
+            client.cropination(),
+            client.cultivation(),
+            client.excavation(),
+            client.pathanation(),
+            client.illumination(),
+            client.lumbination(),
+            client.shaftanation(),
+            client.substitution(),
+            client.veination(),
+            client.ventilation()
+        );
+        SyncedClientConfig serverWithCrossFeaturePolicy = new SyncedClientConfig(
+            server.client(),
+            new uk.co.duelmonster.minersadvantage.common.config.CommonConfig(false, true, false, false, 6, false, 0, 7, 128),
+            server.captivation(),
+            server.cropination(),
+            server.cultivation(),
+            server.excavation(),
+            server.pathanation(),
+            server.illumination(),
+            server.lumbination(),
+            server.shaftanation(),
+            server.substitution(),
+            server.veination(),
+            server.ventilation()
+        );
+        ServerOverridesConfig overrides = new ServerOverridesConfig(false, true, false, false, false, false, false, false, false, false, false, false, false);
+
+        SyncedClientConfig effective = service.applyServerOverrides(client, serverWithCrossFeaturePolicy, overrides);
+
+        assertFalse(effective.common().mineVeins());
+        assertFalse(effective.common().autoIlluminate());
+        assertEquals(6, effective.common().blocksPerTick());
+        assertEquals(7, effective.common().blockRadius());
+    }
 }
