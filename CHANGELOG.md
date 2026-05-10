@@ -6,6 +6,8 @@
 - Add focused runtime tests for farming, harvest, and captivation parity slices.
 - Add illumination manual-placement decisions, torch depletion reporting, and richer utility runtime coverage.
 - Add substitution combat/mining policy decisions with primary-tool switch-back behavior.
+- Add typed synced-config payloads and server override enforcement for all modern feature configs, including Cultivation.
+- Expand config records to carry legacy parity fields for block lists, policy toggles, torch placement, and override-aware settings.
 
 ## 0.1.0
 

@@ -67,8 +67,14 @@ Descriptor-driven registration is handled by ComponentRegistry.
 | cropination-core | CropinationCoreService | crop maturity, replant, and durability action decisions |
 | lumbination-core | LumbinationCoreService | trunk/leaf traversal planning and sapling replant intent |
 | captivation-core | CaptivationCoreService | item capture eligibility, GUI gate, and radius policy |
-| sync-core | SyncCoreService | per-player state snapshots |
-| policy-core | PolicyCoreService | config range clamping and server override gates |
+| sync-core | SyncCoreService | typed per-player client/server config snapshots and effective merged state |
+| policy-core | PolicyCoreService | config range clamping and per-feature server override enforcement |
+
+### Config model
+
+- `SyncedClientConfig` now mirrors the modern shared feature records instead of using raw maps.
+- `ServerOverridesConfig` controls feature-enable overrides and per-feature server enforcement flags.
+- Feature config records preserve current constructor call sites while carrying legacy parity fields such as blacklists, toggle modes, placement policies, and tool lists.
 
 ## Feature descriptors
 
@@ -100,6 +106,7 @@ Tests are unit-only and currently target deterministic services:
 - farming/harvest/captivation runtime planning and decision outputs
 - illumination manual placement and inventory depletion outputs
 - substitution combat/mining policy and switch-back outputs
+- config override merging, typed sync snapshots, and player sync packet flow
 
 ## CI and Release
 
