@@ -20,4 +20,15 @@ class CropinationCoreServiceTest {
         assertEquals(1, service.adjustedDurabilityCost(5, 5));
         assertEquals(0, service.adjustedDurabilityCost(4, 5));
     }
+
+    @Test
+    void evaluatesHarvestAndReplantAction() {
+        CropinationCoreService service = new CropinationCoreService();
+        CropinationCoreService.CropAction action = service.evaluateCrop(7, 7, 4, true, 5, 5);
+
+        assertTrue(action.shouldHarvest());
+        assertTrue(action.shouldReplant());
+        assertEquals(1, action.seedsConsumed());
+        assertEquals(1, action.durabilityCost());
+    }
 }

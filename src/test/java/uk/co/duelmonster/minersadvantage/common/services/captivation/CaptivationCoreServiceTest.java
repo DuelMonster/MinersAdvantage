@@ -36,4 +36,19 @@ class CaptivationCoreServiceTest {
         assertTrue(service.isWithinRadius(0, 0, 0, 2, 1, 2, 3, 2));
         assertFalse(service.isWithinRadius(0, 0, 0, 5, 1, 5, 3, 2));
     }
+
+    @Test
+    void evaluatesCaptureDecisionWithGuiGate() {
+        CaptivationCoreService service = new CaptivationCoreService(Set.of(), false, false);
+
+        CaptivationCoreService.CaptureDecision blocked =
+            service.evaluateCapture("apple", false, true, false, true);
+        assertFalse(blocked.canCapture());
+        assertTrue(blocked.blockedByGui());
+
+        CaptivationCoreService.CaptureDecision allowed =
+            service.evaluateCapture("apple", false, false, false, true);
+        assertTrue(allowed.canCapture());
+        assertFalse(allowed.blockedByGui());
+    }
 }
