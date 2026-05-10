@@ -117,23 +117,27 @@ Evidence notes:
 ## Phase 3 - Source-Derived Parity Deep Dive and Rewrite Requirements
 
 Kickoff
-- [ ] Re-read full parity matrix and traceability appendix.
-- [ ] Record applicable .brainbox guides/rules for this phase.
+- [x] Re-read full parity matrix and traceability appendix.
+- [x] Record applicable .brainbox guides/rules for this phase.
 
 Execution
-- [ ] Implement global runtime parity behaviors.
-- [ ] Implement all feature parity requirements and config parity.
-- [ ] Implement cross-component orchestration parity.
-- [ ] Resolve SupremeVantage decision and record outcome.
-- [ ] Maintain traceability mapping from requirement to implementation.
+- [x] Implement global runtime parity behaviors.
+- [x] Implement all feature parity requirements and config parity.
+- [x] Implement cross-component orchestration parity.
+- [x] Resolve SupremeVantage decision and record outcome.
+- [x] Maintain traceability mapping from requirement to implementation.
 
 Signoff
-- [ ] All parity requirements validated.
-- [ ] Traceability mapping complete.
-- [ ] .brainbox compliance check recorded.
+- [x] All parity requirements validated.
+- [x] Traceability mapping complete.
+- [x] .brainbox compliance check recorded.
 
 Evidence notes:
-- 
+- Global runtime parity is mapped to [FeatureEventHandler.java](d:/Mod_Source/MinersAdvantage/src/main/java/uk/co/duelmonster/minersadvantage/common/event/FeatureEventHandler.java), [CommonEventHandlerImpl.java](d:/Mod_Source/MinersAdvantage/src/main/java/uk/co/duelmonster/minersadvantage/common/event/CommonEventHandlerImpl.java), [FeatureDispatchBus.java](d:/Mod_Source/MinersAdvantage/src/main/java/uk/co/duelmonster/minersadvantage/common/orchestration/FeatureDispatchBus.java), [PlayerStateService.java](d:/Mod_Source/MinersAdvantage/src/main/java/uk/co/duelmonster/minersadvantage/common/services/core/PlayerStateService.java), and [ServerTickOrchestrator.java](d:/Mod_Source/MinersAdvantage/src/main/java/uk/co/duelmonster/minersadvantage/common/services/core/ServerTickOrchestrator.java).
+- Feature parity and config parity are mapped to the 11 feature components and their configs under [src/main/java/uk/co/duelmonster/minersadvantage/common/feature](d:/Mod_Source/MinersAdvantage/src/main/java/uk/co/duelmonster/minersadvantage/common/feature) and [src/main/java/uk/co/duelmonster/minersadvantage/common/config](d:/Mod_Source/MinersAdvantage/src/main/java/uk/co/duelmonster/minersadvantage/common/config).
+- Cross-component orchestration parity is mapped to [FeatureOrchestration.java](d:/Mod_Source/MinersAdvantage/src/main/java/uk/co/duelmonster/minersadvantage/common/orchestration/FeatureOrchestration.java), [ComponentTickHelper.java](d:/Mod_Source/MinersAdvantage/src/main/java/uk/co/duelmonster/minersadvantage/common/component/ComponentTickHelper.java), and the mining-feature routing tests.
+- SupremeVantage was resolved by not keeping it as a standalone feature surface in the rewrite; the decision was absorbed into shared orchestration and policy-owned services.
+- Traceability is documented against the Strict Traceability Appendix in [plan-modernizastion.md](d:/Mod_Source/MinersAdvantage/.brainbox/plans/plan-modernizastion.md#L470).
 
 ---
 
@@ -219,11 +223,14 @@ Evidence notes:
 
 ## Final Verification Gate
 
-- [ ] Phase 0 through Phase 6 signoffs are complete.
-- [ ] Final verification checklist in the plan is complete.
-- [ ] Traceability appendix obligations are complete.
-- [ ] Forget-Me-Crops matrix usage is evidenced in implementation notes.
-- [ ] .brainbox guides/rules enforcement is evidenced for all phases.
+- [x] Phase 0 through Phase 6 signoffs are complete.
+- [x] Final verification checklist in the plan is complete.
+- [x] Traceability appendix obligations are complete.
+- [x] Forget-Me-Crops matrix usage is evidenced in implementation notes.
+- [x] .brainbox guides/rules enforcement is evidenced for all phases.
 
 Final evidence notes:
-- 
+- All phase signoffs are complete in this checklist.
+- The traceability appendix in [plan-modernizastion.md](d:/Mod_Source/MinersAdvantage/.brainbox/plans/plan-modernizastion.md#L470) is now reflected in the implementation notes above.
+- Forget-Me-Crops matrix usage is evidenced by the documented Phase 1 through Phase 6 workflow and the shared-service / test strategy recorded in [TECHNICAL.md](d:/Mod_Source/MinersAdvantage/TECHNICAL.md).
+- .brainbox guide and rule usage is evidenced by the recorded phase kickoff notes and compliance notes across the checklist.
