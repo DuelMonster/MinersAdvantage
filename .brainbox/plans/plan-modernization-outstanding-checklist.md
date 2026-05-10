@@ -94,8 +94,10 @@ Milestone 1: Loader wiring and runtime entrypoints
 - [ ] Add Fabric bootstrap + event registration adapters.
 - [ ] Add NeoForge bootstrap + event registration adapters.
 - [ ] Wire CommonEventHandlerImpl into loader event streams.
-- [ ] Add/adjust tests for event entrypoint dispatch.
+- [x] Add/adjust tests for event entrypoint dispatch.
 - Commit plan: 👷build for wiring/bootstrap; ✅test for added tests.
+- Milestone 1 progress note: Added [CommonEventHandlerImplTest.java](src/test/java/uk/co/duelmonster/minersadvantage/common/event/CommonEventHandlerImplTest.java) to validate routing behavior from tool events into feature dispatch.
+- Milestone 1 blocker note: Loader-specific bootstrap classes currently require Stonecutter comment-slicing that is not yet configured/working in this workspace for per-loader Java imports, so direct Fabric/NeoForge runtime entrypoint classes must be introduced after resolving that preprocessing path.
 
 Milestone 2: Worker engine, drop interception, abort path
 - [ ] Implement worker lifecycle orchestration with queue budget + stop semantics.
