@@ -135,13 +135,16 @@ Milestone 4: Config parity and server override parity
 - Milestone 4 progress note: Implemented typed merge and sync flow in [PolicyCoreService.java](src/main/java/uk/co/duelmonster/minersadvantage/common/services/policy/PolicyCoreService.java), [SyncCoreService.java](src/main/java/uk/co/duelmonster/minersadvantage/common/services/sync/SyncCoreService.java), [PlayerStateSyncPacket.java](src/main/java/uk/co/duelmonster/minersadvantage/common/network/PlayerStateSyncPacket.java), and [MinersAdvantageCore.java](src/main/java/uk/co/duelmonster/minersadvantage/common/MinersAdvantageCore.java), covered by [PolicyCoreServiceTest.java](src/test/java/uk/co/duelmonster/minersadvantage/common/services/PolicyCoreServiceTest.java), [SyncCoreServiceTest.java](src/test/java/uk/co/duelmonster/minersadvantage/common/services/sync/SyncCoreServiceTest.java), and [PlayerStateSyncPacketFlowTest.java](src/test/java/uk/co/duelmonster/minersadvantage/common/network/PlayerStateSyncPacketFlowTest.java).
 
 Milestone 5: Input parity + SupremeVantage decision closure
-- [ ] Implement key mapping and toggle semantics parity.
-- [ ] Decide and record SupremeVantage scope:
+- [x] Implement key mapping and toggle semantics parity.
+- [x] Decide and record SupremeVantage scope:
   - preserve
   - remove by signoff
   - preserve behind debug flag
-- [ ] Implement chosen SupremeVantage behavior path and tests/docs.
+- [x] Implement chosen SupremeVantage behavior path and tests/docs.
 - Commit plan: ✨feature input surface parity; 📝docs decision record.
+- Milestone 5 decision note: SupremeVantage scope is `preserve`.
+- Milestone 5 progress note: Added loader-neutral keybinding metadata in [KeyBindings.java](src/main/java/uk/co/duelmonster/minersadvantage/client/KeyBindings.java), implemented legacy-style client toggle semantics in [ClientInputService.java](src/main/java/uk/co/duelmonster/minersadvantage/common/services/input/ClientInputService.java), and wired feature-enable packet handling in [MinersAdvantageCore.java](src/main/java/uk/co/duelmonster/minersadvantage/common/MinersAdvantageCore.java), covered by [KeyBindingsTest.java](src/test/java/uk/co/duelmonster/minersadvantage/client/KeyBindingsTest.java), [ClientInputServiceTest.java](src/test/java/uk/co/duelmonster/minersadvantage/common/services/input/ClientInputServiceTest.java), and [PlayerStateSyncPacketFlowTest.java](src/test/java/uk/co/duelmonster/minersadvantage/common/network/PlayerStateSyncPacketFlowTest.java).
+- Milestone 5 progress note: Preserved the hidden SupremeVantage flow through [SupremeVantageService.java](src/main/java/uk/co/duelmonster/minersadvantage/common/services/utility/SupremeVantageService.java) and [SupremeVantagePacket.java](src/main/java/uk/co/duelmonster/minersadvantage/common/network/SupremeVantagePacket.java), with packet/core wiring in [PacketRegistry.java](src/main/java/uk/co/duelmonster/minersadvantage/common/network/PacketRegistry.java) and [MinersAdvantageCore.java](src/main/java/uk/co/duelmonster/minersadvantage/common/MinersAdvantageCore.java), covered by [SupremeVantageServiceTest.java](src/test/java/uk/co/duelmonster/minersadvantage/common/services/utility/SupremeVantageServiceTest.java) and [PlayerStateSyncPacketFlowTest.java](src/test/java/uk/co/duelmonster/minersadvantage/common/network/PlayerStateSyncPacketFlowTest.java).
 
 Milestone 6: Final parity audit and signoff
 - [ ] Execute full traceability pass: map every appendix anchor to modern implementation or explicit de-scope.

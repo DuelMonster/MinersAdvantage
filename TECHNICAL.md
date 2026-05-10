@@ -69,12 +69,25 @@ Descriptor-driven registration is handled by ComponentRegistry.
 | captivation-core | CaptivationCoreService | item capture eligibility, GUI gate, and radius policy |
 | sync-core | SyncCoreService | typed per-player client/server config snapshots and effective merged state |
 | policy-core | PolicyCoreService | config range clamping and per-feature server override enforcement |
+| input-core | ClientInputService | client key-action state transitions and toggle packet intent generation |
+| supreme-vantage | SupremeVantageService | hidden code tracking and deterministic reward sequence progression |
 
 ### Config model
 
 - `SyncedClientConfig` now mirrors the modern shared feature records instead of using raw maps.
 - `ServerOverridesConfig` controls feature-enable overrides and per-feature server enforcement flags.
 - Feature config records preserve current constructor call sites while carrying legacy parity fields such as blacklists, toggle modes, placement policies, and tool lists.
+
+### Input surface
+
+- `KeyBindings` now carries a loader-neutral catalog of legacy-parity client actions and default keys.
+- `ClientInputService` models toggle semantics for feature enablement, excavation hold/toggle modes, shaft vent hold state, illumination actions, and abort requests.
+- `ComponentTogglePacket` is now handled by `MinersAdvantageCore` so input-driven feature enablement has a real runtime path.
+
+### SupremeVantage
+
+- Decision: preserve.
+- The rewrite keeps the hidden excavation code path and represents rewards as deterministic `RewardGrant` data through `SupremeVantageService` and `SupremeVantagePacket`.
 
 ## Feature descriptors
 
@@ -107,6 +120,7 @@ Tests are unit-only and currently target deterministic services:
 - illumination manual placement and inventory depletion outputs
 - substitution combat/mining policy and switch-back outputs
 - config override merging, typed sync snapshots, and player sync packet flow
+- input toggle state transitions, keybinding metadata, and SupremeVantage reward packet flow
 
 ## CI and Release
 

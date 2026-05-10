@@ -8,6 +8,8 @@
 - Add substitution combat/mining policy decisions with primary-tool switch-back behavior.
 - Add typed synced-config payloads and server override enforcement for all modern feature configs, including Cultivation.
 - Expand config records to carry legacy parity fields for block lists, policy toggles, torch placement, and override-aware settings.
+- Add legacy-parity keybinding metadata and client input toggle handling for feature enablement, excavation modes, illumination actions, and abort flow.
+- Preserve SupremeVantage as a hidden code-driven reward path with modern packet and service coverage.
 
 ## 0.1.0
 
