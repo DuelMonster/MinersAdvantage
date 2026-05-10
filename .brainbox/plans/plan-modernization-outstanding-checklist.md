@@ -102,11 +102,12 @@ Milestone 1: Loader wiring and runtime entrypoints
 Milestone 2: Worker engine, drop interception, abort path
 - [x] Implement worker lifecycle orchestration with queue budget + stop semantics.
 - [ ] Implement drop/XP capture and gatherDrops spawn policy.
-- [ ] Implement abort packet + cancel-all-active-workers + flush behavior.
+- [x] Implement abort packet + cancel-all-active-workers + flush behavior.
 - [x] Apply hunger/TPS guard checks in runtime pipeline.
 - Commit plan: ✨feature for runtime behavior; ✅test for lifecycle/abort tests.
 - Milestone 2 progress note: Added runtime worker lifecycle service in [WorkerRuntimeService.java](src/main/java/uk/co/duelmonster/minersadvantage/common/services/processing/WorkerRuntimeService.java), wired tick execution in [ServerTickOrchestrator.java](src/main/java/uk/co/duelmonster/minersadvantage/common/services/core/ServerTickOrchestrator.java), and exposed runtime access through [MinersAdvantageCore.java](src/main/java/uk/co/duelmonster/minersadvantage/common/MinersAdvantageCore.java).
-- Milestone 2 pending note: Abort packet transport and live gatherDrops spawn interception remain open; cancel/flush runtime behavior exists but packet plumbing and entity interception are not yet wired.
+- Milestone 2 progress note: Added abort transport model [AbortWorkersPacket.java](src/main/java/uk/co/duelmonster/minersadvantage/common/network/AbortWorkersPacket.java), registry ID mapping in [PacketRegistry.java](src/main/java/uk/co/duelmonster/minersadvantage/common/network/PacketRegistry.java), and packet execution path in [MinersAdvantageCore.java](src/main/java/uk/co/duelmonster/minersadvantage/common/MinersAdvantageCore.java) with flow coverage in [AbortWorkersPacketFlowTest.java](src/test/java/uk/co/duelmonster/minersadvantage/common/network/AbortWorkersPacketFlowTest.java).
+- Milestone 2 pending note: live gatherDrops spawn interception remains open.
 
 Milestone 3: Core feature behavior replacement (no placeholders)
 - [ ] Replace placeholder logic in Excavation/Shaftanation/Ventilation.
