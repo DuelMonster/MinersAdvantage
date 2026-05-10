@@ -30,6 +30,7 @@ class WorkerRuntimeServiceTest {
         assertEquals(1, tick.flushedDrops());
         assertEquals(2, processed.get());
         assertFalse(service.isWorkerActive(worker.workerId()));
+        assertEquals(1, service.drainSpawnQueue().size());
     }
 
     @Test
@@ -70,5 +71,31 @@ class WorkerRuntimeServiceTest {
         assertTrue(service.isWorkerActive(other.workerId()));
         assertFalse(service.isWorkerActive(first.workerId()));
         assertFalse(service.isWorkerActive(second.workerId()));
+        assertEquals(2, service.drainSpawnQueue().size());
+    }
+
+    @Test
+    void interceptLiveDropHonorsGatherDropsPolicy() {
+        PlayerStateService playerStates = new PlayerStateService();
+        WorkerRuntimeService service = new WorkerRuntimeService(playerStates);
+
+        WorkerRuntimeService.WorkerHandle gathered = service.startWorker(50L, FeatureId.EXCAVATION, 1, 4);
+        WorkerRuntimeService.WorkerHandle immediate = service.startWorker(51L, FeatureId.SHAFTANATION, 1, 4);
+
+        WorkerRuntimeService.DropInterceptionResult gatheredResult =
+            service.interceptLiveDrop(gathered.workerId(), "item", 2, true);
+        WorkerRuntimeService.DropInterceptionResult immediateResult =
+            service.interceptLiveDrop(immediate.workerId(), "xp", 5, false);
+
+        assertTrue(gatheredResult.capturedForGather());
+        assertFalse(gatheredResult.spawnNow());
+        assertFalse(immediateResult.capturedForGather());
+        assertTrue(immediateResult.spawnNow());
+
+        assertEquals(1, service.drainSpawnQueue().size());
+
+        service.enqueueWork(gathered.workerId(), () -> { });
+        service.tick(false);
+        assertEquals(1, service.drainSpawnQueue().size());
     }
 }

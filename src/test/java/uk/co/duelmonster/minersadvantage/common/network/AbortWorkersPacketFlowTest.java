@@ -28,6 +28,7 @@ class AbortWorkersPacketFlowTest {
         assertEquals(2, result.flushedDrops());
         assertEquals(1, runtime.activeWorkerCount());
         assertTrue(runtime.isWorkerActive(other.workerId()));
+        assertEquals(2, runtime.drainSpawnQueue().size());
     }
 
     @Test
