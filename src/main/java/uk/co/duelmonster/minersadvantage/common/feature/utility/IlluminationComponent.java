@@ -12,7 +12,7 @@ public final class IlluminationComponent implements ComponentLifecycle {
     private final IlluminationCoreService service;
     private boolean enabled;
     private IlluminationCoreService.IlluminationDecision lastDecision =
-        new IlluminationCoreService.IlluminationDecision(TorchPlacement.FLOOR, 0, false);
+        new IlluminationCoreService.IlluminationDecision(TorchPlacement.FLOOR, 0, false, false, false);
 
     public IlluminationComponent(IlluminationConfig config) {
         this.config = config;
@@ -65,13 +65,14 @@ public final class IlluminationComponent implements ComponentLifecycle {
             leftWall,
             rightWall,
             config.radiusHorizontal(),
-            config.radiusVertical()
+            config.radiusVertical(),
+            context.toolId()
         );
     }
 
     @Override
     public void cleanup() {
         enabled = false;
-        lastDecision = new IlluminationCoreService.IlluminationDecision(TorchPlacement.FLOOR, 0, false);
+        lastDecision = new IlluminationCoreService.IlluminationDecision(TorchPlacement.FLOOR, 0, false, false, false);
     }
 }

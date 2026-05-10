@@ -13,6 +13,8 @@ public final class SubstitutionComponent implements ComponentLifecycle {
     private final SubstitutionCoreService service;
     private boolean enabled;
     private String lastSelectedToolId;
+    private SubstitutionCoreService.SubstitutionDecision lastDecision =
+        new SubstitutionCoreService.SubstitutionDecision(null, false, false, "idle");
 
     public SubstitutionComponent(SubstitutionConfig config) {
         this.config = config;
@@ -33,6 +35,10 @@ public final class SubstitutionComponent implements ComponentLifecycle {
 
     public String lastSelectedToolId() {
         return lastSelectedToolId;
+    }
+
+    public SubstitutionCoreService.SubstitutionDecision lastDecision() {
+        return lastDecision;
     }
 
     @Override
@@ -58,18 +64,34 @@ public final class SubstitutionComponent implements ComponentLifecycle {
 
         var context = ComponentTickHelper.getContext();
         boolean oreContext = context.blockId().contains("ore");
+        boolean combatContext = context.blockId().startsWith("entity:") || context.toolId().contains("sword") || context.toolId().contains("combat");
+        boolean switchBackToPrimary = !oreContext
+            && !combatContext
+            && lastSelectedToolId != null
+            && !lastSelectedToolId.equals(context.toolId());
         List<ToolCandidate> candidates = List.of(
-            new ToolCandidate("mainhand", oreContext ? 8.0 : 7.0, 0, 1, false),
-            new ToolCandidate("silk_pick", oreContext ? 8.2 : 6.5, 1, 0, false),
-            new ToolCandidate("damaged", 9.0, 0, 2, !config.allowMending())
+            new ToolCandidate(context.toolId(), oreContext ? 8.0 : 7.0, 0, 0, combatContext ? 6 : 2, false, false),
+            new ToolCandidate("silk_pick", oreContext ? 8.2 : 6.5, 1, 0, 2, false, false),
+            new ToolCandidate("fortune_pick", oreContext ? 7.9 : 6.8, 0, 3, 2, false, false),
+            new ToolCandidate("battle_blade", 5.0, 0, 0, 9, false, false),
+            new ToolCandidate("mending_pick", 8.4, 0, 2, 1, false, true)
         );
-        ToolCandidate best = service.selectBest(candidates, config.prioritizeSilkTouch(), oreContext);
-        lastSelectedToolId = best == null ? null : best.id();
+        lastDecision = service.decideTool(
+            context.toolId(),
+            candidates,
+            config.allowMending(),
+            oreContext && config.prioritizeSilkTouch(),
+            oreContext && !config.prioritizeSilkTouch(),
+            combatContext,
+            switchBackToPrimary
+        );
+        lastSelectedToolId = lastDecision.selectedToolId();
     }
 
     @Override
     public void cleanup() {
         enabled = false;
         lastSelectedToolId = null;
+        lastDecision = new SubstitutionCoreService.SubstitutionDecision(null, false, false, "idle");
     }
 }
