@@ -10,4 +10,6 @@ public interface ComponentLifecycle {
     void tick();
 
     void cleanup();
+
+    boolean isEnabled();
 }
