@@ -180,4 +180,4 @@ For each milestone, record:
 - [x] All milestone commits are split logically and use semantic commit format.
 - [x] CHANGELOG, README, TECHNICAL are accurate for final behavior.
 - [x] chiseledBuild succeeds after final milestone.
-- [ ] Final repo state is clean with no unstaged/uncommitted parity work.
+- [x] Final repo state is clean with no unstaged/uncommitted parity work.
