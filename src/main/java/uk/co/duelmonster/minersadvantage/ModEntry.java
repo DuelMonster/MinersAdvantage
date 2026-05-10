@@ -47,6 +47,13 @@ public final class ModEntry implements ModInitializer {
                 return;
             }
             routeToolUse(player.getMainHandItem(), pos, state);
+            String blockId = BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString();
+            core.workerRuntimeService().interceptLiveDropForPlayer(
+                player.getUUID().getLeastSignificantBits(),
+                "item:" + blockId,
+                1,
+                true
+            );
         });
 
         ServerTickEvents.END_SERVER_TICK.register(server -> toolEvents.onServerTick());

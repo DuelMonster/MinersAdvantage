@@ -74,6 +74,21 @@ public final class WorkerRuntimeService {
         return new DropInterceptionResult(false, true);
     }
 
+    public DropInterceptionResult interceptLiveDropForPlayer(long playerId, String type, int amount, boolean gatherDrops) {
+        ActiveWorker worker = findFirstWorkerForPlayer(playerId);
+        if (worker == null) {
+            return new DropInterceptionResult(false, true);
+        }
+
+        if (gatherDrops) {
+            worker.drops.capture(type, amount);
+            return new DropInterceptionResult(true, false);
+        }
+
+        pendingSpawns.add(new DropSpawn(playerId, type, amount));
+        return new DropInterceptionResult(false, true);
+    }
+
     public List<DropCoreService.CapturedDrop> abortWorker(UUID workerId) {
         ActiveWorker worker = workers.remove(workerId);
         if (worker == null) {
@@ -159,5 +174,14 @@ public final class WorkerRuntimeService {
         for (DropCoreService.CapturedDrop drop : flushed) {
             pendingSpawns.add(new DropSpawn(playerId, drop.type(), drop.amount()));
         }
+    }
+
+    private ActiveWorker findFirstWorkerForPlayer(long playerId) {
+        for (ActiveWorker worker : workers.values()) {
+            if (worker.handle.playerId() == playerId) {
+                return worker;
+            }
+        }
+        return null;
     }
 }
