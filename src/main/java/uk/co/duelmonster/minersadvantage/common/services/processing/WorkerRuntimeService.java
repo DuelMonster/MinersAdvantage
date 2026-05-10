@@ -12,6 +12,8 @@ import uk.co.duelmonster.minersadvantage.common.services.drop.DropCoreService;
 public final class WorkerRuntimeService {
     public record WorkerHandle(UUID workerId, long playerId, FeatureId feature) {}
     public record AbortResult(int cancelledWorkers, int flushedDrops) {}
+    public record DropSpawn(long playerId, String type, int amount) {}
+    public record DropInterceptionResult(boolean capturedForGather, boolean spawnNow) {}
 
     public record WorkerTickResult(int processedActions, int completedWorkers, int pausedWorkers, int flushedDrops) {}
 
@@ -28,6 +30,7 @@ public final class WorkerRuntimeService {
     }
 
     private final Map<UUID, ActiveWorker> workers = new LinkedHashMap<>();
+    private final List<DropSpawn> pendingSpawns = new ArrayList<>();
     private final PlayerStateService playerStateService;
 
     public WorkerRuntimeService(PlayerStateService playerStateService) {
@@ -56,12 +59,29 @@ public final class WorkerRuntimeService {
         worker.drops.capture(type, amount);
     }
 
+    public DropInterceptionResult interceptLiveDrop(UUID workerId, String type, int amount, boolean gatherDrops) {
+        ActiveWorker worker = workers.get(workerId);
+        if (worker == null) {
+            return new DropInterceptionResult(false, true);
+        }
+
+        if (gatherDrops) {
+            worker.drops.capture(type, amount);
+            return new DropInterceptionResult(true, false);
+        }
+
+        pendingSpawns.add(new DropSpawn(worker.handle.playerId(), type, amount));
+        return new DropInterceptionResult(false, true);
+    }
+
     public List<DropCoreService.CapturedDrop> abortWorker(UUID workerId) {
         ActiveWorker worker = workers.remove(workerId);
         if (worker == null) {
             return List.of();
         }
-        return worker.drops.flush();
+        List<DropCoreService.CapturedDrop> flushed = worker.drops.flush();
+        queueSpawnDrops(worker.handle.playerId(), flushed);
+        return flushed;
     }
 
     public List<DropCoreService.CapturedDrop> abortAllForPlayer(long playerId) {
@@ -106,7 +126,9 @@ public final class WorkerRuntimeService {
             processedActions += worker.queue.processTick(Runnable::run);
 
             if (worker.queue.size() == 0) {
-                flushedDrops += worker.drops.flush().size();
+                List<DropCoreService.CapturedDrop> flushed = worker.drops.flush();
+                flushedDrops += flushed.size();
+                queueSpawnDrops(worker.handle.playerId(), flushed);
                 completed.add(worker.handle.workerId());
                 completedWorkers++;
             }
@@ -125,5 +147,17 @@ public final class WorkerRuntimeService {
 
     public boolean isWorkerActive(UUID workerId) {
         return workers.containsKey(workerId);
+    }
+
+    public List<DropSpawn> drainSpawnQueue() {
+        List<DropSpawn> snapshot = List.copyOf(pendingSpawns);
+        pendingSpawns.clear();
+        return snapshot;
+    }
+
+    private void queueSpawnDrops(long playerId, List<DropCoreService.CapturedDrop> flushed) {
+        for (DropCoreService.CapturedDrop drop : flushed) {
+            pendingSpawns.add(new DropSpawn(playerId, drop.type(), drop.amount()));
+        }
     }
 }
