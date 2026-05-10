@@ -112,7 +112,7 @@ Milestone 2: Worker engine, drop interception, abort path
 - Milestone 2 progress note: Wired NeoForge-compatible hook-up in [ModEntry.java](src/main/java/uk/co/duelmonster/minersadvantage/ModEntry.java) using PlayerInteractEvent.LeftClickBlock so both 21.11 and 26.1.2 targets route interception into runtime without BlockEvent.BreakEvent dependency.
 
 Milestone 3: Core feature behavior replacement (no placeholders)
-- [ ] Replace placeholder logic in Excavation/Shaftanation/Ventilation.
+- [x] Replace placeholder logic in Excavation/Shaftanation/Ventilation.
 - [ ] Implement Illumination placement strategies and manual modes.
 - [ ] Implement Captivation, Cropination, Cultivation, Pathanation, Lumbination, Veination behaviors.
 - [ ] Implement Substitution full policy behavior (mining + combat).
@@ -120,6 +120,7 @@ Milestone 3: Core feature behavior replacement (no placeholders)
   - ✨feature mining-runtime parity
   - ✨feature utility-runtime parity
   - ✨feature farming-harvest parity
+- Milestone 3 progress note: Replaced mining placeholders with concrete batching/planning behavior in [ExcavationCoreService.java](src/main/java/uk/co/duelmonster/minersadvantage/common/services/mining/ExcavationCoreService.java), [ShaftanationCoreService.java](src/main/java/uk/co/duelmonster/minersadvantage/common/services/mining/ShaftanationCoreService.java), [VentilationCoreService.java](src/main/java/uk/co/duelmonster/minersadvantage/common/services/mining/VentilationCoreService.java) and wired runtime state updates in [ExcavationComponent.java](src/main/java/uk/co/duelmonster/minersadvantage/common/feature/mining/ExcavationComponent.java), [ShaftanationComponent.java](src/main/java/uk/co/duelmonster/minersadvantage/common/feature/mining/ShaftanationComponent.java), [VentilationComponent.java](src/main/java/uk/co/duelmonster/minersadvantage/common/feature/mining/VentilationComponent.java).
 
 Milestone 4: Config parity and server override parity
 - [ ] Expand config records to match required parity fields.
