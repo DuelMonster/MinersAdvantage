@@ -30,6 +30,7 @@ import uk.co.duelmonster.minersadvantage.common.feature.utility.SubstitutionComp
 import uk.co.duelmonster.minersadvantage.common.feature.utility.VeinationComponent;
 import uk.co.duelmonster.minersadvantage.common.services.core.PlayerStateService;
 import uk.co.duelmonster.minersadvantage.common.services.core.ServerTickOrchestrator;
+import uk.co.duelmonster.minersadvantage.common.services.processing.WorkerRuntimeService;
 
 public final class MinersAdvantageCore {
     private final ComponentRegistry componentRegistry = new ComponentRegistry();
@@ -154,5 +155,9 @@ public final class MinersAdvantageCore {
 
     public ServerTickOrchestrator tickOrchestrator() {
         return tickOrchestrator;
+    }
+
+    public WorkerRuntimeService workerRuntimeService() {
+        return tickOrchestrator.workerRuntimeService();
     }
 }
