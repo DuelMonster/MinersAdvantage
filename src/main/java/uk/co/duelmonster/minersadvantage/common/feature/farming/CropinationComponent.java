@@ -1,14 +1,17 @@
 package uk.co.duelmonster.minersadvantage.common.feature.farming;
 
 import uk.co.duelmonster.minersadvantage.common.component.ComponentLifecycle;
-    import uk.co.duelmonster.minersadvantage.common.component.ComponentTickHelper;
-    import uk.co.duelmonster.minersadvantage.common.config.CropinationConfig;
+import uk.co.duelmonster.minersadvantage.common.component.ComponentTickHelper;
+import uk.co.duelmonster.minersadvantage.common.config.CropinationConfig;
 import uk.co.duelmonster.minersadvantage.common.services.farming.CropinationCoreService;
+
+import uk.co.duelmonster.minersadvantage.common.services.farming.CropinationCoreService.CropAction;
 
 public final class CropinationComponent implements ComponentLifecycle {
     private final CropinationConfig config;
     private final CropinationCoreService service;
     private boolean enabled;
+    private CropAction lastAction = new CropAction(false, false, 0, 0);
 
     public CropinationComponent(CropinationConfig config) {
         this.config = config;
@@ -25,6 +28,10 @@ public final class CropinationComponent implements ComponentLifecycle {
 
     public boolean isEnabled() {
         return enabled && config.enabled();
+    }
+
+    public CropAction lastAction() {
+        return lastAction;
     }
 
     @Override
@@ -50,14 +57,17 @@ public final class CropinationComponent implements ComponentLifecycle {
 
         var context = ComponentTickHelper.getContext();
         if (context.blockId().contains("crop")) {
-            if (service.isFullyGrown(7, 7)) {
-                // Harvest matured crop
-            }
+            int cropAge = context.blockId().contains("mature") ? 7 : 6;
+            int availableSeeds = config.harvestSeeds() ? 8 : 0;
+            lastAction = service.evaluateCrop(cropAge, 7, availableSeeds, config.harvestSeeds(), 5, 5);
+        } else {
+            lastAction = new CropAction(false, false, 0, 0);
         }
     }
 
     @Override
     public void cleanup() {
         enabled = false;
+        lastAction = new CropAction(false, false, 0, 0);
     }
 }

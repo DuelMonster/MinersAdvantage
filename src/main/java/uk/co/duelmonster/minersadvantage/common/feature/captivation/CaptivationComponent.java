@@ -1,5 +1,7 @@
 package uk.co.duelmonster.minersadvantage.common.feature.captivation;
 
+import java.util.Set;
+
 import uk.co.duelmonster.minersadvantage.common.component.ComponentLifecycle;
     import uk.co.duelmonster.minersadvantage.common.component.ComponentTickHelper;
     import uk.co.duelmonster.minersadvantage.common.config.CaptivationConfig;
@@ -9,11 +11,12 @@ public final class CaptivationComponent implements ComponentLifecycle {
     private final CaptivationConfig config;
     private final CaptivationCoreService service;
     private boolean enabled;
+    private CaptivationCoreService.CaptureDecision lastDecision = new CaptivationCoreService.CaptureDecision(false, false, false);
 
     public CaptivationComponent(CaptivationConfig config) {
         this.config = config;
         this.service = new CaptivationCoreService(
-            java.util.Set.of(),
+            Set.of(),
             config.isWhitelist(),
             config.unconditionalBlacklist()
         );
@@ -29,6 +32,10 @@ public final class CaptivationComponent implements ComponentLifecycle {
 
     public boolean isEnabled() {
         return enabled && config.enabled();
+    }
+
+    public CaptivationCoreService.CaptureDecision lastDecision() {
+        return lastDecision;
     }
 
     @Override
@@ -55,14 +62,26 @@ public final class CaptivationComponent implements ComponentLifecycle {
         var context = ComponentTickHelper.getContext();
         if (context.blockId().startsWith("item:")) {
             String itemId = context.blockId().substring(5);
-            if (service.canCaptureItem(itemId, false)) {
-                // Item would be captured by default Captivation radius
-            }
+            boolean withinRadius = service.isWithinRadius(
+                context.blockX(),
+                context.blockY(),
+                context.blockZ(),
+                context.blockX(),
+                context.blockY(),
+                context.blockZ(),
+                config.radiusHorizontal(),
+                config.radiusVertical()
+            );
+            boolean inventoryOpen = !config.allowInGUI() && context.toolId().contains("gui");
+            lastDecision = service.evaluateCapture(itemId, false, inventoryOpen, config.allowInGUI(), withinRadius);
+        } else {
+            lastDecision = new CaptivationCoreService.CaptureDecision(false, false, false);
         }
     }
 
     @Override
     public void cleanup() {
         enabled = false;
+        lastDecision = new CaptivationCoreService.CaptureDecision(false, false, false);
     }
 }

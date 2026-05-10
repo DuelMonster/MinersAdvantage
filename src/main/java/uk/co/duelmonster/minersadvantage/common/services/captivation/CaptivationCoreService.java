@@ -3,6 +3,8 @@ package uk.co.duelmonster.minersadvantage.common.services.captivation;
 import java.util.Set;
 
 public final class CaptivationCoreService {
+    public record CaptureDecision(boolean canCapture, boolean blockedByGui, boolean withinRadius) {}
+
     private final Set<String> blacklist;
     private final boolean isWhitelist;
     private final boolean unconditionalBlacklist;
@@ -32,5 +34,20 @@ public final class CaptivationCoreService {
         int dy = Math.abs(playerY - itemY);
         int dz = Math.abs(playerZ - itemZ);
         return dx <= radiusHorizontal && dz <= radiusHorizontal && dy <= radiusVertical;
+    }
+
+    public CaptureDecision evaluateCapture(
+        String itemId,
+        boolean isDirectPickup,
+        boolean inventoryOpen,
+        boolean allowInGUI,
+        boolean withinRadius
+    ) {
+        if (inventoryOpen && !allowInGUI) {
+            return new CaptureDecision(false, true, withinRadius);
+        }
+
+        boolean canCapture = withinRadius && canCaptureItem(itemId, isDirectPickup);
+        return new CaptureDecision(canCapture, false, withinRadius);
     }
 }
