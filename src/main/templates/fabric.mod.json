@@ -8,8 +8,8 @@
   "license": "${mod_license}",
   "environment": "*",
   "entrypoints": {
-    "main": ["uk.co.duelmonster.minersadvantage.fabric.ModEntryFabric"],
-    "modmenu": ["uk.co.duelmonster.minersadvantage.fabric.ModMenuEntrypointFabric"]
+    "main": ["uk.co.duelmonster.minersadvantage.ModEntry"],
+    "modmenu": ["uk.co.duelmonster.minersadvantage.client.ModMenuEntrypoint"]
   },
   "depends": {
     "minecraft": ">=1.21.11",
