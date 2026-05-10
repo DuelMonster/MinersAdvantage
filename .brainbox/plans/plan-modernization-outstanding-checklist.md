@@ -100,11 +100,13 @@ Milestone 1: Loader wiring and runtime entrypoints
 - Milestone 1 implementation note: Adopted the Forget-Me-Crops single-entrypoint Stonecutter pattern via [ModEntry.java](src/main/java/uk/co/duelmonster/minersadvantage/ModEntry.java) and [ModMenuEntrypoint.java](src/main/java/uk/co/duelmonster/minersadvantage/client/ModMenuEntrypoint.java), with Fabric metadata updated in [fabric.mod.json](src/main/templates/fabric.mod.json).
 
 Milestone 2: Worker engine, drop interception, abort path
-- [ ] Implement worker lifecycle orchestration with queue budget + stop semantics.
+- [x] Implement worker lifecycle orchestration with queue budget + stop semantics.
 - [ ] Implement drop/XP capture and gatherDrops spawn policy.
 - [ ] Implement abort packet + cancel-all-active-workers + flush behavior.
-- [ ] Apply hunger/TPS guard checks in runtime pipeline.
+- [x] Apply hunger/TPS guard checks in runtime pipeline.
 - Commit plan: ✨feature for runtime behavior; ✅test for lifecycle/abort tests.
+- Milestone 2 progress note: Added runtime worker lifecycle service in [WorkerRuntimeService.java](src/main/java/uk/co/duelmonster/minersadvantage/common/services/processing/WorkerRuntimeService.java), wired tick execution in [ServerTickOrchestrator.java](src/main/java/uk/co/duelmonster/minersadvantage/common/services/core/ServerTickOrchestrator.java), and exposed runtime access through [MinersAdvantageCore.java](src/main/java/uk/co/duelmonster/minersadvantage/common/MinersAdvantageCore.java).
+- Milestone 2 pending note: Abort packet transport and live gatherDrops spawn interception remain open; cancel/flush runtime behavior exists but packet plumbing and entity interception are not yet wired.
 
 Milestone 3: Core feature behavior replacement (no placeholders)
 - [ ] Replace placeholder logic in Excavation/Shaftanation/Ventilation.
