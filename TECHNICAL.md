@@ -59,9 +59,9 @@ Descriptor-driven registration is handled by ComponentRegistry.
 | world-query | WorldQueryService | geometry bounds and area helpers |
 | harvest-core | HarvestCoreService | maturity and durability cadence helpers |
 | drop-core | DropCoreService | capture and flush semantics for drops |
-| illumination-core | IlluminationCoreService | torch placement decision support |
+| illumination-core | IlluminationCoreService | auto/manual torch placement planning and depletion signaling |
 | inventory-core | InventoryCoreService | inventory presence and consumption |
-| substitution-core | SubstitutionCoreService | tool ranking and filtering |
+| substitution-core | SubstitutionCoreService | mining/combat tool policy ranking and switch-back decisions |
 | tree-core | TreeCoreService | trunk/leaf heuristics |
 | farming-core | FarmingCoreService | hydration proximity checks |
 | cropination-core | CropinationCoreService | crop maturity, replant, and durability action decisions |
@@ -98,6 +98,8 @@ Tests are unit-only and currently target deterministic services:
 - drop capture/flush semantics
 - component bootstrap coverage
 - farming/harvest/captivation runtime planning and decision outputs
+- illumination manual placement and inventory depletion outputs
+- substitution combat/mining policy and switch-back outputs
 
 ## CI and Release
 

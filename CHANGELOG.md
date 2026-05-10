@@ -4,6 +4,8 @@
 - Add hydration-aware cultivation planning and lumbination trunk/leaf/sapling execution plans.
 - Add captivation runtime decision gating for GUI restrictions and radius checks.
 - Add focused runtime tests for farming, harvest, and captivation parity slices.
+- Add illumination manual-placement decisions, torch depletion reporting, and richer utility runtime coverage.
+- Add substitution combat/mining policy decisions with primary-tool switch-back behavior.
 
 ## 0.1.0
 
