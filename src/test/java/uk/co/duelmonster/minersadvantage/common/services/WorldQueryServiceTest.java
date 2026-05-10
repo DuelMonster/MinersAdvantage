@@ -1,0 +1,19 @@
+package uk.co.duelmonster.minersadvantage.common.services;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
+import uk.co.duelmonster.minersadvantage.common.services.world.WorldQueryService;
+
+class WorldQueryServiceTest {
+    @Test
+    void computesAreaAndDistanceHelpers() {
+        WorldQueryService service = new WorldQueryService();
+        assertEquals(6, service.manhattanDistance(0, 0, 0, 1, 2, 3));
+        assertTrue(service.insideBox(0, 0, 0, 2, 2, 2, 1, 1, 1));
+        assertFalse(service.insideBox(0, 0, 0, 2, 2, 2, 3, 1, 1));
+        assertEquals(5, service.normalizedOddWidth(4));
+    }
+}
