@@ -101,13 +101,14 @@ Milestone 1: Loader wiring and runtime entrypoints
 
 Milestone 2: Worker engine, drop interception, abort path
 - [x] Implement worker lifecycle orchestration with queue budget + stop semantics.
-- [ ] Implement drop/XP capture and gatherDrops spawn policy.
+- [x] Implement drop/XP capture and gatherDrops spawn policy.
 - [x] Implement abort packet + cancel-all-active-workers + flush behavior.
 - [x] Apply hunger/TPS guard checks in runtime pipeline.
 - Commit plan: ✨feature for runtime behavior; ✅test for lifecycle/abort tests.
 - Milestone 2 progress note: Added runtime worker lifecycle service in [WorkerRuntimeService.java](src/main/java/uk/co/duelmonster/minersadvantage/common/services/processing/WorkerRuntimeService.java), wired tick execution in [ServerTickOrchestrator.java](src/main/java/uk/co/duelmonster/minersadvantage/common/services/core/ServerTickOrchestrator.java), and exposed runtime access through [MinersAdvantageCore.java](src/main/java/uk/co/duelmonster/minersadvantage/common/MinersAdvantageCore.java).
 - Milestone 2 progress note: Added abort transport model [AbortWorkersPacket.java](src/main/java/uk/co/duelmonster/minersadvantage/common/network/AbortWorkersPacket.java), registry ID mapping in [PacketRegistry.java](src/main/java/uk/co/duelmonster/minersadvantage/common/network/PacketRegistry.java), and packet execution path in [MinersAdvantageCore.java](src/main/java/uk/co/duelmonster/minersadvantage/common/MinersAdvantageCore.java) with flow coverage in [AbortWorkersPacketFlowTest.java](src/test/java/uk/co/duelmonster/minersadvantage/common/network/AbortWorkersPacketFlowTest.java).
-- Milestone 2 pending note: live gatherDrops spawn interception remains open.
+- Milestone 2 progress note: Added live-drop interception policy and spawn-queue flush behavior in [WorkerRuntimeService.java](src/main/java/uk/co/duelmonster/minersadvantage/common/services/processing/WorkerRuntimeService.java), covered by [WorkerRuntimeServiceTest.java](src/test/java/uk/co/duelmonster/minersadvantage/common/services/processing/WorkerRuntimeServiceTest.java) and updated [AbortWorkersPacketFlowTest.java](src/test/java/uk/co/duelmonster/minersadvantage/common/network/AbortWorkersPacketFlowTest.java).
+- Milestone 2 pending note: loader event hook-up for live drop entity interception remains to be wired into platform events.
 
 Milestone 3: Core feature behavior replacement (no placeholders)
 - [ ] Replace placeholder logic in Excavation/Shaftanation/Ventilation.
