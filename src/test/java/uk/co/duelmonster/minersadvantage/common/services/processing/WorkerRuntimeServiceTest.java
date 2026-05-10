@@ -98,4 +98,21 @@ class WorkerRuntimeServiceTest {
         service.tick(false);
         assertEquals(1, service.drainSpawnQueue().size());
     }
+
+    @Test
+    void interceptLiveDropForPlayerUsesActiveWorker() {
+        PlayerStateService playerStates = new PlayerStateService();
+        WorkerRuntimeService service = new WorkerRuntimeService(playerStates);
+
+        WorkerRuntimeService.WorkerHandle worker = service.startWorker(60L, FeatureId.EXCAVATION, 1, 4);
+        WorkerRuntimeService.DropInterceptionResult result =
+            service.interceptLiveDropForPlayer(60L, "item:minecraft:stone", 1, true);
+
+        assertTrue(result.capturedForGather());
+        assertFalse(result.spawnNow());
+
+        service.enqueueWork(worker.workerId(), () -> { });
+        service.tick(false);
+        assertEquals(1, service.drainSpawnQueue().size());
+    }
 }
