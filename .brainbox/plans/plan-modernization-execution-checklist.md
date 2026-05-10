@@ -177,16 +177,17 @@ Kickoff
 Execution
 - [x] Implement service-level unit tests.
 - [x] Implement component-level unit tests.
-- [ ] Implement cross-component unit tests with mocked orchestration bus.
+- [x] Implement cross-component unit tests with mocked orchestration bus.
 - [x] Confirm no integration/game-launch tests were added.
 
 Signoff
-- [ ] Unit test scope and completeness validated.
+- [x] Unit test scope and completeness validated.
 - [x] Test execution evidence recorded.
 - [x] .brainbox compliance check recorded.
 
 Evidence notes:
 - Added unit tests for processing, geometry, substitution, illumination, drop, policy, and feature bootstrap behavior.
+- Added cross-component tests for dispatch bus cleanup and mining feature routing.
 - Test execution is included in successful chiseledBuild task output.
 - Remaining gap: orchestration-bus mocked cross-component tests are still pending.
 
