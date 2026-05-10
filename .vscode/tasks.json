@@ -1,0 +1,78 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "debug fabric client",
+            "type": "shell",
+            "command": ".\\gradlew.bat",
+            "args": [":${input:mcVersion}-fabric:runClient"],
+            "options": {"cwd": "${workspaceFolder}"},
+            "group": "build"
+        },
+        {
+            "label": "debug fabric client (no related mods)",
+            "type": "shell",
+            "command": ".\\gradlew.bat",
+            "args": ["-PdmNoRelatedMods=true", ":${input:mcVersion}-fabric:runClient"],
+            "options": {"cwd": "${workspaceFolder}"},
+            "group": "build"
+        },
+        {
+            "label": "debug neoforge client",
+            "type": "shell",
+            "command": ".\\gradlew.bat",
+            "args": [":${input:mcVersion}-neoforge:runClient"],
+            "options": {"cwd": "${workspaceFolder}"},
+            "group": "build"
+        },
+        {
+            "label": "debug neoforge client (no related mods)",
+            "type": "shell",
+            "command": ".\\gradlew.bat",
+            "args": ["-PdmNoRelatedMods=true", ":${input:mcVersion}-neoforge:runClient"],
+            "options": {"cwd": "${workspaceFolder}"},
+            "group": "build"
+        },
+        {
+            "label": "debug fabric server",
+            "type": "shell",
+            "command": ".\\gradlew.bat",
+            "args": [":${input:mcVersion}-fabric:runServer"],
+            "options": {"cwd": "${workspaceFolder}"},
+            "group": "build"
+        },
+        {
+            "label": "debug fabric server (no related mods)",
+            "type": "shell",
+            "command": ".\\gradlew.bat",
+            "args": ["-PdmNoRelatedMods=true", ":${input:mcVersion}-fabric:runServer"],
+            "options": {"cwd": "${workspaceFolder}"},
+            "group": "build"
+        },
+        {
+            "label": "debug neoforge server",
+            "type": "shell",
+            "command": ".\\gradlew.bat",
+            "args": [":${input:mcVersion}-neoforge:runServer"],
+            "options": {"cwd": "${workspaceFolder}"},
+            "group": "build"
+        },
+        {
+            "label": "debug neoforge server (no related mods)",
+            "type": "shell",
+            "command": ".\\gradlew.bat",
+            "args": ["-PdmNoRelatedMods=true", ":${input:mcVersion}-neoforge:runServer"],
+            "options": {"cwd": "${workspaceFolder}"},
+            "group": "build"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "mcVersion",
+            "type": "pickString",
+            "description": "Which Minecraft version?",
+            "options": ["1.21.11", "26.1.2"],
+            "default": "1.21.11"
+        }
+    ]
+}

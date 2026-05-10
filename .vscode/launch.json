@@ -1,0 +1,85 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "request": "launch",
+            "name": "debug fabric client",
+            "preLaunchTask": "debug fabric client",
+            "presentation": {
+                "group": "Forget-Me-Crops Debug (client)",
+                "order": 0
+            }
+        },
+        {
+            "type": "java",
+            "request": "launch",
+            "name": "debug fabric client (no related mods)",
+            "preLaunchTask": "debug fabric client (no related mods)",
+            "presentation": {
+                "group": "Forget-Me-Crops Debug (client)",
+                "order": 2
+            }
+        },
+        {
+            "type": "java",
+            "request": "launch",
+            "name": "debug neoforge client",
+            "preLaunchTask": "debug neoforge client",
+            "presentation": {
+                "group": "Forget-Me-Crops Debug (client)",
+                "order": 1
+            }
+        },
+        {
+            "type": "java",
+            "request": "launch",
+            "name": "debug neoforge client (no related mods)",
+            "preLaunchTask": "debug neoforge client (no related mods)",
+            "presentation": {
+                "group": "Forget-Me-Crops Debug (client)",
+                "order": 3
+            }
+        },
+        {
+            "type": "java",
+            "request": "launch",
+            "name": "debug fabric server",
+            "preLaunchTask": "debug fabric server",
+            "presentation": {
+                "group": "Forget-Me-Crops Debug (server)",
+                "order": 0
+            }
+        },
+        {
+            "type": "java",
+            "request": "launch",
+            "name": "debug fabric server (no related mods)",
+            "preLaunchTask": "debug fabric server (no related mods)",
+            "presentation": {
+                "group": "Forget-Me-Crops Debug (server)",
+                "order": 2
+            }
+        },
+        {
+            "type": "java",
+            "request": "launch",
+            "name": "debug neoforge server",
+            "preLaunchTask": "debug neoforge server",
+            "presentation": {
+                "group": "Forget-Me-Crops Debug (server)",
+                "order": 1
+            }
+        },
+        {
+            "type": "java",
+            "request": "launch",
+            "name": "debug neoforge server (no related mods)",
+            "preLaunchTask": "debug neoforge server (no related mods)",
+            "presentation": {
+                "group": "Forget-Me-Crops Debug (server)",
+                "order": 3
+            }
+        }
+    ]
+}
