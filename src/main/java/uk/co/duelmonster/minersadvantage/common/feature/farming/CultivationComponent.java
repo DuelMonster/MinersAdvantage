@@ -1,7 +1,8 @@
 package uk.co.duelmonster.minersadvantage.common.feature.farming;
 
 import uk.co.duelmonster.minersadvantage.common.component.ComponentLifecycle;
-import uk.co.duelmonster.minersadvantage.common.config.CultivationConfig;
+    import uk.co.duelmonster.minersadvantage.common.component.ComponentTickHelper;
+    import uk.co.duelmonster.minersadvantage.common.config.CultivationConfig;
 import uk.co.duelmonster.minersadvantage.common.services.farming.FarmingCoreService;
 
 public final class CultivationComponent implements ComponentLifecycle {
@@ -43,7 +44,16 @@ public final class CultivationComponent implements ComponentLifecycle {
 
     @Override
     public void tick() {
-        // Till action processing via hoe event handlers
+        if (!ComponentTickHelper.shouldExecute(isEnabled())) {
+            return;
+        }
+
+        var context = ComponentTickHelper.getContext();
+        if (context.blockId().contains("dirt") || context.blockId().contains("grass")) {
+            if (service.canHydrate(config.hydrationDistance(), config.hydrationDistance())) {
+                // Cultivate soil with water proximity
+            }
+        }
     }
 
     @Override

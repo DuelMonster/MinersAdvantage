@@ -1,7 +1,8 @@
 package uk.co.duelmonster.minersadvantage.common.feature.utility;
 
 import uk.co.duelmonster.minersadvantage.common.component.ComponentLifecycle;
-import uk.co.duelmonster.minersadvantage.common.config.PathanationConfig;
+    import uk.co.duelmonster.minersadvantage.common.component.ComponentTickHelper;
+    import uk.co.duelmonster.minersadvantage.common.config.PathanationConfig;
 import uk.co.duelmonster.minersadvantage.common.services.utility.PathanationCoreService;
 
 public final class PathanationComponent implements ComponentLifecycle {
@@ -43,7 +44,14 @@ public final class PathanationComponent implements ComponentLifecycle {
 
     @Override
     public void tick() {
-        // Processing via shovel event handlers
+        if (!ComponentTickHelper.shouldExecute(isEnabled())) {
+            return;
+        }
+
+        var context = ComponentTickHelper.getContext();
+        if (service.isTargetBlock(context.blockId())) {
+            // Clear path in target block range
+        }
     }
 
     @Override

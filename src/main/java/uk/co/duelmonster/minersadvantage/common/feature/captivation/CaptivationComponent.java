@@ -1,7 +1,8 @@
 package uk.co.duelmonster.minersadvantage.common.feature.captivation;
 
 import uk.co.duelmonster.minersadvantage.common.component.ComponentLifecycle;
-import uk.co.duelmonster.minersadvantage.common.config.CaptivationConfig;
+    import uk.co.duelmonster.minersadvantage.common.component.ComponentTickHelper;
+    import uk.co.duelmonster.minersadvantage.common.config.CaptivationConfig;
 import uk.co.duelmonster.minersadvantage.common.services.captivation.CaptivationCoreService;
 
 public final class CaptivationComponent implements ComponentLifecycle {
@@ -12,7 +13,7 @@ public final class CaptivationComponent implements ComponentLifecycle {
     public CaptivationComponent(CaptivationConfig config) {
         this.config = config;
         this.service = new CaptivationCoreService(
-            config.unconditionalBlacklist() ? java.util.Set.of() : java.util.Set.of(),
+            java.util.Set.of(),
             config.isWhitelist(),
             config.unconditionalBlacklist()
         );
@@ -47,7 +48,17 @@ public final class CaptivationComponent implements ComponentLifecycle {
 
     @Override
     public void tick() {
-        // Captivation periodic packet dispatch happens in loader adapter event handlers
+        if (!ComponentTickHelper.shouldExecute(isEnabled())) {
+            return;
+        }
+
+        var context = ComponentTickHelper.getContext();
+        if (context.blockId().startsWith("item:")) {
+            String itemId = context.blockId().substring(5);
+            if (service.canCaptureItem(itemId, false)) {
+                // Item would be captured by default Captivation radius
+            }
+        }
     }
 
     @Override

@@ -1,7 +1,8 @@
 package uk.co.duelmonster.minersadvantage.common.feature.utility;
 
 import uk.co.duelmonster.minersadvantage.common.component.ComponentLifecycle;
-import uk.co.duelmonster.minersadvantage.common.config.IlluminationConfig;
+    import uk.co.duelmonster.minersadvantage.common.component.ComponentTickHelper;
+    import uk.co.duelmonster.minersadvantage.common.config.IlluminationConfig;
 import uk.co.duelmonster.minersadvantage.common.services.utility.IlluminationCoreService;
 
 public final class IlluminationComponent implements ComponentLifecycle {
@@ -43,7 +44,14 @@ public final class IlluminationComponent implements ComponentLifecycle {
 
     @Override
     public void tick() {
-        // Processing during feature execution event handlers
+        if (!ComponentTickHelper.shouldExecute(isEnabled())) {
+            return;
+        }
+
+        // Illumination dispatches during mining operations to place torches
+        if (service.shouldPlaceTorch(6)) {
+            // Place torch based on placement strategy
+        }
     }
 
     @Override

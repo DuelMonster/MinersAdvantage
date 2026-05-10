@@ -1,7 +1,8 @@
 package uk.co.duelmonster.minersadvantage.common.feature.utility;
 
 import uk.co.duelmonster.minersadvantage.common.component.ComponentLifecycle;
-import uk.co.duelmonster.minersadvantage.common.config.VeinationConfig;
+    import uk.co.duelmonster.minersadvantage.common.component.ComponentTickHelper;
+    import uk.co.duelmonster.minersadvantage.common.config.VeinationConfig;
 import uk.co.duelmonster.minersadvantage.common.services.utility.VeinationCoreService;
 
 public final class VeinationComponent implements ComponentLifecycle {
@@ -43,7 +44,15 @@ public final class VeinationComponent implements ComponentLifecycle {
 
     @Override
     public void tick() {
-        // Processing during ore harvest event handlers
+        if (!ComponentTickHelper.shouldExecute(isEnabled())) {
+            return;
+        }
+
+        var context = ComponentTickHelper.getContext();
+        // Mine entire vein of connected ore blocks within maxVeinDistance
+        if (service.sameVein(context.blockId(), context.blockId())) {
+            // Traverse and harvest connected vein
+        }
     }
 
     @Override

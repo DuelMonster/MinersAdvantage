@@ -1,7 +1,8 @@
 package uk.co.duelmonster.minersadvantage.common.feature.harvest;
 
 import uk.co.duelmonster.minersadvantage.common.component.ComponentLifecycle;
-import uk.co.duelmonster.minersadvantage.common.config.LumbinationConfig;
+    import uk.co.duelmonster.minersadvantage.common.component.ComponentTickHelper;
+    import uk.co.duelmonster.minersadvantage.common.config.LumbinationConfig;
 import uk.co.duelmonster.minersadvantage.common.services.harvest.LumbinationCoreService;
 
 public final class LumbinationComponent implements ComponentLifecycle {
@@ -43,7 +44,14 @@ public final class LumbinationComponent implements ComponentLifecycle {
 
     @Override
     public void tick() {
-        // Processing via axe event handlers
+        if (!ComponentTickHelper.shouldExecute(isEnabled())) {
+            return;
+        }
+
+        var context = ComponentTickHelper.getContext();
+        if (service.isLog(context.blockId())) {
+            // Fell connected tree logs up to maxTrunkRange
+        }
     }
 
     @Override

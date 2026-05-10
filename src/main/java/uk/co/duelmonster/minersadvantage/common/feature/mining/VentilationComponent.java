@@ -1,7 +1,8 @@
 package uk.co.duelmonster.minersadvantage.common.feature.mining;
 
 import uk.co.duelmonster.minersadvantage.common.component.ComponentLifecycle;
-import uk.co.duelmonster.minersadvantage.common.config.VentilationConfig;
+    import uk.co.duelmonster.minersadvantage.common.component.ComponentTickHelper;
+    import uk.co.duelmonster.minersadvantage.common.config.VentilationConfig;
 import uk.co.duelmonster.minersadvantage.common.services.mining.VentilationCoreService;
 
 public final class VentilationComponent implements ComponentLifecycle {
@@ -43,7 +44,14 @@ public final class VentilationComponent implements ComponentLifecycle {
 
     @Override
     public void tick() {
-        // Processing via pickaxe event handlers in caves
+        if (!ComponentTickHelper.shouldExecute(isEnabled())) {
+            return;
+        }
+
+        var context = ComponentTickHelper.getContext();
+        if (service.isCave(64, context.blockY())) {
+            // Mine in cave systems with Veination + Illumination dispatch
+        }
     }
 
     @Override

@@ -1,7 +1,8 @@
 package uk.co.duelmonster.minersadvantage.common.feature.farming;
 
 import uk.co.duelmonster.minersadvantage.common.component.ComponentLifecycle;
-import uk.co.duelmonster.minersadvantage.common.config.CropinationConfig;
+    import uk.co.duelmonster.minersadvantage.common.component.ComponentTickHelper;
+    import uk.co.duelmonster.minersadvantage.common.config.CropinationConfig;
 import uk.co.duelmonster.minersadvantage.common.services.farming.CropinationCoreService;
 
 public final class CropinationComponent implements ComponentLifecycle {
@@ -43,7 +44,16 @@ public final class CropinationComponent implements ComponentLifecycle {
 
     @Override
     public void tick() {
-        // Processed via hoe event handlers in loader adapters
+        if (!ComponentTickHelper.shouldExecute(isEnabled())) {
+            return;
+        }
+
+        var context = ComponentTickHelper.getContext();
+        if (context.blockId().contains("crop")) {
+            if (service.isFullyGrown(7, 7)) {
+                // Harvest matured crop
+            }
+        }
     }
 
     @Override

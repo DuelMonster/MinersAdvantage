@@ -1,7 +1,8 @@
 package uk.co.duelmonster.minersadvantage.common.feature.mining;
 
 import uk.co.duelmonster.minersadvantage.common.component.ComponentLifecycle;
-import uk.co.duelmonster.minersadvantage.common.config.ExcavationConfig;
+    import uk.co.duelmonster.minersadvantage.common.component.ComponentTickHelper;
+    import uk.co.duelmonster.minersadvantage.common.config.ExcavationConfig;
 import uk.co.duelmonster.minersadvantage.common.services.mining.ExcavationCoreService;
 
 public final class ExcavationComponent implements ComponentLifecycle {
@@ -43,7 +44,18 @@ public final class ExcavationComponent implements ComponentLifecycle {
 
     @Override
     public void tick() {
-        // Processing via shovel event handlers
+        if (!ComponentTickHelper.shouldExecute(isEnabled())) {
+            return;
+        }
+
+        var context = ComponentTickHelper.getContext();
+        if (service.isBlock(context.blockId())) {
+            if (service.isOre(context.blockId())) {
+                // Harvest ore with Veination dispatch
+            } else {
+                // Excavate common blocks
+            }
+        }
     }
 
     @Override

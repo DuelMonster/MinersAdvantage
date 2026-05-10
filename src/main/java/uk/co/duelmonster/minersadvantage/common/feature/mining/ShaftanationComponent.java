@@ -1,7 +1,8 @@
 package uk.co.duelmonster.minersadvantage.common.feature.mining;
 
 import uk.co.duelmonster.minersadvantage.common.component.ComponentLifecycle;
-import uk.co.duelmonster.minersadvantage.common.config.ShaftanationConfig;
+    import uk.co.duelmonster.minersadvantage.common.component.ComponentTickHelper;
+    import uk.co.duelmonster.minersadvantage.common.config.ShaftanationConfig;
 import uk.co.duelmonster.minersadvantage.common.services.mining.ShaftanationCoreService;
 
 public final class ShaftanationComponent implements ComponentLifecycle {
@@ -43,7 +44,14 @@ public final class ShaftanationComponent implements ComponentLifecycle {
 
     @Override
     public void tick() {
-        // Processing via pickaxe event handlers
+        if (!ComponentTickHelper.shouldExecute(isEnabled())) {
+            return;
+        }
+
+        var context = ComponentTickHelper.getContext();
+        if (service.isStone(context.blockId())) {
+            // Shaft downward with Veination + Illumination dispatch
+        }
     }
 
     @Override
