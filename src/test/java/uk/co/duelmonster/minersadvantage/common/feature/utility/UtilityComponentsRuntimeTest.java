@@ -26,12 +26,26 @@ class UtilityComponentsRuntimeTest {
         IlluminationComponent component = new IlluminationComponent(new IlluminationConfig(true, 2, 1));
         component.register();
         component.enable();
-        FeatureDispatchBus.setContext(new FeatureDispatchContext(FeatureId.ILLUMINATION, 10, 34, 11, "minecraft:stone", "pickaxe", 1L));
+        FeatureDispatchBus.setContext(new FeatureDispatchContext(FeatureId.ILLUMINATION, 10, 34, 11, "minecraft:stone", "torch_manual_left", 1L));
 
         component.tick();
 
         assertNotNull(component.lastDecision());
         assertTrue(component.lastDecision().placeNow());
+        assertTrue(component.lastDecision().manualMode());
+    }
+
+    @Test
+    void illuminationReportsInventoryDepletionWhenTorchSupplyIsEmpty() {
+        IlluminationComponent component = new IlluminationComponent(new IlluminationConfig(true, 2, 1));
+        component.register();
+        component.enable();
+        FeatureDispatchBus.setContext(new FeatureDispatchContext(FeatureId.ILLUMINATION, 10, 33, 10, "minecraft:stone", "torch_manual_both_empty", 1L));
+
+        component.tick();
+
+        assertTrue(component.lastDecision().inventoryDepleted());
+        assertFalse(component.lastDecision().placeNow());
     }
 
     @Test
@@ -71,5 +85,22 @@ class UtilityComponentsRuntimeTest {
         component.tick();
 
         assertEquals("silk_pick", component.lastSelectedToolId());
+    }
+
+    @Test
+    void substitutionSwitchesToCombatToolAndBackToPrimary() {
+        SubstitutionComponent component = new SubstitutionComponent(new SubstitutionConfig(true, true, false));
+        component.register();
+        component.enable();
+
+        FeatureDispatchBus.setContext(new FeatureDispatchContext(FeatureId.SUBSTITUTION, 1, 30, 1, "entity:zombie", "pickaxe", 4L));
+        component.tick();
+        assertEquals("battle_blade", component.lastSelectedToolId());
+        assertEquals("combat", component.lastDecision().mode());
+
+        FeatureDispatchBus.setContext(new FeatureDispatchContext(FeatureId.SUBSTITUTION, 1, 30, 1, "minecraft:stone", "pickaxe", 4L));
+        component.tick();
+        assertEquals("pickaxe", component.lastSelectedToolId());
+        assertTrue(component.lastDecision().switchBackToPrimary());
     }
 }

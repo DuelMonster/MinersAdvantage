@@ -36,20 +36,32 @@ class IlluminationCoreServiceTest {
     void createsDecisionForDarkAreas() {
         IlluminationCoreService service = new IlluminationCoreService();
         IlluminationCoreService.IlluminationDecision decision =
-            service.decidePlacement(4, true, false, 2, 1);
+            service.decidePlacement(4, true, false, 2, 1, "torch_manual_left");
 
         assertTrue(decision.placeNow());
         assertEquals(TorchPlacement.LEFT_WALL, decision.placement());
         assertTrue(decision.plannedTorches() > 0);
+        assertTrue(decision.manualMode());
     }
 
     @Test
     void skipsPlacementWhenBrightEnough() {
         IlluminationCoreService service = new IlluminationCoreService();
         IlluminationCoreService.IlluminationDecision decision =
-            service.decidePlacement(12, true, true, 2, 2);
+            service.decidePlacement(12, true, true, 2, 2, "torch");
 
         assertFalse(decision.placeNow());
+        assertEquals(0, decision.plannedTorches());
+    }
+
+    @Test
+    void flagsInventoryDepletionWhenTorchSupplyRunsOut() {
+        IlluminationCoreService service = new IlluminationCoreService();
+        IlluminationCoreService.IlluminationDecision decision =
+            service.decidePlacement(3, true, true, 2, 2, "torch_manual_both_empty");
+
+        assertFalse(decision.placeNow());
+        assertTrue(decision.inventoryDepleted());
         assertEquals(0, decision.plannedTorches());
     }
 }
