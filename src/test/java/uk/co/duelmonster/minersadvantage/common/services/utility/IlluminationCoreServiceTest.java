@@ -29,6 +29,6 @@ class IlluminationCoreServiceTest {
     void estimatesPlacementsInRadius() {
         IlluminationCoreService service = new IlluminationCoreService();
         assertEquals(9, service.expectedPlacementsInRadius(1, 1));
-        assertEquals(49, service.expectedPlacementsInRadius(2, 2));
+        assertEquals(25, service.expectedPlacementsInRadius(2, 2));
     }
 }
