@@ -28,6 +28,7 @@ import uk.co.duelmonster.minersadvantage.common.feature.utility.IlluminationComp
 import uk.co.duelmonster.minersadvantage.common.feature.utility.PathanationComponent;
 import uk.co.duelmonster.minersadvantage.common.feature.utility.SubstitutionComponent;
 import uk.co.duelmonster.minersadvantage.common.feature.utility.VeinationComponent;
+import uk.co.duelmonster.minersadvantage.common.network.AbortWorkersPacket;
 import uk.co.duelmonster.minersadvantage.common.services.core.PlayerStateService;
 import uk.co.duelmonster.minersadvantage.common.services.core.ServerTickOrchestrator;
 import uk.co.duelmonster.minersadvantage.common.services.processing.WorkerRuntimeService;
@@ -159,5 +160,9 @@ public final class MinersAdvantageCore {
 
     public WorkerRuntimeService workerRuntimeService() {
         return tickOrchestrator.workerRuntimeService();
+    }
+
+    public WorkerRuntimeService.AbortResult handleAbortPacket(AbortWorkersPacket packet) {
+        return workerRuntimeService().abortAllForPlayerWithStats(packet.playerId());
     }
 }

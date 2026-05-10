@@ -11,6 +11,7 @@ import uk.co.duelmonster.minersadvantage.common.services.drop.DropCoreService;
 
 public final class WorkerRuntimeService {
     public record WorkerHandle(UUID workerId, long playerId, FeatureId feature) {}
+    public record AbortResult(int cancelledWorkers, int flushedDrops) {}
 
     public record WorkerTickResult(int processedActions, int completedWorkers, int pausedWorkers, int flushedDrops) {}
 
@@ -76,6 +77,17 @@ public final class WorkerRuntimeService {
             flushed.addAll(abortWorker(workerId));
         }
         return flushed;
+    }
+
+    public AbortResult abortAllForPlayerWithStats(long playerId) {
+        int cancelledWorkers = 0;
+        for (ActiveWorker worker : workers.values()) {
+            if (worker.handle.playerId() == playerId) {
+                cancelledWorkers++;
+            }
+        }
+        List<DropCoreService.CapturedDrop> flushed = abortAllForPlayer(playerId);
+        return new AbortResult(cancelledWorkers, flushed.size());
     }
 
     public WorkerTickResult tick(boolean tpsGuardActive) {
