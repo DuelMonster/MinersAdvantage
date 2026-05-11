@@ -15,14 +15,7 @@ import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-//?} else {
-/*import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;*/ //?}
 
-//? if fabric {
 public final class ModEntry implements ModInitializer {
     private final MinersAdvantageCore core = new MinersAdvantageCore();
     private final ToolEventHandler toolEvents = new CommonEventHandlerImpl(core);
@@ -81,7 +74,14 @@ public final class ModEntry implements ModInitializer {
     }
 }
 //?} else {
-/*@Mod("minersadvantage")
+/*
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+
+@Mod("minersadvantage")
 public final class ModEntry {
     private final MinersAdvantageCore core = new MinersAdvantageCore();
     private final ToolEventHandler toolEvents = new CommonEventHandlerImpl(core);
@@ -139,4 +139,5 @@ public final class ModEntry {
             toolEvents.onAxeUse(pos.getX(), pos.getY(), pos.getZ(), blockId);
         }
     }
-}*/ //?}
+}
+*/ //?}
