@@ -31,11 +31,11 @@ This repository is a source-driven rewrite of Miners Advantage with a hard reset
 - chiseledPublishAll
 - chiseledPackageRelease
 
-## Modernization Progress & Known Gaps
+## Modernization Progress
 
 ### Current Status (v0.3.0)
 
-As of 2026-05-11, comprehensive parity audit identified critical gaps in runtime wiring across six areas:
+As of 2026-05-11, milestone execution and verification gates confirm parity wiring across six areas:
 
 1. **Bootstrap** — Both Fabric and NeoForge now bootstrap MinersAdvantageCore across all nodes
 2. **Client Input** — Keybindings are registered and client tick polling is wired; input-driven toggle and abort packets now traverse the transport layer
@@ -48,7 +48,7 @@ For detailed source-level traceability and migration tasks, see [Parity Traceabi
 
 ### Modernization Plan
 
-All gaps are being systematically addressed via 9-phase governance-enforced milestone plan (started 2026-05-11):
+The 9-phase governance-enforced milestone plan (started 2026-05-11) is now complete:
 
 - M1: Baseline & governance setup
 - M2: Bootstrap completion (NeoForge + Fabric client)

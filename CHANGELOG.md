@@ -1,13 +1,8 @@
-## 0.3.0 (In Progress)
+## 0.3.0
 
-**Note:** This version is currently under migration. Status: Baseline audit complete (M1); implementation underway (M2-M9). 
+Phase 3 parity rewrite is complete across all four nodes with documentation and verification signoff.
 
-**Migration Tracking:**
-- Add parity baseline traceability matrix mapping all implementation gaps to legacy references ([.brainbox/plans/traceability-migration-parity.md](.brainbox/plans/traceability-migration-parity.md))
-- Update project status to reflect known gaps in bootstrap, client input, server events, networking, config UI, and assets
-- Begin Phase 3 parity rewrite migration (9-phase governance-enforced plan)
-
-**When Complete (M9):**
+**Milestone Completion:**
 - ✅ M1: Traceability audit complete - Baseline matrix created
 - ✅ M2: Bootstrap complete - Both loaders initialize MinersAdvantageCore
 - ✅ M3: Keybindings & Client Input complete - Fabric and NeoForge client input wired across all four nodes
