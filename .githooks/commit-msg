@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# Git commit message validation hook for semantic commits
+# Validates that commit messages follow the format: TYPE: subject
+# where TYPE is one of: ✨feature, 🐞fix, ⛏minor, 🎨style, ♻️refactor, 🚧wip, 📝docs, ✅test, 👷build, 🔁merge, 🧹chore
+
+COMMIT_MSG_FILE=$1
+COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
+COMMIT_SUBJECT=$(head -n1 "$COMMIT_MSG_FILE")
+
+# Regex pattern for valid commit types with emoji
+VALID_PATTERN="^(✨feature|🐞fix|⛏minor|🎨style|♻️refactor|🚧wip|📝docs|✅test|👷build|🔁merge|🧹chore): .{1,65}$"
+
+if ! [[ $COMMIT_SUBJECT =~ $VALID_PATTERN ]]; then
+    echo ""
+    echo "❌ ERROR: Invalid commit message format"
+    echo ""
+    echo "Your commit message:"
+    echo "  $COMMIT_SUBJECT"
+    echo ""
+    echo "✨ Valid semantic commit types:"
+    echo "  ✨feature  - Adding additional functionality"
+    echo "  🐞fix      - Defect fixes"
+    echo "  ⛏minor    - Small changes to existing code"
+    echo "  🎨style    - Changes affecting styling only"
+    echo "  ♻️refactor  - Code changes without functional changes"
+    echo "  🚧wip      - Code in an unfinished state"
+    echo "  📝docs     - Documentation updates"
+    echo "  ✅test     - Unit tests"
+    echo "  👷build    - Build system and package dependencies"
+    echo "  🔁merge    - Manual branch merges"
+    echo "  🧹chore    - Routine tasks and housekeeping"
+    echo ""
+    echo "📝 Format: TYPE: subject (max 65 chars)"
+    echo "   Example: ♻️refactor: simplify harvest logic"
+    echo ""
+    exit 1
+fi
+
+exit 0

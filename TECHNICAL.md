@@ -8,6 +8,20 @@ This repository is a source-driven rewrite of Miners Advantage with a hard reset
 - no compatibility adapters for old config formats
 - shared reusable logic extracted into common services
 
+## Build Instructions
+
+Run all-node verification from repository root:
+
+```bash
+./gradlew chiseledBuild
+```
+
+For a single active Stonecutter node, set the active version and run:
+
+```bash
+./gradlew build
+```
+
 ## Build System
 
 ### Core stack

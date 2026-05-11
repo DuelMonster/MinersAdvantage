@@ -2,6 +2,47 @@
 
 Miners Advantage has been modernized into a multi-loader project that keeps legacy gameplay behavior while replacing legacy build and architecture foundations.
 
+## Overview
+
+Miners Advantage is a utility mod suite focused on making repetitive mining and farming workflows faster and more consistent while preserving familiar behavior across supported loaders.
+
+## Features
+
+- Multi-loader support for Fabric and NeoForge.
+- Descriptor-driven component architecture for maintainable feature wiring.
+- Shared service modules for policy, synchronization, harvesting, farming, and utility flows.
+- Deterministic unit-test coverage across parity-critical behavior.
+
+## How It Works
+
+The rewrite uses a common core for gameplay logic and thin loader adapters for platform-specific bootstrap, networking registration, and event wiring.
+
+## Supported Crops
+
+Crop behavior and runtime planning are covered by shared farming and harvest services designed for parity with legacy behavior.
+
+## Installation
+
+### Fabric
+
+Install Fabric Loader for a supported Minecraft version, then place the Miners Advantage Fabric jar in the mods folder.
+
+### NeoForge
+
+Install NeoForge for a supported Minecraft version, then place the Miners Advantage NeoForge jar in the mods folder.
+
+## Configuration
+
+Configuration is managed through the modern shared config model and synced feature settings, with loader-specific screen registration for in-game access.
+
+## Compatibility
+
+Miners Advantage is designed to remain compatible with FastItemFrames and other common quality-of-life client/server stacks where feature overlap does not conflict.
+
+## Technical Documentation
+
+See [TECHNICAL.md](TECHNICAL.md) for implementation details, architecture, and build internals.
+
 ## Modernization Status
 
 | Phase | Status | Notes |
@@ -43,7 +84,7 @@ Shared modules introduced in this rewrite:
 - sync-core
 - policy-core
 
-For deeper implementation details, see TECHNICAL.md.
+For deeper implementation details, see [TECHNICAL.md](TECHNICAL.md).
 
 Final strict traceability mapping is documented in [.brainbox/plans/traceability-final-audit.md](.brainbox/plans/traceability-final-audit.md).
 

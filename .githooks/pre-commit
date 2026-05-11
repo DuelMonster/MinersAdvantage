@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(git rev-parse --show-toplevel)"
+docs_script="$repo_root/scripts/validate-docs.sh"
+opt_script="$repo_root/scripts/validate-optimization-pass.sh"
+changelog_script="$repo_root/scripts/validate-changelog.sh"
+
+if [[ ! -f "$docs_script" ]]; then
+  echo "Missing docs validator: scripts/validate-docs.sh"
+  exit 1
+fi
+
+if [[ ! -f "$opt_script" ]]; then
+  echo "Missing optimization validator: scripts/validate-optimization-pass.sh"
+  exit 1
+fi
+
+if [[ ! -f "$changelog_script" ]]; then
+  echo "Missing changelog validator: scripts/validate-changelog.sh"
+  exit 1
+fi
+
+if [[ ! -x "$docs_script" ]]; then
+  chmod +x "$docs_script" 2>/dev/null || true
+fi
+
+if [[ ! -x "$opt_script" ]]; then
+  chmod +x "$opt_script" 2>/dev/null || true
+fi
+
+if [[ ! -x "$changelog_script" ]]; then
+  chmod +x "$changelog_script" 2>/dev/null || true
+fi
+
+"$docs_script"
+"$opt_script"
+"$changelog_script"
