@@ -12,22 +12,37 @@ public record ComponentTogglePacket(
     FeatureId feature,
     boolean enabled
 ) implements CustomPacketPayload {
-    @SuppressWarnings("unchecked")
-    private static final StreamCodec<RegistryFriendlyByteBuf, FeatureId> FEATURE_CODEC =
-        (StreamCodec<RegistryFriendlyByteBuf, FeatureId>) (StreamCodec<?, FeatureId>) ByteBufCodecs.STRING_UTF8.map(FeatureId::valueOf, FeatureId::name);
-
-    public static final Type<ComponentTogglePacket> TYPE = payloadId("component_toggle");
-    public static final StreamCodec<RegistryFriendlyByteBuf, ComponentTogglePacket> STREAM_CODEC = StreamCodec.composite(
-        FEATURE_CODEC,
-        ComponentTogglePacket::feature,
-        ByteBufCodecs.BOOL,
-        ComponentTogglePacket::enabled,
-        ComponentTogglePacket::new
-    );
+    public static final Type<ComponentTogglePacket> TYPE = createType();
+    public static final StreamCodec<RegistryFriendlyByteBuf, ComponentTogglePacket> STREAM_CODEC = createStreamCodec();
 
     @Override
     public Type<? extends CustomPacketPayload> type() {
         return TYPE;
+    }
+
+    private static Type<ComponentTogglePacket> createType() {
+        try {
+            return payloadId("component_toggle");
+        } catch (Throwable ignored) {
+            return null;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static StreamCodec<RegistryFriendlyByteBuf, ComponentTogglePacket> createStreamCodec() {
+        try {
+            StreamCodec<RegistryFriendlyByteBuf, FeatureId> featureCodec =
+                (StreamCodec<RegistryFriendlyByteBuf, FeatureId>) (StreamCodec<?, FeatureId>) ByteBufCodecs.STRING_UTF8.map(FeatureId::valueOf, FeatureId::name);
+            return StreamCodec.composite(
+                featureCodec,
+                ComponentTogglePacket::feature,
+                ByteBufCodecs.BOOL,
+                ComponentTogglePacket::enabled,
+                ComponentTogglePacket::new
+            );
+        } catch (Throwable ignored) {
+            return null;
+        }
     }
 
     @SuppressWarnings("unchecked")

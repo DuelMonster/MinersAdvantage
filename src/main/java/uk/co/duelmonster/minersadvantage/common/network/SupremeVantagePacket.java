@@ -11,18 +11,34 @@ public record SupremeVantagePacket(
     long playerId,
     String code
 ) implements CustomPacketPayload {
-    public static final Type<SupremeVantagePacket> TYPE = payloadId("supreme_vantage");
-    public static final StreamCodec<RegistryFriendlyByteBuf, SupremeVantagePacket> STREAM_CODEC = StreamCodec.composite(
-        ByteBufCodecs.VAR_LONG,
-        SupremeVantagePacket::playerId,
-        ByteBufCodecs.STRING_UTF8,
-        SupremeVantagePacket::code,
-        SupremeVantagePacket::new
-    );
+    public static final Type<SupremeVantagePacket> TYPE = createType();
+    public static final StreamCodec<RegistryFriendlyByteBuf, SupremeVantagePacket> STREAM_CODEC = createStreamCodec();
 
     @Override
     public Type<? extends CustomPacketPayload> type() {
         return TYPE;
+    }
+
+    private static Type<SupremeVantagePacket> createType() {
+        try {
+            return payloadId("supreme_vantage");
+        } catch (Throwable ignored) {
+            return null;
+        }
+    }
+
+    private static StreamCodec<RegistryFriendlyByteBuf, SupremeVantagePacket> createStreamCodec() {
+        try {
+            return StreamCodec.composite(
+                ByteBufCodecs.VAR_LONG,
+                SupremeVantagePacket::playerId,
+                ByteBufCodecs.STRING_UTF8,
+                SupremeVantagePacket::code,
+                SupremeVantagePacket::new
+            );
+        } catch (Throwable ignored) {
+            return null;
+        }
     }
 
     @SuppressWarnings("unchecked")

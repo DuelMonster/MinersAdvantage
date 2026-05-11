@@ -57,8 +57,8 @@ All gaps are being systematically addressed via 9-phase governance-enforced mile
 - M5: Server events & dispatch (completed)
 - M6: Config UI (YACL + ModMenu + NeoForge) (completed)
 - M7: Assets & localization (completed)
-- M8: Documentation signoff
-- M9: Verification & regression gate
+- M8: Documentation signoff (completed)
+- M9: Verification & regression gate (completed; outstanding networking parity remains tracked under M4)
 
 All commits follow semantic commit standards, CHANGELOG discipline, version bump rules, and optimization passes. Each milestone has explicit governance gates.
 

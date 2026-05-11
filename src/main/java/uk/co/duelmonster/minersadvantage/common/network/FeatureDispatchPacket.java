@@ -16,30 +16,45 @@ public record FeatureDispatchPacket(
     String blockId,
     String toolId
 ) implements CustomPacketPayload {
-    @SuppressWarnings("unchecked")
-    private static final StreamCodec<RegistryFriendlyByteBuf, FeatureId> FEATURE_CODEC =
-        (StreamCodec<RegistryFriendlyByteBuf, FeatureId>) (StreamCodec<?, FeatureId>) ByteBufCodecs.STRING_UTF8.map(FeatureId::valueOf, FeatureId::name);
-
-    public static final Type<FeatureDispatchPacket> TYPE = payloadId("feature_dispatch");
-    public static final StreamCodec<RegistryFriendlyByteBuf, FeatureDispatchPacket> STREAM_CODEC = StreamCodec.composite(
-        FEATURE_CODEC,
-        FeatureDispatchPacket::feature,
-        ByteBufCodecs.VAR_INT,
-        FeatureDispatchPacket::blockX,
-        ByteBufCodecs.VAR_INT,
-        FeatureDispatchPacket::blockY,
-        ByteBufCodecs.VAR_INT,
-        FeatureDispatchPacket::blockZ,
-        ByteBufCodecs.STRING_UTF8,
-        FeatureDispatchPacket::blockId,
-        ByteBufCodecs.STRING_UTF8,
-        FeatureDispatchPacket::toolId,
-        FeatureDispatchPacket::new
-    );
+    public static final Type<FeatureDispatchPacket> TYPE = createType();
+    public static final StreamCodec<RegistryFriendlyByteBuf, FeatureDispatchPacket> STREAM_CODEC = createStreamCodec();
 
     @Override
     public Type<? extends CustomPacketPayload> type() {
         return TYPE;
+    }
+
+    private static Type<FeatureDispatchPacket> createType() {
+        try {
+            return payloadId("feature_dispatch");
+        } catch (Throwable ignored) {
+            return null;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static StreamCodec<RegistryFriendlyByteBuf, FeatureDispatchPacket> createStreamCodec() {
+        try {
+            StreamCodec<RegistryFriendlyByteBuf, FeatureId> featureCodec =
+                (StreamCodec<RegistryFriendlyByteBuf, FeatureId>) (StreamCodec<?, FeatureId>) ByteBufCodecs.STRING_UTF8.map(FeatureId::valueOf, FeatureId::name);
+            return StreamCodec.composite(
+                featureCodec,
+                FeatureDispatchPacket::feature,
+                ByteBufCodecs.VAR_INT,
+                FeatureDispatchPacket::blockX,
+                ByteBufCodecs.VAR_INT,
+                FeatureDispatchPacket::blockY,
+                ByteBufCodecs.VAR_INT,
+                FeatureDispatchPacket::blockZ,
+                ByteBufCodecs.STRING_UTF8,
+                FeatureDispatchPacket::blockId,
+                ByteBufCodecs.STRING_UTF8,
+                FeatureDispatchPacket::toolId,
+                FeatureDispatchPacket::new
+            );
+        } catch (Throwable ignored) {
+            return null;
+        }
     }
 
     @SuppressWarnings("unchecked")

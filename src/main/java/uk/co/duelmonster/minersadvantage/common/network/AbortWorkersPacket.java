@@ -11,18 +11,34 @@ public record AbortWorkersPacket(
     long playerId,
     String source
 ) implements CustomPacketPayload {
-    public static final Type<AbortWorkersPacket> TYPE = payloadId("abort_workers");
-    public static final StreamCodec<RegistryFriendlyByteBuf, AbortWorkersPacket> STREAM_CODEC = StreamCodec.composite(
-        ByteBufCodecs.VAR_LONG,
-        AbortWorkersPacket::playerId,
-        ByteBufCodecs.STRING_UTF8,
-        AbortWorkersPacket::source,
-        AbortWorkersPacket::new
-    );
+    public static final Type<AbortWorkersPacket> TYPE = createType();
+    public static final StreamCodec<RegistryFriendlyByteBuf, AbortWorkersPacket> STREAM_CODEC = createStreamCodec();
 
     @Override
     public Type<? extends CustomPacketPayload> type() {
         return TYPE;
+    }
+
+    private static Type<AbortWorkersPacket> createType() {
+        try {
+            return payloadId("abort_workers");
+        } catch (Throwable ignored) {
+            return null;
+        }
+    }
+
+    private static StreamCodec<RegistryFriendlyByteBuf, AbortWorkersPacket> createStreamCodec() {
+        try {
+            return StreamCodec.composite(
+                ByteBufCodecs.VAR_LONG,
+                AbortWorkersPacket::playerId,
+                ByteBufCodecs.STRING_UTF8,
+                AbortWorkersPacket::source,
+                AbortWorkersPacket::new
+            );
+        } catch (Throwable ignored) {
+            return null;
+        }
     }
 
     @SuppressWarnings("unchecked")

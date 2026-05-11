@@ -18,27 +18,43 @@ public record PlayerStateSyncPacket(
 ) implements CustomPacketPayload {
     private static final Gson GSON = new Gson();
 
-    public static final Type<PlayerStateSyncPacket> TYPE = payloadId("player_state_sync");
-    public static final StreamCodec<RegistryFriendlyByteBuf, PlayerStateSyncPacket> STREAM_CODEC = StreamCodec.composite(
-        ByteBufCodecs.VAR_LONG,
-        PlayerStateSyncPacket::playerId,
-        ByteBufCodecs.STRING_UTF8,
-        packet -> GSON.toJson(packet.clientConfig()),
-        ByteBufCodecs.STRING_UTF8,
-        packet -> GSON.toJson(packet.serverConfig()),
-        ByteBufCodecs.STRING_UTF8,
-        packet -> GSON.toJson(packet.serverOverrides()),
-        (playerId, clientJson, serverJson, overridesJson) -> new PlayerStateSyncPacket(
-            playerId,
-            GSON.fromJson(clientJson, SyncedClientConfig.class),
-            GSON.fromJson(serverJson, SyncedClientConfig.class),
-            GSON.fromJson(overridesJson, ServerOverridesConfig.class)
-        )
-    );
+    public static final Type<PlayerStateSyncPacket> TYPE = createType();
+    public static final StreamCodec<RegistryFriendlyByteBuf, PlayerStateSyncPacket> STREAM_CODEC = createStreamCodec();
 
     @Override
     public Type<? extends CustomPacketPayload> type() {
         return TYPE;
+    }
+
+    private static Type<PlayerStateSyncPacket> createType() {
+        try {
+            return payloadId("player_state_sync");
+        } catch (Throwable ignored) {
+            return null;
+        }
+    }
+
+    private static StreamCodec<RegistryFriendlyByteBuf, PlayerStateSyncPacket> createStreamCodec() {
+        try {
+            return StreamCodec.composite(
+                ByteBufCodecs.VAR_LONG,
+                PlayerStateSyncPacket::playerId,
+                ByteBufCodecs.STRING_UTF8,
+                packet -> GSON.toJson(packet.clientConfig()),
+                ByteBufCodecs.STRING_UTF8,
+                packet -> GSON.toJson(packet.serverConfig()),
+                ByteBufCodecs.STRING_UTF8,
+                packet -> GSON.toJson(packet.serverOverrides()),
+                (playerId, clientJson, serverJson, overridesJson) -> new PlayerStateSyncPacket(
+                    playerId,
+                    GSON.fromJson(clientJson, SyncedClientConfig.class),
+                    GSON.fromJson(serverJson, SyncedClientConfig.class),
+                    GSON.fromJson(overridesJson, ServerOverridesConfig.class)
+                )
+            );
+        } catch (Throwable ignored) {
+            return null;
+        }
     }
 
     @SuppressWarnings("unchecked")
