@@ -1,6 +1,6 @@
 # Miners Advantage
 
-Miners Advantage is being rewritten as a modern, multi-loader project that keeps legacy gameplay behavior while replacing legacy build and architecture foundations.
+Miners Advantage has been modernized into a multi-loader project that keeps legacy gameplay behavior while replacing legacy build and architecture foundations.
 
 ## Modernization Status
 
