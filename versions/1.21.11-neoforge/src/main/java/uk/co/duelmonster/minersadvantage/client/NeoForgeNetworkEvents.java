@@ -8,6 +8,7 @@ import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import uk.co.duelmonster.minersadvantage.common.MinersAdvantageCore;
 import uk.co.duelmonster.minersadvantage.common.network.AbortWorkersPacket;
 import uk.co.duelmonster.minersadvantage.common.network.ComponentTogglePacket;
+import uk.co.duelmonster.minersadvantage.common.network.PlayerStateSyncPacket;
 
 @EventBusSubscriber(modid = "minersadvantage")
 public final class NeoForgeNetworkEvents {
@@ -25,6 +26,7 @@ public final class NeoForgeNetworkEvents {
         PayloadRegistrar registrar = event.registrar("1");
         registrar.playToServer(ComponentTogglePacket.TYPE, ComponentTogglePacket.STREAM_CODEC, NeoForgeNetworkEvents::handleComponentTogglePacket);
         registrar.playToServer(AbortWorkersPacket.TYPE, AbortWorkersPacket.STREAM_CODEC, NeoForgeNetworkEvents::handleAbortWorkersPacket);
+        registrar.playToServer(PlayerStateSyncPacket.TYPE, PlayerStateSyncPacket.STREAM_CODEC, NeoForgeNetworkEvents::handlePlayerStateSyncPacket);
     }
 
     private static void handleComponentTogglePacket(ComponentTogglePacket payload, IPayloadContext context) {
@@ -33,5 +35,9 @@ public final class NeoForgeNetworkEvents {
 
     private static void handleAbortWorkersPacket(AbortWorkersPacket payload, IPayloadContext context) {
         core.handleAbortPacket(payload);
+    }
+
+    private static void handlePlayerStateSyncPacket(PlayerStateSyncPacket payload, IPayloadContext context) {
+        core.handlePlayerStateSyncPacket(payload);
     }
 }

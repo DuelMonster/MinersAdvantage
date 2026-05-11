@@ -15,8 +15,11 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import uk.co.duelmonster.minersadvantage.common.config.ServerOverridesConfig;
+import uk.co.duelmonster.minersadvantage.common.config.SyncedClientConfig;
 import uk.co.duelmonster.minersadvantage.common.network.AbortWorkersPacket;
 import uk.co.duelmonster.minersadvantage.common.network.ComponentTogglePacket;
+import uk.co.duelmonster.minersadvantage.common.network.PlayerStateSyncPacket;
 import uk.co.duelmonster.minersadvantage.common.services.input.ClientInputService;
 
 /**
@@ -75,6 +78,21 @@ public final class NeoForgeClientEvents {
                 playerId = minecraft.player.getUUID().getLeastSignificantBits();
             }
             ClientPacketDistributor.sendToServer(new AbortWorkersPacket(playerId, "client:keybind"));
+        }
+
+        if (!pressed.isEmpty() && (result.shouldSyncConfig() || result.shouldSyncVariables())) {
+            long playerId = 0L;
+            Minecraft minecraft = Minecraft.getInstance();
+            if (minecraft.player != null) {
+                playerId = minecraft.player.getUUID().getLeastSignificantBits();
+            }
+            SyncedClientConfig defaults = SyncedClientConfig.defaults();
+            ClientPacketDistributor.sendToServer(new PlayerStateSyncPacket(
+                playerId,
+                defaults,
+                defaults,
+                new ServerOverridesConfig()
+            ));
         }
     }
 

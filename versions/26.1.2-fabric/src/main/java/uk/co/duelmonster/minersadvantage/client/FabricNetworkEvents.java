@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import uk.co.duelmonster.minersadvantage.common.MinersAdvantageCore;
 import uk.co.duelmonster.minersadvantage.common.network.AbortWorkersPacket;
 import uk.co.duelmonster.minersadvantage.common.network.ComponentTogglePacket;
+import uk.co.duelmonster.minersadvantage.common.network.PlayerStateSyncPacket;
 
 public final class FabricNetworkEvents {
     private static boolean payloadTypesRegistered;
@@ -25,6 +26,7 @@ public final class FabricNetworkEvents {
         }
         registerPlayToServer(ComponentTogglePacket.TYPE, ComponentTogglePacket.STREAM_CODEC);
         registerPlayToServer(AbortWorkersPacket.TYPE, AbortWorkersPacket.STREAM_CODEC);
+        registerPlayToServer(PlayerStateSyncPacket.TYPE, PlayerStateSyncPacket.STREAM_CODEC);
         payloadTypesRegistered = true;
     }
 
@@ -37,7 +39,16 @@ public final class FabricNetworkEvents {
                 registryMethod = PayloadTypeRegistry.class.getMethod("serverboundPlay");
             }
             Object registry = registryMethod.invoke(null);
-            Method registerMethod = registry.getClass().getMethod("register", type.getClass(), codec.getClass());
+            Method registerMethod = null;
+            for (Method candidate : registry.getClass().getMethods()) {
+                if (candidate.getName().equals("register") && candidate.getParameterCount() == 2) {
+                    registerMethod = candidate;
+                    break;
+                }
+            }
+            if (registerMethod == null) {
+                throw new NoSuchMethodException("Payload registry register(type, codec) method not found");
+            }
             registerMethod.invoke(registry, type, codec);
         } catch (ReflectiveOperationException exception) {
             throw new IllegalStateException("Unable to register Fabric payload types", exception);
@@ -50,6 +61,7 @@ public final class FabricNetworkEvents {
         }
         ServerPlayNetworking.registerGlobalReceiver(ComponentTogglePacket.TYPE, (payload, context) -> context.server().execute(() -> core.handleComponentTogglePacket(payload)));
         ServerPlayNetworking.registerGlobalReceiver(AbortWorkersPacket.TYPE, (payload, context) -> context.server().execute(() -> core.handleAbortPacket(payload)));
+        ServerPlayNetworking.registerGlobalReceiver(PlayerStateSyncPacket.TYPE, (payload, context) -> context.server().execute(() -> core.handlePlayerStateSyncPacket(payload)));
         serverHandlersRegistered = true;
     }
 }

@@ -5,8 +5,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.lang.reflect.Method;
 import java.util.Set;
+import uk.co.duelmonster.minersadvantage.common.config.ServerOverridesConfig;
+import uk.co.duelmonster.minersadvantage.common.config.SyncedClientConfig;
 import uk.co.duelmonster.minersadvantage.common.network.AbortWorkersPacket;
 import uk.co.duelmonster.minersadvantage.common.network.ComponentTogglePacket;
+import uk.co.duelmonster.minersadvantage.common.network.PlayerStateSyncPacket;
 import uk.co.duelmonster.minersadvantage.common.services.input.ClientInputService;
 
 //? if fabric {
@@ -152,6 +155,21 @@ public final class ClientInputHandler {
                 playerId = playerClient.player.getUUID().getLeastSignificantBits();
             }
             ClientPlayNetworking.send(new AbortWorkersPacket(playerId, "client:keybind"));
+        }
+
+        if (!pressedSet.isEmpty() && (result.shouldSyncConfig() || result.shouldSyncVariables())) {
+            long playerId = 0L;
+            Minecraft playerClient = Minecraft.getInstance();
+            if (playerClient.player != null) {
+                playerId = playerClient.player.getUUID().getLeastSignificantBits();
+            }
+            SyncedClientConfig defaults = SyncedClientConfig.defaults();
+            ClientPlayNetworking.send(new PlayerStateSyncPacket(
+                playerId,
+                defaults,
+                defaults,
+                new ServerOverridesConfig()
+            ));
         }
     }
     //?} else {
