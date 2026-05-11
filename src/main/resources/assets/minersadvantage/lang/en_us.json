@@ -82,7 +82,7 @@
     "minersadvantage.common.limit": "Block Limit",
     "minersadvantage.common.limit.comment": "The Maximum number of blocks allowed to be mined.",
     "minersadvantage.common.break_at_tool_speeds": "Break Blocks at Tool Speeds",
-    "minersadvantage.common.break_at_tool_speeds.comment": "Breaks blocks at the speed of the tool being used. [WIP - CURRENTLY UNUSED]",
+    "minersadvantage.common.break_at_tool_speeds.comment": "Breaks blocks at the speed of the tool being used. This option is currently unused.",
 
     "minersadvantage.captivation.comment": "Captivation configuration for MinersAdvantage",
     "minersadvantage.captivation.enabled": "Captivation Enabled",
