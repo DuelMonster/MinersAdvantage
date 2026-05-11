@@ -10,18 +10,34 @@ import uk.co.duelmonster.minersadvantage.common.network.FeatureDispatchPacket;
 import uk.co.duelmonster.minersadvantage.common.network.PlayerStateSyncPacket;
 import uk.co.duelmonster.minersadvantage.common.network.SupremeVantagePacket;
 
+/**
+ * FabricNetworkEvents keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+ */
 public final class FabricNetworkEvents {
     private static boolean payloadTypesRegistered;
     private static boolean serverHandlersRegistered;
     private static MinersAdvantageCore core;
 
+    /**
+     * FabricNetworkEvents exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private FabricNetworkEvents() {
     }
 
+    /**
+     * initialize exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public static void initialize(MinersAdvantageCore minersAdvantageCore) {
         core = minersAdvantageCore;
     }
 
+    /**
+     * registerPayloadTypes exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public static void registerPayloadTypes() {
         if (payloadTypesRegistered) {
             return;
@@ -34,6 +50,10 @@ public final class FabricNetworkEvents {
         payloadTypesRegistered = true;
     }
 
+    /**
+     * registerPlayToServer exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private static <T extends net.minecraft.network.protocol.common.custom.CustomPacketPayload> void registerPlayToServer(net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type<T> type, Object codec) {
         try {
             Method registryMethod;
@@ -59,6 +79,10 @@ public final class FabricNetworkEvents {
         }
     }
 
+    /**
+     * registerServerHandlers exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public static void registerServerHandlers() {
         if (serverHandlersRegistered) {
             return;
@@ -71,3 +95,4 @@ public final class FabricNetworkEvents {
         serverHandlersRegistered = true;
     }
 }
+

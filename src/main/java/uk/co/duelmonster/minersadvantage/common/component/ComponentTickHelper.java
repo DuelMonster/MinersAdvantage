@@ -8,6 +8,10 @@ import uk.co.duelmonster.minersadvantage.common.orchestration.FeatureDispatchCon
  * Reduces duplication across all 11 feature components.
  */
 public final class ComponentTickHelper {
+    /**
+     * ComponentTickHelper exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private ComponentTickHelper() {
     }
 
@@ -31,3 +35,4 @@ public final class ComponentTickHelper {
         return FeatureDispatchBus.getContext();
     }
 }
+

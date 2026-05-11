@@ -6,18 +6,22 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 
 /**
  * Fabric client-side initialization entry point.
- * 
+ *
  * This class is invoked by Fabric on the client side only (as declared in fabric.mod.json).
  * It provides a hook for client-only systems:
  * - Keybinding registration (M3)
  * - Client tick listener setup (M3)
  * - Config screen factory registration (M6)
- * 
+ *
  * Server-side initialization happens in ModEntry (the main Fabric ModInitializer).
  */
 public final class FabricClientEntrypoint implements ClientModInitializer {
 
     @Override
+    /**
+     * onInitializeClient exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public void onInitializeClient() {
         // M3/M4: Register keybindings, payload types, and wire client tick input loop
         ClientInputHandler.registerKeybindings();
@@ -29,3 +33,5 @@ public final class FabricClientEntrypoint implements ClientModInitializer {
 /*
 // This class is Fabric-only (client-side initialization).
 */ //?}
+
+

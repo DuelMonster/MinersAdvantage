@@ -1,6 +1,14 @@
 package uk.co.duelmonster.minersadvantage.common.services.utility;
 
+/**
+ * IlluminationCoreService keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+ */
 public final class IlluminationCoreService {
+    /**
+     * IlluminationDecision keeps this part of Miners Advantage running without turning server ticks into confetti.
+     * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+     */
     public record IlluminationDecision(
         TorchPlacement placement,
         int plannedTorches,
@@ -9,10 +17,18 @@ public final class IlluminationCoreService {
         boolean inventoryDepleted
     ) {}
 
+    /**
+     * shouldPlaceTorch exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public boolean shouldPlaceTorch(int lightLevel) {
         return lightLevel < 8;
     }
 
+    /**
+     * selectPlacement exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public TorchPlacement selectPlacement(boolean leftWallAvailable, boolean rightWallAvailable) {
         if (leftWallAvailable && rightWallAvailable) {
             return TorchPlacement.BOTH_WALLS;
@@ -24,14 +40,26 @@ public final class IlluminationCoreService {
         return TorchPlacement.FLOOR;
     }
 
+    /**
+     * expectedPlacementsInRadius exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public int expectedPlacementsInRadius(int radiusHorizontal, int radiusVertical) {
         return (2 * radiusHorizontal + 1) * (2 * radiusVertical + 1);
     }
 
+    /**
+     * isManualMode exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public boolean isManualMode(String toolHint) {
         return toolHint.contains("manual");
     }
 
+    /**
+     * selectPlacement exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public TorchPlacement selectPlacement(boolean leftWallAvailable, boolean rightWallAvailable, String toolHint) {
         if (toolHint.contains("manual_left")) {
             return leftWallAvailable ? TorchPlacement.LEFT_WALL : TorchPlacement.FLOOR;
@@ -56,6 +84,10 @@ public final class IlluminationCoreService {
         return selectPlacement(leftWallAvailable, rightWallAvailable);
     }
 
+    /**
+     * availableTorches exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public int availableTorches(String toolHint, int requestedTorches) {
         if (toolHint.contains("empty")) {
             return 0;
@@ -89,3 +121,4 @@ public final class IlluminationCoreService {
         return new IlluminationDecision(placement, planned, placeNow, manualMode, inventoryDepleted);
     }
 }
+

@@ -2,7 +2,15 @@ package uk.co.duelmonster.minersadvantage.common.services.captivation;
 
 import java.util.Set;
 
+/**
+ * CaptivationCoreService keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+ */
 public final class CaptivationCoreService {
+    /**
+     * CaptureDecision keeps this part of Miners Advantage running without turning server ticks into confetti.
+     * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+     */
     public record CaptureDecision(boolean canCapture, boolean blockedByGui, boolean withinRadius) {}
 
     private final Set<String> blacklist;
@@ -15,6 +23,10 @@ public final class CaptivationCoreService {
         this.unconditionalBlacklist = unconditionalBlacklist;
     }
 
+    /**
+     * canCaptureItem exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public boolean canCaptureItem(String itemId, boolean isDirectPickup) {
         if (unconditionalBlacklist && blacklist.contains(itemId)) {
             return false;
@@ -29,6 +41,10 @@ public final class CaptivationCoreService {
         }
     }
 
+    /**
+     * isWithinRadius exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public boolean isWithinRadius(int playerX, int playerY, int playerZ, int itemX, int itemY, int itemZ, int radiusHorizontal, int radiusVertical) {
         int dx = Math.abs(playerX - itemX);
         int dy = Math.abs(playerY - itemY);
@@ -51,3 +67,4 @@ public final class CaptivationCoreService {
         return new CaptureDecision(canCapture, false, withinRadius);
     }
 }
+

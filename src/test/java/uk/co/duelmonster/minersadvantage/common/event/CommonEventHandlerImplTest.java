@@ -9,6 +9,10 @@ import uk.co.duelmonster.minersadvantage.common.MinersAdvantageCore;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 import uk.co.duelmonster.minersadvantage.common.orchestration.FeatureDispatchContext;
 
+/**
+ * CommonEventHandlerImplTest keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+ */
 class CommonEventHandlerImplTest {
     @AfterEach
     void clearObserver() {
@@ -37,3 +41,4 @@ class CommonEventHandlerImplTest {
         assertEquals(FeatureId.CROPINATION, captured.get().feature());
     }
 }
+

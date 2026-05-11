@@ -9,6 +9,10 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import uk.co.duelmonster.minersadvantage.common.services.processing.ProcessingCoreService;
 
+/**
+ * ProcessingCoreServiceTest keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+ */
 class ProcessingCoreServiceTest {
     @Test
     void limitsQueueAndRespectsPerTickBudget() {
@@ -25,3 +29,4 @@ class ProcessingCoreServiceTest {
         assertEquals(1, service.size());
     }
 }
+

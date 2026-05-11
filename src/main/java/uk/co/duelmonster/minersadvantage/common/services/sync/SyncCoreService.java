@@ -6,7 +6,15 @@ import uk.co.duelmonster.minersadvantage.common.config.ServerOverridesConfig;
 import uk.co.duelmonster.minersadvantage.common.config.SyncedClientConfig;
 import uk.co.duelmonster.minersadvantage.common.services.policy.PolicyCoreService;
 
+/**
+ * SyncCoreService keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+ */
 public final class SyncCoreService {
+    /**
+     * PlayerSyncState keeps this part of Miners Advantage running without turning server ticks into confetti.
+     * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+     */
     public record PlayerSyncState(
         long playerId,
         long revision,
@@ -33,6 +41,10 @@ public final class SyncCoreService {
         return state;
     }
 
+    /**
+     * getPlayerState exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public PlayerSyncState getPlayerState(long playerId) {
         return perPlayerState.getOrDefault(
             playerId,
@@ -47,3 +59,4 @@ public final class SyncCoreService {
         );
     }
 }
+

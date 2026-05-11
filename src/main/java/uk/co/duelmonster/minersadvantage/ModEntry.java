@@ -29,11 +29,19 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import uk.co.duelmonster.minersadvantage.client.FabricNetworkEvents;
 
+/**
+ * ModEntry keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+ */
 public final class ModEntry implements ModInitializer {
     private final MinersAdvantageCore core = new MinersAdvantageCore();
     private final ToolEventHandler toolEvents = new CommonEventHandlerImpl(core);
 
     @Override
+    /**
+     * onInitialize exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public void onInitialize() {
         core.bootstrap();
         FabricNetworkEvents.initialize(core);
@@ -73,6 +81,10 @@ public final class ModEntry implements ModInitializer {
         ServerTickEvents.END_SERVER_TICK.register(server -> toolEvents.onServerTick());
     }
 
+    /**
+     * registerFabricLevelUnloadEvent exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private void registerFabricLevelUnloadEvent() {
         try {
             // 1.21.11 branch
@@ -109,24 +121,40 @@ public final class ModEntry implements ModInitializer {
         }
     }
 
+    /**
+     * onPlayerLogin exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private void onPlayerLogin(ServerPlayer player) {
         long playerId = player.getUUID().getLeastSignificantBits();
         SyncedClientConfig defaults = SyncedClientConfig.defaults();
         core.handlePlayerStateSyncPacket(new PlayerStateSyncPacket(playerId, defaults, defaults, new ServerOverridesConfig()));
     }
 
+    /**
+     * onPlayerLogout exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private void onPlayerLogout(ServerPlayer player) {
         long playerId = player.getUUID().getLeastSignificantBits();
         core.workerRuntimeService().abortAllForPlayerWithStats(playerId);
         core.playerStateService().clearPlayerState(playerId);
     }
 
+    /**
+     * onServerLevelUnload exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private void onServerLevelUnload(ServerLevel level) {
         for (ServerPlayer player : level.players()) {
             onPlayerLogout(player);
         }
     }
 
+    /**
+     * onFabricEntityLoad exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private void onFabricEntityLoad(Entity entity, ServerLevel level) {
         if (entity instanceof ItemEntity itemEntity) {
             Player nearest = level.getNearestPlayer(entity, 8.0);
@@ -153,6 +181,10 @@ public final class ModEntry implements ModInitializer {
         }
     }
 
+    /**
+     * routeToolUse exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private void routeToolUse(ItemStack stack, BlockPos pos, BlockState state) {
         String itemId = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
         String blockId = BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString();
@@ -191,10 +223,18 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import uk.co.duelmonster.minersadvantage.client.NeoForgeNetworkEvents;
 
 @Mod("minersadvantage")
+/**
+ * ModEntry keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+ */
 public final class ModEntry {
     private final MinersAdvantageCore core = new MinersAdvantageCore();
     private final ToolEventHandler toolEvents = new CommonEventHandlerImpl(core);
 
+    /**
+     * ModEntry exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public ModEntry(IEventBus modEventBus, ModContainer modContainer, Dist dist) {
         core.bootstrap();
         NeoForgeNetworkEvents.initialize(core);
@@ -214,6 +254,10 @@ public final class ModEntry {
         NeoForge.EVENT_BUS.addListener(this::onToolModification);
     }
 
+    /**
+     * onPlayerLogin exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) {
             return;
@@ -223,6 +267,10 @@ public final class ModEntry {
         core.handlePlayerStateSyncPacket(new PlayerStateSyncPacket(playerId, defaults, defaults, new ServerOverridesConfig()));
     }
 
+    /**
+     * onPlayerLogout exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) {
             return;
@@ -232,6 +280,10 @@ public final class ModEntry {
         core.playerStateService().clearPlayerState(playerId);
     }
 
+    /**
+     * onLevelUnload exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private void onLevelUnload(LevelEvent.Unload event) {
         if (!(event.getLevel() instanceof ServerLevel level)) {
             return;
@@ -242,6 +294,10 @@ public final class ModEntry {
         }
     }
 
+    /**
+     * onEntityJoinLevel exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private void onEntityJoinLevel(EntityJoinLevelEvent event) {
         if (!(event.getLevel() instanceof ServerLevel level) || event.getLevel().isClientSide()) {
             return;
@@ -273,6 +329,10 @@ public final class ModEntry {
         }
     }
 
+    /**
+     * onToolModification exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private void onToolModification(BlockEvent.BlockToolModificationEvent event) {
         if (event.getPlayer() == null || event.getLevel().isClientSide()) {
             return;
@@ -281,6 +341,10 @@ public final class ModEntry {
         routeToolUse(event.getHeldItemStack(), event.getPos(), state);
     }
 
+    /**
+     * onRightClickBlock exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
         if (event.getEntity() == null || event.getLevel().isClientSide()) {
             return;
@@ -289,6 +353,10 @@ public final class ModEntry {
         routeToolUse(event.getItemStack(), event.getPos(), event.getLevel().getBlockState(event.getPos()));
     }
 
+    /**
+     * onLeftClickBlock exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
         if (event.getEntity() == null || event.getLevel().isClientSide()) {
             return;
@@ -303,10 +371,18 @@ public final class ModEntry {
         );
     }
 
+    /**
+     * onServerTick exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private void onServerTick(ServerTickEvent.Post event) {
         toolEvents.onServerTick();
     }
 
+    /**
+     * routeToolUse exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private void routeToolUse(ItemStack stack, BlockPos pos, BlockState state) {
         String itemId = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
         String blockId = BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString();
@@ -329,3 +405,5 @@ public final class ModEntry {
     }
 }
 */ //?}
+
+

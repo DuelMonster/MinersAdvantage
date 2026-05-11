@@ -7,6 +7,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 import uk.co.duelmonster.minersadvantage.common.services.world.WorldQueryService;
 
+/**
+ * WorldQueryServiceTest keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+ */
 class WorldQueryServiceTest {
     @Test
     void computesAreaAndDistanceHelpers() {
@@ -17,3 +21,4 @@ class WorldQueryServiceTest {
         assertEquals(5, service.normalizedOddWidth(4));
     }
 }
+

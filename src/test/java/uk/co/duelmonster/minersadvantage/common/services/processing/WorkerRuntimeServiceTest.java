@@ -10,6 +10,10 @@ import org.junit.jupiter.api.Test;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 import uk.co.duelmonster.minersadvantage.common.services.core.PlayerStateService;
 
+/**
+ * WorkerRuntimeServiceTest keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+ */
 class WorkerRuntimeServiceTest {
     @Test
     void processesWorkAndCompletesWorkerWithDropFlush() {
@@ -116,3 +120,4 @@ class WorkerRuntimeServiceTest {
         assertEquals(1, service.drainSpawnQueue().size());
     }
 }
+

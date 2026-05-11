@@ -9,7 +9,15 @@ import uk.co.duelmonster.minersadvantage.client.KeyBindings.ClientAction;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 import uk.co.duelmonster.minersadvantage.common.network.ComponentTogglePacket;
 
+/**
+ * ClientInputService keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+ */
 public final class ClientInputService {
+    /**
+     * ClientInputState keeps this part of Miners Advantage running without turning server ticks into confetti.
+     * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+     */
     public record ClientInputState(
         Map<FeatureId, Boolean> featureEnabled,
         boolean excavationToggled,
@@ -20,6 +28,10 @@ public final class ClientInputService {
             featureEnabled = Map.copyOf(featureEnabled);
         }
 
+        /**
+         * defaults exists so this code path does one job clearly instead of spreading chaos across callers.
+         * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+         */
         public static ClientInputState defaults() {
             EnumMap<FeatureId, Boolean> features = new EnumMap<>(FeatureId.class);
             for (FeatureId feature : FeatureId.values()) {
@@ -29,6 +41,10 @@ public final class ClientInputService {
         }
     }
 
+    /**
+     * ClientInputResult keeps this part of Miners Advantage running without turning server ticks into confetti.
+     * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+     */
     public record ClientInputResult(
         ClientInputState state,
         List<ComponentTogglePacket> togglePackets,
@@ -110,3 +126,4 @@ public final class ClientInputService {
         packets.add(new ComponentTogglePacket(feature, next));
     }
 }
+

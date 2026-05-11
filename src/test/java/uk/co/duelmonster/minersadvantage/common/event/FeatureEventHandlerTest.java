@@ -12,6 +12,10 @@ import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 import uk.co.duelmonster.minersadvantage.common.orchestration.FeatureDispatchBus;
 import uk.co.duelmonster.minersadvantage.common.orchestration.FeatureDispatchContext;
 
+/**
+ * FeatureEventHandlerTest keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+ */
 class FeatureEventHandlerTest {
     @AfterEach
     void resetObserver() {
@@ -48,3 +52,4 @@ class FeatureEventHandlerTest {
         assertFalse(FeatureDispatchBus.hasContext());
     }
 }
+

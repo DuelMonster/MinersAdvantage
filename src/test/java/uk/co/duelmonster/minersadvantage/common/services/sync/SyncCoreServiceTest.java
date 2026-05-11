@@ -9,6 +9,10 @@ import uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig;
 import uk.co.duelmonster.minersadvantage.common.config.SyncedClientConfig;
 import uk.co.duelmonster.minersadvantage.common.services.policy.PolicyCoreService;
 
+/**
+ * SyncCoreServiceTest keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+ */
 class SyncCoreServiceTest {
     @Test
     void synchronizesTypedClientAndServerSnapshots() {
@@ -40,3 +44,4 @@ class SyncCoreServiceTest {
         assertFalse(state.effectiveConfig().substitution().ignorePassiveMobs());
     }
 }
+

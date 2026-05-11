@@ -8,6 +8,10 @@ import uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig;
 import uk.co.duelmonster.minersadvantage.common.services.substitution.SubstitutionCoreService;
 import uk.co.duelmonster.minersadvantage.common.services.substitution.SubstitutionCoreService.ToolCandidate;
 
+/**
+ * SubstitutionComponent keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+ */
 public final class SubstitutionComponent implements ComponentLifecycle {
     private final SubstitutionConfig config;
     private final SubstitutionCoreService service;
@@ -16,47 +20,87 @@ public final class SubstitutionComponent implements ComponentLifecycle {
     private SubstitutionCoreService.SubstitutionDecision lastDecision =
         new SubstitutionCoreService.SubstitutionDecision(null, false, false, "idle");
 
+    /**
+     * SubstitutionComponent exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public SubstitutionComponent(SubstitutionConfig config) {
         this.config = config;
         this.service = new SubstitutionCoreService();
     }
 
+    /**
+     * service exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public SubstitutionCoreService service() {
         return service;
     }
 
+    /**
+     * config exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public SubstitutionConfig config() {
         return config;
     }
 
+    /**
+     * isEnabled exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public boolean isEnabled() {
         return enabled && config.enabled();
     }
 
+    /**
+     * lastSelectedToolId exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public String lastSelectedToolId() {
         return lastSelectedToolId;
     }
 
+    /**
+     * lastDecision exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public SubstitutionCoreService.SubstitutionDecision lastDecision() {
         return lastDecision;
     }
 
     @Override
+    /**
+     * register exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public void register() {
         enabled = false;
     }
 
     @Override
+    /**
+     * enable exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public void enable() {
         enabled = true;
     }
 
     @Override
+    /**
+     * disable exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public void disable() {
         enabled = false;
     }
 
     @Override
+    /**
+     * tick exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public void tick() {
         if (!ComponentTickHelper.shouldExecute(isEnabled())) {
             return;
@@ -89,9 +133,14 @@ public final class SubstitutionComponent implements ComponentLifecycle {
     }
 
     @Override
+    /**
+     * cleanup exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public void cleanup() {
         enabled = false;
         lastSelectedToolId = null;
         lastDecision = new SubstitutionCoreService.SubstitutionDecision(null, false, false, "idle");
     }
 }
+

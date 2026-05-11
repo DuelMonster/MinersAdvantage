@@ -8,6 +8,10 @@ import uk.co.duelmonster.minersadvantage.common.MinersAdvantageCore;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 import uk.co.duelmonster.minersadvantage.common.services.processing.WorkerRuntimeService;
 
+/**
+ * AbortWorkersPacketFlowTest keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+ */
 class AbortWorkersPacketFlowTest {
     @Test
     void abortPacketCancelsPlayerWorkersAndFlushesDrops() {
@@ -36,3 +40,4 @@ class AbortWorkersPacketFlowTest {
         assertEquals("AbortWorkersPacket", PacketRegistry.getPacketName(PacketRegistry.ABORT_WORKERS));
     }
 }
+

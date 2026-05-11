@@ -44,6 +44,10 @@ import uk.co.duelmonster.minersadvantage.common.services.processing.WorkerRuntim
 import uk.co.duelmonster.minersadvantage.common.services.sync.SyncCoreService;
 import uk.co.duelmonster.minersadvantage.common.services.utility.SupremeVantageService;
 
+/**
+ * MinersAdvantageCore keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+ */
 public final class MinersAdvantageCore {
     private final ComponentRegistry componentRegistry = new ComponentRegistry();
     private final Map<FeatureId, ComponentLifecycle> components = new EnumMap<>(FeatureId.class);
@@ -55,6 +59,10 @@ public final class MinersAdvantageCore {
     private final SyncedClientConfig defaultConfig;
     private final ServerOverridesConfig defaultServerOverrides;
 
+    /**
+     * MinersAdvantageCore exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public MinersAdvantageCore() {
         this.playerStateService = new PlayerStateService();
         this.tickOrchestrator = new ServerTickOrchestrator(playerStateService);
@@ -65,6 +73,10 @@ public final class MinersAdvantageCore {
         this.defaultServerOverrides = new ServerOverridesConfig();
     }
 
+    /**
+     * bootstrap exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public void bootstrap() {
         registerCaptivation();
         registerCropination();
@@ -80,6 +92,10 @@ public final class MinersAdvantageCore {
         componentRegistry.enableAll();
     }
 
+    /**
+     * registerCaptivation exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private void registerCaptivation() {
         CaptivationConfig config = defaultConfig.captivation();
         CaptivationComponent component = new CaptivationComponent(config);
@@ -87,6 +103,10 @@ public final class MinersAdvantageCore {
         componentRegistry.register(new ComponentDescriptor("captivation", "Captivation", component));
     }
 
+    /**
+     * registerCropination exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private void registerCropination() {
         CropinationConfig config = defaultConfig.cropination();
         CropinationComponent component = new CropinationComponent(config);
@@ -94,6 +114,10 @@ public final class MinersAdvantageCore {
         componentRegistry.register(new ComponentDescriptor("cropination", "Cropination", component));
     }
 
+    /**
+     * registerCultivation exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private void registerCultivation() {
         CultivationConfig config = defaultConfig.cultivation();
         CultivationComponent component = new CultivationComponent(config);
@@ -101,6 +125,10 @@ public final class MinersAdvantageCore {
         componentRegistry.register(new ComponentDescriptor("cultivation", "Cultivation", component));
     }
 
+    /**
+     * registerExcavation exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private void registerExcavation() {
         ExcavationConfig config = defaultConfig.excavation();
         ExcavationComponent component = new ExcavationComponent(config);
@@ -108,6 +136,10 @@ public final class MinersAdvantageCore {
         componentRegistry.register(new ComponentDescriptor("excavation", "Excavation", component));
     }
 
+    /**
+     * registerIllumination exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private void registerIllumination() {
         IlluminationConfig config = defaultConfig.illumination();
         IlluminationComponent component = new IlluminationComponent(config);
@@ -115,6 +147,10 @@ public final class MinersAdvantageCore {
         componentRegistry.register(new ComponentDescriptor("illumination", "Illumination", component));
     }
 
+    /**
+     * registerLumbination exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private void registerLumbination() {
         LumbinationConfig config = defaultConfig.lumbination();
         LumbinationComponent component = new LumbinationComponent(config);
@@ -122,6 +158,10 @@ public final class MinersAdvantageCore {
         componentRegistry.register(new ComponentDescriptor("lumbination", "Lumbination", component));
     }
 
+    /**
+     * registerPathanation exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private void registerPathanation() {
         PathanationConfig config = defaultConfig.pathanation();
         PathanationComponent component = new PathanationComponent(config);
@@ -129,6 +169,10 @@ public final class MinersAdvantageCore {
         componentRegistry.register(new ComponentDescriptor("pathanation", "Pathanation", component));
     }
 
+    /**
+     * registerShaftanation exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private void registerShaftanation() {
         ShaftanationConfig config = defaultConfig.shaftanation();
         ShaftanationComponent component = new ShaftanationComponent(config);
@@ -136,6 +180,10 @@ public final class MinersAdvantageCore {
         componentRegistry.register(new ComponentDescriptor("shaftanation", "Shaftanation", component));
     }
 
+    /**
+     * registerSubstitution exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private void registerSubstitution() {
         SubstitutionConfig config = defaultConfig.substitution();
         SubstitutionComponent component = new SubstitutionComponent(config);
@@ -143,6 +191,10 @@ public final class MinersAdvantageCore {
         componentRegistry.register(new ComponentDescriptor("substitution", "Substitution", component));
     }
 
+    /**
+     * registerVeination exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private void registerVeination() {
         VeinationConfig config = defaultConfig.veination();
         VeinationComponent component = new VeinationComponent(config);
@@ -150,6 +202,10 @@ public final class MinersAdvantageCore {
         componentRegistry.register(new ComponentDescriptor("veination", "Veination", component));
     }
 
+    /**
+     * registerVentilation exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private void registerVentilation() {
         VentilationConfig config = defaultConfig.ventilation();
         VentilationComponent component = new VentilationComponent(config);
@@ -157,36 +213,68 @@ public final class MinersAdvantageCore {
         componentRegistry.register(new ComponentDescriptor("ventilation", "Ventilation", component));
     }
 
+    /**
+     * shutdown exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public void shutdown() {
         componentRegistry.disableAll();
         componentRegistry.cleanupAll();
     }
 
+    /**
+     * components exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public Map<FeatureId, ComponentLifecycle> components() {
         return Map.copyOf(components);
     }
 
+    /**
+     * serverTick exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public void serverTick() {
         tickOrchestrator.onServerTick();
         componentRegistry.tickAll();
     }
 
+    /**
+     * playerStateService exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public PlayerStateService playerStateService() {
         return playerStateService;
     }
 
+    /**
+     * tickOrchestrator exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public ServerTickOrchestrator tickOrchestrator() {
         return tickOrchestrator;
     }
 
+    /**
+     * workerRuntimeService exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public WorkerRuntimeService workerRuntimeService() {
         return tickOrchestrator.workerRuntimeService();
     }
 
+    /**
+     * handleAbortPacket exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public WorkerRuntimeService.AbortResult handleAbortPacket(AbortWorkersPacket packet) {
         return workerRuntimeService().abortAllForPlayerWithStats(packet.playerId());
     }
 
+    /**
+     * handleComponentTogglePacket exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public boolean handleComponentTogglePacket(ComponentTogglePacket packet) {
         ComponentLifecycle component = components.get(packet.feature());
         if (component == null) {
@@ -201,6 +289,10 @@ public final class MinersAdvantageCore {
         return component.isEnabled();
     }
 
+    /**
+     * handlePlayerStateSyncPacket exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public SyncCoreService.PlayerSyncState handlePlayerStateSyncPacket(PlayerStateSyncPacket packet) {
         return syncCoreService.synchronize(
             packet.playerId(),
@@ -211,6 +303,10 @@ public final class MinersAdvantageCore {
         );
     }
 
+    /**
+     * handleFeatureDispatchPacket exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public void handleFeatureDispatchPacket(FeatureDispatchPacket packet) {
         FeatureEventHandler.onToolUse(
             packet.feature(),
@@ -222,31 +318,60 @@ public final class MinersAdvantageCore {
         );
     }
 
+    /**
+     * handleSupremeVantagePacket exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public SupremeVantageService.RewardGrant handleSupremeVantagePacket(SupremeVantagePacket packet) {
         return supremeVantageService.grantNextReward(packet.playerId(), packet.code());
     }
 
+    /**
+     * commonConfig exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public CommonConfig commonConfig() {
         return defaultConfig.common();
     }
 
+    /**
+     * policyCoreService exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public PolicyCoreService policyCoreService() {
         return policyCoreService;
     }
 
+    /**
+     * syncCoreService exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public SyncCoreService syncCoreService() {
         return syncCoreService;
     }
 
+    /**
+     * defaultConfig exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public SyncedClientConfig defaultConfig() {
         return defaultConfig;
     }
 
+    /**
+     * supremeVantageService exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public SupremeVantageService supremeVantageService() {
         return supremeVantageService;
     }
 
+    /**
+     * defaultServerOverrides exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public ServerOverridesConfig defaultServerOverrides() {
         return defaultServerOverrides;
     }
 }
+

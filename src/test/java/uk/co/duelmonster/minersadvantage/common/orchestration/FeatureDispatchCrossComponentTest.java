@@ -6,6 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 
+/**
+ * FeatureDispatchCrossComponentTest keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+ */
 class FeatureDispatchCrossComponentTest {
     @Test
     void miningFeaturesRouteToSharedDependentFeatures() {
@@ -24,3 +28,4 @@ class FeatureDispatchCrossComponentTest {
         assertFalse(FeatureOrchestration.shouldDispatchToFeature(FeatureId.SUBSTITUTION, FeatureId.EXCAVATION));
     }
 }
+

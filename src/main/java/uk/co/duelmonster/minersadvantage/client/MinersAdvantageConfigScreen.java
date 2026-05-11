@@ -15,12 +15,24 @@ import uk.co.duelmonster.minersadvantage.common.config.ServerOverridesConfig;
 import uk.co.duelmonster.minersadvantage.common.config.SyncedClientConfig;
 import uk.co.duelmonster.minersadvantage.common.network.PlayerStateSyncPacket;
 
+/**
+ * MinersAdvantageConfigScreen keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+ */
 public final class MinersAdvantageConfigScreen {
     private static SyncedClientConfig currentConfig = SyncedClientConfig.defaults();
 
+    /**
+     * MinersAdvantageConfigScreen exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private MinersAdvantageConfigScreen() {
     }
 
+    /**
+     * create exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public static Screen create(Screen parent) {
         MutableConfig mutable = new MutableConfig(currentConfig);
 
@@ -101,6 +113,10 @@ public final class MinersAdvantageConfigScreen {
             .build();
     }
 
+    /**
+     * sendClientSync exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private static void sendClientSync(SyncedClientConfig updatedConfig) {
         Minecraft minecraft = Minecraft.getInstance();
         long playerId = minecraft.player == null ? 0L : minecraft.player.getUUID().getLeastSignificantBits();
@@ -129,6 +145,10 @@ public final class MinersAdvantageConfigScreen {
         }
     }
 
+    /**
+     * MutableConfig keeps this part of Miners Advantage running without turning server ticks into confetti.
+     * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+     */
     private static final class MutableConfig {
         private boolean tpsGuard;
         private boolean gatherDrops;
@@ -149,6 +169,10 @@ public final class MinersAdvantageConfigScreen {
         private boolean veinationEnabled;
         private boolean ventilationEnabled;
 
+        /**
+         * MutableConfig exists so this code path does one job clearly instead of spreading chaos across callers.
+         * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+         */
         private MutableConfig(SyncedClientConfig config) {
             this.tpsGuard = config.common().tpsGuard();
             this.gatherDrops = config.common().gatherDrops();
@@ -170,6 +194,10 @@ public final class MinersAdvantageConfigScreen {
             this.ventilationEnabled = config.ventilation().enabled();
         }
 
+        /**
+         * toSyncedClientConfig exists so this code path does one job clearly instead of spreading chaos across callers.
+         * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+         */
         private SyncedClientConfig toSyncedClientConfig(SyncedClientConfig baseline) {
             CommonConfig updatedCommon = new CommonConfig(
                 tpsGuard,
@@ -273,3 +301,5 @@ public final class MinersAdvantageConfigScreen {
         }
     }
 }
+
+

@@ -6,6 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
+/**
+ * CropinationCoreServiceTest keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+ */
 class CropinationCoreServiceTest {
     @Test
     void detectsFullyGrownCrops() {
@@ -32,3 +36,4 @@ class CropinationCoreServiceTest {
         assertEquals(1, action.durabilityCost());
     }
 }
+

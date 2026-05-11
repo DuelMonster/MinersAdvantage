@@ -6,6 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
+/**
+ * PathanationCoreServiceTest keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+ */
 class PathanationCoreServiceTest {
     @Test
     void buildsLinearPathPlan() {
@@ -18,3 +22,4 @@ class PathanationCoreServiceTest {
         assertTrue(steps.stream().allMatch(step -> step.operation().equals("flatten")));
     }
 }
+

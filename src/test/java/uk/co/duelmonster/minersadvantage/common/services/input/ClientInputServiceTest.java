@@ -9,6 +9,10 @@ import org.junit.jupiter.api.Test;
 import uk.co.duelmonster.minersadvantage.client.KeyBindings.ClientAction;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 
+/**
+ * ClientInputServiceTest keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+ */
 class ClientInputServiceTest {
     @Test
     void togglesFeaturesAndRequestsSync() {
@@ -100,3 +104,4 @@ class ClientInputServiceTest {
         assertTrue(result.state().shaftVentToggled());
     }
 }
+

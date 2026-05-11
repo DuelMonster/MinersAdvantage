@@ -20,12 +20,12 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 //?} else {
 /*
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
-import net.minecraft.client.KeyMapping;
+// import net.minecraft.client.KeyMapping;
 */ //?}
 
 /**
  * Client input tick handler for Fabric.
-     * 
+     *
      * Called each client tick to:
      * 1. Register keybindings (Fabric-only)
      * 2. Poll keybindings for pressed actions
@@ -42,6 +42,10 @@ public final class ClientInputHandler {
     // NeoForge uses RegisterKeyMappingsEvent for registration
     */ //?}
 
+    /**
+     * ClientInputHandler exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private ClientInputHandler() {
     }
 
@@ -71,6 +75,10 @@ public final class ClientInputHandler {
         return InputConstants.getKey(mcKeyName);
     }
 
+    /**
+     * registerKeyMapping exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private static void registerKeyMapping(KeyMapping keyMapping) {
         try {
             Class<?> helperClass;
@@ -181,3 +189,6 @@ public final class ClientInputHandler {
 /*
 // This handler is Fabric-only. NeoForge uses ForgeClientInputHandler.
 */ //?}
+
+
+

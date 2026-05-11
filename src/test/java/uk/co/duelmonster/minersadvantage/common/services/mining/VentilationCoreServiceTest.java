@@ -5,6 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
+/**
+ * VentilationCoreServiceTest keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+ */
 class VentilationCoreServiceTest {
     @Test
     void buildsVentilationBatchWithLadderCadence() {
@@ -17,3 +21,4 @@ class VentilationCoreServiceTest {
         assertTrue(batch.steps().stream().anyMatch(VentilationCoreService.VentilationStep::placeLadder));
     }
 }
+

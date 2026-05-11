@@ -3,7 +3,15 @@ package uk.co.duelmonster.minersadvantage.common.services.substitution;
 import java.util.Comparator;
 import java.util.List;
 
+/**
+ * SubstitutionCoreService keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+ */
 public final class SubstitutionCoreService {
+    /**
+     * ToolCandidate keeps this part of Miners Advantage running without turning server ticks into confetti.
+     * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+     */
     public record ToolCandidate(
         String id,
         double speedScore,
@@ -14,8 +22,16 @@ public final class SubstitutionCoreService {
         boolean mendingProtected
     ) {}
 
+    /**
+     * SubstitutionDecision keeps this part of Miners Advantage running without turning server ticks into confetti.
+     * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+     */
     public record SubstitutionDecision(String selectedToolId, boolean switched, boolean switchBackToPrimary, String mode) {}
 
+    /**
+     * comparatorFor exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private Comparator<ToolCandidate> comparatorFor(boolean favourSilkTouch, boolean favourFortune, boolean combatContext) {
         Comparator<ToolCandidate> comparator;
         if (combatContext) {
@@ -68,3 +84,4 @@ public final class SubstitutionCoreService {
         return new SubstitutionDecision(best.id(), !best.id().equals(currentToolId), false, mode);
     }
 }
+

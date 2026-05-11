@@ -1,5 +1,9 @@
 package uk.co.duelmonster.minersadvantage.common.event;
 
+/**
+ * ToolEventHandler keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+ */
 public interface ToolEventHandler {
     void onPickaxeUse(int blockX, int blockY, int blockZ, String blockId);
 
@@ -13,3 +17,4 @@ public interface ToolEventHandler {
 
     void onServerTick();
 }
+

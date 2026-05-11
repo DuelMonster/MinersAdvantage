@@ -28,14 +28,26 @@ import uk.co.duelmonster.minersadvantage.common.services.input.ClientInputServic
  * Registers key mappings and polls them on the client tick.
  */
 @EventBusSubscriber(modid = "minersadvantage", value = Dist.CLIENT)
+/**
+ * NeoForgeClientEvents keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+ */
 public final class NeoForgeClientEvents {
     private static final Map<KeyBindings.ClientAction, KeyMapping> KEY_MAPPINGS = new EnumMap<>(KeyBindings.ClientAction.class);
     private static ClientInputService.ClientInputState inputState = ClientInputService.ClientInputState.defaults();
 
+    /**
+     * NeoForgeClientEvents exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private NeoForgeClientEvents() {
     }
 
     @SubscribeEvent
+    /**
+     * onRegisterKeyMappings exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public static void onRegisterKeyMappings(RegisterKeyMappingsEvent event) {
         for (KeyBindings.KeyBindingSpec spec : KeyBindings.all()) {
             String translationKey = "key.minersadvantage." + spec.action().name().toLowerCase();
@@ -52,6 +64,10 @@ public final class NeoForgeClientEvents {
     }
 
     @SubscribeEvent
+    /**
+     * onClientTick exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public static void onClientTick(ClientTickEvent.Post event) {
         List<KeyBindings.ClientAction> pressed = new ArrayList<>();
         for (Map.Entry<KeyBindings.ClientAction, KeyMapping> entry : KEY_MAPPINGS.entrySet()) {
@@ -96,6 +112,10 @@ public final class NeoForgeClientEvents {
         }
     }
 
+    /**
+     * parseKeyToken exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private static InputConstants.Key parseKeyToken(String token) {
         String mcKeyName = switch (token) {
             case "KP_1" -> "key.keyboard.keypad.1";
@@ -117,3 +137,4 @@ public final class NeoForgeClientEvents {
         return InputConstants.getKey(mcKeyName);
     }
 }
+

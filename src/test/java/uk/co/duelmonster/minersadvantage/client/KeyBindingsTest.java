@@ -6,6 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 import uk.co.duelmonster.minersadvantage.client.KeyBindings.ClientAction;
 
+/**
+ * KeyBindingsTest keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+ */
 class KeyBindingsTest {
     @Test
     void exposesLegacyParityDefaultBindings() {
@@ -14,3 +18,4 @@ class KeyBindingsTest {
         assertTrue(KeyBindings.all().stream().anyMatch(spec -> spec.action() == ClientAction.ABORT_WORKERS && spec.defaultKey().equals("DELETE")));
     }
 }
+

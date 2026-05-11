@@ -3,7 +3,15 @@ package uk.co.duelmonster.minersadvantage.client;
 import java.util.List;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 
+/**
+ * KeyBindings keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+ */
 public final class KeyBindings {
+    /**
+     * ClientAction keeps this part of Miners Advantage running without turning server ticks into confetti.
+     * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+     */
     public enum ClientAction {
         CAPTIVATION_TOGGLE,
         EXCAVATION_TOGGLE,
@@ -21,6 +29,10 @@ public final class KeyBindings {
         ABORT_WORKERS
     }
 
+    /**
+     * KeyBindingSpec keeps this part of Miners Advantage running without turning server ticks into confetti.
+     * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+     */
     public record KeyBindingSpec(ClientAction action, String defaultKey, FeatureId feature, String translationKey) {}
 
     private static final List<KeyBindingSpec> ALL = List.of(
@@ -43,7 +55,12 @@ public final class KeyBindings {
     private KeyBindings() {
     }
 
+    /**
+     * all exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public static List<KeyBindingSpec> all() {
         return ALL;
     }
 }
+

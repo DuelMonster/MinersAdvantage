@@ -10,6 +10,10 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import uk.co.duelmonster.minersadvantage.common.config.ServerOverridesConfig;
 import uk.co.duelmonster.minersadvantage.common.config.SyncedClientConfig;
 
+/**
+ * PlayerStateSyncPacket keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+ */
 public record PlayerStateSyncPacket(
     long playerId,
     SyncedClientConfig clientConfig,
@@ -22,18 +26,30 @@ public record PlayerStateSyncPacket(
     public static final StreamCodec<RegistryFriendlyByteBuf, PlayerStateSyncPacket> STREAM_CODEC = createStreamCodec();
 
     @Override
+    /**
+     * type exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
 
+    /**
+     * createType exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private static Type<PlayerStateSyncPacket> createType() {
         try {
             return payloadId("player_state_sync");
-        } catch (Throwable ignored) {
+        } catch (Throwable throwable) {
             return null;
         }
     }
 
+    /**
+     * createStreamCodec exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private static StreamCodec<RegistryFriendlyByteBuf, PlayerStateSyncPacket> createStreamCodec() {
         try {
             return StreamCodec.composite(
@@ -52,12 +68,16 @@ public record PlayerStateSyncPacket(
                     GSON.fromJson(overridesJson, ServerOverridesConfig.class)
                 )
             );
-        } catch (Throwable ignored) {
+        } catch (Throwable throwable) {
             return null;
         }
     }
 
     @SuppressWarnings("unchecked")
+    /**
+     * payloadId exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private static Type<PlayerStateSyncPacket> payloadId(String path) {
         try {
             Object identifier = createIdentifier(path);
@@ -68,6 +88,10 @@ public record PlayerStateSyncPacket(
         }
     }
 
+    /**
+     * createIdentifier exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private static Object createIdentifier(String path) throws ReflectiveOperationException {
         try {
             Class<?> identifierClass = Class.forName("net.minecraft.resources.Identifier");
@@ -80,3 +104,5 @@ public record PlayerStateSyncPacket(
         }
     }
 }
+
+

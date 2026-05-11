@@ -9,19 +9,51 @@ import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 import uk.co.duelmonster.minersadvantage.common.services.core.PlayerStateService;
 import uk.co.duelmonster.minersadvantage.common.services.drop.DropCoreService;
 
+/**
+ * WorkerRuntimeService keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+ */
 public final class WorkerRuntimeService {
+    /**
+     * WorkerHandle keeps this part of Miners Advantage running without turning server ticks into confetti.
+     * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+     */
     public record WorkerHandle(UUID workerId, long playerId, FeatureId feature) {}
+    /**
+     * AbortResult keeps this part of Miners Advantage running without turning server ticks into confetti.
+     * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+     */
     public record AbortResult(int cancelledWorkers, int flushedDrops) {}
+    /**
+     * DropSpawn keeps this part of Miners Advantage running without turning server ticks into confetti.
+     * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+     */
     public record DropSpawn(long playerId, String type, int amount) {}
+    /**
+     * DropInterceptionResult keeps this part of Miners Advantage running without turning server ticks into confetti.
+     * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+     */
     public record DropInterceptionResult(boolean capturedForGather, boolean spawnNow) {}
 
+    /**
+     * WorkerTickResult keeps this part of Miners Advantage running without turning server ticks into confetti.
+     * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+     */
     public record WorkerTickResult(int processedActions, int completedWorkers, int pausedWorkers, int flushedDrops) {}
 
+    /**
+     * ActiveWorker keeps this part of Miners Advantage running without turning server ticks into confetti.
+     * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+     */
     private static final class ActiveWorker {
         private final WorkerHandle handle;
         private final ProcessingCoreService<Runnable> queue;
         private final DropCoreService drops;
 
+        /**
+         * ActiveWorker exists so this code path does one job clearly instead of spreading chaos across callers.
+         * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+         */
         private ActiveWorker(WorkerHandle handle, int blocksPerTick, int blockLimit) {
             this.handle = handle;
             this.queue = new ProcessingCoreService<>(blocksPerTick, blockLimit);
@@ -37,12 +69,20 @@ public final class WorkerRuntimeService {
         this.playerStateService = playerStateService;
     }
 
+    /**
+     * startWorker exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public WorkerHandle startWorker(long playerId, FeatureId feature, int blocksPerTick, int blockLimit) {
         WorkerHandle handle = new WorkerHandle(UUID.randomUUID(), playerId, feature);
         workers.put(handle.workerId(), new ActiveWorker(handle, blocksPerTick, blockLimit));
         return handle;
     }
 
+    /**
+     * enqueueWork exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public boolean enqueueWork(UUID workerId, Runnable action) {
         ActiveWorker worker = workers.get(workerId);
         if (worker == null) {
@@ -51,6 +91,10 @@ public final class WorkerRuntimeService {
         return worker.queue.offer(action);
     }
 
+    /**
+     * captureDrop exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public void captureDrop(UUID workerId, String type, int amount) {
         ActiveWorker worker = workers.get(workerId);
         if (worker == null) {
@@ -59,6 +103,10 @@ public final class WorkerRuntimeService {
         worker.drops.capture(type, amount);
     }
 
+    /**
+     * interceptLiveDrop exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public DropInterceptionResult interceptLiveDrop(UUID workerId, String type, int amount, boolean gatherDrops) {
         ActiveWorker worker = workers.get(workerId);
         if (worker == null) {
@@ -74,6 +122,10 @@ public final class WorkerRuntimeService {
         return new DropInterceptionResult(false, true);
     }
 
+    /**
+     * interceptLiveDropForPlayer exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public DropInterceptionResult interceptLiveDropForPlayer(long playerId, String type, int amount, boolean gatherDrops) {
         ActiveWorker worker = findFirstWorkerForPlayer(playerId);
         if (worker == null) {
@@ -89,6 +141,10 @@ public final class WorkerRuntimeService {
         return new DropInterceptionResult(false, true);
     }
 
+    /**
+     * abortWorker exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public List<DropCoreService.CapturedDrop> abortWorker(UUID workerId) {
         ActiveWorker worker = workers.remove(workerId);
         if (worker == null) {
@@ -99,6 +155,10 @@ public final class WorkerRuntimeService {
         return flushed;
     }
 
+    /**
+     * abortAllForPlayer exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public List<DropCoreService.CapturedDrop> abortAllForPlayer(long playerId) {
         List<UUID> toAbort = new ArrayList<>();
         for (ActiveWorker worker : workers.values()) {
@@ -114,6 +174,10 @@ public final class WorkerRuntimeService {
         return flushed;
     }
 
+    /**
+     * abortAllForPlayerWithStats exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public AbortResult abortAllForPlayerWithStats(long playerId) {
         int cancelledWorkers = 0;
         for (ActiveWorker worker : workers.values()) {
@@ -125,6 +189,10 @@ public final class WorkerRuntimeService {
         return new AbortResult(cancelledWorkers, flushed.size());
     }
 
+    /**
+     * tick exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public WorkerTickResult tick(boolean tpsGuardActive) {
         int processedActions = 0;
         int completedWorkers = 0;
@@ -156,26 +224,46 @@ public final class WorkerRuntimeService {
         return new WorkerTickResult(processedActions, completedWorkers, pausedWorkers, flushedDrops);
     }
 
+    /**
+     * activeWorkerCount exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public int activeWorkerCount() {
         return workers.size();
     }
 
+    /**
+     * isWorkerActive exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public boolean isWorkerActive(UUID workerId) {
         return workers.containsKey(workerId);
     }
 
+    /**
+     * drainSpawnQueue exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public List<DropSpawn> drainSpawnQueue() {
         List<DropSpawn> snapshot = List.copyOf(pendingSpawns);
         pendingSpawns.clear();
         return snapshot;
     }
 
+    /**
+     * queueSpawnDrops exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private void queueSpawnDrops(long playerId, List<DropCoreService.CapturedDrop> flushed) {
         for (DropCoreService.CapturedDrop drop : flushed) {
             pendingSpawns.add(new DropSpawn(playerId, drop.type(), drop.amount()));
         }
     }
 
+    /**
+     * findFirstWorkerForPlayer exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     private ActiveWorker findFirstWorkerForPlayer(long playerId) {
         for (ActiveWorker worker : workers.values()) {
             if (worker.handle.playerId() == playerId) {
@@ -185,3 +273,4 @@ public final class WorkerRuntimeService {
         return null;
     }
 }
+

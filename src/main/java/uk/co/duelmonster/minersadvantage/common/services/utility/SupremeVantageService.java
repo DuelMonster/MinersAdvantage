@@ -5,22 +5,42 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * SupremeVantageService keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+ */
 public final class SupremeVantageService {
     public static final String CODE_N = "2780872";
     public static final String CODE_D = "3780873";
 
+    /**
+     * ClientState keeps this part of Miners Advantage running without turning server ticks into confetti.
+     * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+     */
     public record ClientState(String enteredCode, boolean worthy, int idleTicks) {
         public ClientState {
             enteredCode = enteredCode == null ? "" : enteredCode;
         }
 
+        /**
+         * defaults exists so this code path does one job clearly instead of spreading chaos across callers.
+         * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+         */
         public static ClientState defaults() {
             return new ClientState("", false, 0);
         }
     }
 
+    /**
+     * ClientUpdate keeps this part of Miners Advantage running without turning server ticks into confetti.
+     * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+     */
     public record ClientUpdate(ClientState state, boolean notifyWorthy, boolean shouldSendRewardPacket, String packetCode) {}
 
+    /**
+     * RewardGrant keeps this part of Miners Advantage running without turning server ticks into confetti.
+     * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+     */
     public record RewardGrant(int sequence, String rewardId, String displayName, String itemId, String code) {}
 
     private final Map<Long, Integer> rewardProgress = new HashMap<>();
@@ -48,6 +68,10 @@ public final class SupremeVantageService {
         new RewardGrant(21, "rodney", "Rodney", "minecraft:fishing_rod", CODE_D)
     );
 
+    /**
+     * processClientTick exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public ClientUpdate processClientTick(ClientState state, Set<Character> pressedDigits, boolean excavationToggled, boolean allFeaturesEnabled) {
         if (!allFeaturesEnabled) {
             return new ClientUpdate(ClientState.defaults(), false, false, "");
@@ -80,6 +104,10 @@ public final class SupremeVantageService {
         return new ClientUpdate(new ClientState(code, false, idleTicks), false, false, "");
     }
 
+    /**
+     * grantNextReward exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public RewardGrant grantNextReward(long playerId, String code) {
         if (!isRecognizedCode(code)) {
             return null;
@@ -94,7 +122,12 @@ public final class SupremeVantageService {
         return base;
     }
 
+    /**
+     * isRecognizedCode exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
     public boolean isRecognizedCode(String code) {
         return CODE_N.equals(code) || CODE_D.equals(code);
     }
 }
+
