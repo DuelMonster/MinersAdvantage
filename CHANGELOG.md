@@ -11,7 +11,7 @@
 - ✅ M1: Traceability audit complete - Baseline matrix created
 - ✅ M2: Bootstrap complete - Both loaders initialize MinersAdvantageCore
 - ✅ M3: Keybindings & Client Input complete - Fabric and NeoForge client input wired across all four nodes
-- M4: Networking transport layer
+- 🔄 M4: Networking transport layer (input packets live; config sync pending)
 - M5: Server events (5 missing)
 - M6: Config UI (YACL + ModMenu/NeoForge)
 - M7: Assets/Localization migration

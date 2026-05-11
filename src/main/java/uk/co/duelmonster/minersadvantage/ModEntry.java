@@ -15,6 +15,7 @@ import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import uk.co.duelmonster.minersadvantage.client.FabricNetworkEvents;
 
 public final class ModEntry implements ModInitializer {
     private final MinersAdvantageCore core = new MinersAdvantageCore();
@@ -23,8 +24,11 @@ public final class ModEntry implements ModInitializer {
     @Override
     public void onInitialize() {
         core.bootstrap();
+        FabricNetworkEvents.initialize(core);
+        FabricNetworkEvents.registerPayloadTypes();
+        FabricNetworkEvents.registerServerHandlers();
 
-        UseBlockCallback.EVENT.register((player, level, hand, hitResult) -> {
+UseBlockCallback.EVENT.register((player, level, hand, hitResult) -> {
             if (level.isClientSide() || hand != InteractionHand.MAIN_HAND) {
                 return InteractionResult.PASS;
             }
@@ -80,6 +84,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import uk.co.duelmonster.minersadvantage.client.NeoForgeNetworkEvents;
 
 @Mod("minersadvantage")
 public final class ModEntry {
@@ -88,6 +93,7 @@ public final class ModEntry {
 
     public ModEntry(IEventBus modEventBus) {
         core.bootstrap();
+        NeoForgeNetworkEvents.initialize(core);
         NeoForge.EVENT_BUS.addListener(this::onRightClickBlock);
         NeoForge.EVENT_BUS.addListener(this::onLeftClickBlock);
         NeoForge.EVENT_BUS.addListener(this::onServerTick);

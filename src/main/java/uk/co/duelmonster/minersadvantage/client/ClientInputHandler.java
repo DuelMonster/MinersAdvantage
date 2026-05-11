@@ -5,12 +5,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.lang.reflect.Method;
 import java.util.Set;
+import uk.co.duelmonster.minersadvantage.common.network.AbortWorkersPacket;
 import uk.co.duelmonster.minersadvantage.common.network.ComponentTogglePacket;
 import uk.co.duelmonster.minersadvantage.common.services.input.ClientInputService;
 
 //? if fabric {
-import net.minecraft.client.KeyMapping;
 import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 //?} else {
 /*
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
@@ -137,12 +140,19 @@ public final class ClientInputHandler {
         // Update state
         inputState = result.state();
 
-        // TODO: Send component toggle packets (M4 - networking transport layer)
-        // for (ComponentTogglePacket packet : result.togglePackets()) {
-        //     ClientPlayNetworking.send(..., packet);
-        // }
+        // Send component toggle packets to the server.
+        for (ComponentTogglePacket packet : result.togglePackets()) {
+            ClientPlayNetworking.send(packet);
+        }
 
-        // TODO: Send illumination and abort packets if needed (M4)
+        if (result.abortRequested()) {
+            long playerId = 0L;
+            Minecraft playerClient = Minecraft.getInstance();
+            if (playerClient.player != null) {
+                playerId = playerClient.player.getUUID().getLeastSignificantBits();
+            }
+            ClientPlayNetworking.send(new AbortWorkersPacket(playerId, "client:keybind"));
+        }
     }
     //?} else {
     /*

@@ -1,3 +1,4 @@
+//? if neoforge {
 package uk.co.duelmonster.minersadvantage.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
@@ -8,20 +9,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import net.minecraft.client.KeyMapping;
-import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
-import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-import uk.co.duelmonster.minersadvantage.common.network.AbortWorkersPacket;
-import uk.co.duelmonster.minersadvantage.common.network.ComponentTogglePacket;
 import uk.co.duelmonster.minersadvantage.common.services.input.ClientInputService;
 
 /**
  * NeoForge client-side event handlers.
- *
+ * 
  * Registers key mappings and polls them on the client tick.
  */
 @EventBusSubscriber(modid = "minersadvantage", value = Dist.CLIENT)
@@ -63,19 +60,6 @@ public final class NeoForgeClientEvents {
             false
         );
         inputState = result.state();
-
-        for (ComponentTogglePacket packet : result.togglePackets()) {
-            ClientPacketDistributor.sendToServer(packet);
-        }
-
-        if (result.abortRequested()) {
-            long playerId = 0L;
-            Minecraft minecraft = Minecraft.getInstance();
-            if (minecraft.player != null) {
-                playerId = minecraft.player.getUUID().getLeastSignificantBits();
-            }
-            ClientPacketDistributor.sendToServer(new AbortWorkersPacket(playerId, "client:keybind"));
-        }
     }
 
     private static InputConstants.Key parseKeyToken(String token) {
@@ -99,3 +83,7 @@ public final class NeoForgeClientEvents {
         return InputConstants.getKey(mcKeyName);
     }
 }
+//?} else {
+/*
+// This class is NeoForge-only.
+*/ //?}

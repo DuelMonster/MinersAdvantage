@@ -19,8 +19,9 @@ public final class FabricClientEntrypoint implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        // M3: Register keybindings and wire client tick input loop
+        // M3/M4: Register keybindings, payload types, and wire client tick input loop
         ClientInputHandler.registerKeybindings();
+        FabricNetworkEvents.registerPayloadTypes();
         ClientTickEvents.END_CLIENT_TICK.register(minecraft -> ClientInputHandler.tick());
     }
 }
