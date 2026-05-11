@@ -5,6 +5,7 @@ repo_root="$(git rev-parse --show-toplevel)"
 docs_script="$repo_root/scripts/validate-docs.sh"
 opt_script="$repo_root/scripts/validate-optimization-pass.sh"
 changelog_script="$repo_root/scripts/validate-changelog.sh"
+compile_script="$repo_root/scripts/validate-compile-matrix.sh"
 
 if [[ ! -f "$docs_script" ]]; then
   echo "Missing docs validator: scripts/validate-docs.sh"
@@ -21,6 +22,11 @@ if [[ ! -f "$changelog_script" ]]; then
   exit 1
 fi
 
+if [[ ! -f "$compile_script" ]]; then
+  echo "Missing compile validator: scripts/validate-compile-matrix.sh"
+  exit 1
+fi
+
 if [[ ! -x "$docs_script" ]]; then
   chmod +x "$docs_script" 2>/dev/null || true
 fi
@@ -33,6 +39,11 @@ if [[ ! -x "$changelog_script" ]]; then
   chmod +x "$changelog_script" 2>/dev/null || true
 fi
 
+if [[ ! -x "$compile_script" ]]; then
+  chmod +x "$compile_script" 2>/dev/null || true
+fi
+
 "$docs_script"
 "$opt_script"
 "$changelog_script"
+"$compile_script"
