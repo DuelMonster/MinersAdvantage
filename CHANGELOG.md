@@ -10,10 +10,7 @@
 **When Complete (M9):**
 - ✅ M1: Traceability audit complete - Baseline matrix created
 - ✅ M2: Bootstrap complete - Both loaders initialize MinersAdvantageCore
-- 🔄 M3: Keybindings & Client Input (Fabric 1.21.11 partial)
-	- Fabric keybindings registered via ClientInputHandler
-	- NeoForge event handlers pending
-	- 26.1.2 Fabric API migration pending
+- ✅ M3: Keybindings & Client Input complete - Fabric and NeoForge client input wired across all four nodes
 - M4: Networking transport layer
 - M5: Server events (5 missing)
 - M6: Config UI (YACL + ModMenu/NeoForge)

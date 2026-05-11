@@ -37,8 +37,8 @@ This repository is a source-driven rewrite of Miners Advantage with a hard reset
 
 As of 2026-05-11, comprehensive parity audit identified critical gaps in runtime wiring across six areas:
 
-1. **Bootstrap** — NeoForge @Mod class commented out; Fabric client entry point missing (blocks client initialization)
-2. **Client Input** — Keybinding metadata exists but registration and tick consumption unwired; all player input blocked
+1. **Bootstrap** — Both Fabric and NeoForge now bootstrap MinersAdvantageCore across all nodes
+2. **Client Input** — Keybindings are registered and client tick polling is wired; packet transport remains deferred to networking work
 3. **Server Events** — Block break and server tick hooked; 5 critical event types missing (login/logout/unload/entity/tool modification)
 4. **Networking** — Payload records defined; codec/handler registration and send sites missing (network transport blocked)
 5. **Config UI** — ModMenu factory stubbed (returns null); NeoForge factory missing; YACL screen builder not implemented

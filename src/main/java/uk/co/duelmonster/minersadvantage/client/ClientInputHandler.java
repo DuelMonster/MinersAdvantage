@@ -3,12 +3,12 @@ package uk.co.duelmonster.minersadvantage.client;
 
 import java.util.HashSet;
 import java.util.List;
+import java.lang.reflect.Method;
 import java.util.Set;
 import uk.co.duelmonster.minersadvantage.common.network.ComponentTogglePacket;
 import uk.co.duelmonster.minersadvantage.common.services.input.ClientInputService;
 
 //? if fabric {
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.KeyMapping;
 import com.mojang.blaze3d.platform.InputConstants;
 //?} else {
@@ -65,6 +65,23 @@ public final class ClientInputHandler {
         return InputConstants.getKey(mcKeyName);
     }
 
+    private static void registerKeyMapping(KeyMapping keyMapping) {
+        try {
+            Class<?> helperClass;
+            Method registerMethod;
+            try {
+                helperClass = Class.forName("net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper");
+                registerMethod = helperClass.getMethod("registerKeyBinding", KeyMapping.class);
+            } catch (ClassNotFoundException oldApiMissing) {
+                helperClass = Class.forName("net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper");
+                registerMethod = helperClass.getMethod("registerKeyMapping", KeyMapping.class);
+            }
+            registerMethod.invoke(null, keyMapping);
+        } catch (ReflectiveOperationException exception) {
+            throw new IllegalStateException("Unable to register key mapping", exception);
+        }
+    }
+
     //? if fabric {
     /**
      * Register keybindings on Fabric client startup.
@@ -81,7 +98,7 @@ public final class ClientInputHandler {
                 key.getValue(),
                 KeyMapping.Category.MISC
             );
-            KeyBindingHelper.registerKeyBinding(keyMapping);
+            registerKeyMapping(keyMapping);
             keyMappings.put(spec.action(), keyMapping);
         }
     }
