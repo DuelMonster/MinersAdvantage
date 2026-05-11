@@ -14,7 +14,7 @@
 - 🔄 M4: Networking transport layer (input + player sync packets live; remaining parity payloads pending)
 - ✅ M5: Server events & dispatch complete - login/logout, level unload, entity load/join handling, and NeoForge tool-modification hook wired
 - ✅ M6: Config UI complete - shared YACL screen implemented, Fabric ModMenu factory wired, NeoForge config screen extension point registered
-- M7: Assets/Localization migration
+- ✅ M7: Assets/Localization migration complete - migrated `en_us.json` and `ru_ru.json` into modern resources and added rewrite keybinding/localization keys
 - M8-M9: Full parity verification
 
 ## 0.2.0
