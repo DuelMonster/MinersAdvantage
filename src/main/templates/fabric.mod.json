@@ -9,6 +9,7 @@
   "environment": "*",
   "entrypoints": {
     "main": ["uk.co.duelmonster.minersadvantage.ModEntry"],
+    "client": ["uk.co.duelmonster.minersadvantage.client.FabricClientEntrypoint"],
     "modmenu": ["uk.co.duelmonster.minersadvantage.client.ModMenuEntrypoint"]
   },
   "depends": {
