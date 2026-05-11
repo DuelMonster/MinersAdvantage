@@ -1,3 +1,22 @@
+## 0.3.0 (In Progress)
+
+**Note:** This version is currently under migration. Status: Baseline audit complete (M1); implementation underway (M2-M9). 
+
+**Migration Tracking:**
+- Add parity baseline traceability matrix mapping all implementation gaps to legacy references ([.brainbox/plans/traceability-migration-parity.md](.brainbox/plans/traceability-migration-parity.md))
+- Update project status to reflect known gaps in bootstrap, client input, server events, networking, config UI, and assets
+- Begin Phase 3 parity rewrite migration (9-phase governance-enforced plan)
+
+**When Complete (M9):**
+- Fix NeoForge bootstrap (currently commented out)
+- Implement Fabric client entrypoint for keybinding registration
+- Wire keybinding runtime (registration + client tick consumption)
+- Implement networking transport layer (payload codecs + handlers)
+- Restore missing server events (login/logout/unload/entity spawn/tool mod)
+- Implement YACL config screen and ModMenu/NeoForge factories
+- Migrate localization files (en_us.json, ru_ru.json)
+- Full parity with legacy behavior across all 4 loader/version nodes
+
 ## 0.2.0
 
 - Add final strict traceability audit matrix mapping all appendix anchors (A-E) to modern implementation references.

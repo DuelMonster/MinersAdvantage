@@ -31,6 +31,39 @@ This repository is a source-driven rewrite of Miners Advantage with a hard reset
 - chiseledPublishAll
 - chiseledPackageRelease
 
+## Modernization Progress & Known Gaps
+
+### Current Status (v0.3.0)
+
+As of 2026-05-11, comprehensive parity audit identified critical gaps in runtime wiring across six areas:
+
+1. **Bootstrap** — NeoForge @Mod class commented out; Fabric client entry point missing (blocks client initialization)
+2. **Client Input** — Keybinding metadata exists but registration and tick consumption unwired; all player input blocked
+3. **Server Events** — Block break and server tick hooked; 5 critical event types missing (login/logout/unload/entity/tool modification)
+4. **Networking** — Payload records defined; codec/handler registration and send sites missing (network transport blocked)
+5. **Config UI** — ModMenu factory stubbed (returns null); NeoForge factory missing; YACL screen builder not implemented
+6. **Assets** — Language files (en_us.json, ru_ru.json) and resource structure not migrated
+
+For detailed source-level traceability and migration tasks, see [Parity Traceability Matrix](.brainbox/plans/traceability-migration-parity.md).
+
+### Modernization Plan
+
+All gaps are being systematically addressed via 9-phase governance-enforced milestone plan (started 2026-05-11):
+
+- M1: Baseline & governance setup
+- M2: Bootstrap completion (NeoForge + Fabric client)
+- M3: Keybindings & client input runtime
+- M4: Networking transport layer
+- M5: Server events & dispatch
+- M6: Config UI (YACL + ModMenu + NeoForge)
+- M7: Assets & localization
+- M8: Documentation signoff
+- M9: Verification & regression gate
+
+All commits follow semantic commit standards, CHANGELOG discipline, version bump rules, and optimization passes. Each milestone has explicit governance gates.
+
+---
+
 ## Code Architecture
 
 ### Package split

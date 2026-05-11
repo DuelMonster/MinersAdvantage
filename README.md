@@ -9,10 +9,10 @@ Miners Advantage is being rewritten as a modern, multi-loader project that keeps
 | 0 Repository Reset | complete | Legacy source archived in releases/original and untracked. |
 | 1 Build Foundation | complete | Stonecutter + Modstitch scaffold created for four nodes. |
 | 2 Architecture | complete | Component lifecycle, descriptor registry, and loader-neutral orchestration are fully wired. |
-| 3 Parity Rewrite | complete | Runtime behavior parity is implemented across orchestration, feature logic, sync, input, and hidden behavior paths. |
+| 3 Parity Rewrite | **in-progress** | **Known gaps:** Bootstrap (NeoForge commented), Client Input (keybindings not registered), Server Events (5/7 event types missing), Networking (transport layer incomplete), Config UI (ModMenu/NeoForge factories missing), Assets (localization not migrated). See [Parity Traceability Matrix](.brainbox/plans/traceability-migration-parity.md) for details. Migration plan in progress (Milestones 1-9). |
 | 4 Shared Modules | complete | Shared modules finalized, including processing-core, world-query, drop-core, substitution-core, illumination-core, inventory-core, tree-core, farming-core, sync-core, policy-core, and harvest-core. |
 | 5 Unit Tests | complete | Deterministic service/runtime/policy/input/packet tests cover parity-critical behavior with final cross-feature policy assertions. |
-| 6 Docs/CI/Release | complete | CI/release workflows and final parity signoff documentation are complete, including the strict traceability audit. |
+| 6 Docs/CI/Release | **pending** | Awaiting completion of Phase 3 parity work (Milestones 2-9); final docs/CI/release signoff after verification. |
 
 ## Loader and Version Matrix
 
