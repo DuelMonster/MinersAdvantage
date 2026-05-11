@@ -177,8 +177,11 @@ public final class ModEntry implements ModInitializer {
 //?} else {
 /*
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
@@ -192,9 +195,15 @@ public final class ModEntry {
     private final MinersAdvantageCore core = new MinersAdvantageCore();
     private final ToolEventHandler toolEvents = new CommonEventHandlerImpl(core);
 
-    public ModEntry(IEventBus modEventBus) {
+    public ModEntry(IEventBus modEventBus, ModContainer modContainer, Dist dist) {
         core.bootstrap();
         NeoForgeNetworkEvents.initialize(core);
+        if (dist == Dist.CLIENT) {
+            modContainer.registerExtensionPoint(
+                IConfigScreenFactory.class,
+                (IConfigScreenFactory) (container, modListScreen) -> uk.co.duelmonster.minersadvantage.client.MinersAdvantageConfigScreen.create(modListScreen)
+            );
+        }
         NeoForge.EVENT_BUS.addListener(this::onRightClickBlock);
         NeoForge.EVENT_BUS.addListener(this::onLeftClickBlock);
         NeoForge.EVENT_BUS.addListener(this::onServerTick);
