@@ -11,3 +11,5 @@
 # Copilot: propose a package structure and generate a file‑move plan.
 - [ ] Run a final consistency pass  
 # Copilot: verify no duplicates remain, no unused imports, and no inconsistent patterns.
+- [ ] Mandatory safeguard: preserve all existing comments unless the user explicitly requests comment edits/removal
+# Copilot: never delete, rewrite, or bulk-normalise comments/javadocs as part of optimisation work without direct user approval in this task.

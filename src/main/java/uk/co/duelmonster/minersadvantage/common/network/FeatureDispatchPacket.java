@@ -1,7 +1,5 @@
 package uk.co.duelmonster.minersadvantage.common.network;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -79,13 +77,7 @@ public record FeatureDispatchPacket(
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     private static Type<FeatureDispatchPacket> payloadId(String path) {
-        try {
-            Object identifier = createIdentifier(path);
-            Constructor<Type> constructor = (Constructor<Type>) Type.class.getConstructor(identifier.getClass());
-            return (Type<FeatureDispatchPacket>) constructor.newInstance(identifier);
-        } catch (ReflectiveOperationException exception) {
-            throw new IllegalStateException("Unable to create payload id for feature_dispatch", exception);
-        }
+        return NetworkPayloadReflection.payloadId(path, "Unable to create payload id for feature_dispatch");
     }
 
     /**
@@ -93,15 +85,7 @@ public record FeatureDispatchPacket(
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     private static Object createIdentifier(String path) throws ReflectiveOperationException {
-        try {
-            Class<?> identifierClass = Class.forName("net.minecraft.resources.Identifier");
-            Method factory = identifierClass.getMethod("fromNamespaceAndPath", String.class, String.class);
-            return factory.invoke(null, "minersadvantage", path);
-        } catch (ClassNotFoundException missingFabricIdentifier) {
-            Class<?> resourceLocationClass = Class.forName("net.minecraft.resources.ResourceLocation");
-            Method factory = resourceLocationClass.getMethod("fromNamespaceAndPath", String.class, String.class);
-            return factory.invoke(null, "minersadvantage", path);
-        }
+        return NetworkPayloadReflection.createIdentifier(path);
     }
 }
 
