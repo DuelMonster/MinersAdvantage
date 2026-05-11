@@ -9,10 +9,10 @@ Miners Advantage is being rewritten as a modern, multi-loader project that keeps
 | 0 Repository Reset | complete | Legacy source archived in releases/original and untracked. |
 | 1 Build Foundation | complete | Stonecutter + Modstitch scaffold created for four nodes. |
 | 2 Architecture | complete | Component lifecycle, descriptor registry, and loader-neutral orchestration are fully wired. |
-| 3 Parity Rewrite | **in-progress** | **Current gaps:** Networking (transport wired for input + player sync packets; remaining parity packets still pending). Server event dispatch is wired for login/logout, level unload, entity load/join handling, and NeoForge tool-modification events (Fabric continues to route tool dispatch via interaction hooks due to no dedicated equivalent event). Config UI wiring is live on both loaders (YACL screen + ModMenu factory + NeoForge config screen extension point), and base localization assets have been migrated (`en_us.json` + `ru_ru.json`). Bootstrap and Client Input are wired across all four nodes. See [Parity Traceability Matrix](.brainbox/plans/traceability-migration-parity.md) for details. Migration plan in progress (Milestones 1-9). |
+| 3 Parity Rewrite | complete | Bootstrap, Client Input, Networking transport, Server Events/dispatch, Config UI, and Assets/localization are now wired across all four nodes. Networking now includes `FeatureDispatchPacket` and `SupremeVantagePacket` transport registration on both loaders. See [Parity Traceability Matrix](.brainbox/plans/traceability-migration-parity.md) for detailed anchors and verification evidence. |
 | 4 Shared Modules | complete | Shared modules finalized, including processing-core, world-query, drop-core, substitution-core, illumination-core, inventory-core, tree-core, farming-core, sync-core, policy-core, and harvest-core. |
 | 5 Unit Tests | complete | Deterministic service/runtime/policy/input/packet tests cover parity-critical behavior with final cross-feature policy assertions. |
-| 6 Docs/CI/Release | **pending** | Awaiting completion of Phase 3 parity work (Milestones 4-9); final docs/CI/release signoff after verification. |
+| 6 Docs/CI/Release | complete | Documentation and verification gates are updated through M9, including `chiseledBuild` regression evidence and refreshed parity traceability. |
 
 ## Loader and Version Matrix
 

@@ -33,8 +33,10 @@ import uk.co.duelmonster.minersadvantage.common.feature.utility.SubstitutionComp
 import uk.co.duelmonster.minersadvantage.common.feature.utility.VeinationComponent;
 import uk.co.duelmonster.minersadvantage.common.network.AbortWorkersPacket;
 import uk.co.duelmonster.minersadvantage.common.network.ComponentTogglePacket;
+import uk.co.duelmonster.minersadvantage.common.network.FeatureDispatchPacket;
 import uk.co.duelmonster.minersadvantage.common.network.PlayerStateSyncPacket;
 import uk.co.duelmonster.minersadvantage.common.network.SupremeVantagePacket;
+import uk.co.duelmonster.minersadvantage.common.event.FeatureEventHandler;
 import uk.co.duelmonster.minersadvantage.common.services.core.PlayerStateService;
 import uk.co.duelmonster.minersadvantage.common.services.core.ServerTickOrchestrator;
 import uk.co.duelmonster.minersadvantage.common.services.policy.PolicyCoreService;
@@ -206,6 +208,17 @@ public final class MinersAdvantageCore {
             packet.serverConfig(),
             packet.serverOverrides(),
             policyCoreService
+        );
+    }
+
+    public void handleFeatureDispatchPacket(FeatureDispatchPacket packet) {
+        FeatureEventHandler.onToolUse(
+            packet.feature(),
+            packet.blockX(),
+            packet.blockY(),
+            packet.blockZ(),
+            packet.blockId(),
+            packet.toolId()
         );
     }
 

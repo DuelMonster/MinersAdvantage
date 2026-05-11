@@ -6,7 +6,9 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import uk.co.duelmonster.minersadvantage.common.MinersAdvantageCore;
 import uk.co.duelmonster.minersadvantage.common.network.AbortWorkersPacket;
 import uk.co.duelmonster.minersadvantage.common.network.ComponentTogglePacket;
+import uk.co.duelmonster.minersadvantage.common.network.FeatureDispatchPacket;
 import uk.co.duelmonster.minersadvantage.common.network.PlayerStateSyncPacket;
+import uk.co.duelmonster.minersadvantage.common.network.SupremeVantagePacket;
 
 public final class FabricNetworkEvents {
     private static boolean payloadTypesRegistered;
@@ -27,6 +29,8 @@ public final class FabricNetworkEvents {
         registerPlayToServer(ComponentTogglePacket.TYPE, ComponentTogglePacket.STREAM_CODEC);
         registerPlayToServer(AbortWorkersPacket.TYPE, AbortWorkersPacket.STREAM_CODEC);
         registerPlayToServer(PlayerStateSyncPacket.TYPE, PlayerStateSyncPacket.STREAM_CODEC);
+        registerPlayToServer(FeatureDispatchPacket.TYPE, FeatureDispatchPacket.STREAM_CODEC);
+        registerPlayToServer(SupremeVantagePacket.TYPE, SupremeVantagePacket.STREAM_CODEC);
         payloadTypesRegistered = true;
     }
 
@@ -62,6 +66,8 @@ public final class FabricNetworkEvents {
         ServerPlayNetworking.registerGlobalReceiver(ComponentTogglePacket.TYPE, (payload, context) -> context.server().execute(() -> core.handleComponentTogglePacket(payload)));
         ServerPlayNetworking.registerGlobalReceiver(AbortWorkersPacket.TYPE, (payload, context) -> context.server().execute(() -> core.handleAbortPacket(payload)));
         ServerPlayNetworking.registerGlobalReceiver(PlayerStateSyncPacket.TYPE, (payload, context) -> context.server().execute(() -> core.handlePlayerStateSyncPacket(payload)));
+        ServerPlayNetworking.registerGlobalReceiver(FeatureDispatchPacket.TYPE, (payload, context) -> context.server().execute(() -> core.handleFeatureDispatchPacket(payload)));
+        ServerPlayNetworking.registerGlobalReceiver(SupremeVantagePacket.TYPE, (payload, context) -> context.server().execute(() -> core.handleSupremeVantagePacket(payload)));
         serverHandlersRegistered = true;
     }
 }

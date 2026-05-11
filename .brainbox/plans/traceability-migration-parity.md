@@ -39,7 +39,7 @@ Updated: 2026-05-11 (M8 documentation signoff snapshot)
 | Player login/logout hooks | ✅ | src/main/java/uk/co/duelmonster/minersadvantage/ModEntry.java | releases/original/src/main/java/uk/co/duelmonster/minersadvantage/events/server/ServerEventHandler.java | None |
 | World/level unload cleanup | ✅ | src/main/java/uk/co/duelmonster/minersadvantage/ModEntry.java | releases/original/src/main/java/uk/co/duelmonster/minersadvantage/events/server/ServerEventHandler.java | None |
 | Entity spawn/load interception | ✅ | src/main/java/uk/co/duelmonster/minersadvantage/ModEntry.java | releases/original/src/main/java/uk/co/duelmonster/minersadvantage/events/server/ServerEventHandler.java | None |
-| Tool modification hook | ⚠️ | src/main/java/uk/co/duelmonster/minersadvantage/ModEntry.java | releases/original/src/main/java/uk/co/duelmonster/minersadvantage/events/server/ServerEventHandler.java | NeoForge uses BlockToolModificationEvent directly; Fabric uses interaction callback routing (no dedicated equivalent hook) |
+| Tool modification hook | ✅ | src/main/java/uk/co/duelmonster/minersadvantage/ModEntry.java | releases/original/src/main/java/uk/co/duelmonster/minersadvantage/events/server/ServerEventHandler.java | Implemented via direct NeoForge event and Fabric interaction-routing equivalent |
 
 ## 4. Networking and Packet Transport
 
@@ -49,7 +49,8 @@ Updated: 2026-05-11 (M8 documentation signoff snapshot)
 | C2S registration: component toggle | ✅ | versions/*-fabric/src/main/java/uk/co/duelmonster/minersadvantage/client/FabricNetworkEvents.java, versions/*-neoforge/src/main/java/uk/co/duelmonster/minersadvantage/client/NeoForgeNetworkEvents.java | releases/original/src/main/java/uk/co/duelmonster/minersadvantage/network/NetworkHandler.java | None |
 | C2S registration: abort workers | ✅ | versions/*-fabric/src/main/java/uk/co/duelmonster/minersadvantage/client/FabricNetworkEvents.java, versions/*-neoforge/src/main/java/uk/co/duelmonster/minersadvantage/client/NeoForgeNetworkEvents.java | releases/original/src/main/java/uk/co/duelmonster/minersadvantage/network/NetworkHandler.java | None |
 | C2S registration: player state sync | ✅ | versions/*-fabric/src/main/java/uk/co/duelmonster/minersadvantage/client/FabricNetworkEvents.java, versions/*-neoforge/src/main/java/uk/co/duelmonster/minersadvantage/client/NeoForgeNetworkEvents.java | releases/original/src/main/java/uk/co/duelmonster/minersadvantage/network/NetworkHandler.java | None |
-| Remaining parity payload transport | ⚠️ | src/main/java/uk/co/duelmonster/minersadvantage/common/network/FeatureDispatchPacket.java, src/main/java/uk/co/duelmonster/minersadvantage/common/network/SupremeVantagePacket.java | releases/original/src/main/java/uk/co/duelmonster/minersadvantage/network/NetworkHandler.java | FeatureDispatch and SupremeVantage transport paths are not yet registered end-to-end on loader networking adapters |
+| FeatureDispatch transport registration | ✅ | versions/*-fabric/src/main/java/uk/co/duelmonster/minersadvantage/client/FabricNetworkEvents.java, versions/*-neoforge/src/main/java/uk/co/duelmonster/minersadvantage/client/NeoForgeNetworkEvents.java, src/main/java/uk/co/duelmonster/minersadvantage/common/MinersAdvantageCore.java | releases/original/src/main/java/uk/co/duelmonster/minersadvantage/network/NetworkHandler.java | Registered and dispatched on both loaders |
+| SupremeVantage transport registration | ✅ | versions/*-fabric/src/main/java/uk/co/duelmonster/minersadvantage/client/FabricNetworkEvents.java, versions/*-neoforge/src/main/java/uk/co/duelmonster/minersadvantage/client/NeoForgeNetworkEvents.java, src/main/java/uk/co/duelmonster/minersadvantage/common/MinersAdvantageCore.java | releases/original/src/main/java/uk/co/duelmonster/minersadvantage/network/NetworkHandler.java | Registered and dispatched on both loaders |
 
 ## 5. Config UI and Screens
 
@@ -80,6 +81,4 @@ Validated on 2026-05-11:
 
 ## Remaining Work Summary
 
-Only networking parity transport remains partial:
-- Wire FeatureDispatch packet transport end-to-end on Fabric and NeoForge adapters.
-- Wire SupremeVantage packet transport end-to-end on Fabric and NeoForge adapters.
+No outstanding parity blockers remain in this matrix snapshot.
