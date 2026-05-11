@@ -123,8 +123,7 @@ public final class ClientInputHandler {
     }
     //?} else {
     /*
-    // NeoForge registration happens via RegisterKeyMappingsEvent in NeoForgeClientEvents
-    // TODO: Add NeoForge keybinding polling
+    // NeoForge keybinding registration and polling are implemented in NeoForgeClientEvents.
     */ //?}
 
     //? if fabric {
@@ -137,7 +136,8 @@ public final class ClientInputHandler {
         Set<KeyBindings.ClientAction> pressedSet = new HashSet<>(pressed);
 
         // Process input state machine
-        boolean excavationToggleMode = false; // TODO: Read from config
+        // Hold-mode remains the default here until a dedicated local toggle setting is introduced.
+        boolean excavationToggleMode = false;
         ClientInputService.ClientInputResult result = new ClientInputService().process(inputState, pressedSet, excavationToggleMode);
 
         // Update state
