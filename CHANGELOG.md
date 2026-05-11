@@ -1,6 +1,8 @@
 ## 0.3.0
 
-Phase 3 parity rewrite is complete across all four nodes with documentation and verification signoff.
+- Phase 3 parity rewrite is complete across all four nodes with documentation and verification signoff.
+- Add a full documentation standards guide and enforce README/TECHNICAL coverage checks in pre-commit.
+- Add tracked daily version-bump enforcement so `mod_version` changes are blocked more than once per day without an explicit override.
 
 **Milestone Completion:**
 - ✅ M1: Traceability audit complete - Baseline matrix created

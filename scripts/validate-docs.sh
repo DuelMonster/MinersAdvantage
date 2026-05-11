@@ -63,6 +63,16 @@ if ! grep -Eiq '^MIT\b' <<< "$technical"; then
   missing+=("TECHNICAL must explicitly state MIT license.")
 fi
 
+# Installation section must cover both loaders
+if grep -Fq '## Installation' <<< "$readme"; then
+  if ! grep -Eiq '\bFabric\b' <<< "$readme"; then
+    missing+=("README Installation section must mention Fabric.")
+  fi
+  if ! grep -Eiq '\bNeoForge\b' <<< "$readme"; then
+    missing+=("README Installation section must mention NeoForge.")
+  fi
+fi
+
 if (( ${#missing[@]} > 0 )); then
   echo
   echo "Documentation validation failed:"
@@ -70,7 +80,7 @@ if (( ${#missing[@]} > 0 )); then
     echo "- $issue"
   done
   echo
-  echo "Fix documentation to satisfy .brainbox/rules/documentation.rules.md before committing."
+  echo "Fix documentation to satisfy .brainbox/guides/DOCUMENTATION_STANDARDS.md before committing."
   exit 1
 fi
 

@@ -60,6 +60,16 @@ if ($technical -notmatch '(?im)^MIT\b') {
     $missing.Add('TECHNICAL must explicitly state MIT license.')
 }
 
+# Installation section must cover both loaders
+if ($readme -match '## Installation') {
+    if ($readme -notmatch '(?i)\bFabric\b') {
+        $missing.Add('README Installation section must mention Fabric.')
+    }
+    if ($readme -notmatch '(?i)\bNeoForge\b') {
+        $missing.Add('README Installation section must mention NeoForge.')
+    }
+}
+
 if ($missing.Count -gt 0) {
     Write-Host ''
     Write-Host 'Documentation validation failed:' -ForegroundColor Red
@@ -67,7 +77,7 @@ if ($missing.Count -gt 0) {
         Write-Host "- $issue" -ForegroundColor Yellow
     }
     Write-Host ''
-    Write-Host 'Fix documentation to satisfy .brainbox/rules/documentation.rules.md before committing.' -ForegroundColor Red
+    Write-Host 'Fix documentation to satisfy .brainbox/guides/DOCUMENTATION_STANDARDS.md before committing.' -ForegroundColor Red
     exit 1
 }
 

@@ -5,11 +5,10 @@ README:
 Must be friendly, humanised, aimed at users, with some comedic flare
 - Overview
 - Features
-- How it works
-- Supported crops
+- How each feature works
 - Installation (Fabric + NeoForge)
 - Configuration
-- Compatibility (FastItemFrames)
+- Compatibility (if any)
 - Technical documentation - link to TECHNICAL.md
 - License (MIT)
 - Credits

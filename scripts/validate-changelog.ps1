@@ -8,16 +8,29 @@ if (-not (Test-Path $changelogPath)) {
     exit 1
 }
 
-$changelog = Get-Content -Raw -Path $changelogPath
+$changelogLines = Get-Content -Path $changelogPath
 
-# Check that CHANGELOG has at least one version header (e.g., ## 0.18.0)
-if ($changelog -notmatch '## \d+\.\d+\.\d+') {
+$hasVersionHeader = $false
+$hasBulletEntry = $false
+
+foreach ($line in $changelogLines) {
+    if ($line -match '^## \d+\.\d+\.\d+$') {
+        $hasVersionHeader = $true
+        continue
+    }
+
+    if ($hasVersionHeader -and $line -match '^\s*-\s+.+$') {
+        $hasBulletEntry = $true
+        break
+    }
+}
+
+if (-not $hasVersionHeader) {
     Write-Host 'CHANGELOG.md missing version headers (format: ## X.Y.Z)' -ForegroundColor Yellow
     exit 1
 }
 
-# Check that there is at least one bullet entry under a version header
-if ($changelog -notmatch '## \d+\.\d+\.\d+[\r\n]+.*?^-') {
+if (-not $hasBulletEntry) {
     Write-Host 'CHANGELOG.md has version headers but no entries (format: - description)' -ForegroundColor Yellow
     exit 1
 }

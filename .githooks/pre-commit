@@ -3,12 +3,18 @@ set -euo pipefail
 
 repo_root="$(git rev-parse --show-toplevel)"
 docs_script="$repo_root/scripts/validate-docs.sh"
+version_script="$repo_root/scripts/validate-version-bump.sh"
 opt_script="$repo_root/scripts/validate-optimization-pass.sh"
 changelog_script="$repo_root/scripts/validate-changelog.sh"
 compile_script="$repo_root/scripts/validate-compile-matrix.sh"
 
 if [[ ! -f "$docs_script" ]]; then
   echo "Missing docs validator: scripts/validate-docs.sh"
+  exit 1
+fi
+
+if [[ ! -f "$version_script" ]]; then
+  echo "Missing version bump validator: scripts/validate-version-bump.sh"
   exit 1
 fi
 
@@ -31,6 +37,10 @@ if [[ ! -x "$docs_script" ]]; then
   chmod +x "$docs_script" 2>/dev/null || true
 fi
 
+if [[ ! -x "$version_script" ]]; then
+  chmod +x "$version_script" 2>/dev/null || true
+fi
+
 if [[ ! -x "$opt_script" ]]; then
   chmod +x "$opt_script" 2>/dev/null || true
 fi
@@ -44,6 +54,7 @@ if [[ ! -x "$compile_script" ]]; then
 fi
 
 "$docs_script"
+"$version_script"
 "$opt_script"
 "$changelog_script"
 "$compile_script"
