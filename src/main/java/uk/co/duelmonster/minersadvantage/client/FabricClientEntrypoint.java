@@ -2,6 +2,7 @@
 package uk.co.duelmonster.minersadvantage.client;
 
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 
 /**
  * Fabric client-side initialization entry point.
@@ -18,9 +19,12 @@ public final class FabricClientEntrypoint implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        // Client-side initialization will be populated in later milestones (M3, M6):
-        // - M3: Keybinding registration and client tick input loop wiring
-        // - M6: Config screen factory binding (delegated to ModMenuEntrypoint for ModMenu integration)
+        // M3: Register keybindings and wire client tick input loop
+        ClientInputHandler.registerKeybindings();
+        ClientTickEvents.END_CLIENT_TICK.register(minecraft -> ClientInputHandler.tick());
     }
 }
-//? }
+//?} else {
+/*
+// This class is Fabric-only (client-side initialization).
+*/ //?}
