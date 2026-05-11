@@ -12,7 +12,7 @@
 - ✅ M2: Bootstrap complete - Both loaders initialize MinersAdvantageCore
 - ✅ M3: Keybindings & Client Input complete - Fabric and NeoForge client input wired across all four nodes
 - 🔄 M4: Networking transport layer (input + player sync packets live; remaining parity payloads pending)
-- M5: Server events (5 missing)
+- ✅ M5: Server events & dispatch complete - login/logout, level unload, entity load/join handling, and NeoForge tool-modification hook wired
 - M6: Config UI (YACL + ModMenu/NeoForge)
 - M7: Assets/Localization migration
 - M8-M9: Full parity verification

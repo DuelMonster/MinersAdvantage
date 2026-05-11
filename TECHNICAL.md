@@ -39,7 +39,7 @@ As of 2026-05-11, comprehensive parity audit identified critical gaps in runtime
 
 1. **Bootstrap** — Both Fabric and NeoForge now bootstrap MinersAdvantageCore across all nodes
 2. **Client Input** — Keybindings are registered and client tick polling is wired; input-driven toggle and abort packets now traverse the transport layer
-3. **Server Events** — Block break and server tick hooked; 5 critical event types missing (login/logout/unload/entity/tool modification)
+3. **Server Events** — Login/logout, level unload, and entity load/join dispatch are wired across loaders, with NeoForge block tool modification event wiring and Fabric tool dispatch routed via interaction callbacks (no dedicated Fabric tool-modification event)
 4. **Networking** — Transport is live for component toggles, aborts, and player sync snapshots; remaining parity payload wiring still pending
 5. **Config UI** — ModMenu factory stubbed (returns null); NeoForge factory missing; YACL screen builder not implemented
 6. **Assets** — Language files (en_us.json, ru_ru.json) and resource structure not migrated
@@ -54,7 +54,7 @@ All gaps are being systematically addressed via 9-phase governance-enforced mile
 - M2: Bootstrap completion (NeoForge + Fabric client)
 - M3: Keybindings & client input runtime
 - M4: Networking transport layer
-- M5: Server events & dispatch
+- M5: Server events & dispatch (completed)
 - M6: Config UI (YACL + ModMenu + NeoForge)
 - M7: Assets & localization
 - M8: Documentation signoff

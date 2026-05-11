@@ -2,17 +2,29 @@ package uk.co.duelmonster.minersadvantage;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.ExperienceOrb;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
+import java.lang.reflect.Method;
 import uk.co.duelmonster.minersadvantage.common.MinersAdvantageCore;
+import uk.co.duelmonster.minersadvantage.common.config.ServerOverridesConfig;
+import uk.co.duelmonster.minersadvantage.common.config.SyncedClientConfig;
 import uk.co.duelmonster.minersadvantage.common.event.CommonEventHandlerImpl;
 import uk.co.duelmonster.minersadvantage.common.event.ToolEventHandler;
+import uk.co.duelmonster.minersadvantage.common.network.PlayerStateSyncPacket;
 
 //? if fabric {
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import uk.co.duelmonster.minersadvantage.client.FabricNetworkEvents;
@@ -27,8 +39,13 @@ public final class ModEntry implements ModInitializer {
         FabricNetworkEvents.initialize(core);
         FabricNetworkEvents.registerPayloadTypes();
         FabricNetworkEvents.registerServerHandlers();
+        registerFabricLevelUnloadEvent();
 
-UseBlockCallback.EVENT.register((player, level, hand, hitResult) -> {
+        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> onPlayerLogin(handler.getPlayer()));
+        ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> onPlayerLogout(handler.getPlayer()));
+        ServerEntityEvents.ENTITY_LOAD.register(this::onFabricEntityLoad);
+
+        UseBlockCallback.EVENT.register((player, level, hand, hitResult) -> {
             if (level.isClientSide() || hand != InteractionHand.MAIN_HAND) {
                 return InteractionResult.PASS;
             }
@@ -54,6 +71,86 @@ UseBlockCallback.EVENT.register((player, level, hand, hitResult) -> {
         });
 
         ServerTickEvents.END_SERVER_TICK.register(server -> toolEvents.onServerTick());
+    }
+
+    private void registerFabricLevelUnloadEvent() {
+        try {
+            // 1.21.11 branch
+            Class<?> worldEventsClass = Class.forName("net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents");
+            Object unloadEvent = worldEventsClass.getField("UNLOAD").get(null);
+            Method registerMethod = unloadEvent.getClass().getMethod("register", Class.forName("net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents$Unload"));
+            Object callback = java.lang.reflect.Proxy.newProxyInstance(
+                getClass().getClassLoader(),
+                new Class[]{Class.forName("net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents$Unload")},
+                (proxy, method, args) -> {
+                    onServerLevelUnload((ServerLevel) args[1]);
+                    return null;
+                }
+            );
+            registerMethod.invoke(unloadEvent, callback);
+        } catch (ReflectiveOperationException missingWorldEvents) {
+            try {
+                // 26.1.2 branch
+                Class<?> levelEventsClass = Class.forName("net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents");
+                Object unloadEvent = levelEventsClass.getField("UNLOAD").get(null);
+                Method registerMethod = unloadEvent.getClass().getMethod("register", Class.forName("net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents$Unload"));
+                Object callback = java.lang.reflect.Proxy.newProxyInstance(
+                    getClass().getClassLoader(),
+                    new Class[]{Class.forName("net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents$Unload")},
+                    (proxy, method, args) -> {
+                        onServerLevelUnload((ServerLevel) args[1]);
+                        return null;
+                    }
+                );
+                registerMethod.invoke(unloadEvent, callback);
+            } catch (ReflectiveOperationException exception) {
+                throw new IllegalStateException("Unable to register Fabric level unload event", exception);
+            }
+        }
+    }
+
+    private void onPlayerLogin(ServerPlayer player) {
+        long playerId = player.getUUID().getLeastSignificantBits();
+        SyncedClientConfig defaults = SyncedClientConfig.defaults();
+        core.handlePlayerStateSyncPacket(new PlayerStateSyncPacket(playerId, defaults, defaults, new ServerOverridesConfig()));
+    }
+
+    private void onPlayerLogout(ServerPlayer player) {
+        long playerId = player.getUUID().getLeastSignificantBits();
+        core.workerRuntimeService().abortAllForPlayerWithStats(playerId);
+        core.playerStateService().clearPlayerState(playerId);
+    }
+
+    private void onServerLevelUnload(ServerLevel level) {
+        for (ServerPlayer player : level.players()) {
+            onPlayerLogout(player);
+        }
+    }
+
+    private void onFabricEntityLoad(Entity entity, ServerLevel level) {
+        if (entity instanceof ItemEntity itemEntity) {
+            Player nearest = level.getNearestPlayer(entity, 8.0);
+            if (nearest instanceof ServerPlayer serverPlayer) {
+                String itemId = BuiltInRegistries.ITEM.getKey(itemEntity.getItem().getItem()).toString();
+                toolEvents.onItemPickup(itemId, false);
+                core.workerRuntimeService().interceptLiveDropForPlayer(
+                    serverPlayer.getUUID().getLeastSignificantBits(),
+                    "item:" + itemId,
+                    itemEntity.getItem().getCount(),
+                    true
+                );
+            }
+        } else if (entity instanceof ExperienceOrb orb) {
+            Player nearest = level.getNearestPlayer(entity, 8.0);
+            if (nearest instanceof ServerPlayer serverPlayer) {
+                core.workerRuntimeService().interceptLiveDropForPlayer(
+                    serverPlayer.getUUID().getLeastSignificantBits(),
+                    "xp_orb",
+                    orb.getValue(),
+                    true
+                );
+            }
+        }
     }
 
     private void routeToolUse(ItemStack stack, BlockPos pos, BlockState state) {
@@ -82,7 +179,11 @@ UseBlockCallback.EVENT.register((player, level, hand, hitResult) -> {
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import uk.co.duelmonster.minersadvantage.client.NeoForgeNetworkEvents;
 
@@ -97,6 +198,78 @@ public final class ModEntry {
         NeoForge.EVENT_BUS.addListener(this::onRightClickBlock);
         NeoForge.EVENT_BUS.addListener(this::onLeftClickBlock);
         NeoForge.EVENT_BUS.addListener(this::onServerTick);
+        NeoForge.EVENT_BUS.addListener(this::onPlayerLogin);
+        NeoForge.EVENT_BUS.addListener(this::onPlayerLogout);
+        NeoForge.EVENT_BUS.addListener(this::onLevelUnload);
+        NeoForge.EVENT_BUS.addListener(this::onEntityJoinLevel);
+        NeoForge.EVENT_BUS.addListener(this::onToolModification);
+    }
+
+    private void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) {
+            return;
+        }
+        long playerId = player.getUUID().getLeastSignificantBits();
+        SyncedClientConfig defaults = SyncedClientConfig.defaults();
+        core.handlePlayerStateSyncPacket(new PlayerStateSyncPacket(playerId, defaults, defaults, new ServerOverridesConfig()));
+    }
+
+    private void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) {
+            return;
+        }
+        long playerId = player.getUUID().getLeastSignificantBits();
+        core.workerRuntimeService().abortAllForPlayerWithStats(playerId);
+        core.playerStateService().clearPlayerState(playerId);
+    }
+
+    private void onLevelUnload(LevelEvent.Unload event) {
+        if (!(event.getLevel() instanceof ServerLevel level)) {
+            return;
+        }
+        for (ServerPlayer player : level.players()) {
+            core.workerRuntimeService().abortAllForPlayerWithStats(player.getUUID().getLeastSignificantBits());
+            core.playerStateService().clearPlayerState(player.getUUID().getLeastSignificantBits());
+        }
+    }
+
+    private void onEntityJoinLevel(EntityJoinLevelEvent event) {
+        if (!(event.getLevel() instanceof ServerLevel level) || event.getLevel().isClientSide()) {
+            return;
+        }
+
+        Entity entity = event.getEntity();
+        if (entity instanceof ItemEntity itemEntity) {
+            Player nearest = level.getNearestPlayer(entity, 8.0);
+            if (nearest instanceof ServerPlayer serverPlayer) {
+                String itemId = BuiltInRegistries.ITEM.getKey(itemEntity.getItem().getItem()).toString();
+                toolEvents.onItemPickup(itemId, false);
+                core.workerRuntimeService().interceptLiveDropForPlayer(
+                    serverPlayer.getUUID().getLeastSignificantBits(),
+                    "item:" + itemId,
+                    itemEntity.getItem().getCount(),
+                    true
+                );
+            }
+        } else if (entity instanceof ExperienceOrb orb) {
+            Player nearest = level.getNearestPlayer(entity, 8.0);
+            if (nearest instanceof ServerPlayer serverPlayer) {
+                core.workerRuntimeService().interceptLiveDropForPlayer(
+                    serverPlayer.getUUID().getLeastSignificantBits(),
+                    "xp_orb",
+                    orb.getValue(),
+                    true
+                );
+            }
+        }
+    }
+
+    private void onToolModification(BlockEvent.BlockToolModificationEvent event) {
+        if (event.getPlayer() == null || event.getLevel().isClientSide()) {
+            return;
+        }
+        BlockState state = event.getFinalState() != null ? event.getFinalState() : event.getState();
+        routeToolUse(event.getHeldItemStack(), event.getPos(), state);
     }
 
     private void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
