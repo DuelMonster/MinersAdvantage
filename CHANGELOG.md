@@ -8,14 +8,17 @@
 - Begin Phase 3 parity rewrite migration (9-phase governance-enforced plan)
 
 **When Complete (M9):**
-- Fix NeoForge bootstrap (currently commented out)
-- Implement Fabric client entrypoint for keybinding registration
-- Wire keybinding runtime (registration + client tick consumption)
-- Implement networking transport layer (payload codecs + handlers)
-- Restore missing server events (login/logout/unload/entity spawn/tool mod)
-- Implement YACL config screen and ModMenu/NeoForge factories
-- Migrate localization files (en_us.json, ru_ru.json)
-- Full parity with legacy behavior across all 4 loader/version nodes
+- ✅ M1: Traceability audit complete - Baseline matrix created
+- ✅ M2: Bootstrap complete - Both loaders initialize MinersAdvantageCore
+- 🔄 M3: Keybindings & Client Input (Fabric 1.21.11 partial)
+	- Fabric keybindings registered via ClientInputHandler
+	- NeoForge event handlers pending
+	- 26.1.2 Fabric API migration pending
+- M4: Networking transport layer
+- M5: Server events (5 missing)
+- M6: Config UI (YACL + ModMenu/NeoForge)
+- M7: Assets/Localization migration
+- M8-M9: Full parity verification
 
 ## 0.2.0
 
