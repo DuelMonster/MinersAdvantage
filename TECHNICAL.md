@@ -188,3 +188,7 @@ MIT
 
 - DuelMonster
 - Stonecutter, Modstitch, Gradle contributors
+
+### SupremeVantage Migration Note
+
+The legacy SupremeVantage packet handler (`PacketSupremeVantage`) has been deprecated and removed. All SupremeVantage reward logic and packet transport is now handled by `SupremeVantagePacket` and `SupremeVantageService`, which are registered and dispatched in a loader-neutral manner. This ensures deterministic reward progression and test coverage across all supported nodes.
