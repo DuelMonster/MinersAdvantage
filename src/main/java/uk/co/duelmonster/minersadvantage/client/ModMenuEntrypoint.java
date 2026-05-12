@@ -22,7 +22,3 @@ public final class ModMenuEntrypoint implements ModMenuApi {
 /*
 // This class is Fabric-only.
 */ //?}
-
-
-
-

@@ -133,6 +133,3 @@ public final class LumbinationCoreService {
         return new LumbinationPlan(logsToHarvest, leavesToClear, saplingAvailable, steps);
     }
 }
-
-
-

@@ -29,5 +29,3 @@ public final class MAConfig_Illumination extends MAConfig_BaseCategory {
     public int lowestLightLevel() { return lowestLightLevel; }
     public boolean useBlockLight() { return useBlockLight; }
 }
-
-

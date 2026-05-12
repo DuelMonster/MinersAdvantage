@@ -8,6 +8,3 @@ public record CultivationConfig(
     boolean enabled,
     int hydrationDistance
 ) {}
-
-
-

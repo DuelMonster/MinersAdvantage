@@ -36,5 +36,3 @@ public final class MAConfig_Captivation extends MAConfig_BaseCategory {
     public boolean unconditionalBlacklist() { return unconditionalBlacklist; }
     public List<String> blacklist() { return blacklist; }
 }
-
-

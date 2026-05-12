@@ -13,5 +13,3 @@ public final class CultivationAgent extends AbstractAgent {
         super(player, packet);
     }
 }
-
-

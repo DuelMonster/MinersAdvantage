@@ -45,5 +45,3 @@ public final class ServerEventHandler {
         core.serverTick();
     }
 }
-
-

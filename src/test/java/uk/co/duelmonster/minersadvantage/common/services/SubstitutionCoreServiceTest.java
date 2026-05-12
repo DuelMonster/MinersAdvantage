@@ -65,6 +65,3 @@ class SubstitutionCoreServiceTest {
         assertFalse(restoreDecision.switched());
     }
 }
-
-
-

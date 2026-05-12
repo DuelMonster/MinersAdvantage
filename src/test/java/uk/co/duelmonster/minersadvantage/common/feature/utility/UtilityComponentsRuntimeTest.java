@@ -108,6 +108,3 @@ class UtilityComponentsRuntimeTest {
         assertTrue(component.lastDecision().switchBackToPrimary());
     }
 }
-
-
-

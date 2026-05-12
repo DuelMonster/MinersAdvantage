@@ -214,6 +214,3 @@ public final class IlluminationCoreService {
         return new IlluminationDecision(placement, planned, placeNow, manualMode, inventoryDepleted);
     }
 }
-
-
-

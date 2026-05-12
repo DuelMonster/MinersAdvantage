@@ -10,6 +10,3 @@ public enum TorchPlacement {
     RIGHT_WALL,
     BOTH_WALLS
 }
-
-
-

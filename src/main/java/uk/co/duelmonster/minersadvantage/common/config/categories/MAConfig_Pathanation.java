@@ -23,5 +23,3 @@ public final class MAConfig_Pathanation extends MAConfig_BaseCategory {
     public int pathWidth() { return pathWidth; }
     public int pathLength() { return pathLength; }
 }
-
-

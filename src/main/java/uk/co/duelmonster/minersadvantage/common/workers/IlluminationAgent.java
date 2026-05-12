@@ -13,5 +13,3 @@ public final class IlluminationAgent extends AbstractAgent {
         super(player, packet);
     }
 }
-
-

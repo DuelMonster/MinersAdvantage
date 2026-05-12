@@ -123,6 +123,3 @@ public final class VentilationComponent implements ComponentLifecycle {
         lastBatch = new VentilationCoreService.VentilationBatch(0, 0, List.of());
     }
 }
-
-
-

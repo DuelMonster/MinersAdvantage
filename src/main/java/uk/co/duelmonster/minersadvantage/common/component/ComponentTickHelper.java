@@ -35,6 +35,3 @@ public final class ComponentTickHelper {
         return FeatureDispatchBus.getContext();
     }
 }
-
-
-

@@ -35,5 +35,3 @@ public class PacketLumbinate extends BaseBlockPacket {
         PacketProcessSupport.dispatchFeature(player, FeatureId.LUMBINATION, pkt);
     }
 }
-
-

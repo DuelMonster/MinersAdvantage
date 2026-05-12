@@ -77,6 +77,3 @@ class FarmingHarvestComponentsRuntimeTest {
         assertFalse(component.lastDecision().blockedByGui());
     }
 }
-
-
-

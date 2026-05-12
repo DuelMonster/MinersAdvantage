@@ -17,6 +17,3 @@ public interface ToolEventHandler {
 
     void onServerTick();
 }
-
-
-

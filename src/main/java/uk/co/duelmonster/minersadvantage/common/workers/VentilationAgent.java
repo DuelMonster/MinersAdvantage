@@ -13,5 +13,3 @@ public final class VentilationAgent extends AbstractAgent {
         super(player, packet);
     }
 }
-
-

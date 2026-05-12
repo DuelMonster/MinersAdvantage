@@ -39,6 +39,3 @@ public final class FeatureDispatchBus {
         return CURRENT_CONTEXT.get() != null;
     }
 }
-
-
-

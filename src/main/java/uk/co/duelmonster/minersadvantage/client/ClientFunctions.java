@@ -130,5 +130,3 @@ public final class ClientFunctions {
         Functions.sleep(100);
     }
 }
-
-

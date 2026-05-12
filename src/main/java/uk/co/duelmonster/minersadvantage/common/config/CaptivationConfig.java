@@ -27,6 +27,3 @@ public record CaptivationConfig(
         blacklist = blacklist == null ? List.of() : List.copyOf(blacklist);
     }
 }
-
-
-

@@ -21,6 +21,3 @@ class DropCoreServiceTest {
         assertEquals(0, service.count());
     }
 }
-
-
-

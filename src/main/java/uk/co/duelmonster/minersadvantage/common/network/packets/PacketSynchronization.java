@@ -63,5 +63,3 @@ public class PacketSynchronization implements IMAPacket {
         }
     }
 }
-
-

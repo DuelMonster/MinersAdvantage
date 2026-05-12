@@ -13,5 +13,3 @@ public final class PathanationAgent extends AbstractAgent {
         super(player, packet);
     }
 }
-
-

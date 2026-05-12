@@ -25,6 +25,3 @@ public record PathanationConfig(
         return targetBlockRange;
     }
 }
-
-
-

@@ -67,6 +67,3 @@ class MiningComponentsRuntimeTest {
         assertEquals(progressed, component.progress());
     }
 }
-
-
-

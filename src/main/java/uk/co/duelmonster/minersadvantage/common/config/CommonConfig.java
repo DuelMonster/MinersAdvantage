@@ -23,6 +23,3 @@ public record CommonConfig(
         this(true, false, true, true, 1, true, 5, 3, 64);
     }
 }
-
-
-

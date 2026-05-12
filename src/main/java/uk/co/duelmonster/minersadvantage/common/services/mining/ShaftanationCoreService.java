@@ -59,6 +59,3 @@ public final class ShaftanationCoreService {
         return new ShaftBatch(newDepth, torchPlacements, steps);
     }
 }
-
-
-

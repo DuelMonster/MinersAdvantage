@@ -31,6 +31,3 @@ class PlayerStateServiceTest {
         assertEquals(false, state.hungerGuardActive());
     }
 }
-
-
-

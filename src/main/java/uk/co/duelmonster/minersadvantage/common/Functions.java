@@ -490,5 +490,3 @@ public class Functions {
         return compare.getClass().isInstance(source);
     }
 }
-
-

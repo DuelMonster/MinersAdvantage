@@ -41,6 +41,3 @@ class CommonEventHandlerImplTest {
         assertEquals(FeatureId.CROPINATION, captured.get().feature());
     }
 }
-
-
-

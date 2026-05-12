@@ -37,5 +37,3 @@ public final class MAConfig_Server extends MAConfig_Base {
         MAConfig_Base.setPlayerConfig(playerId, config);
     }
 }
-
-

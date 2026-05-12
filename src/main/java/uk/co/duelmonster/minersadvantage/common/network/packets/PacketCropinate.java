@@ -43,5 +43,3 @@ public class PacketCropinate extends BaseBlockPacket {
         PacketProcessSupport.dispatchFeature(player, FeatureId.CROPINATION, pkt);
     }
 }
-
-

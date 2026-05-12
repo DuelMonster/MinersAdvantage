@@ -35,5 +35,3 @@ public class PacketVeinate extends BaseBlockPacket {
         PacketProcessSupport.dispatchFeature(player, FeatureId.VEINATION, pkt);
     }
 }
-
-

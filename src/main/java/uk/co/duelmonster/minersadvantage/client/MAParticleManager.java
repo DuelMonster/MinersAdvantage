@@ -52,5 +52,3 @@ public final class MAParticleManager {
         return !MAConfig.CLIENT.disableParticleEffects();
     }
 }
-
-

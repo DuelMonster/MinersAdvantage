@@ -21,6 +21,3 @@ class VeinationCoreServiceTest {
         assertTrue(nodes.stream().allMatch(node -> Math.abs(node.x()) <= 2));
     }
 }
-
-
-

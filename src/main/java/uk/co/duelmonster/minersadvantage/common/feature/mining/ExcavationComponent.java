@@ -120,6 +120,3 @@ public final class ExcavationComponent implements ComponentLifecycle {
         lastPlan = List.of();
     }
 }
-
-
-

@@ -28,6 +28,3 @@ public final class InventoryCoreService {
         return true;
     }
 }
-
-
-

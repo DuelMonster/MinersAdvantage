@@ -42,6 +42,3 @@ public final class DropCoreService {
         return capturedDrops.size();
     }
 }
-
-
-

@@ -48,5 +48,3 @@ public final class MAConfig_Lumbination extends MAConfig_BaseCategory {
     public List<String> leaves() { return leaves; }
     public List<String> axes() { return axes; }
 }
-
-

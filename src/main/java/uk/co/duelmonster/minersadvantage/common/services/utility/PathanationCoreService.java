@@ -43,6 +43,3 @@ public final class PathanationCoreService {
         return plan;
     }
 }
-
-
-

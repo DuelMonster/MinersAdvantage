@@ -102,6 +102,3 @@ public final class ExcavationCoreService {
         return targets;
     }
 }
-
-
-

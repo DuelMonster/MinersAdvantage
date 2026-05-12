@@ -124,6 +124,3 @@ public final class VentilationCoreService {
         return new VentilationBatch(newProgress, ladderPlacements, steps);
     }
 }
-
-
-

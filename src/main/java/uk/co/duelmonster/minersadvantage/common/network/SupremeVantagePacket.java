@@ -65,7 +65,3 @@ public record SupremeVantagePacket(
     }
 
 }
-
-
-
-

@@ -21,6 +21,3 @@ class VentilationCoreServiceTest {
         assertTrue(batch.steps().stream().anyMatch(VentilationCoreService.VentilationStep::placeLadder));
     }
 }
-
-
-

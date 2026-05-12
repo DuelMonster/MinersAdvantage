@@ -270,6 +270,3 @@ public final class MinersAdvantageCore {
         return defaultServerOverrides;
     }
 }
-
-
-

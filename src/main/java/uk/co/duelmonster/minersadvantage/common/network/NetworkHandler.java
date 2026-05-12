@@ -84,5 +84,3 @@ public final class NetworkHandler {
         return FALLBACK_PACKET_ID;
     }
 }
-
-

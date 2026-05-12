@@ -67,6 +67,3 @@ public final class CaptivationCoreService {
         return new CaptureDecision(canCapture, false, withinRadius);
     }
 }
-
-
-

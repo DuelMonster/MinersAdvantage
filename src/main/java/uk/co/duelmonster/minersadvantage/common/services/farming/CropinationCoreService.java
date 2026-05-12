@@ -45,6 +45,3 @@ public final class CropinationCoreService {
         return new CropAction(true, shouldReplant, seedsConsumed, durabilityCost);
     }
 }
-
-
-

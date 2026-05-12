@@ -69,6 +69,3 @@ class IlluminationCoreServiceTest {
         assertEquals(0, decision.plannedTorches());
     }
 }
-
-
-

@@ -13,5 +13,3 @@ public final class LumbinationAgent extends AbstractAgent {
         super(player, packet);
     }
 }
-
-

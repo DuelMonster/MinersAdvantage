@@ -13,5 +13,3 @@ public final class ExcavationAgent extends AbstractAgent {
         super(player, packet);
     }
 }
-
-

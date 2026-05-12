@@ -29,5 +29,3 @@ public class RankAndLevel {
         this.Level_2 = Level_2;
     }
 }
-
-

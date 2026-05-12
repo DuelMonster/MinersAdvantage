@@ -13,5 +13,3 @@ public final class ShaftanationAgent extends AbstractAgent {
         super(player, packet);
     }
 }
-
-

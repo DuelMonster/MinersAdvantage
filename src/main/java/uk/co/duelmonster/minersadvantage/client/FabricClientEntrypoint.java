@@ -33,7 +33,3 @@ public final class FabricClientEntrypoint implements ClientModInitializer {
 /*
 // This class is Fabric-only (client-side initialization).
 */ //?}
-
-
-
-

@@ -32,6 +32,3 @@ public final class WorldQueryService {
         return positive % 2 == 0 ? positive + 1 : positive;
     }
 }
-
-
-

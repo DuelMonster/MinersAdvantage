@@ -36,6 +36,3 @@ public record SubstitutionConfig(
         return prioritizeSilkTouch;
     }
 }
-
-
-

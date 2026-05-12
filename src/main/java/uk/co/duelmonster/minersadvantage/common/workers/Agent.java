@@ -14,5 +14,3 @@ public interface Agent {
         // Why this exists: Compatibility default no-op. (future-you will thank present-you).
     }
 }
-
-

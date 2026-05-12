@@ -30,5 +30,3 @@ public enum PacketId implements IPacketId {
 
     public static final PacketId[] VALUES = values();
 }
-
-

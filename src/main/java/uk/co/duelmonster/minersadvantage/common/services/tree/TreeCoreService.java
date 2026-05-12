@@ -14,6 +14,3 @@ public final class TreeCoreService {
             && nearbyLeafCount >= Math.max(1, leafRange / 2);
     }
 }
-
-
-

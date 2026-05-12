@@ -161,5 +161,3 @@ public class Variables {
         Variables.get().hasChanged();
     }
 }
-
-

@@ -123,6 +123,3 @@ public final class ShaftanationComponent implements ComponentLifecycle {
         lastBatch = new ShaftanationCoreService.ShaftBatch(0, 0, List.of());
     }
 }
-
-
-

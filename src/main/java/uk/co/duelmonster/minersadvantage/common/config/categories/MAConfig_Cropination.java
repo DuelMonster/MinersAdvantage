@@ -20,5 +20,3 @@ public final class MAConfig_Cropination extends MAConfig_BaseCategory {
 
     public boolean harvestSeeds() { return harvestSeeds; }
 }
-
-

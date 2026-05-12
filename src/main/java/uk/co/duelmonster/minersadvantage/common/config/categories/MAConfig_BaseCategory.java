@@ -23,5 +23,3 @@ public class MAConfig_BaseCategory {
         this.enabled = enabled;
     }
 }
-
-

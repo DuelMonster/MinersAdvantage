@@ -55,5 +55,3 @@ public class PacketSubstituteTool extends BaseBlockPacket {
         PacketProcessSupport.dispatchSubstitution(player, pkt);
     }
 }
-
-

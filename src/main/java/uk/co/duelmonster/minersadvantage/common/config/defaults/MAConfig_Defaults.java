@@ -173,5 +173,3 @@ public final class MAConfig_Defaults {
         public static final boolean placeLadders = true;
     }
 }
-
-

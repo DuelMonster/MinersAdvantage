@@ -31,6 +31,3 @@ public interface CustomPacketPayload {
         }
     }
 }
-
-
-

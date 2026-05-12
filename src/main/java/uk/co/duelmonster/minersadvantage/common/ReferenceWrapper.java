@@ -14,5 +14,3 @@ public final class ReferenceWrapper<T> {
         refValue = value;
     }
 }
-
-

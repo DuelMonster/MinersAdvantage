@@ -24,5 +24,3 @@ public final class MAConfig_Veination extends MAConfig_BaseCategory {
     public int maxVeinDistance() { return maxVeinDistance; }
     public List<String> ores() { return ores; }
 }
-
-

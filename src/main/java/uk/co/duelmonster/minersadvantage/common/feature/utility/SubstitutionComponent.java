@@ -145,6 +145,3 @@ public final class SubstitutionComponent implements ComponentLifecycle {
         lastDecision = new SubstitutionCoreService.SubstitutionDecision(null, false, false, "idle");
     }
 }
-
-
-

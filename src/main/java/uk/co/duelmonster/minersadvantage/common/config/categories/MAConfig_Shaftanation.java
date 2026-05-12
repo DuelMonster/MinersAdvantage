@@ -30,5 +30,3 @@ public final class MAConfig_Shaftanation extends MAConfig_BaseCategory {
     public int shaftWidth() { return shaftWidth; }
     public TorchPlacement torchPlacement() { return torchPlacement; }
 }
-
-

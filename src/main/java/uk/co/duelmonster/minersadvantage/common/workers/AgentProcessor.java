@@ -65,5 +65,3 @@ public final class AgentProcessor {
         perPlayerCurrentAgent.clear();
     }
 }
-
-

@@ -16,5 +16,3 @@ public final class MAConfig_Client extends MAConfig_Base {
         return MAConfig_Base.getPlayerConfig(playerId);
     }
 }
-
-

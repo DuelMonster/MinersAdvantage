@@ -64,5 +64,3 @@ public final class ServerInfoService {
         return worldUid;
     }
 }
-
-

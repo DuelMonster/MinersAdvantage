@@ -36,6 +36,3 @@ class CropinationCoreServiceTest {
         assertEquals(1, action.durabilityCost());
     }
 }
-
-
-

@@ -126,6 +126,3 @@ public final class ClientInputService {
         packets.add(new ComponentTogglePacket(feature, next));
     }
 }
-
-
-

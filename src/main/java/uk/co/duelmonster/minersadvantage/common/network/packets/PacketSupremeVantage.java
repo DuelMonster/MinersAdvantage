@@ -38,5 +38,3 @@ public class PacketSupremeVantage implements IMAPacket {
         // Why this exists: No-op: This handler is intentionally left blank. See SupremeVantagePacket for modern logic. (future-you will thank present-you).
     }
 }
-
-

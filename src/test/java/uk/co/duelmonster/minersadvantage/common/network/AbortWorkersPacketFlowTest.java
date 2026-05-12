@@ -40,6 +40,3 @@ class AbortWorkersPacketFlowTest {
         assertEquals("AbortWorkersPacket", PacketRegistry.getPacketName(PacketRegistry.ABORT_WORKERS));
     }
 }
-
-
-

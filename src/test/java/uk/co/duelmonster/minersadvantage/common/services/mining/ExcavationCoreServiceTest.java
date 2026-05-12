@@ -54,6 +54,3 @@ class ExcavationCoreServiceTest {
         assertTrue(plan.stream().allMatch(target -> target.operation().equals("excavate")));
     }
 }
-
-
-

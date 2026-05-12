@@ -104,6 +104,3 @@ public final class FarmingCoreService {
             cropPatch.maxX, originPos.getY(), cropPatch.maxZ);
     }
 }
-
-
-

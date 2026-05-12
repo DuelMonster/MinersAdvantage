@@ -52,6 +52,3 @@ class PlayerStateSyncPacketFlowTest {
         assertEquals("SupremeVantagePacket", PacketRegistry.getPacketName(PacketRegistry.SUPREME_VANTAGE));
     }
 }
-
-
-

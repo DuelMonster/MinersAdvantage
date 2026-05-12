@@ -15,6 +15,3 @@ public record ClientConfig(
         this(false);
     }
 }
-
-
-

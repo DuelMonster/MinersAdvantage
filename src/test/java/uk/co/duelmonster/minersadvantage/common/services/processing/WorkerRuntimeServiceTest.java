@@ -120,6 +120,3 @@ class WorkerRuntimeServiceTest {
         assertEquals(1, service.drainSpawnQueue().size());
     }
 }
-
-
-

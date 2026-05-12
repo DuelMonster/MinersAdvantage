@@ -18,6 +18,3 @@ class KeyBindingsTest {
         assertTrue(KeyBindings.all().stream().anyMatch(spec -> spec.action() == ClientAction.ABORT_WORKERS && spec.defaultKey().equals("DELETE")));
     }
 }
-
-
-

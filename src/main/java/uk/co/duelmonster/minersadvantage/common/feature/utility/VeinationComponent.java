@@ -120,8 +120,3 @@ public final class VeinationComponent implements ComponentLifecycle {
         lastVein = List.of();
     }
 }
-
-
-
-
-

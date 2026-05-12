@@ -25,5 +25,3 @@ public final class ClientSetup {
         core.defaultConfig();
     }
 }
-
-

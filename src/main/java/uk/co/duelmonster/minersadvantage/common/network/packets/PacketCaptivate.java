@@ -25,5 +25,3 @@ public class PacketCaptivate implements IMAPacket {
         PacketProcessSupport.dispatchFeature(player, FeatureId.CAPTIVATION);
     }
 }
-
-

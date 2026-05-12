@@ -44,6 +44,3 @@ public record SyncedClientConfig(
         );
     }
 }
-
-
-

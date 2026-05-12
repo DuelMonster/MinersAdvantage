@@ -60,6 +60,3 @@ public final class ComponentRegistry {
         descriptors.values().forEach(d -> d.component().cleanup());
     }
 }
-
-
-

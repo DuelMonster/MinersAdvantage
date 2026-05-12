@@ -35,5 +35,3 @@ public class PacketExcavate extends BaseBlockPacket {
         PacketProcessSupport.dispatchFeature(player, FeatureId.EXCAVATION, pkt);
     }
 }
-
-

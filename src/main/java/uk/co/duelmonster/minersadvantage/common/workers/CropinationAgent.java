@@ -13,5 +13,3 @@ public final class CropinationAgent extends AbstractAgent {
         super(player, packet);
     }
 }
-
-

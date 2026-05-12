@@ -43,5 +43,3 @@ public class PacketPathanate extends BaseBlockPacket {
         PacketProcessSupport.dispatchFeature(player, FeatureId.PATHANATION, pkt);
     }
 }
-
-

@@ -32,6 +32,3 @@ public final class PacketRegistry {
         return PACKET_TYPES.getOrDefault(id, "UnknownPacket");
     }
 }
-
-
-

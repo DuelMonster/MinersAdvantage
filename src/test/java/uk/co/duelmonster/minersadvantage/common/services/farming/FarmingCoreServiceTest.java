@@ -23,6 +23,3 @@ class FarmingCoreServiceTest {
         assertFalse(plan.get(3).hydrated());
     }
 }
-
-
-

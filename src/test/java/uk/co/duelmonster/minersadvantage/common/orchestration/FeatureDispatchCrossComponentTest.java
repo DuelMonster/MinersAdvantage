@@ -28,6 +28,3 @@ class FeatureDispatchCrossComponentTest {
         assertFalse(FeatureOrchestration.shouldDispatchToFeature(FeatureId.SUBSTITUTION, FeatureId.EXCAVATION));
     }
 }
-
-
-

@@ -23,6 +23,3 @@ public record VeinationConfig(
         ores = ores == null ? List.of() : List.copyOf(ores);
     }
 }
-
-
-

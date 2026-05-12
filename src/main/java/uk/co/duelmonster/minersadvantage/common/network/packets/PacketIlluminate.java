@@ -65,5 +65,3 @@ public class PacketIlluminate extends BaseBlockPacket {
         PacketProcessSupport.dispatchFeature(player, FeatureId.ILLUMINATION, pkt);
     }
 }
-
-

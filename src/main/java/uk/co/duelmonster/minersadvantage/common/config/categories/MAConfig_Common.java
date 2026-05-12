@@ -32,5 +32,3 @@ public final class MAConfig_Common extends MAConfig_BaseCategory {
     public boolean mineVeins() { return mineVeins; }
     public int blocksPerTick() { return blocksPerTick; }
 }
-
-

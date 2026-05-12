@@ -39,6 +39,3 @@ public record ExcavationConfig(
         return blockBlacklist.contains(blockId) ? !isBlockWhitelist : isBlockWhitelist;
     }
 }
-
-
-

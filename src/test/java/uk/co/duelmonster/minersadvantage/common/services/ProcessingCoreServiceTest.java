@@ -29,6 +29,3 @@ class ProcessingCoreServiceTest {
         assertEquals(1, service.size());
     }
 }
-
-
-

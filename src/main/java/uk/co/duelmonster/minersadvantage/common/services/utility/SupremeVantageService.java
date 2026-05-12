@@ -265,7 +265,3 @@ public final class SupremeVantageService {
         return CODE_N.equals(code) || CODE_D.equals(code);
     }
 }
-
-
-
-

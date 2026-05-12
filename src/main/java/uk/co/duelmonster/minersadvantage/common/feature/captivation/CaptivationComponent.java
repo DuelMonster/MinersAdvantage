@@ -129,6 +129,3 @@ public final class CaptivationComponent implements ComponentLifecycle {
         lastDecision = new CaptivationCoreService.CaptureDecision(false, false, false);
     }
 }
-
-
-

@@ -44,6 +44,3 @@ class SyncCoreServiceTest {
         assertFalse(state.effectiveConfig().substitution().ignorePassiveMobs());
     }
 }
-
-
-

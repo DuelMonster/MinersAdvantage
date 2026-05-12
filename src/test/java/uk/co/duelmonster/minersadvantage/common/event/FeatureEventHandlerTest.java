@@ -52,6 +52,3 @@ class FeatureEventHandlerTest {
         assertFalse(FeatureDispatchBus.hasContext());
     }
 }
-
-
-

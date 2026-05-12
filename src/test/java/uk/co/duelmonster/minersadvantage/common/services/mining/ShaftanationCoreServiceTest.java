@@ -21,6 +21,3 @@ class ShaftanationCoreServiceTest {
         assertTrue(batch.steps().stream().anyMatch(ShaftanationCoreService.ShaftStep::placeTorch));
     }
 }
-
-
-

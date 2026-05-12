@@ -95,6 +95,3 @@ class PolicyCoreServiceTest {
         assertEquals(7, effective.common().blockRadius());
     }
 }
-
-
-

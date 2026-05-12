@@ -301,7 +301,3 @@ public final class MinersAdvantageConfigScreen {
         }
     }
 }
-
-
-
-

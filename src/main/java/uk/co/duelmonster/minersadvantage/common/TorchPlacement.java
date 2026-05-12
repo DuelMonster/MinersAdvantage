@@ -35,5 +35,3 @@ public enum TorchPlacement {
         return name;
     }
 }
-
-

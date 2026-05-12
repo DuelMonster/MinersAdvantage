@@ -115,6 +115,3 @@ public final class CropinationComponent implements ComponentLifecycle {
         lastAction = new CropAction(false, false, 0, 0);
     }
 }
-
-
-

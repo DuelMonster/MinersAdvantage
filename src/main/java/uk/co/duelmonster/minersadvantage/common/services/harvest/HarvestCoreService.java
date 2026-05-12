@@ -23,6 +23,3 @@ public final class HarvestCoreService {
         return (processedBlocks % cadence == 0) ? 1 : 0;
     }
 }
-
-
-

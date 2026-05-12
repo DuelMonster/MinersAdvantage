@@ -30,6 +30,3 @@ public record ShaftanationConfig(
         return maxDepth;
     }
 }
-
-
-

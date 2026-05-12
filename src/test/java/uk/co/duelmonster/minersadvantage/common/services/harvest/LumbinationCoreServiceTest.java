@@ -21,6 +21,3 @@ class LumbinationCoreServiceTest {
         assertTrue(!plan.steps().isEmpty());
     }
 }
-
-
-

@@ -36,5 +36,3 @@ public abstract class AbstractAgent implements Agent {
         // Why this exists: Compatibility default no-op. (future-you will thank present-you).
     }
 }
-
-

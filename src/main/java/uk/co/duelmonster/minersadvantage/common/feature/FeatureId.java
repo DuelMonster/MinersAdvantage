@@ -17,6 +17,3 @@ public enum FeatureId {
     VEINATION,
     VENTILATION
 }
-
-
-

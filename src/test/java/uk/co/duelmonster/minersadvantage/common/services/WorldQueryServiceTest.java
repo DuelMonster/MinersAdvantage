@@ -21,6 +21,3 @@ class WorldQueryServiceTest {
         assertEquals(5, service.normalizedOddWidth(4));
     }
 }
-
-
-

@@ -119,6 +119,3 @@ public final class CultivationComponent implements ComponentLifecycle {
         lastPlan = List.of();
     }
 }
-
-
-

@@ -74,5 +74,3 @@ public class MAConfig_Base {
         PLAYER_CONFIGS.clear();
     }
 }
-
-

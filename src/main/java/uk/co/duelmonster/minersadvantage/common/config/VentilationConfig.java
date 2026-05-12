@@ -19,6 +19,3 @@ public record VentilationConfig(
         this(enabled, radiusHorizontal, radiusVertical, processesPerTick, true);
     }
 }
-
-
-

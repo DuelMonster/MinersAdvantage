@@ -26,5 +26,3 @@ public class PacketAbortAgents implements IMAPacket {
         PacketProcessSupport.markAgentsStopped(player);
     }
 }
-
-

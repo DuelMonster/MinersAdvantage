@@ -87,7 +87,3 @@ public final class CommonEventHandlerImpl implements ToolEventHandler {
         core.serverTick();
     }
 }
-
-
-
-

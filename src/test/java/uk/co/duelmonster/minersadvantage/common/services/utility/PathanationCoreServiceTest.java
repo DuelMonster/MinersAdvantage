@@ -22,6 +22,3 @@ class PathanationCoreServiceTest {
         assertTrue(steps.stream().allMatch(step -> step.operation().equals("flatten")));
     }
 }
-
-
-

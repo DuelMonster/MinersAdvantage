@@ -60,6 +60,3 @@ public final class FeatureEventHandler {
         dispatchObserver = context -> { };
     }
 }
-
-
-

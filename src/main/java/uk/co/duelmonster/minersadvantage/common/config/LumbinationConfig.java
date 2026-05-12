@@ -50,6 +50,3 @@ public record LumbinationConfig(
         return maxLeafRange;
     }
 }
-
-
-

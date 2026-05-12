@@ -63,6 +63,3 @@ public final class ProcessingCoreService<T> {
         return queue.size();
     }
 }
-
-
-

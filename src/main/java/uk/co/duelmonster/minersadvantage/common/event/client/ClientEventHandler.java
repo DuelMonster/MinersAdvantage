@@ -39,5 +39,3 @@ public final class ClientEventHandler {
         return blacklist.contains(itemId);
     }
 }
-
-

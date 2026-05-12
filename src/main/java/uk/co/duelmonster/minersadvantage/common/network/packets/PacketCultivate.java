@@ -43,5 +43,3 @@ public class PacketCultivate extends BaseBlockPacket {
         PacketProcessSupport.dispatchFeature(player, FeatureId.CULTIVATION, pkt);
     }
 }
-
-

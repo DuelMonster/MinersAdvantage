@@ -26,5 +26,3 @@ public final class MAConfig_Ventilation extends MAConfig_BaseCategory {
     public int ventDepth() { return ventDepth; }
     public boolean placeLadders() { return placeLadders; }
 }
-
-

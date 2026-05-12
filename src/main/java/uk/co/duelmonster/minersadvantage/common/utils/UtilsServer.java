@@ -65,5 +65,3 @@ public final class UtilsServer {
         return LAST_HELD_SLOT.getOrDefault(playerId, -1);
     }
 }
-
-

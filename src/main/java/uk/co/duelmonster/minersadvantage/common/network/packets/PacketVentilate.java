@@ -35,5 +35,3 @@ public class PacketVentilate extends BaseBlockPacket {
         PacketProcessSupport.dispatchFeature(player, FeatureId.VENTILATION, pkt);
     }
 }
-
-

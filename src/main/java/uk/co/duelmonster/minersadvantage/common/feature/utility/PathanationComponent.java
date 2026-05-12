@@ -117,6 +117,3 @@ public final class PathanationComponent implements ComponentLifecycle {
         lastPath = List.of();
     }
 }
-
-
-

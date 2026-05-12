@@ -30,5 +30,3 @@ public abstract class BaseBlockPacket implements IMAPacket {
         this.stateID = stateID;
     }
 }
-
-

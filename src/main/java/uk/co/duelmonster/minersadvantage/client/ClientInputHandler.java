@@ -189,8 +189,3 @@ public final class ClientInputHandler {
 /*
 // This handler is Fabric-only. NeoForge uses ForgeClientInputHandler.
 */ //?}
-
-
-
-
-

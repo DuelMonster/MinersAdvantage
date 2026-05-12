@@ -8,6 +8,3 @@ public record CropinationConfig(
     boolean enabled,
     boolean harvestSeeds
 ) {}
-
-
-

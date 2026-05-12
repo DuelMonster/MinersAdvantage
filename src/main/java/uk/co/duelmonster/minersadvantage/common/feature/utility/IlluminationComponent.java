@@ -120,6 +120,3 @@ public final class IlluminationComponent implements ComponentLifecycle {
         lastDecision = new IlluminationCoreService.IlluminationDecision(TorchPlacement.FLOOR, 0, false, false, false);
     }
 }
-
-
-

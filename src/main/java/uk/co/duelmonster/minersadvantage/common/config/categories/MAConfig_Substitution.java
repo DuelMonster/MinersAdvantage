@@ -36,5 +36,3 @@ public final class MAConfig_Substitution extends MAConfig_BaseCategory {
     public boolean ignorePassiveMobs() { return ignorePassiveMobs; }
     public List<String> blacklist() { return blacklist; }
 }
-
-

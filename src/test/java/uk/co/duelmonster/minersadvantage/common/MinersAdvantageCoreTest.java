@@ -22,6 +22,3 @@ class MinersAdvantageCoreTest {
         core.shutdown();
     }
 }
-
-
-

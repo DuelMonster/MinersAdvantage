@@ -27,5 +27,3 @@ public final class KeyInputEvents {
         Variables.syncToServer();
     }
 }
-
-

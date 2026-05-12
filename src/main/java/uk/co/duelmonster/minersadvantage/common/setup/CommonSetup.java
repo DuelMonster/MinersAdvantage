@@ -24,5 +24,3 @@ public final class CommonSetup {
         core.bootstrap();
     }
 }
-
-

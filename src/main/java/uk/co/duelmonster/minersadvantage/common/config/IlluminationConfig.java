@@ -19,6 +19,3 @@ public record IlluminationConfig(
         this(enabled, radiusHorizontal, radiusVertical, 7, true);
     }
 }
-
-
-

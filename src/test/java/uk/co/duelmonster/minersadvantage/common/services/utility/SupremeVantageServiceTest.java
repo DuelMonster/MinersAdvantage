@@ -56,6 +56,3 @@ class SupremeVantageServiceTest {
         assertFalse(service.isRecognizedCode("1234567"));
     }
 }
-
-
-

@@ -35,5 +35,3 @@ public class PacketShaftanate extends BaseBlockPacket {
         PacketProcessSupport.dispatchFeature(player, FeatureId.SHAFTANATION, pkt);
     }
 }
-
-

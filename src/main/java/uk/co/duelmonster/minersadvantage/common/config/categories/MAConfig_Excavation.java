@@ -30,5 +30,3 @@ public final class MAConfig_Excavation extends MAConfig_BaseCategory {
     public boolean isBlockWhitelist() { return isBlockWhitelist; }
     public List<String> blockBlacklist() { return blockBlacklist; }
 }
-
-

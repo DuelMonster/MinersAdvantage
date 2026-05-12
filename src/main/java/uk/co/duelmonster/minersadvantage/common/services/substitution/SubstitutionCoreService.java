@@ -165,6 +165,3 @@ public final class SubstitutionCoreService {
         return new SubstitutionDecision(best.id(), !best.id().equals(currentToolId), false, mode.name().toLowerCase());
     }
 }
-
-
-

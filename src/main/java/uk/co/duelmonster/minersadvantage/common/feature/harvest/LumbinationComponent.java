@@ -131,6 +131,3 @@ public final class LumbinationComponent implements ComponentLifecycle {
         lastPlan = new LumbinationPlan(0, 0, false, List.of());
     }
 }
-
-
-

@@ -86,5 +86,3 @@ public final class DropsSpawner {
         return Blocks.AIR;
     }
 }
-
-

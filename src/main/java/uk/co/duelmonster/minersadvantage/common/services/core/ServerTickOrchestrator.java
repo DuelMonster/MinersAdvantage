@@ -63,6 +63,3 @@ public final class ServerTickOrchestrator {
         this.tpsGuardActive = tpsGuardActive;
     }
 }
-
-
-

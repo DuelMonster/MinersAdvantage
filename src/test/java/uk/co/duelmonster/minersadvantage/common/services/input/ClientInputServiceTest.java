@@ -104,6 +104,3 @@ class ClientInputServiceTest {
         assertTrue(result.state().shaftVentToggled());
     }
 }
-
-
-
