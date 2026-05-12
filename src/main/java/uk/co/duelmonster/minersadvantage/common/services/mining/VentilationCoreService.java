@@ -2,12 +2,58 @@ package uk.co.duelmonster.minersadvantage.common.services.mining;
 
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import uk.co.duelmonster.minersadvantage.common.Functions;
 
 /**
  * VentilationCoreService keeps this part of Miners Advantage running without turning server ticks into confetti.
  * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
  */
 public final class VentilationCoreService {
+    private int ladderStackCount = 0;
+    private int ladderIndex = -1;
+
+    public boolean playerHasLadders(ServerPlayer player) {
+        getLadderSlot(player);
+        return ladderIndex >= 0;
+    }
+
+    public void getLadderSlot(ServerPlayer player) {
+        ladderStackCount = 0;
+        ladderIndex = -1;
+
+        Item ladderItem = Blocks.LADDER.asItem();
+        for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
+            ItemStack stack = player.getInventory().getItem(slot);
+            if (stack != null && stack.getItem().equals(ladderItem)) {
+                ladderStackCount++;
+                ladderIndex = Functions.getSlotFromInventory(player, stack);
+            }
+        }
+    }
+
+    public boolean isLadderablePosition(Level world, BlockPos pos) {
+        return world.isEmptyBlock(pos)
+            && !world.isEmptyBlock(pos.south())
+            && canPlaceLadderOnFace(world, pos.south());
+    }
+
+    private boolean canPlaceLadderOnFace(Level world, BlockPos pos) {
+        BlockState state = world.getBlockState(pos);
+        Block block = state.getBlock();
+        boolean validFace = state.isFaceSturdy(world, pos, Direction.NORTH)
+            && world.getBlockState(pos.relative(Direction.NORTH)).canBeReplaced();
+        boolean validBlockType = block != Blocks.END_GATEWAY && block != Blocks.JACK_O_LANTERN;
+        return validFace && validBlockType;
+    }
     /**
      * VentilationStep keeps this part of Miners Advantage running without turning server ticks into confetti.
      * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.

@@ -1,10 +1,83 @@
 package uk.co.duelmonster.minersadvantage.common.services.utility;
 
+import java.util.ArrayList;
+import java.util.List;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import uk.co.duelmonster.minersadvantage.common.Functions;
+
 /**
  * IlluminationCoreService keeps this part of Miners Advantage running without turning server ticks into confetti.
  * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
  */
 public final class IlluminationCoreService {
+    private int torchStackCount = 0;
+    private int torchIndex = -1;
+
+    public boolean playerHasTorches(ServerPlayer player) {
+        getTorchSlot(player);
+        return torchIndex >= 0;
+    }
+
+    public void getTorchSlot(ServerPlayer player) {
+        torchStackCount = 0;
+        torchIndex = -1;
+
+        Item torchItem = Blocks.TORCH.asItem();
+        for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
+            ItemStack stack = player.getInventory().getItem(slot);
+            if (stack != null && stack.getItem().equals(torchItem)) {
+                torchStackCount++;
+                torchIndex = Functions.getSlotFromInventory(player, stack);
+            }
+        }
+    }
+
+    public List<BlockPos> getTorchablePositionsInArea(Level world, AABB area) {
+        List<BlockPos> positions = new ArrayList<>();
+        BlockPos previousPos = null;
+
+        for (double y = area.minY; y <= area.maxY; y++) {
+            for (double x = area.minX; x <= area.maxX; x++) {
+                for (double z = area.minZ; z <= area.maxZ; z++) {
+                    BlockPos pos = new BlockPos((int) x, (int) y, (int) z);
+                    if (isTorchablePosition(world, pos) && (previousPos == null || !Functions.isWithinRange(previousPos, pos, 5))) {
+                        positions.add(pos);
+                        previousPos = pos;
+                    }
+                }
+            }
+        }
+        return positions;
+    }
+
+    public boolean isTorchablePosition(Level world, BlockPos pos) {
+        return world.isEmptyBlock(pos) && (!world.isEmptyBlock(pos.below())
+            || !world.isEmptyBlock(pos.north())
+            || !world.isEmptyBlock(pos.east())
+            || !world.isEmptyBlock(pos.south())
+            || !world.isEmptyBlock(pos.west()));
+    }
+
+    public boolean canPlaceTorchOnFace(Level world, BlockPos pos, Direction face) {
+        BlockState state = world.getBlockState(pos);
+        Block block = state.getBlock();
+
+        boolean validFace = face != Direction.DOWN
+            && state.isFaceSturdy(world, pos, face)
+            && world.getBlockState(pos.relative(face)).canBeReplaced();
+        boolean validBlockType = block != Blocks.END_GATEWAY && block != Blocks.JACK_O_LANTERN;
+
+        return validFace && validBlockType;
+    }
     /**
      * IlluminationDecision keeps this part of Miners Advantage running without turning server ticks into confetti.
      * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.

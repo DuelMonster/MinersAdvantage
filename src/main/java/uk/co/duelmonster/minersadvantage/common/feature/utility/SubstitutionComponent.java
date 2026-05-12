@@ -1,6 +1,7 @@
 package uk.co.duelmonster.minersadvantage.common.feature.utility;
 
 import java.util.List;
+import java.util.Set;
 
 import uk.co.duelmonster.minersadvantage.common.component.ComponentLifecycle;
 import uk.co.duelmonster.minersadvantage.common.component.ComponentTickHelper;
@@ -127,7 +128,8 @@ public final class SubstitutionComponent implements ComponentLifecycle {
             oreContext && config.prioritizeSilkTouch(),
             oreContext && !config.prioritizeSilkTouch(),
             combatContext,
-            switchBackToPrimary
+            switchBackToPrimary,
+            Set.copyOf(config.blacklist())
         );
         lastSelectedToolId = lastDecision.selectedToolId();
     }

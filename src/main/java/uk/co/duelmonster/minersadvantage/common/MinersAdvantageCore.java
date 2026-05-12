@@ -326,6 +326,11 @@ public final class MinersAdvantageCore {
         return supremeVantageService.grantNextReward(packet.playerId(), packet.code());
     }
 
+    public SupremeVantageService.ItemGrantSpec handleSupremeVantagePacketGrantSpec(SupremeVantagePacket packet) {
+        SupremeVantageService.RewardGrant grant = handleSupremeVantagePacket(packet);
+        return supremeVantageService.materializeRewardSpec(grant);
+    }
+
     /**
      * commonConfig exists so this code path does one job clearly instead of spreading chaos across callers.
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
