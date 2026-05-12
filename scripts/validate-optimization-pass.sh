@@ -55,6 +55,11 @@ for relative in "${staged[@]}"; do
   fi
 
   if [[ "$relative" =~ ^src/main/ || "$relative" =~ ^src/test/ ]]; then
+    # Skip binary assets (e.g., PNG) to avoid false-positive whitespace matches.
+    if ! grep -Iq . "$full_path"; then
+      continue
+    fi
+
     if grep -nE '[[:space:]]+$' "$full_path" >/dev/null; then
       while IFS= read -r row; do
         errors+=("$relative has trailing whitespace at line $row")
