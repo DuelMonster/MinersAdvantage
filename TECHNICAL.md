@@ -192,3 +192,12 @@ MIT
 ### SupremeVantage Migration Note
 
 The legacy SupremeVantage packet handler (`PacketSupremeVantage`) has been deprecated and removed. All SupremeVantage reward logic and packet transport is now handled by `SupremeVantagePacket` and `SupremeVantageService`, which are registered and dispatched in a loader-neutral manner. This ensures deterministic reward progression and test coverage across all supported nodes.
+
+### Intentional Compatibility No-Ops
+
+Two worker compatibility types intentionally keep default no-op tick behavior:
+
+- `Agent` default `tick(Object worldContext)`
+- `AbstractAgent` inherited `tick(Object worldContext)`
+
+These defaults are retained only as migration scaffolding for legacy extension points and do not participate in the modern component dispatch path. Active runtime behavior is implemented through feature components and core services.
