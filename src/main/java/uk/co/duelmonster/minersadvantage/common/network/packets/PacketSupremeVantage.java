@@ -14,7 +14,11 @@ public class PacketSupremeVantage implements IMAPacket {
         return PacketId.SUPREME_VANTAGE;
     }
 
+    /**
+     * Deprecated: Legacy compatibility handler removed. All SupremeVantage logic is migrated to SupremeVantagePacket and SupremeVantageService.
+     */
+    @Deprecated
     public static void process(Object player, PacketSupremeVantage pkt) {
-        // Compatibility no-op.
+        // No-op: This handler is intentionally left blank. See SupremeVantagePacket for modern logic.
     }
 }
