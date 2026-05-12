@@ -101,11 +101,23 @@ public final class LumbinationComponent implements ComponentLifecycle {
         }
 
         if (service.isLog(context.blockId())) {
-            // Process log-specific logic
+            lastPlan = service.buildPlan(
+                Math.max(1, config.maxTrunkRange()),
+                config.maxTrunkRange(),
+                config.maxLeafRange(),
+                config.processesPerTick(),
+                config.replantSaplings()
+            );
         } else if (service.isLeaf(context.blockId())) {
-            // Process leaf-specific logic
+            lastPlan = service.buildPlan(
+                Math.max(1, config.maxLeafRange()),
+                config.maxTrunkRange(),
+                config.maxLeafRange(),
+                config.processesPerTick(),
+                false
+            );
         } else if (service.isSapling(context.blockId())) {
-            // Process sapling-specific logic
+            lastPlan = service.buildPlan(0, config.maxTrunkRange(), config.maxLeafRange(), 1, true);
         }
     }
 
