@@ -57,7 +57,7 @@
 - [~] NetworkHandler.java
 - [x] packetids/IPacketId.java
 - [x] packetids/PacketId.java
-- [~] packets/* (legacy packet class names mirrored; behavior parity still incomplete)
+- [~] packets/* (legacy packet class names mirrored; no-op process handlers replaced with feature dispatch bridge, remaining runtime parity still incomplete)
 
 ### setup/
 - [~] ClientSetup.java
