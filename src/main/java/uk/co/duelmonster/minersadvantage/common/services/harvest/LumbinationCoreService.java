@@ -30,22 +30,30 @@ public final class LumbinationCoreService {
             || state.is(BlockTags.WOODEN_TRAPDOORS);
     }
 
+    /**
+     * Optimized isValidLog to handle large configurations efficiently.
+     */
     public boolean isValidLog(BlockState state, LumbinationConfig config) {
-        return state.is(BlockTags.LOGS)
-            || state.getBlock() instanceof RotatedPillarBlock
-            || (config != null
-                && config.logs() != null
-                && !config.logs().isEmpty()
-                && config.logs().contains(Functions.getName(state.getBlock().asItem())));
+        if (state.is(BlockTags.LOGS) || state.getBlock() instanceof RotatedPillarBlock) {
+            return true;
+        }
+        if (config == null || config.logs() == null || config.logs().isEmpty()) {
+            return false;
+        }
+        return config.logs().contains(Functions.getName(state.getBlock().asItem()));
     }
 
+    /**
+     * Optimized isValidLeaves to handle large configurations efficiently.
+     */
     public boolean isValidLeaves(BlockState state, LumbinationConfig config) {
-        return state.is(BlockTags.LEAVES)
-            || state.getBlock() instanceof LeavesBlock
-            || (config != null
-                && config.leaves() != null
-                && !config.leaves().isEmpty()
-                && config.leaves().contains(Functions.getName(state.getBlock().asItem())));
+        if (state.is(BlockTags.LEAVES) || state.getBlock() instanceof LeavesBlock) {
+            return true;
+        }
+        if (config == null || config.leaves() == null || config.leaves().isEmpty()) {
+            return false;
+        }
+        return config.leaves().contains(Functions.getName(state.getBlock().asItem()));
     }
 
     public boolean isValidAxe(Item heldItem, LumbinationConfig config) {

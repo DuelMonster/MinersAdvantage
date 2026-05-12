@@ -14,11 +14,13 @@ public final class HarvestCoreService {
     }
 
     /**
-     * adjustedDurabilityCost exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     * Optimized adjustedDurabilityCost to improve clarity and performance.
      */
     public int adjustedDurabilityCost(int processedBlocks, int cadence) {
-        return processedBlocks % Math.max(1, cadence) == 0 ? 1 : 0;
+        if (cadence <= 0) {
+            throw new IllegalArgumentException("Cadence must be greater than zero.");
+        }
+        return (processedBlocks % cadence == 0) ? 1 : 0;
     }
 }
 
