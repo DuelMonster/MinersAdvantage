@@ -71,7 +71,7 @@ public final class ModEntry implements ModInitializer {
             routeToolUse(player.getMainHandItem(), pos, state);
             String blockId = BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString();
             core.workerRuntimeService().interceptLiveDropForPlayer(
-                player.getUUID().getLeastSignificantBits(),
+                playerId(player),
                 "item:" + blockId,
                 1,
                 true
@@ -126,7 +126,7 @@ public final class ModEntry implements ModInitializer {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     private void onPlayerLogin(ServerPlayer player) {
-        long playerId = player.getUUID().getLeastSignificantBits();
+        long playerId = playerId(player);
         SyncedClientConfig defaults = SyncedClientConfig.defaults();
         core.handlePlayerStateSyncPacket(new PlayerStateSyncPacket(playerId, defaults, defaults, new ServerOverridesConfig()));
     }
@@ -136,7 +136,7 @@ public final class ModEntry implements ModInitializer {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     private void onPlayerLogout(ServerPlayer player) {
-        long playerId = player.getUUID().getLeastSignificantBits();
+        long playerId = playerId(player);
         core.workerRuntimeService().abortAllForPlayerWithStats(playerId);
         core.playerStateService().clearPlayerState(playerId);
     }
@@ -157,22 +157,20 @@ public final class ModEntry implements ModInitializer {
      */
     private void onFabricEntityLoad(Entity entity, ServerLevel level) {
         if (entity instanceof ItemEntity itemEntity) {
-            Player nearest = level.getNearestPlayer(entity, 8.0);
-            if (nearest instanceof ServerPlayer serverPlayer) {
-                String itemId = BuiltInRegistries.ITEM.getKey(itemEntity.getItem().getItem()).toString();
+            if (level.getNearestPlayer(entity, 8.0) instanceof ServerPlayer serverPlayer) {
+                String itemId = itemId(itemEntity.getItem());
                 toolEvents.onItemPickup(itemId, false);
                 core.workerRuntimeService().interceptLiveDropForPlayer(
-                    serverPlayer.getUUID().getLeastSignificantBits(),
+                    playerId(serverPlayer),
                     "item:" + itemId,
                     itemEntity.getItem().getCount(),
                     true
                 );
             }
         } else if (entity instanceof ExperienceOrb orb) {
-            Player nearest = level.getNearestPlayer(entity, 8.0);
-            if (nearest instanceof ServerPlayer serverPlayer) {
+            if (level.getNearestPlayer(entity, 8.0) instanceof ServerPlayer serverPlayer) {
                 core.workerRuntimeService().interceptLiveDropForPlayer(
-                    serverPlayer.getUUID().getLeastSignificantBits(),
+                    playerId(serverPlayer),
                     "xp_orb",
                     orb.getValue(),
                     true
@@ -186,8 +184,8 @@ public final class ModEntry implements ModInitializer {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     private void routeToolUse(ItemStack stack, BlockPos pos, BlockState state) {
-        String itemId = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
-        String blockId = BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString();
+        String itemId = itemId(stack);
+        String blockId = blockId(state);
 
         if (itemId.contains("pickaxe")) {
             toolEvents.onPickaxeUse(pos.getX(), pos.getY(), pos.getZ(), blockId);
@@ -204,6 +202,18 @@ public final class ModEntry implements ModInitializer {
         if (itemId.contains("axe")) {
             toolEvents.onAxeUse(pos.getX(), pos.getY(), pos.getZ(), blockId);
         }
+    }
+
+    private static String itemId(ItemStack stack) {
+        return BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
+    }
+
+    private static String blockId(BlockState state) {
+        return BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString();
+    }
+
+    private static long playerId(Player player) {
+        return player.getUUID().getLeastSignificantBits();
     }
 }
 //?} else {
@@ -250,7 +260,7 @@ public final class ModEntry {
         if (!(event.getEntity() instanceof ServerPlayer player)) {
             return;
         }
-        long playerId = player.getUUID().getLeastSignificantBits();
+        long playerId = playerId(player);
         SyncedClientConfig defaults = SyncedClientConfig.defaults();
         core.handlePlayerStateSyncPacket(new PlayerStateSyncPacket(playerId, defaults, defaults, new ServerOverridesConfig()));
     }
@@ -259,7 +269,7 @@ public final class ModEntry {
         if (!(event.getEntity() instanceof ServerPlayer player)) {
             return;
         }
-        long playerId = player.getUUID().getLeastSignificantBits();
+        long playerId = playerId(player);
         core.workerRuntimeService().abortAllForPlayerWithStats(playerId);
         core.playerStateService().clearPlayerState(playerId);
     }
@@ -281,22 +291,20 @@ public final class ModEntry {
 
         Entity entity = event.getEntity();
         if (entity instanceof ItemEntity itemEntity) {
-            Player nearest = level.getNearestPlayer(entity, 8.0);
-            if (nearest instanceof ServerPlayer serverPlayer) {
-                String itemId = BuiltInRegistries.ITEM.getKey(itemEntity.getItem().getItem()).toString();
+            if (level.getNearestPlayer(entity, 8.0) instanceof ServerPlayer serverPlayer) {
+                String itemId = itemId(itemEntity.getItem());
                 toolEvents.onItemPickup(itemId, false);
                 core.workerRuntimeService().interceptLiveDropForPlayer(
-                    serverPlayer.getUUID().getLeastSignificantBits(),
+                    playerId(serverPlayer),
                     "item:" + itemId,
                     itemEntity.getItem().getCount(),
                     true
                 );
             }
         } else if (entity instanceof ExperienceOrb orb) {
-            Player nearest = level.getNearestPlayer(entity, 8.0);
-            if (nearest instanceof ServerPlayer serverPlayer) {
+            if (level.getNearestPlayer(entity, 8.0) instanceof ServerPlayer serverPlayer) {
                 core.workerRuntimeService().interceptLiveDropForPlayer(
-                    serverPlayer.getUUID().getLeastSignificantBits(),
+                    playerId(serverPlayer),
                     "xp_orb",
                     orb.getValue(),
                     true
@@ -340,8 +348,8 @@ public final class ModEntry {
     }
 
     private void routeToolUse(ItemStack stack, BlockPos pos, BlockState state) {
-        String itemId = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
-        String blockId = BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString();
+        String itemId = itemId(stack);
+        String blockId = blockId(state);
 
         if (itemId.contains("pickaxe")) {
             toolEvents.onPickaxeUse(pos.getX(), pos.getY(), pos.getZ(), blockId);
@@ -358,6 +366,18 @@ public final class ModEntry {
         if (itemId.contains("axe")) {
             toolEvents.onAxeUse(pos.getX(), pos.getY(), pos.getZ(), blockId);
         }
+    }
+
+    private static String itemId(ItemStack stack) {
+        return BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
+    }
+
+    private static String blockId(BlockState state) {
+        return BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString();
+    }
+
+    private static long playerId(Player player) {
+        return player.getUUID().getLeastSignificantBits();
     }
 }
 */ //?}

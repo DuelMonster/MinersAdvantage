@@ -16,8 +16,7 @@ import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
  * It exists so behavior stays explicit instead of becoming mystery spaghetti at 2 AM.
  */
 final class PacketProcessSupport {
-    private static final String FALLBACK_BLOCK_ID = "minecraft:air";
-    private static final String FALLBACK_TOOL_ID = "minecraft:air";
+    private static final String FALLBACK_ID = "minecraft:air";
 
     private PacketProcessSupport() {}
 
@@ -107,7 +106,7 @@ final class PacketProcessSupport {
                 // Why this exists: Keep compatibility dispatch resilient for legacy state ids. (future-you will thank present-you).
             }
         }
-        return FALLBACK_BLOCK_ID;
+        return FALLBACK_ID;
     }
 
     /**
@@ -129,7 +128,7 @@ final class PacketProcessSupport {
             // Why this exists: Fallback to default tool id for compatibility invocation paths. (future-you will thank present-you).
         }
 
-        return FALLBACK_TOOL_ID;
+        return FALLBACK_ID;
     }
 
     /**
@@ -138,7 +137,7 @@ final class PacketProcessSupport {
      */
     private static String toolIdFromStack(ItemStack stack) {
         if (stack == null || stack.isEmpty()) {
-            return FALLBACK_TOOL_ID;
+            return FALLBACK_ID;
         }
         return BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
     }
