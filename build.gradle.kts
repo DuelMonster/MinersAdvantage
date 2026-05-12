@@ -183,18 +183,6 @@ tasks.withType<Test> {
 }
 
 if (isNeoForge) {
-    tasks.withType<Test> {
-        doFirst {
-            // Ensure Minecraft and NeoForge classes are available for tests
-            val minecraftJar = configurations.detachedConfiguration(
-                dependencies.create("net.minecraft:client:${minecraft}")
-            ).singleFile
-            val neoforgeJar = configurations.detachedConfiguration(
-                dependencies.create("net.neoforged:neoforge:${property("deps.neoforge")}")
-            ).singleFile
-            classpath += files(minecraftJar, neoforgeJar)
-        }
-    }
     tasks.configureEach {
         if (name == "neoForgeIdeSync") {
             enabled = false
