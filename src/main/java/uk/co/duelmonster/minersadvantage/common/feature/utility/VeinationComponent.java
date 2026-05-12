@@ -3,8 +3,8 @@ package uk.co.duelmonster.minersadvantage.common.feature.utility;
 import java.util.List;
 
 import uk.co.duelmonster.minersadvantage.common.component.ComponentLifecycle;
-    import uk.co.duelmonster.minersadvantage.common.component.ComponentTickHelper;
-    import uk.co.duelmonster.minersadvantage.common.config.VeinationConfig;
+import uk.co.duelmonster.minersadvantage.common.component.ComponentTickHelper;
+import uk.co.duelmonster.minersadvantage.common.config.VeinationConfig;
 import uk.co.duelmonster.minersadvantage.common.services.utility.VeinationCoreService;
 
 /**
@@ -120,6 +120,8 @@ public final class VeinationComponent implements ComponentLifecycle {
         lastVein = List.of();
     }
 }
+
+
 
 
 

@@ -72,6 +72,13 @@ public final class SupremeVantageService {
     ) {}
 
     private final Map<Long, Integer> rewardProgress = new HashMap<>();
+    private static final List<EnchantmentGrant> ENCHANTS_EFFICIENCY_FORTUNE = List.of(
+        new EnchantmentGrant("minecraft:efficiency", 5),
+        new EnchantmentGrant("minecraft:fortune", 10)
+    );
+    private static final List<EnchantmentGrant> ENCHANTS_FIRE_PROTECTION = List.of(
+        new EnchantmentGrant("minecraft:fire_protection", 10)
+    );
     private static final List<RewardGrant> REWARDS = List.of(
         new RewardGrant(1, "soulblade", "Soulblade", "minecraft:diamond_sword", CODE_D),
         new RewardGrant(2, "peacekeeper", "Peacekeeper", "minecraft:diamond_sword", CODE_D),
@@ -199,25 +206,19 @@ public final class SupremeVantageService {
                 new EnchantmentGrant("minecraft:sweeping_edge", 10),
                 new EnchantmentGrant("minecraft:looting", 10)
             );
-            case 3 -> List.of(
-                new EnchantmentGrant("minecraft:efficiency", 5),
-                new EnchantmentGrant("minecraft:fortune", 10)
-            );
+            case 3 -> ENCHANTS_EFFICIENCY_FORTUNE;
             case 4 -> List.of(
                 new EnchantmentGrant("minecraft:efficiency", 5),
                 new EnchantmentGrant("minecraft:silk_touch", 1)
             );
-            case 5, 6 -> List.of(
-                new EnchantmentGrant("minecraft:efficiency", 5),
-                new EnchantmentGrant("minecraft:fortune", 10)
-            );
+            case 5, 6 -> ENCHANTS_EFFICIENCY_FORTUNE;
             case 7 -> List.of(
                 new EnchantmentGrant("minecraft:fire_protection", 10),
                 new EnchantmentGrant("minecraft:respiration", 10),
                 new EnchantmentGrant("minecraft:aqua_affinity", 1)
             );
-            case 8 -> List.of(new EnchantmentGrant("minecraft:fire_protection", 10));
-            case 10 -> List.of(new EnchantmentGrant("minecraft:fire_protection", 10));
+            case 8 -> ENCHANTS_FIRE_PROTECTION;
+            case 10 -> ENCHANTS_FIRE_PROTECTION;
             case 11 -> List.of(
                 new EnchantmentGrant("minecraft:fire_protection", 10),
                 new EnchantmentGrant("minecraft:feather_falling", 10),
@@ -264,6 +265,7 @@ public final class SupremeVantageService {
         return CODE_N.equals(code) || CODE_D.equals(code);
     }
 }
+
 
 
 
