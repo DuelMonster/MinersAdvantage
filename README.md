@@ -116,3 +116,7 @@ MIT
 
 - Original mod and modernization effort: DuelMonster
 - Build stack: Stonecutter, Modstitch, Gradle
+
+## SupremeVantage Migration Note
+
+The legacy SupremeVantage packet handler has been deprecated and removed from runtime logic. All SupremeVantage reward and code processing is now handled by SupremeVantagePacket and SupremeVantageService. See TECHNICAL.md for details.
