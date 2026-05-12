@@ -176,10 +176,25 @@ dependencies {
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    if (isNeoForge) {
+        testRuntimeOnly("net.neoforged:neoforge:${property("deps.neoforge")}")
+    }
 }
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+if (isNeoForge) {
+    tasks.withType<Test>().configureEach {
+        dependsOn("createMinecraftArtifacts")
+        doFirst {
+            val moddevArtifacts = fileTree(layout.buildDirectory.dir("moddev/artifacts")) {
+                include("*.jar")
+            }
+            classpath += files(moddevArtifacts)
+        }
+    }
 }
 
 if (isNeoForge) {
