@@ -2,6 +2,8 @@ package uk.co.duelmonster.minersadvantage.common;
 
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import uk.co.duelmonster.minersadvantage.common.component.ComponentDescriptor;
 import uk.co.duelmonster.minersadvantage.common.component.ComponentLifecycle;
 import uk.co.duelmonster.minersadvantage.common.component.ComponentRegistry;
@@ -78,139 +80,24 @@ public final class MinersAdvantageCore {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public void bootstrap() {
-        registerCaptivation();
-        registerCropination();
-        registerCultivation();
-        registerExcavation();
-        registerIllumination();
-        registerLumbination();
-        registerPathanation();
-        registerShaftanation();
-        registerSubstitution();
-        registerVeination();
-        registerVentilation();
+        registerFeature(FeatureId.CAPTIVATION, "captivation", defaultConfig::captivation, CaptivationComponent::new);
+        registerFeature(FeatureId.CROPINATION, "cropination", defaultConfig::cropination, CropinationComponent::new);
+        registerFeature(FeatureId.CULTIVATION, "cultivation", defaultConfig::cultivation, CultivationComponent::new);
+        registerFeature(FeatureId.EXCAVATION, "excavation", defaultConfig::excavation, ExcavationComponent::new);
+        registerFeature(FeatureId.ILLUMINATION, "illumination", defaultConfig::illumination, IlluminationComponent::new);
+        registerFeature(FeatureId.LUMBINATION, "lumbination", defaultConfig::lumbination, LumbinationComponent::new);
+        registerFeature(FeatureId.PATHANATION, "pathanation", defaultConfig::pathanation, PathanationComponent::new);
+        registerFeature(FeatureId.SHAFTANATION, "shaftanation", defaultConfig::shaftanation, ShaftanationComponent::new);
+        registerFeature(FeatureId.SUBSTITUTION, "substitution", defaultConfig::substitution, SubstitutionComponent::new);
+        registerFeature(FeatureId.VEINATION, "veination", defaultConfig::veination, VeinationComponent::new);
+        registerFeature(FeatureId.VENTILATION, "ventilation", defaultConfig::ventilation, VentilationComponent::new);
         componentRegistry.enableAll();
     }
 
-    /**
-     * registerCaptivation exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    private void registerCaptivation() {
-        CaptivationConfig config = defaultConfig.captivation();
-        CaptivationComponent component = new CaptivationComponent(config);
-        components.put(FeatureId.CAPTIVATION, component);
-        componentRegistry.register(new ComponentDescriptor("captivation", "Captivation", component));
-    }
-
-    /**
-     * registerCropination exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    private void registerCropination() {
-        CropinationConfig config = defaultConfig.cropination();
-        CropinationComponent component = new CropinationComponent(config);
-        components.put(FeatureId.CROPINATION, component);
-        componentRegistry.register(new ComponentDescriptor("cropination", "Cropination", component));
-    }
-
-    /**
-     * registerCultivation exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    private void registerCultivation() {
-        CultivationConfig config = defaultConfig.cultivation();
-        CultivationComponent component = new CultivationComponent(config);
-        components.put(FeatureId.CULTIVATION, component);
-        componentRegistry.register(new ComponentDescriptor("cultivation", "Cultivation", component));
-    }
-
-    /**
-     * registerExcavation exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    private void registerExcavation() {
-        ExcavationConfig config = defaultConfig.excavation();
-        ExcavationComponent component = new ExcavationComponent(config);
-        components.put(FeatureId.EXCAVATION, component);
-        componentRegistry.register(new ComponentDescriptor("excavation", "Excavation", component));
-    }
-
-    /**
-     * registerIllumination exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    private void registerIllumination() {
-        IlluminationConfig config = defaultConfig.illumination();
-        IlluminationComponent component = new IlluminationComponent(config);
-        components.put(FeatureId.ILLUMINATION, component);
-        componentRegistry.register(new ComponentDescriptor("illumination", "Illumination", component));
-    }
-
-    /**
-     * registerLumbination exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    private void registerLumbination() {
-        LumbinationConfig config = defaultConfig.lumbination();
-        LumbinationComponent component = new LumbinationComponent(config);
-        components.put(FeatureId.LUMBINATION, component);
-        componentRegistry.register(new ComponentDescriptor("lumbination", "Lumbination", component));
-    }
-
-    /**
-     * registerPathanation exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    private void registerPathanation() {
-        PathanationConfig config = defaultConfig.pathanation();
-        PathanationComponent component = new PathanationComponent(config);
-        components.put(FeatureId.PATHANATION, component);
-        componentRegistry.register(new ComponentDescriptor("pathanation", "Pathanation", component));
-    }
-
-    /**
-     * registerShaftanation exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    private void registerShaftanation() {
-        ShaftanationConfig config = defaultConfig.shaftanation();
-        ShaftanationComponent component = new ShaftanationComponent(config);
-        components.put(FeatureId.SHAFTANATION, component);
-        componentRegistry.register(new ComponentDescriptor("shaftanation", "Shaftanation", component));
-    }
-
-    /**
-     * registerSubstitution exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    private void registerSubstitution() {
-        SubstitutionConfig config = defaultConfig.substitution();
-        SubstitutionComponent component = new SubstitutionComponent(config);
-        components.put(FeatureId.SUBSTITUTION, component);
-        componentRegistry.register(new ComponentDescriptor("substitution", "Substitution", component));
-    }
-
-    /**
-     * registerVeination exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    private void registerVeination() {
-        VeinationConfig config = defaultConfig.veination();
-        VeinationComponent component = new VeinationComponent(config);
-        components.put(FeatureId.VEINATION, component);
-        componentRegistry.register(new ComponentDescriptor("veination", "Veination", component));
-    }
-
-    /**
-     * registerVentilation exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    private void registerVentilation() {
-        VentilationConfig config = defaultConfig.ventilation();
-        VentilationComponent component = new VentilationComponent(config);
-        components.put(FeatureId.VENTILATION, component);
-        componentRegistry.register(new ComponentDescriptor("ventilation", "Ventilation", component));
+    private <C> void registerFeature(FeatureId id, String key, Supplier<C> configGetter, Function<C, ? extends ComponentLifecycle> componentFactory) {
+        ComponentLifecycle component = componentFactory.apply(configGetter.get());
+        components.put(id, component);
+        componentRegistry.register(new ComponentDescriptor(key, key.substring(0, 1).toUpperCase() + key.substring(1), component));
     }
 
     /**

@@ -4,7 +4,7 @@
 - [ ] Remove redundant or obsolete code  
 # Copilot: detect unused methods, dead branches, outdated helpers, and safe removal candidates.
 - [ ] Perform structural cleanup  
-# Copilot: fix inconsistent formatting, imports, naming, and style deviations.
+# Copilot: fix inconsistent formatting, imports, naming, and style deviations, blank line repetition, unnecessary whitespace.
 - [ ] Optimise code for clarity and performance  
 # Copilot: suggest micro‑optimisations, simplify logic, and reduce unnecessary allocations.
 - [ ] Reorganise files into logical sub‑packages  

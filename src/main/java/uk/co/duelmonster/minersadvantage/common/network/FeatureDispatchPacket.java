@@ -80,13 +80,6 @@ public record FeatureDispatchPacket(
         return NetworkPayloadReflection.payloadId(path, "Unable to create payload id for feature_dispatch");
     }
 
-    /**
-     * createIdentifier exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    private static Object createIdentifier(String path) throws ReflectiveOperationException {
-        return NetworkPayloadReflection.createIdentifier(path);
-    }
 }
 
 
