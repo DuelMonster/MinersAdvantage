@@ -2,6 +2,7 @@ package uk.co.duelmonster.minersadvantage.common.network.packets;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 import uk.co.duelmonster.minersadvantage.common.network.packetids.PacketId;
 
 public class PacketCropinate extends BaseBlockPacket {
@@ -19,6 +20,6 @@ public class PacketCropinate extends BaseBlockPacket {
     }
 
     public static void process(Object player, PacketCropinate pkt) {
-        // Compatibility no-op.
+        PacketProcessSupport.dispatchFeature(player, FeatureId.CROPINATION, pkt);
     }
 }

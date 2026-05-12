@@ -1,6 +1,7 @@
 package uk.co.duelmonster.minersadvantage.common.network.packets;
 
 import uk.co.duelmonster.minersadvantage.common.network.packetids.PacketId;
+import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 
 public class PacketCaptivate implements IMAPacket {
     @Override
@@ -9,6 +10,6 @@ public class PacketCaptivate implements IMAPacket {
     }
 
     public static void process(Object player, PacketCaptivate pkt) {
-        // Compatibility no-op.
+        PacketProcessSupport.dispatchFeature(player, FeatureId.CAPTIVATION);
     }
 }

@@ -28,6 +28,6 @@ public class PacketSubstituteTool extends BaseBlockPacket {
     }
 
     public static void process(Object player, PacketSubstituteTool pkt) {
-        // Compatibility no-op.
+        PacketProcessSupport.dispatchSubstitution(player, pkt);
     }
 }
