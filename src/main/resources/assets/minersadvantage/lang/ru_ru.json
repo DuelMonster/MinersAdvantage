@@ -21,7 +21,6 @@
     "key.minersadvantage.veination_toggle": "Переключить Veination",
     "key.minersadvantage.cropination_toggle": "Переключить Cropination",
     "key.minersadvantage.abort_workers": "Прервать процессы",
-    
     "minersadvantage.config.gui.close": "Закрыть",
     "minersadvantage.config.gui.category": "Категория",
     "minersadvantage.config.gui.common": "Общие",
@@ -193,5 +192,6 @@
     "minersadvantage.veination.enabled": "Veination включен",
     "minersadvantage.veination.enabled.comment": "Включение/выключение Veination",
     "minersadvantage.veination.ores": "ID руды",
-    "minersadvantage.veination.ores.comment": "Список ID руды в чёрном списке."
+    "minersadvantage.veination.ores.comment": "Список ID руды в чёрном списке.",
+    "key.category.minersadvantage.keybinds": "MinersAdvantage"
 }

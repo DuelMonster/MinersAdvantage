@@ -35,6 +35,7 @@ import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
      */
 public final class ClientInputHandler {
     private static ClientInputService.ClientInputState inputState = ClientInputService.ClientInputState.defaults();
+    private static final KeyMapping.Category KEY_CATEGORY = createKeyCategory();
     //? if fabric {
     private static java.util.Map<KeyBindings.ClientAction, KeyMapping> keyMappings = new java.util.EnumMap<>(KeyBindings.ClientAction.class);
     //?} else {
@@ -96,6 +97,28 @@ public final class ClientInputHandler {
         }
     }
 
+    private static KeyMapping.Category createKeyCategory() {
+        try {
+            Object identifier = createCategoryIdentifier();
+            Method registerCategoryMethod = KeyMapping.Category.class.getMethod("register", identifier.getClass());
+            return (KeyMapping.Category) registerCategoryMethod.invoke(null, identifier);
+        } catch (ReflectiveOperationException exception) {
+            throw new IllegalStateException("Unable to create key mapping category", exception);
+        }
+    }
+
+    private static Object createCategoryIdentifier() throws ReflectiveOperationException {
+        try {
+            Class<?> identifierClass = Class.forName("net.minecraft.resources.Identifier");
+            Method factory = identifierClass.getMethod("fromNamespaceAndPath", String.class, String.class);
+            return factory.invoke(null, uk.co.duelmonster.minersadvantage.ModCommon.MOD_ID, "keybinds");
+        } catch (ClassNotFoundException missingIdentifierClass) {
+            Class<?> resourceLocationClass = Class.forName("net.minecraft.resources.ResourceLocation");
+            Method factory = resourceLocationClass.getMethod("fromNamespaceAndPath", String.class, String.class);
+            return factory.invoke(null, uk.co.duelmonster.minersadvantage.ModCommon.MOD_ID, "keybinds");
+        }
+    }
+
     //? if fabric {
     /**
      * Register keybindings on Fabric client startup.
@@ -103,14 +126,14 @@ public final class ClientInputHandler {
      */
     public static void registerKeybindings() {
         for (KeyBindings.KeyBindingSpec spec : KeyBindings.all()) {
-            String translationKey = "key.minersadvantage." + spec.action().name().toLowerCase();
+            String translationKey = "key." + uk.co.duelmonster.minersadvantage.ModCommon.MOD_ID + "." + spec.action().name().toLowerCase();
 
             InputConstants.Key key = parseKeyToken(spec.defaultKey());
             KeyMapping keyMapping = new KeyMapping(
                 translationKey,
                 key.getType(),
                 key.getValue(),
-                KeyMapping.Category.MISC
+                KEY_CATEGORY
             );
             registerKeyMapping(keyMapping);
             keyMappings.put(spec.action(), keyMapping);

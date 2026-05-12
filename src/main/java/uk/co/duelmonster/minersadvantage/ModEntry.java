@@ -10,6 +10,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
 import java.lang.reflect.Method;
 import uk.co.duelmonster.minersadvantage.common.MinersAdvantageCore;
 import uk.co.duelmonster.minersadvantage.common.config.ServerOverridesConfig;
@@ -20,6 +22,7 @@ import uk.co.duelmonster.minersadvantage.common.network.PlayerStateSyncPacket;
 
 //? if fabric {
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
@@ -89,36 +92,42 @@ public final class ModEntry implements ModInitializer {
         try {
             // Why this exists: 1.21.11 branch (future-you will thank present-you).
             Class<?> worldEventsClass = Class.forName("net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents");
-            Object unloadEvent = worldEventsClass.getField("UNLOAD").get(null);
-            Method registerMethod = unloadEvent.getClass().getMethod("register", Class.forName("net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents$Unload"));
-            Object callback = java.lang.reflect.Proxy.newProxyInstance(
-                getClass().getClassLoader(),
-                new Class[]{Class.forName("net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents$Unload")},
-                (proxy, method, args) -> {
-                    onServerLevelUnload((ServerLevel) args[1]);
-                    return null;
-                }
-            );
-            registerMethod.invoke(unloadEvent, callback);
-        } catch (ReflectiveOperationException missingWorldEvents) {
+            Event<?> unloadEvent = (Event<?>) worldEventsClass.getField("UNLOAD").get(null);
+            Object callback = createFabricUnloadCallback("net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents$Unload");
+            ((Event) unloadEvent).register(callback);
+        } catch (ClassNotFoundException missingWorldEvents) {
             try {
                 // Why this exists: 26.1.2 branch (future-you will thank present-you).
                 Class<?> levelEventsClass = Class.forName("net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents");
-                Object unloadEvent = levelEventsClass.getField("UNLOAD").get(null);
-                Method registerMethod = unloadEvent.getClass().getMethod("register", Class.forName("net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents$Unload"));
-                Object callback = java.lang.reflect.Proxy.newProxyInstance(
-                    getClass().getClassLoader(),
-                    new Class[]{Class.forName("net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents$Unload")},
-                    (proxy, method, args) -> {
-                        onServerLevelUnload((ServerLevel) args[1]);
-                        return null;
-                    }
-                );
-                registerMethod.invoke(unloadEvent, callback);
+                Event<?> unloadEvent = (Event<?>) levelEventsClass.getField("UNLOAD").get(null);
+                Object callback = createFabricUnloadCallback("net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents$Unload");
+                ((Event) unloadEvent).register(callback);
             } catch (ReflectiveOperationException exception) {
                 throw new IllegalStateException("Unable to register Fabric level unload event", exception);
             }
+        } catch (ReflectiveOperationException exception) {
+            throw new IllegalStateException("Unable to register Fabric level unload event", exception);
         }
+    }
+
+    private Object createFabricUnloadCallback(String listenerClassName) throws ReflectiveOperationException {
+        Class<?> listenerClass = Class.forName(listenerClassName);
+        InvocationHandler handler = (proxy, method, args) -> {
+            if (method.getDeclaringClass() == Object.class) {
+                return switch (method.getName()) {
+                    case "toString" -> "MinersAdvantageFabricUnloadCallback";
+                    case "hashCode" -> System.identityHashCode(proxy);
+                    case "equals" -> args != null && args.length > 0 && proxy == args[0];
+                    default -> null;
+                };
+            }
+
+            if (args != null && args.length > 1 && args[1] instanceof ServerLevel level) {
+                onServerLevelUnload(level);
+            }
+            return null;
+        };
+        return Proxy.newProxyInstance(getClass().getClassLoader(), new Class[]{listenerClass}, handler);
     }
 
     /**
