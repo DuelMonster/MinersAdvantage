@@ -110,6 +110,10 @@ tasks.withType<JavaCompile> {
     dependsOn("stonecutterGenerate")
 }
 
+tasks.matching { it.name == "createMinecraftArtifacts" }.configureEach {
+    dependsOn("stonecutterGenerate")
+}
+
 if (tasks.findByName("compile") == null) {
     tasks.register("compile") {
         group = "build"
