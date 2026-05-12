@@ -87,7 +87,7 @@ public final class ModEntry implements ModInitializer {
      */
     private void registerFabricLevelUnloadEvent() {
         try {
-            // 1.21.11 branch
+            // Why this exists: 1.21.11 branch (future-you will thank present-you).
             Class<?> worldEventsClass = Class.forName("net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents");
             Object unloadEvent = worldEventsClass.getField("UNLOAD").get(null);
             Method registerMethod = unloadEvent.getClass().getMethod("register", Class.forName("net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents$Unload"));
@@ -102,7 +102,7 @@ public final class ModEntry implements ModInitializer {
             registerMethod.invoke(unloadEvent, callback);
         } catch (ReflectiveOperationException missingWorldEvents) {
             try {
-                // 26.1.2 branch
+                // Why this exists: 26.1.2 branch (future-you will thank present-you).
                 Class<?> levelEventsClass = Class.forName("net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents");
                 Object unloadEvent = levelEventsClass.getField("UNLOAD").get(null);
                 Method registerMethod = unloadEvent.getClass().getMethod("register", Class.forName("net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents$Unload"));
@@ -361,5 +361,7 @@ public final class ModEntry {
     }
 }
 */ //?}
+
+
 
 

@@ -9,7 +9,7 @@ import java.util.Set;
  * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
  */
 public final class SubstitutionCoreService {
-    // Parity note: core tool-ranking and decision behavior is ported; deeper combat/tool simulation parity is tracked in checklist.
+    // Why this exists: Parity note: core tool-ranking and decision behavior is ported; deeper combat/tool simulation parity is tracked in checklist. (future-you will thank present-you).
 
     public enum RankingMode {
         GENERAL,
@@ -21,7 +21,7 @@ public final class SubstitutionCoreService {
 
     /*
     public void processToolSubtitution(ServerPlayer player, BlockPos pos) {
-        // ...see legacy for logic...
+        // Why this exists: ...see legacy for logic... (future-you will thank present-you).
     }
     */
     /**
@@ -44,6 +44,10 @@ public final class SubstitutionCoreService {
      */
     public record SubstitutionDecision(String selectedToolId, boolean switched, boolean switchBackToPrimary, String mode) {}
 
+    /**
+     * resolveMode exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     private RankingMode resolveMode(boolean favourSilkTouch, boolean favourFortune, boolean combatContext, boolean switchBackToPrimary) {
         if (switchBackToPrimary) {
             return RankingMode.RESTORE;
@@ -60,6 +64,10 @@ public final class SubstitutionCoreService {
         return RankingMode.GENERAL;
     }
 
+    /**
+     * candidateScore exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     private double candidateScore(ToolCandidate candidate, RankingMode mode) {
         return switch (mode) {
             case COMBAT -> (candidate.attackScore() * 1000.0) + (candidate.speedScore() * 10.0);
@@ -157,4 +165,6 @@ public final class SubstitutionCoreService {
         return new SubstitutionDecision(best.id(), !best.id().equals(currentToolId), false, mode.name().toLowerCase());
     }
 }
+
+
 

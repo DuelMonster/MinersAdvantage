@@ -22,11 +22,19 @@ public final class IlluminationCoreService {
     private int torchStackCount = 0;
     private int torchIndex = -1;
 
+    /**
+     * playerHasTorches exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public boolean playerHasTorches(ServerPlayer player) {
         getTorchSlot(player);
         return torchIndex >= 0;
     }
 
+    /**
+     * getTorchSlot exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public void getTorchSlot(ServerPlayer player) {
         torchStackCount = 0;
         torchIndex = -1;
@@ -41,6 +49,10 @@ public final class IlluminationCoreService {
         }
     }
 
+    /**
+     * getTorchablePositionsInArea exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public List<BlockPos> getTorchablePositionsInArea(Level world, AABB area) {
         List<BlockPos> positions = new ArrayList<>();
         BlockPos previousPos = null;
@@ -59,6 +71,10 @@ public final class IlluminationCoreService {
         return positions;
     }
 
+    /**
+     * isTorchablePosition exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public boolean isTorchablePosition(Level world, BlockPos pos) {
         return world.isEmptyBlock(pos) && (!world.isEmptyBlock(pos.below())
             || !world.isEmptyBlock(pos.north())
@@ -67,6 +83,10 @@ public final class IlluminationCoreService {
             || !world.isEmptyBlock(pos.west()));
     }
 
+    /**
+     * canPlaceTorchOnFace exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public boolean canPlaceTorchOnFace(Level world, BlockPos pos, Direction face) {
         BlockState state = world.getBlockState(pos);
         Block block = state.getBlock();
@@ -194,4 +214,6 @@ public final class IlluminationCoreService {
         return new IlluminationDecision(placement, planned, placeNow, manualMode, inventoryDepleted);
     }
 }
+
+
 

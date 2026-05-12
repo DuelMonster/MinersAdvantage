@@ -16,7 +16,7 @@ import uk.co.duelmonster.minersadvantage.common.config.LumbinationConfig;
  * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
  */
 public final class LumbinationCoreService {
-    // Parity note: key block/tool validation logic from legacy LumbinationHelper is ported.
+    // Why this exists: Parity note: key block/tool validation logic from legacy LumbinationHelper is ported. (future-you will thank present-you).
 
     public boolean isWood(BlockState state) {
         return state.is(BlockTags.LOGS)
@@ -56,6 +56,10 @@ public final class LumbinationCoreService {
         return config.leaves().contains(Functions.getName(state.getBlock().asItem()));
     }
 
+    /**
+     * isValidAxe exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public boolean isValidAxe(Item heldItem, LumbinationConfig config) {
         return heldItem instanceof AxeItem
             || (config != null
@@ -129,4 +133,6 @@ public final class LumbinationCoreService {
         return new LumbinationPlan(logsToHarvest, leavesToClear, saplingAvailable, steps);
     }
 }
+
+
 

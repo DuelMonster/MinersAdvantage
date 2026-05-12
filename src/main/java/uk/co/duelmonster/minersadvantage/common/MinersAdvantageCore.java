@@ -326,6 +326,10 @@ public final class MinersAdvantageCore {
         return supremeVantageService.grantNextReward(packet.playerId(), packet.code());
     }
 
+    /**
+     * handleSupremeVantagePacketGrantSpec exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public SupremeVantageService.ItemGrantSpec handleSupremeVantagePacketGrantSpec(SupremeVantagePacket packet) {
         SupremeVantageService.RewardGrant grant = handleSupremeVantagePacket(packet);
         return supremeVantageService.materializeRewardSpec(grant);
@@ -379,4 +383,6 @@ public final class MinersAdvantageCore {
         return defaultServerOverrides;
     }
 }
+
+
 

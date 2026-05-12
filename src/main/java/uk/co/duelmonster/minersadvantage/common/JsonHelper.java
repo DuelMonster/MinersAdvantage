@@ -18,13 +18,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
+/**
+ * JsonHelper is the teammate that keeps this part of the mod understandable and stable.
+ * It exists so behavior stays explicit instead of becoming mystery spaghetti at 2 AM.
+ */
 public class JsonHelper {
     private static final Gson gson = new Gson();
 
+    /**
+     * ParseObject exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static JsonObject ParseObject(String json) {
         return JsonParser.parseString(json).getAsJsonObject();
     }
 
+    /**
+     * ParseObject exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static JsonObject ParseObject(String[] stringList) {
         JsonObject json = new JsonObject();
         if (stringList == null) {
@@ -39,14 +51,26 @@ public class JsonHelper {
         return json;
     }
 
+    /**
+     * toJson exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static String toJson(Object obj) {
         return gson.toJson(obj);
     }
 
+    /**
+     * fromJson exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static <T> T fromJson(String json, Class<T> classOfT) {
         return gson.fromJson(json, classOfT);
     }
 
+    /**
+     * toStringList exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static String[] toStringList(JsonObject json) {
         if (json == null || json.size() == 0) {
             return new String[0];
@@ -61,18 +85,34 @@ public class JsonHelper {
         return values.toArray(new String[0]);
     }
 
+    /**
+     * contains exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static boolean contains(JsonObject json, String key) {
         return json != null && key != null && json.has(key);
     }
 
+    /**
+     * size exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static int size(JsonObject json) {
         return json == null ? 0 : json.entrySet().size();
     }
 
+    /**
+     * isEmpty exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static boolean isEmpty(JsonObject json) {
         return size(json) == 0;
     }
 
+    /**
+     * GetArray exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static JsonArray GetArray(JsonObject json, String key) {
         if (json != null && json.has(key) && json.get(key).isJsonArray()) {
             return json.get(key).getAsJsonArray();
@@ -80,6 +120,10 @@ public class JsonHelper {
         return new JsonArray();
     }
 
+    /**
+     * GetObject exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static JsonObject GetObject(JsonObject json, String key) {
         if (json != null && json.has(key) && json.get(key).isJsonObject()) {
             return json.get(key).getAsJsonObject();
@@ -87,6 +131,10 @@ public class JsonHelper {
         return new JsonObject();
     }
 
+    /**
+     * GetString exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static String GetString(JsonObject json, String key, String defaultValue) {
         if (json != null && json.has(key) && json.get(key).isJsonPrimitive() && json.get(key).getAsJsonPrimitive().isString()) {
             return json.get(key).getAsString();
@@ -94,6 +142,10 @@ public class JsonHelper {
         return defaultValue;
     }
 
+    /**
+     * GetNumber exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static Number GetNumber(JsonObject json, String key, Number defaultValue) {
         if (json != null && json.has(key) && json.get(key).isJsonPrimitive()) {
             try {
@@ -105,6 +157,10 @@ public class JsonHelper {
         return defaultValue;
     }
 
+    /**
+     * GetBoolean exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static boolean GetBoolean(JsonObject json, String key, boolean defaultValue) {
         if (json != null && json.has(key) && json.get(key).isJsonPrimitive()) {
             try {
@@ -116,6 +172,10 @@ public class JsonHelper {
         return defaultValue;
     }
 
+    /**
+     * ReadFromFile exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static JsonObject ReadFromFile(File sourceFile) {
         if (sourceFile == null || !sourceFile.exists()) {
             return new JsonObject();
@@ -130,6 +190,10 @@ public class JsonHelper {
         }
     }
 
+    /**
+     * WriteToFile exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static void WriteToFile(File outputFile, JsonObject json) {
         if (outputFile == null) {
             return;
@@ -152,6 +216,10 @@ public class JsonHelper {
         }
     }
 
+    /**
+     * CopyPaste exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static void CopyPaste(File sourceFile, File outputFile) {
         if (sourceFile == null || outputFile == null) {
             return;
@@ -169,3 +237,5 @@ public class JsonHelper {
         }
     }
 }
+
+

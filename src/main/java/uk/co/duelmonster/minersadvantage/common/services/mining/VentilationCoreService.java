@@ -21,11 +21,19 @@ public final class VentilationCoreService {
     private int ladderStackCount = 0;
     private int ladderIndex = -1;
 
+    /**
+     * playerHasLadders exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public boolean playerHasLadders(ServerPlayer player) {
         getLadderSlot(player);
         return ladderIndex >= 0;
     }
 
+    /**
+     * getLadderSlot exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public void getLadderSlot(ServerPlayer player) {
         ladderStackCount = 0;
         ladderIndex = -1;
@@ -40,12 +48,20 @@ public final class VentilationCoreService {
         }
     }
 
+    /**
+     * isLadderablePosition exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public boolean isLadderablePosition(Level world, BlockPos pos) {
         return world.isEmptyBlock(pos)
             && !world.isEmptyBlock(pos.south())
             && canPlaceLadderOnFace(world, pos.south());
     }
 
+    /**
+     * canPlaceLadderOnFace exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     private boolean canPlaceLadderOnFace(Level world, BlockPos pos) {
         BlockState state = world.getBlockState(pos);
         Block block = state.getBlock();
@@ -108,4 +124,6 @@ public final class VentilationCoreService {
         return new VentilationBatch(newProgress, ladderPlacements, steps);
     }
 }
+
+
 

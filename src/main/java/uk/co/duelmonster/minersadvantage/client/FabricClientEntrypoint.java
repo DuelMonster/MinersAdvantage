@@ -23,7 +23,7 @@ public final class FabricClientEntrypoint implements ClientModInitializer {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public void onInitializeClient() {
-        // M3/M4: Register keybindings, payload types, and wire client tick input loop
+        // Why this exists: M3/M4: Register keybindings, payload types, and wire client tick input loop (future-you will thank present-you).
         ClientInputHandler.registerKeybindings();
         FabricNetworkEvents.registerPayloadTypes();
         ClientTickEvents.END_CLIENT_TICK.register(minecraft -> ClientInputHandler.tick());
@@ -33,5 +33,7 @@ public final class FabricClientEntrypoint implements ClientModInitializer {
 /*
 // This class is Fabric-only (client-side initialization).
 */ //?}
+
+
 
 

@@ -17,12 +17,20 @@ public final class AgentProcessor {
 
     private AgentProcessor() {}
 
+    /**
+     * fireAgentTicks exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public void fireAgentTicks(Object worldContext) {
         for (Agent agent : List.copyOf(currentAgents)) {
             agent.tick(worldContext);
         }
     }
 
+    /**
+     * setCurrentAgent exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public void setCurrentAgent(UUID playerId, Agent agent) {
         if (playerId == null) {
             return;
@@ -37,6 +45,10 @@ public final class AgentProcessor {
         }
     }
 
+    /**
+     * getCurrentAgent exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public Agent getCurrentAgent(UUID playerId) {
         if (playerId == null) {
             return null;
@@ -44,8 +56,14 @@ public final class AgentProcessor {
         return perPlayerCurrentAgent.get(playerId);
     }
 
+    /**
+     * resetAgentList exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public void resetAgentList() {
         currentAgents.clear();
         perPlayerCurrentAgent.clear();
     }
 }
+
+

@@ -1,5 +1,9 @@
 package uk.co.duelmonster.minersadvantage.common;
 
+/**
+ * TorchPlacement is the teammate that keeps this part of the mod understandable and stable.
+ * It exists so behavior stays explicit instead of becoming mystery spaghetti at 2 AM.
+ */
 public enum TorchPlacement {
     INACTIVE(0, "INACTIVE"),
     FLOOR(1, "FLOOR"),
@@ -15,11 +19,21 @@ public enum TorchPlacement {
         this.name = name;
     }
 
+    /**
+     * getIndex exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public int getIndex() {
         return index;
     }
 
+    /**
+     * getName exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public String getName() {
         return name;
     }
 }
+
+

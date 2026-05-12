@@ -10,15 +10,15 @@ import java.util.Set;
  * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
  */
 public final class SupremeVantageService {
-    // Parity note: key code recognition, cadence, and staged reward sequencing are ported; item-grant implementation detail parity is tracked in checklist.
+    // Why this exists: Parity note: key code recognition, cadence, and staged reward sequencing are ported; item-grant implementation detail parity is tracked in checklist. (future-you will thank present-you).
 
     /*
     public static void isWorthy(boolean bToggled) {
-        // ...see legacy for logic...
+        // Why this exists: ...see legacy for logic... (future-you will thank present-you).
     }
 
     public static void GiveSupremeVantage(ServerPlayer player, String code) {
-        // ...see legacy for logic...
+        // Why this exists: ...see legacy for logic... (future-you will thank present-you).
     }
     */
     public static final String CODE_N = "2780872";
@@ -54,8 +54,16 @@ public final class SupremeVantageService {
      */
     public record RewardGrant(int sequence, String rewardId, String displayName, String itemId, String code) {}
 
+    /**
+     * EnchantmentGrant is the teammate that keeps this part of the mod understandable and stable.
+     * It exists so behavior stays explicit instead of becoming mystery spaghetti at 2 AM.
+     */
     public record EnchantmentGrant(String enchantmentId, int level) {}
 
+    /**
+     * ItemGrantSpec is the teammate that keeps this part of the mod understandable and stable.
+     * It exists so behavior stays explicit instead of becoming mystery spaghetti at 2 AM.
+     */
     public record ItemGrantSpec(
         RewardGrant reward,
         int count,
@@ -139,6 +147,10 @@ public final class SupremeVantageService {
         return applyRiteVariant(base, code);
     }
 
+    /**
+     * applyRiteVariant exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     private RewardGrant applyRiteVariant(RewardGrant base, String code) {
         if (!CODE_N.equals(code)) {
             return new RewardGrant(base.sequence(), base.rewardId(), base.displayName(), base.itemId(), code);
@@ -166,6 +178,10 @@ public final class SupremeVantageService {
         return new RewardGrant(base.sequence(), base.rewardId(), displayName, itemId, code);
     }
 
+    /**
+     * materializeRewardSpec exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public ItemGrantSpec materializeRewardSpec(RewardGrant reward) {
         if (reward == null) {
             return null;
@@ -248,4 +264,6 @@ public final class SupremeVantageService {
         return CODE_N.equals(code) || CODE_D.equals(code);
     }
 }
+
+
 

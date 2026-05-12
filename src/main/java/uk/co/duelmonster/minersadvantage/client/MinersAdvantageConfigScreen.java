@@ -133,7 +133,7 @@ public final class MinersAdvantageConfigScreen {
             sendMethod.invoke(null, packet);
             return;
         } catch (ReflectiveOperationException ignored) {
-            // Try NeoForge path.
+            // Why this exists: Try NeoForge path. (future-you will thank present-you).
         }
 
         try {
@@ -301,5 +301,7 @@ public final class MinersAdvantageConfigScreen {
         }
     }
 }
+
+
 
 

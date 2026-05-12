@@ -11,15 +11,27 @@ public final class ServerInfoService {
 
     private ServerInfoService() {}
 
+    /**
+     * isOnServer exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static boolean isOnServer() {
         return isOnServer;
     }
 
+    /**
+     * onConnectedToServer exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static void onConnectedToServer(boolean isNowOnServer) {
         isOnServer = isNowOnServer;
         worldUid = null;
     }
 
+    /**
+     * getWorldUid exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static String getWorldUid() {
         if (worldUid == null) {
             worldUid = DEFAULT_WORLD_UID;
@@ -27,6 +39,10 @@ public final class ServerInfoService {
         return worldUid;
     }
 
+    /**
+     * getWorldUid exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static String getWorldUid(boolean localChannel, String localWorldName, String serverAddress, String serverName) {
         if (worldUid == null) {
             String source;
@@ -48,3 +64,5 @@ public final class ServerInfoService {
         return worldUid;
     }
 }
+
+

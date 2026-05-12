@@ -14,8 +14,16 @@ import net.minecraft.world.phys.AABB;
  * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
  */
 public final class FarmingCoreService {
+    /**
+     * CultivationStep is the teammate that keeps this part of the mod understandable and stable.
+     * It exists so behavior stays explicit instead of becoming mystery spaghetti at 2 AM.
+     */
     public record CultivationStep(int x, int y, int z, boolean hydrated) {}
 
+    /**
+     * canHydrate exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public boolean canHydrate(int distanceToWater, int maxHydrationDistance) {
         return distanceToWater >= 0 && distanceToWater <= maxHydrationDistance;
     }
@@ -40,6 +48,10 @@ public final class FarmingCoreService {
         return plan;
     }
 
+    /**
+     * getWaterSource exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public BlockPos getWaterSource(Level world, BlockPos originPos) {
         for (int offset = 1; offset <= 4; offset++) {
             AABB box = new AABB(
@@ -64,6 +76,10 @@ public final class FarmingCoreService {
         return null;
     }
 
+    /**
+     * getFarmableLand exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public AABB getFarmableLand(Level world, BlockPos originPos) {
         BlockPos waterSource = getWaterSource(world, originPos);
         if (waterSource != null) {
@@ -77,6 +93,10 @@ public final class FarmingCoreService {
         );
     }
 
+    /**
+     * getCropPatch exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public AABB getCropPatch(Level world, BlockPos originPos) {
         AABB cropPatch = getFarmableLand(world, originPos.below());
         return new AABB(
@@ -84,4 +104,6 @@ public final class FarmingCoreService {
             cropPatch.maxX, originPos.getY(), cropPatch.maxZ);
     }
 }
+
+
 

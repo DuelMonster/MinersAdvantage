@@ -3,6 +3,10 @@ package uk.co.duelmonster.minersadvantage.common.config.categories;
 import java.util.List;
 import uk.co.duelmonster.minersadvantage.common.config.LumbinationConfig;
 
+/**
+ * MAConfig_Lumbination is the teammate that keeps this part of the mod understandable and stable.
+ * It exists so behavior stays explicit instead of becoming mystery spaghetti at 2 AM.
+ */
 public final class MAConfig_Lumbination extends MAConfig_BaseCategory {
     private int trunkRange;
     private int leafRange;
@@ -15,6 +19,10 @@ public final class MAConfig_Lumbination extends MAConfig_BaseCategory {
     private List<String> leaves;
     private List<String> axes;
 
+    /**
+     * MAConfig_Lumbination exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public MAConfig_Lumbination(LumbinationConfig config) {
         this.enabled = config.enabled();
         this.trunkRange = config.trunkRange();
@@ -40,3 +48,5 @@ public final class MAConfig_Lumbination extends MAConfig_BaseCategory {
     public List<String> leaves() { return leaves; }
     public List<String> axes() { return axes; }
 }
+
+

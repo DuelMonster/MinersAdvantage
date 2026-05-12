@@ -11,16 +11,28 @@ import uk.co.duelmonster.minersadvantage.common.Variables;
 import uk.co.duelmonster.minersadvantage.common.event.FeatureEventHandler;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 
+/**
+ * PacketProcessSupport is the teammate that keeps this part of the mod understandable and stable.
+ * It exists so behavior stays explicit instead of becoming mystery spaghetti at 2 AM.
+ */
 final class PacketProcessSupport {
     private static final String FALLBACK_BLOCK_ID = "minecraft:air";
     private static final String FALLBACK_TOOL_ID = "minecraft:air";
 
     private PacketProcessSupport() {}
 
+    /**
+     * dispatchFeature exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     static void dispatchFeature(Object player, FeatureId feature) {
         dispatchFeature(player, feature, BlockPos.ZERO, 0, null);
     }
 
+    /**
+     * dispatchFeature exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     static void dispatchFeature(Object player, FeatureId feature, BaseBlockPacket packet) {
         if (packet == null) {
             return;
@@ -28,6 +40,10 @@ final class PacketProcessSupport {
         dispatchFeature(player, feature, packet.pos, packet.stateID, null);
     }
 
+    /**
+     * dispatchSubstitution exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     static void dispatchSubstitution(Object player, PacketSubstituteTool packet) {
         if (packet == null) {
             return;
@@ -43,6 +59,10 @@ final class PacketProcessSupport {
         dispatchFeature(player, FeatureId.SUBSTITUTION, packet.pos, packet.stateID, hint);
     }
 
+    /**
+     * markAgentsStopped exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     static void markAgentsStopped(Object player) {
         Variables vars = resolveVariables(player);
         vars.IsCropinating = false;
@@ -56,6 +76,10 @@ final class PacketProcessSupport {
         vars.resetSubstitution();
     }
 
+    /**
+     * dispatchFeature exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     private static void dispatchFeature(Object player, FeatureId feature, BlockPos pos, int stateId, String blockIdHint) {
         BlockPos safePos = pos == null ? BlockPos.ZERO : pos;
         String blockId = blockIdHint == null || blockIdHint.isBlank() ? resolveBlockId(stateId) : blockIdHint;
@@ -71,17 +95,25 @@ final class PacketProcessSupport {
         );
     }
 
+    /**
+     * resolveBlockId exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     private static String resolveBlockId(int stateId) {
         if (stateId > 0) {
             try {
                 return BuiltInRegistries.BLOCK.getKey(Block.stateById(stateId).getBlock()).toString();
             } catch (RuntimeException ignored) {
-                // Keep compatibility dispatch resilient for legacy state ids.
+                // Why this exists: Keep compatibility dispatch resilient for legacy state ids. (future-you will thank present-you).
             }
         }
         return FALLBACK_BLOCK_ID;
     }
 
+    /**
+     * resolveToolId exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     private static String resolveToolId(Object player) {
         if (player instanceof Player minecraftPlayer) {
             return toolIdFromStack(minecraftPlayer.getMainHandItem());
@@ -94,12 +126,16 @@ final class PacketProcessSupport {
                 return toolIdFromStack(stack);
             }
         } catch (ReflectiveOperationException | SecurityException ignored) {
-            // Fallback to default tool id for compatibility invocation paths.
+            // Why this exists: Fallback to default tool id for compatibility invocation paths. (future-you will thank present-you).
         }
 
         return FALLBACK_TOOL_ID;
     }
 
+    /**
+     * toolIdFromStack exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     private static String toolIdFromStack(ItemStack stack) {
         if (stack == null || stack.isEmpty()) {
             return FALLBACK_TOOL_ID;
@@ -107,6 +143,10 @@ final class PacketProcessSupport {
         return BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
     }
 
+    /**
+     * resolveVariables exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     private static Variables resolveVariables(Object player) {
         UUID uuid = resolveUuid(player);
         if (uuid == null) {
@@ -115,6 +155,10 @@ final class PacketProcessSupport {
         return Variables.get(uuid);
     }
 
+    /**
+     * resolveUuid exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     private static UUID resolveUuid(Object player) {
         if (player instanceof Player minecraftPlayer) {
             return minecraftPlayer.getUUID();
@@ -127,9 +171,11 @@ final class PacketProcessSupport {
                 return uuid;
             }
         } catch (ReflectiveOperationException | SecurityException ignored) {
-            // Fallback to singleton Variables state for compatibility callers.
+            // Why this exists: Fallback to singleton Variables state for compatibility callers. (future-you will thank present-you).
         }
 
         return null;
     }
 }
+
+

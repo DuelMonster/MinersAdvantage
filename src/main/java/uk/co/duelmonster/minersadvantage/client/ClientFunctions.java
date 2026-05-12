@@ -18,18 +18,34 @@ public final class ClientFunctions {
 
     private ClientFunctions() {}
 
+    /**
+     * getPlayer exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static LocalPlayer getPlayer() {
         return mc != null ? mc.player : null;
     }
 
+    /**
+     * isAttacking exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static boolean isAttacking() {
         return mc != null && mc.options != null && mc.options.keyAttack.isDown();
     }
 
+    /**
+     * isUsingItem exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static boolean isUsingItem() {
         return mc != null && mc.options != null && mc.options.keyUse.isDown();
     }
 
+    /**
+     * DebugNotifyClient exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static void DebugNotifyClient(String message) {
         LocalPlayer player = getPlayer();
         if (player != null) {
@@ -37,6 +53,10 @@ public final class ClientFunctions {
         }
     }
 
+    /**
+     * DebugNotifyClient exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static void DebugNotifyClient(boolean enabled, String featureName) {
         LocalPlayer player = getPlayer();
         if (player != null) {
@@ -44,6 +64,10 @@ public final class ClientFunctions {
         }
     }
 
+    /**
+     * NotifyClient exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static void NotifyClient(String message) {
         LocalPlayer player = getPlayer();
         if (player != null) {
@@ -51,6 +75,10 @@ public final class ClientFunctions {
         }
     }
 
+    /**
+     * NotifyClient exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static void NotifyClient(boolean enabled, String featureName) {
         LocalPlayer player = getPlayer();
         if (player != null) {
@@ -58,15 +86,27 @@ public final class ClientFunctions {
         }
     }
 
+    /**
+     * playSound exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static void playSound(Level world, SoundEvent sound, BlockPos pos) {
         LocalPlayer player = getPlayer();
         world.playSound(player, pos.getX() + 0.5F, pos.getY() + 0.5F, pos.getZ() + 0.5F, sound, SoundSource.BLOCKS, 2.0F, 1.0F);
     }
 
+    /**
+     * doJoinWorldEventStuff exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static void doJoinWorldEventStuff() {
-        // Update notifier is platform-specific in the new architecture.
+        // Why this exists: Update notifier is platform-specific in the new architecture. (future-you will thank present-you).
     }
 
+    /**
+     * syncCurrentPlayItem exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static void syncCurrentPlayItem(int slotIndex) {
         LocalPlayer player = getPlayer();
         if (player == null) {
@@ -90,3 +130,5 @@ public final class ClientFunctions {
         Functions.sleep(100);
     }
 }
+
+

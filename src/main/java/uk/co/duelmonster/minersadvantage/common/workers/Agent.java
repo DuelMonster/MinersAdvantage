@@ -11,6 +11,8 @@ public interface Agent {
     }
 
     default void tick(Object worldContext) {
-        // Compatibility default no-op.
+        // Why this exists: Compatibility default no-op. (future-you will thank present-you).
     }
 }
+
+

@@ -20,3 +20,5 @@ public record VentilationConfig(
     }
 }
 
+
+

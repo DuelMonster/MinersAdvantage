@@ -50,8 +50,10 @@ public final class PlayerStateService {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public void tick() {
-        // Periodic state cleanup can happen here
+        // Why this exists: Periodic state cleanup can happen here (future-you will thank present-you).
     }
 }
+
+
 
 

@@ -74,7 +74,7 @@ public final class CommonEventHandlerImpl implements ToolEventHandler {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public void onItemPickup(String itemId, boolean isDirectPickup) {
-        // Captivation handles item pickup events
+        // Why this exists: Captivation handles item pickup events (future-you will thank present-you).
         FeatureEventHandler.onToolUse(FeatureId.CAPTIVATION, 0, 0, 0, "item:" + itemId, "hand");
     }
 
@@ -87,5 +87,7 @@ public final class CommonEventHandlerImpl implements ToolEventHandler {
         core.serverTick();
     }
 }
+
+
 
 

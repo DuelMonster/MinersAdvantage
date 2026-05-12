@@ -7,6 +7,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import org.slf4j.Logger;
 
+/**
+ * Constants is the teammate that keeps this part of the mod understandable and stable.
+ * It exists so behavior stays explicit instead of becoming mystery spaghetti at 2 AM.
+ */
 public class Constants {
     public static final Logger LOGGER = LogUtils.getLogger();
 
@@ -77,3 +81,5 @@ public class Constants {
         Blocks.MYCELIUM
     );
 }
+
+

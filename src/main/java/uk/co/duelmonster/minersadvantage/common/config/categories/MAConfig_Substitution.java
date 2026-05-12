@@ -3,6 +3,10 @@ package uk.co.duelmonster.minersadvantage.common.config.categories;
 import java.util.List;
 import uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig;
 
+/**
+ * MAConfig_Substitution is the teammate that keeps this part of the mod understandable and stable.
+ * It exists so behavior stays explicit instead of becoming mystery spaghetti at 2 AM.
+ */
 public final class MAConfig_Substitution extends MAConfig_BaseCategory {
     private boolean switchBack;
     private boolean favourSilkTouch;
@@ -11,6 +15,10 @@ public final class MAConfig_Substitution extends MAConfig_BaseCategory {
     private boolean ignorePassiveMobs;
     private List<String> blacklist;
 
+    /**
+     * MAConfig_Substitution exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public MAConfig_Substitution(SubstitutionConfig config) {
         this.enabled = config.enabled();
         this.switchBack = config.switchBack();
@@ -28,3 +36,5 @@ public final class MAConfig_Substitution extends MAConfig_BaseCategory {
     public boolean ignorePassiveMobs() { return ignorePassiveMobs; }
     public List<String> blacklist() { return blacklist; }
 }
+
+

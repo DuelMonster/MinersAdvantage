@@ -4,13 +4,25 @@ import java.util.List;
 import uk.co.duelmonster.minersadvantage.common.Constants;
 import uk.co.duelmonster.minersadvantage.common.TorchPlacement;
 
+/**
+ * MAConfig_Defaults is the teammate that keeps this part of the mod understandable and stable.
+ * It exists so behavior stays explicit instead of becoming mystery spaghetti at 2 AM.
+ */
 public final class MAConfig_Defaults {
     private MAConfig_Defaults() {}
 
+    /**
+     * Client is the teammate that keeps this part of the mod understandable and stable.
+     * It exists so behavior stays explicit instead of becoming mystery spaghetti at 2 AM.
+     */
     public static final class Client {
         public static final boolean disableParticleEffects = false;
     }
 
+    /**
+     * Server is the teammate that keeps this part of the mod understandable and stable.
+     * It exists so behavior stays explicit instead of becoming mystery spaghetti at 2 AM.
+     */
     public static final class Server {
         public static final boolean overrideFeatureEnablement = false;
         public static final boolean enforceCommonSettings = false;
@@ -26,6 +38,10 @@ public final class MAConfig_Defaults {
         public static final boolean enforceVentilationSettings = false;
     }
 
+    /**
+     * Common is the teammate that keeps this part of the mod understandable and stable.
+     * It exists so behavior stays explicit instead of becoming mystery spaghetti at 2 AM.
+     */
     public static final class Common {
         public static final boolean tpsGuard = true;
         public static final boolean gatherDrops = false;
@@ -38,6 +54,10 @@ public final class MAConfig_Defaults {
         public static final int blockLimit = Constants.DEFAULT_BLOCKLIMIT;
     }
 
+    /**
+     * Captivation is the teammate that keeps this part of the mod understandable and stable.
+     * It exists so behavior stays explicit instead of becoming mystery spaghetti at 2 AM.
+     */
     public static final class Captivation {
         public static final boolean enabled = true;
         public static final boolean allowInGUI = false;
@@ -48,11 +68,19 @@ public final class MAConfig_Defaults {
         public static final List<String> blacklist = List.of("minecraft:rotten_flesh", "minecraft:egg");
     }
 
+    /**
+     * Cropination is the teammate that keeps this part of the mod understandable and stable.
+     * It exists so behavior stays explicit instead of becoming mystery spaghetti at 2 AM.
+     */
     public static final class Cropination {
         public static final boolean enabled = true;
         public static final boolean harvestSeeds = true;
     }
 
+    /**
+     * Excavation is the teammate that keeps this part of the mod understandable and stable.
+     * It exists so behavior stays explicit instead of becoming mystery spaghetti at 2 AM.
+     */
     public static final class Excavation {
         public static final boolean enabled = true;
         public static final boolean toggleMode = false;
@@ -61,18 +89,30 @@ public final class MAConfig_Defaults {
         public static final List<String> blockBlacklist = List.of();
     }
 
+    /**
+     * Pathanation is the teammate that keeps this part of the mod understandable and stable.
+     * It exists so behavior stays explicit instead of becoming mystery spaghetti at 2 AM.
+     */
     public static final class Pathanation {
         public static final boolean enabled = true;
         public static final int pathWidth = 3;
         public static final int pathLength = 6;
     }
 
+    /**
+     * Illumination is the teammate that keeps this part of the mod understandable and stable.
+     * It exists so behavior stays explicit instead of becoming mystery spaghetti at 2 AM.
+     */
     public static final class Illumination {
         public static final boolean enabled = true;
         public static final int lowestLightLevel = 7;
         public static final boolean useBlockLight = true;
     }
 
+    /**
+     * Lumbination is the teammate that keeps this part of the mod understandable and stable.
+     * It exists so behavior stays explicit instead of becoming mystery spaghetti at 2 AM.
+     */
     public static final class Lumbination {
         public static final boolean enabled = true;
         public static final boolean chopTreeBelow = true;
@@ -87,6 +127,10 @@ public final class MAConfig_Defaults {
         public static final List<String> axes = List.of();
     }
 
+    /**
+     * Shaftanation is the teammate that keeps this part of the mod understandable and stable.
+     * It exists so behavior stays explicit instead of becoming mystery spaghetti at 2 AM.
+     */
     public static final class Shaftanation {
         public static final boolean enabled = true;
         public static final int shaftLength = 16;
@@ -95,6 +139,10 @@ public final class MAConfig_Defaults {
         public static final TorchPlacement torchPlacement = TorchPlacement.FLOOR;
     }
 
+    /**
+     * Substitution is the teammate that keeps this part of the mod understandable and stable.
+     * It exists so behavior stays explicit instead of becoming mystery spaghetti at 2 AM.
+     */
     public static final class Substitution {
         public static final boolean enabled = true;
         public static final boolean switchBack = true;
@@ -105,11 +153,19 @@ public final class MAConfig_Defaults {
         public static final List<String> blacklist = List.of();
     }
 
+    /**
+     * Veination is the teammate that keeps this part of the mod understandable and stable.
+     * It exists so behavior stays explicit instead of becoming mystery spaghetti at 2 AM.
+     */
     public static final class Veination {
         public static final boolean enabled = true;
         public static final List<String> ores = List.of();
     }
 
+    /**
+     * Ventilation is the teammate that keeps this part of the mod understandable and stable.
+     * It exists so behavior stays explicit instead of becoming mystery spaghetti at 2 AM.
+     */
     public static final class Ventilation {
         public static final boolean enabled = true;
         public static final int ventDiameter = 1;
@@ -117,3 +173,5 @@ public final class MAConfig_Defaults {
         public static final boolean placeLadders = true;
     }
 }
+
+

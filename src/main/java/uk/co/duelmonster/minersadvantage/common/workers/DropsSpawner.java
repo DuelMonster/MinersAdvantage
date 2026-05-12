@@ -17,31 +17,55 @@ public final class DropsSpawner {
 
     private DropsSpawner() {}
 
+    /**
+     * recordDrop exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static void recordDrop(ItemEntity itemEntity) {
         if (itemEntity != null) {
             DROP_HISTORY.add(itemEntity);
         }
     }
 
+    /**
+     * addXP exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static void addXP(int amount) {
         capturedXp += Math.max(0, amount);
     }
 
+    /**
+     * getAndResetXP exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static int getAndResetXP() {
         int value = capturedXp;
         capturedXp = 0;
         return value;
     }
 
+    /**
+     * getDropHistorySnapshot exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static List<Entity> getDropHistorySnapshot() {
         return List.copyOf(DROP_HISTORY);
     }
 
+    /**
+     * reset exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static void reset() {
         DROP_HISTORY.clear();
         capturedXp = 0;
     }
 
+    /**
+     * getDropOfBlockTypeFromList exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static Block getDropOfBlockTypeFromList(Class<?> blockType, List<Entity> dropsHistory) {
         if (blockType == null || dropsHistory == null || dropsHistory.isEmpty()) {
             return Blocks.AIR;
@@ -62,3 +86,5 @@ public final class DropsSpawner {
         return Blocks.AIR;
     }
 }
+
+

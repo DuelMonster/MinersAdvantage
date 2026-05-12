@@ -13,6 +13,10 @@ public final class UtilsServer {
 
     private UtilsServer() {}
 
+    /**
+     * giveToInventory exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static void giveToInventory(long playerId, String itemId) {
         if (itemId == null || itemId.isBlank()) {
             return;
@@ -20,6 +24,10 @@ public final class UtilsServer {
         LAST_GIVEN_ITEM.put(playerId, itemId);
     }
 
+    /**
+     * setHotbarSlot exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static void setHotbarSlot(long playerId, String itemId, int hotbarSlot) {
         if (hotbarSlot < 0 || hotbarSlot > 8) {
             return;
@@ -30,6 +38,10 @@ public final class UtilsServer {
         LAST_HELD_SLOT.put(playerId, hotbarSlot);
     }
 
+    /**
+     * setHeldItemSlot exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static void setHeldItemSlot(long playerId, int hotbarSlot) {
         if (hotbarSlot < 0 || hotbarSlot > 8) {
             return;
@@ -37,11 +49,21 @@ public final class UtilsServer {
         LAST_HELD_SLOT.put(playerId, hotbarSlot);
     }
 
+    /**
+     * lastGivenItem exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static String lastGivenItem(long playerId) {
         return LAST_GIVEN_ITEM.getOrDefault(playerId, "");
     }
 
+    /**
+     * lastHeldSlot exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static int lastHeldSlot(long playerId) {
         return LAST_HELD_SLOT.getOrDefault(playerId, -1);
     }
 }
+
+

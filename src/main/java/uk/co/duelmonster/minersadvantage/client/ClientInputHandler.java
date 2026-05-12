@@ -54,7 +54,7 @@ public final class ClientInputHandler {
      * Returns InputConstants.Key that can be used to construct KeyMapping.
      */
     private static InputConstants.Key parseKeyToken(String token) {
-        // Map token names to Minecraft key format
+        // Why this exists: Map token names to Minecraft key format (future-you will thank present-you).
         String mcKeyName = switch (token) {
             case "KP_1" -> "key.keyboard.keypad.1";
             case "KP_2" -> "key.keyboard.keypad.2";
@@ -139,19 +139,19 @@ public final class ClientInputHandler {
      * Called each client tick. Consumes key presses and sends packets.
      */
     public static void tick() {
-        // Collect currently pressed keybindings
+        // Why this exists: Collect currently pressed keybindings (future-you will thank present-you).
         List<KeyBindings.ClientAction> pressed = getPressedActions();
         Set<KeyBindings.ClientAction> pressedSet = new HashSet<>(pressed);
 
-        // Process input state machine
-        // Hold-mode remains the default here until a dedicated local toggle setting is introduced.
+        // Why this exists: Process input state machine (future-you will thank present-you).
+        // Why this exists: Hold-mode remains the default here until a dedicated local toggle setting is introduced. (future-you will thank present-you).
         boolean excavationToggleMode = false;
         ClientInputService.ClientInputResult result = new ClientInputService().process(inputState, pressedSet, excavationToggleMode);
 
-        // Update state
+        // Why this exists: Update state (future-you will thank present-you).
         inputState = result.state();
 
-        // Send component toggle packets to the server.
+        // Why this exists: Send component toggle packets to the server. (future-you will thank present-you).
         for (ComponentTogglePacket packet : result.togglePackets()) {
             ClientPlayNetworking.send(packet);
         }
@@ -189,6 +189,8 @@ public final class ClientInputHandler {
 /*
 // This handler is Fabric-only. NeoForge uses ForgeClientInputHandler.
 */ //?}
+
+
 
 
 

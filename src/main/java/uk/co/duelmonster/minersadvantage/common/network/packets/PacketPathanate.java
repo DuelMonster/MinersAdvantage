@@ -5,21 +5,43 @@ import net.minecraft.core.Direction;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 import uk.co.duelmonster.minersadvantage.common.network.packetids.PacketId;
 
+/**
+ * PacketPathanate is the teammate that keeps this part of the mod understandable and stable.
+ * It exists so behavior stays explicit instead of becoming mystery spaghetti at 2 AM.
+ */
 public class PacketPathanate extends BaseBlockPacket {
+    /**
+     * PacketPathanate exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public PacketPathanate(BlockPos pos) {
         super(pos, Direction.UP, 0);
     }
 
+    /**
+     * PacketPathanate exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public PacketPathanate(BlockPos pos, Direction faceHit, int stateID) {
         super(pos, faceHit, stateID);
     }
 
     @Override
+    /**
+     * getPacketId exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public PacketId getPacketId() {
         return PacketId.PATHANATE;
     }
 
+    /**
+     * process exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
     public static void process(Object player, PacketPathanate pkt) {
         PacketProcessSupport.dispatchFeature(player, FeatureId.PATHANATION, pkt);
     }
 }
+
+
