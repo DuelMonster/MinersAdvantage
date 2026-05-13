@@ -5,64 +5,124 @@
             "label": "debug fabric client",
             "type": "shell",
             "command": ".\\gradlew.bat",
-            "args": [":${input:mcVersion}-fabric:runClient"],
-            "options": {"cwd": "${workspaceFolder}"},
+            "args": [
+                ":${input:mcVersion}-fabric:runClient"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "env": {
+                    "MINERSADVANTAGE_DEBUG_LOGGING": "true"
+                }
+            },
             "group": "build"
         },
         {
             "label": "debug fabric client (no related mods)",
             "type": "shell",
             "command": ".\\gradlew.bat",
-            "args": ["-PdmNoRelatedMods=true", ":${input:mcVersion}-fabric:runClient"],
-            "options": {"cwd": "${workspaceFolder}"},
+            "args": [
+                "-PdmNoRelatedMods=true",
+                ":${input:mcVersion}-fabric:runClient"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "env": {
+                    "MINERSADVANTAGE_DEBUG_LOGGING": "true"
+                }
+            },
             "group": "build"
         },
         {
             "label": "debug neoforge client",
             "type": "shell",
             "command": ".\\gradlew.bat",
-            "args": [":${input:mcVersion}-neoforge:runClient"],
-            "options": {"cwd": "${workspaceFolder}"},
+            "args": [
+                ":${input:mcVersion}-neoforge:runClient"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "env": {
+                    "MINERSADVANTAGE_DEBUG_LOGGING": "true"
+                }
+            },
             "group": "build"
         },
         {
             "label": "debug neoforge client (no related mods)",
             "type": "shell",
             "command": ".\\gradlew.bat",
-            "args": ["-PdmNoRelatedMods=true", ":${input:mcVersion}-neoforge:runClient"],
-            "options": {"cwd": "${workspaceFolder}"},
+            "args": [
+                "-PdmNoRelatedMods=true",
+                ":${input:mcVersion}-neoforge:runClient"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "env": {
+                    "MINERSADVANTAGE_DEBUG_LOGGING": "true"
+                }
+            },
             "group": "build"
         },
         {
             "label": "debug fabric server",
             "type": "shell",
             "command": ".\\gradlew.bat",
-            "args": [":${input:mcVersion}-fabric:runServer"],
-            "options": {"cwd": "${workspaceFolder}"},
+            "args": [
+                ":${input:mcVersion}-fabric:runServer"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "env": {
+                    "MINERSADVANTAGE_DEBUG_LOGGING": "true"
+                }
+            },
             "group": "build"
         },
         {
             "label": "debug fabric server (no related mods)",
             "type": "shell",
             "command": ".\\gradlew.bat",
-            "args": ["-PdmNoRelatedMods=true", ":${input:mcVersion}-fabric:runServer"],
-            "options": {"cwd": "${workspaceFolder}"},
+            "args": [
+                "-PdmNoRelatedMods=true",
+                ":${input:mcVersion}-fabric:runServer"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "env": {
+                    "MINERSADVANTAGE_DEBUG_LOGGING": "true"
+                }
+            },
             "group": "build"
         },
         {
             "label": "debug neoforge server",
             "type": "shell",
             "command": ".\\gradlew.bat",
-            "args": [":${input:mcVersion}-neoforge:runServer"],
-            "options": {"cwd": "${workspaceFolder}"},
+            "args": [
+                ":${input:mcVersion}-neoforge:runServer"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "env": {
+                    "MINERSADVANTAGE_DEBUG_LOGGING": "true"
+                }
+            },
             "group": "build"
         },
         {
             "label": "debug neoforge server (no related mods)",
             "type": "shell",
             "command": ".\\gradlew.bat",
-            "args": ["-PdmNoRelatedMods=true", ":${input:mcVersion}-neoforge:runServer"],
-            "options": {"cwd": "${workspaceFolder}"},
+            "args": [
+                "-PdmNoRelatedMods=true",
+                ":${input:mcVersion}-neoforge:runServer"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "env": {
+                    "MINERSADVANTAGE_DEBUG_LOGGING": "true"
+                }
+            },
             "group": "build"
         }
     ],
@@ -71,7 +131,10 @@
             "id": "mcVersion",
             "type": "pickString",
             "description": "Which Minecraft version?",
-            "options": ["1.21.11", "26.1.2"],
+            "options": [
+                "1.21.11",
+                "26.1.2"
+            ],
             "default": "1.21.11"
         }
     ]

@@ -33,6 +33,7 @@ import uk.co.duelmonster.minersadvantage.common.feature.utility.IlluminationComp
 import uk.co.duelmonster.minersadvantage.common.feature.utility.PathanationComponent;
 import uk.co.duelmonster.minersadvantage.common.feature.utility.SubstitutionComponent;
 import uk.co.duelmonster.minersadvantage.common.feature.utility.VeinationComponent;
+import uk.co.duelmonster.minersadvantage.common.log.LogUtils;
 import uk.co.duelmonster.minersadvantage.common.network.AbortWorkersPacket;
 import uk.co.duelmonster.minersadvantage.common.network.ComponentTogglePacket;
 import uk.co.duelmonster.minersadvantage.common.network.FeatureDispatchPacket;
@@ -80,6 +81,7 @@ public final class MinersAdvantageCore {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public void bootstrap() {
+        LogUtils.logInfo("Bootstrapping core components");
         registerFeature(FeatureId.CAPTIVATION, "captivation", defaultConfig::captivation, CaptivationComponent::new);
         registerFeature(FeatureId.CROPINATION, "cropination", defaultConfig::cropination, CropinationComponent::new);
         registerFeature(FeatureId.CULTIVATION, "cultivation", defaultConfig::cultivation, CultivationComponent::new);
@@ -92,12 +94,14 @@ public final class MinersAdvantageCore {
         registerFeature(FeatureId.VEINATION, "veination", defaultConfig::veination, VeinationComponent::new);
         registerFeature(FeatureId.VENTILATION, "ventilation", defaultConfig::ventilation, VentilationComponent::new);
         componentRegistry.enableAll();
+        LogUtils.logInfo("Bootstrapped {} feature components", components.size());
     }
 
     private <C> void registerFeature(FeatureId id, String key, Supplier<C> configGetter, Function<C, ? extends ComponentLifecycle> componentFactory) {
         ComponentLifecycle component = componentFactory.apply(configGetter.get());
         components.put(id, component);
         componentRegistry.register(new ComponentDescriptor(key, key.substring(0, 1).toUpperCase() + key.substring(1), component));
+        LogUtils.logDebug("Registered component feature={} type={}", id, component.getClass().getSimpleName());
     }
 
     /**
@@ -155,6 +159,7 @@ public final class MinersAdvantageCore {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public WorkerRuntimeService.AbortResult handleAbortPacket(AbortWorkersPacket packet) {
+        LogUtils.logDebug("Handling abort packet playerId={}", packet.playerId());
         return workerRuntimeService().abortAllForPlayerWithStats(packet.playerId());
     }
 
@@ -163,8 +168,10 @@ public final class MinersAdvantageCore {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public boolean handleComponentTogglePacket(ComponentTogglePacket packet) {
+        LogUtils.logDebug("Handling component toggle feature={} enabled={}", packet.feature(), packet.enabled());
         ComponentLifecycle component = components.get(packet.feature());
         if (component == null) {
+            LogUtils.logWarn("Received toggle for unknown feature={}", packet.feature());
             return false;
         }
 
@@ -181,6 +188,20 @@ public final class MinersAdvantageCore {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public SyncCoreService.PlayerSyncState handlePlayerStateSyncPacket(PlayerStateSyncPacket packet) {
+        LogUtils.logDebug("Synchronizing player state playerId={} commonConfig={}", packet.playerId(), packet.clientConfig().common());
+        PlayerStateService.PlayerState current = playerStateService.getPlayerState(packet.playerId());
+        playerStateService.updatePlayerState(
+            packet.playerId(),
+            new PlayerStateService.PlayerState(
+                packet.playerId(),
+                current.hungerGuardActive(),
+                current.lastHarvestTick(),
+                current.recentHarvests(),
+                packet.excavationToggled(),
+                packet.singleLayerToggled(),
+                packet.shaftVentToggled()
+            )
+        );
         return syncCoreService.synchronize(
             packet.playerId(),
             packet.clientConfig(),
@@ -195,6 +216,15 @@ public final class MinersAdvantageCore {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public void handleFeatureDispatchPacket(FeatureDispatchPacket packet) {
+        LogUtils.logDebug(
+            "Handling feature dispatch feature={} tool={} block={} pos=({}, {}, {})",
+            packet.feature(),
+            packet.toolId(),
+            packet.blockId(),
+            packet.blockX(),
+            packet.blockY(),
+            packet.blockZ()
+        );
         FeatureEventHandler.onToolUse(
             packet.feature(),
             packet.blockX(),

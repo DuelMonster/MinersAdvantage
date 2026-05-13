@@ -18,8 +18,15 @@ public final class PlayerStateService {
         long playerId,
         boolean hungerGuardActive,
         long lastHarvestTick,
-        int recentHarvests
-    ) {}
+        int recentHarvests,
+        boolean excavationToggled,
+        boolean singleLayerToggled,
+        boolean shaftVentToggled
+    ) {
+        public boolean isExcavationActive() {
+            return excavationToggled || singleLayerToggled;
+        }
+    }
 
     /**
      * updatePlayerState exists so this code path does one job clearly instead of spreading chaos across callers.
@@ -34,7 +41,7 @@ public final class PlayerStateService {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public PlayerState getPlayerState(long playerId) {
-        return states.getOrDefault(playerId, new PlayerState(playerId, false, 0L, 0));
+        return states.getOrDefault(playerId, new PlayerState(playerId, false, 0L, 0, false, false, false));
     }
 
     /**

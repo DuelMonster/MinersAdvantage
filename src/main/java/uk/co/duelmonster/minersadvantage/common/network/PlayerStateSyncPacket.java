@@ -16,12 +16,24 @@ public record PlayerStateSyncPacket(
     long playerId,
     SyncedClientConfig clientConfig,
     SyncedClientConfig serverConfig,
-    ServerOverridesConfig serverOverrides
+    ServerOverridesConfig serverOverrides,
+    boolean excavationToggled,
+    boolean singleLayerToggled,
+    boolean shaftVentToggled
 ) implements CustomPacketPayload {
     private static final Gson GSON = new Gson();
 
     public static final Type<PlayerStateSyncPacket> TYPE = createType();
     public static final StreamCodec<RegistryFriendlyByteBuf, PlayerStateSyncPacket> STREAM_CODEC = createStreamCodec();
+
+    public PlayerStateSyncPacket(
+        long playerId,
+        SyncedClientConfig clientConfig,
+        SyncedClientConfig serverConfig,
+        ServerOverridesConfig serverOverrides
+    ) {
+        this(playerId, clientConfig, serverConfig, serverOverrides, false, false, false);
+    }
 
     @Override
     /**
@@ -59,11 +71,20 @@ public record PlayerStateSyncPacket(
                 packet -> GSON.toJson(packet.serverConfig()),
                 ByteBufCodecs.STRING_UTF8,
                 packet -> GSON.toJson(packet.serverOverrides()),
-                (playerId, clientJson, serverJson, overridesJson) -> new PlayerStateSyncPacket(
+                ByteBufCodecs.BOOL,
+                PlayerStateSyncPacket::excavationToggled,
+                ByteBufCodecs.BOOL,
+                PlayerStateSyncPacket::singleLayerToggled,
+                ByteBufCodecs.BOOL,
+                PlayerStateSyncPacket::shaftVentToggled,
+                (playerId, clientJson, serverJson, overridesJson, excavationToggled, singleLayerToggled, shaftVentToggled) -> new PlayerStateSyncPacket(
                     playerId,
                     GSON.fromJson(clientJson, SyncedClientConfig.class),
                     GSON.fromJson(serverJson, SyncedClientConfig.class),
-                    GSON.fromJson(overridesJson, ServerOverridesConfig.class)
+                    GSON.fromJson(overridesJson, ServerOverridesConfig.class),
+                    excavationToggled,
+                    singleLayerToggled,
+                    shaftVentToggled
                 )
             );
         } catch (Throwable throwable) {

@@ -5,6 +5,7 @@ import java.util.List;
 import uk.co.duelmonster.minersadvantage.common.component.ComponentLifecycle;
 import uk.co.duelmonster.minersadvantage.common.component.ComponentTickHelper;
 import uk.co.duelmonster.minersadvantage.common.config.VeinationConfig;
+import uk.co.duelmonster.minersadvantage.common.registry.RegistryPredicates;
 import uk.co.duelmonster.minersadvantage.common.services.utility.VeinationCoreService;
 
 /**
@@ -96,7 +97,7 @@ public final class VeinationComponent implements ComponentLifecycle {
         }
 
         var context = ComponentTickHelper.getContext();
-        if (context.blockId().contains("ore") && service.sameVein(context.blockId(), context.blockId())) {
+        if (RegistryPredicates.isOreLikeBlockId(context.blockId()) && service.sameVein(context.blockId(), context.blockId())) {
             int targetBlocks = service.estimatedBlocksInVein(config.maxVeinDistance(), 1);
             lastVein = service.buildVeinNodes(
                 context.blockX(),

@@ -1,18 +1,18 @@
 package uk.co.duelmonster.minersadvantage.common;
 
-import com.mojang.logging.LogUtils;
 import java.util.List;
 import java.util.UUID;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import org.slf4j.Logger;
+import uk.co.duelmonster.minersadvantage.common.log.LogUtils;
 
 /**
  * Constants is the teammate that keeps this part of the mod understandable and stable.
  * It exists so behavior stays explicit instead of becoming mystery spaghetti at 2 AM.
  */
 public class Constants {
-    public static final Logger LOGGER = LogUtils.getLogger();
+    public static final Logger LOGGER = LogUtils.LOG;
 
     public static final String MOD_ID = "minersadvantage";
     public static final String MOD_NAME = "MinersAdvantage";

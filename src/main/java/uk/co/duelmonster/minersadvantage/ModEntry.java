@@ -1,24 +1,44 @@
 package uk.co.duelmonster.minersadvantage;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ExperienceOrb;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.AxeItem;
+import net.minecraft.world.item.HoeItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.level.block.state.BlockState;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Proxy;
-import java.lang.reflect.Method;
+import uk.co.duelmonster.minersadvantage.agent.AgentManager;
+import uk.co.duelmonster.minersadvantage.agent.CaptivationAgent;
+import uk.co.duelmonster.minersadvantage.agent.CropinationAgent;
+import uk.co.duelmonster.minersadvantage.agent.CultivationAgent;
+import uk.co.duelmonster.minersadvantage.agent.ExcavationAgent;
+import uk.co.duelmonster.minersadvantage.agent.IlluminationAgent;
+import uk.co.duelmonster.minersadvantage.agent.LumbinationAgent;
+import uk.co.duelmonster.minersadvantage.agent.PathanationAgent;
+import uk.co.duelmonster.minersadvantage.agent.ShaftanationAgent;
+import uk.co.duelmonster.minersadvantage.agent.SubstitutionAgent;
+import uk.co.duelmonster.minersadvantage.agent.VeinationAgent;
+import uk.co.duelmonster.minersadvantage.agent.VentilationAgent;
 import uk.co.duelmonster.minersadvantage.common.MinersAdvantageCore;
 import uk.co.duelmonster.minersadvantage.common.config.ServerOverridesConfig;
 import uk.co.duelmonster.minersadvantage.common.config.SyncedClientConfig;
 import uk.co.duelmonster.minersadvantage.common.event.CommonEventHandlerImpl;
 import uk.co.duelmonster.minersadvantage.common.event.ToolEventHandler;
+import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
+import uk.co.duelmonster.minersadvantage.common.log.LogUtils;
 import uk.co.duelmonster.minersadvantage.common.network.PlayerStateSyncPacket;
+import uk.co.duelmonster.minersadvantage.common.registry.RegistryPredicates;
 
 //? if fabric {
 import net.fabricmc.api.ModInitializer;
@@ -27,9 +47,8 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
+import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import uk.co.duelmonster.minersadvantage.client.FabricNetworkEvents;
 
 /**
@@ -41,11 +60,9 @@ public final class ModEntry implements ModInitializer {
     private final ToolEventHandler toolEvents = new CommonEventHandlerImpl(core);
 
     @Override
-    /**
-     * onInitialize exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
     public void onInitialize() {
+        LogUtils.applyConfiguredLogging();
+        LogUtils.logInfo("Initializing {} {} debugLogging={}", ModCommon.MOD_NAME, ModCommon.MOD_VERSION, LogUtils.isDebugLoggingEnabled());
         core.bootstrap();
         FabricNetworkEvents.initialize(core);
         FabricNetworkEvents.registerPayloadTypes();
@@ -56,48 +73,136 @@ public final class ModEntry implements ModInitializer {
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> onPlayerLogout(handler.getPlayer()));
         ServerEntityEvents.ENTITY_LOAD.register(this::onFabricEntityLoad);
 
-        UseBlockCallback.EVENT.register((player, level, hand, hitResult) -> {
-            if (level.isClientSide() || hand != InteractionHand.MAIN_HAND) {
-                return InteractionResult.PASS;
+        PlayerBlockBreakEvents.AFTER.register((level, player, pos, state, blockEntity) -> {
+            if (level.isClientSide() || !(player instanceof ServerPlayer serverPlayer)) {
+                return;
             }
             ItemStack stack = player.getMainHandItem();
-            BlockPos pos = hitResult.getBlockPos();
-            BlockState state = level.getBlockState(pos);
-            routeToolUse(stack, pos, state);
+            String itemId = itemId(stack);
+            String brokenBlockId = blockId(state);
+            long playerId = playerId(serverPlayer);
+            var playerState = core.playerStateService().getPlayerState(playerId);
+            boolean shaftModeActive = isFeatureEnabled(FeatureId.SHAFTANATION) && playerState.shaftVentToggled();
+            boolean excavationActive = isFeatureEnabled(FeatureId.EXCAVATION) && playerState.isExcavationActive();
+
+            if (!shaftModeActive && excavationActive && isExcavationTool(stack) && isExcavationBlock(state, stack)) {
+                LogUtils.logDebug("Block break trigger feature=Excavation player={} item={} block={} pos={}", serverPlayer.getScoreboardName(), itemId, brokenBlockId, pos);
+                AgentManager.get().addAgent(serverPlayer, new ExcavationAgent(serverPlayer, pos, 3, state.getBlock()));
+            } else if (isAxeTool(stack) && state.is(BlockTags.LOGS)) {
+                LogUtils.logDebug("Block break trigger feature=Lumbination player={} item={} block={} pos={}", serverPlayer.getScoreboardName(), itemId, brokenBlockId, pos);
+                AgentManager.get().addAgent(serverPlayer, new LumbinationAgent(serverPlayer, pos, state.getBlock()));
+            }
+
+            if (isFeatureEnabled(FeatureId.SUBSTITUTION) && isSubstitutionTool(stack)) {
+                LogUtils.logDebug("Block break trigger feature=Substitution player={} item={} pos={}", serverPlayer.getScoreboardName(), itemId, pos);
+                AgentManager.get().addAgent(serverPlayer, new SubstitutionAgent(serverPlayer, state));
+            }
+        });
+
+        UseItemCallback.EVENT.register((player, world, hand) -> {
+            if (world.isClientSide() || !(player instanceof ServerPlayer serverPlayer)) {
+                return InteractionResult.PASS;
+            }
+            if (player.isShiftKeyDown()) {
+                LogUtils.logDebug("Use item trigger feature=Captivation player={} hand={} item={}", serverPlayer.getScoreboardName(), hand, itemId(player.getMainHandItem()));
+                AgentManager.get().addAgent(serverPlayer, new CaptivationAgent(serverPlayer, 6.0));
+                return InteractionResult.SUCCESS;
+            }
             return InteractionResult.PASS;
         });
 
-        PlayerBlockBreakEvents.AFTER.register((level, player, pos, state, blockEntity) -> {
-            if (level.isClientSide()) {
-                return;
+        UseBlockCallback.EVENT.register((player, world, hand, hitResult) -> {
+            if (world.isClientSide() || !(player instanceof ServerPlayer serverPlayer)) {
+                return InteractionResult.PASS;
             }
-            routeToolUse(player.getMainHandItem(), pos, state);
-            String blockId = BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString();
-            core.workerRuntimeService().interceptLiveDropForPlayer(
-                playerId(player),
-                "item:" + blockId,
-                1,
-                true
-            );
+
+            BlockPos pos = hitResult.getBlockPos();
+            BlockState state = world.getBlockState(pos);
+            ItemStack stack = player.getMainHandItem();
+            String itemId = itemId(stack);
+            String targetBlockId = blockId(state);
+
+            routeToolUse(stack, pos, state);
+
+            if (isHoeTool(stack)) {
+                if (RegistryPredicates.isCropBlock(state)) {
+                    LogUtils.logDebug("Use block trigger feature=Cropination player={} item={} block={} pos={}", serverPlayer.getScoreboardName(), itemId, targetBlockId, pos);
+                    AgentManager.get().addAgent(serverPlayer, new CropinationAgent(serverPlayer, pos, 3));
+                    return InteractionResult.SUCCESS;
+                }
+                if (RegistryPredicates.isDirtLike(state)) {
+                    LogUtils.logDebug("Use block trigger feature=Cultivation player={} item={} block={} pos={}", serverPlayer.getScoreboardName(), itemId, targetBlockId, pos);
+                    AgentManager.get().addAgent(serverPlayer, new CultivationAgent(serverPlayer, pos, 3));
+                    return InteractionResult.SUCCESS;
+                }
+            }
+
+            if (itemId.endsWith("_torch") || itemId.endsWith(":torch")) {
+                LogUtils.logDebug("Use block trigger feature=Illumination player={} item={} pos={}", serverPlayer.getScoreboardName(), itemId, pos);
+                AgentManager.get().addAgent(serverPlayer, new IlluminationAgent(serverPlayer, pos.above(), 8));
+                return InteractionResult.SUCCESS;
+            }
+
+            if (isShovelTool(stack) && RegistryPredicates.isDirtLike(state)) {
+                LogUtils.logDebug("Use block trigger feature=Pathanation player={} item={} block={} pos={}", serverPlayer.getScoreboardName(), itemId, targetBlockId, pos);
+                AgentManager.get().addAgent(serverPlayer, new PathanationAgent(serverPlayer, pos, 8));
+                return InteractionResult.SUCCESS;
+            }
+
+            if (isPickaxeTool(stack) && player.isShiftKeyDown()) {
+                if (RegistryPredicates.isOreLike(state)) {
+                    LogUtils.logDebug("Use block trigger feature=Veination player={} item={} block={} pos={}", serverPlayer.getScoreboardName(), itemId, targetBlockId, pos);
+                    AgentManager.get().addAgent(serverPlayer, new VeinationAgent(serverPlayer, pos));
+                    return InteractionResult.SUCCESS;
+                }
+                if (RegistryPredicates.isStoneLike(state)) {
+                    LogUtils.logDebug("Use block trigger feature=Shaftanation player={} item={} block={} pos={}", serverPlayer.getScoreboardName(), itemId, targetBlockId, pos);
+                    AgentManager.get().addAgent(serverPlayer, new ShaftanationAgent(serverPlayer, pos, 16));
+                    return InteractionResult.SUCCESS;
+                }
+            }
+
+            if (isPickaxeTool(stack) && RegistryPredicates.isStoneLike(state) && !player.isShiftKeyDown()) {
+                LogUtils.logDebug("Use block trigger feature=Ventilation player={} item={} block={} pos={}", serverPlayer.getScoreboardName(), itemId, targetBlockId, pos);
+                AgentManager.get().addAgent(serverPlayer, new VentilationAgent(serverPlayer, pos, 8));
+                return InteractionResult.SUCCESS;
+            }
+
+            if (isSubstitutionTool(stack) && player.isShiftKeyDown()) {
+                LogUtils.logDebug("Use block trigger feature=Substitution player={} item={} pos={}", serverPlayer.getScoreboardName(), itemId, pos);
+                AgentManager.get().addAgent(serverPlayer, new SubstitutionAgent(serverPlayer, state));
+                return InteractionResult.SUCCESS;
+            }
+
+            return InteractionResult.PASS;
         });
 
-        ServerTickEvents.END_SERVER_TICK.register(server -> toolEvents.onServerTick());
+        ServerTickEvents.END_SERVER_TICK.register(server -> {
+            int tickCount = server.getTickCount();
+            for (ServerLevel level : server.getAllLevels()) {
+                AgentManager.get().tick(level);
+                if (tickCount % 20 == 0) {
+                    for (ServerPlayer serverPlayer : level.players()) {
+                        if (!AgentManager.get().hasAgentType(serverPlayer, CaptivationAgent.class)) {
+                            LogUtils.logDebug("Server tick trigger feature=Captivation player={} intervalTicks={}", serverPlayer.getScoreboardName(), tickCount);
+                            AgentManager.get().addAgent(serverPlayer, new CaptivationAgent(serverPlayer, 6.0));
+                        }
+                    }
+                }
+            }
+            toolEvents.onServerTick();
+        });
     }
 
-    /**
-     * registerFabricLevelUnloadEvent exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
+    @SuppressWarnings({"rawtypes", "unchecked"})
     private void registerFabricLevelUnloadEvent() {
         try {
-            // Why this exists: 1.21.11 branch (future-you will thank present-you).
             Class<?> worldEventsClass = Class.forName("net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents");
             Event<?> unloadEvent = (Event<?>) worldEventsClass.getField("UNLOAD").get(null);
             Object callback = createFabricUnloadCallback("net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents$Unload");
             ((Event) unloadEvent).register(callback);
         } catch (ClassNotFoundException missingWorldEvents) {
             try {
-                // Why this exists: 26.1.2 branch (future-you will thank present-you).
                 Class<?> levelEventsClass = Class.forName("net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents");
                 Event<?> unloadEvent = (Event<?>) levelEventsClass.getField("UNLOAD").get(null);
                 Object callback = createFabricUnloadCallback("net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents$Unload");
@@ -130,54 +235,42 @@ public final class ModEntry implements ModInitializer {
         return Proxy.newProxyInstance(getClass().getClassLoader(), new Class[]{listenerClass}, handler);
     }
 
-    /**
-     * onPlayerLogin exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
     private void onPlayerLogin(ServerPlayer player) {
         long playerId = playerId(player);
+        LogUtils.logInfo("Player login player={} id={}", player.getScoreboardName(), playerId);
         SyncedClientConfig defaults = SyncedClientConfig.defaults();
         core.handlePlayerStateSyncPacket(new PlayerStateSyncPacket(playerId, defaults, defaults, new ServerOverridesConfig()));
     }
 
-    /**
-     * onPlayerLogout exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
     private void onPlayerLogout(ServerPlayer player) {
         long playerId = playerId(player);
+        LogUtils.logInfo("Player logout player={} id={}", player.getScoreboardName(), playerId);
         core.workerRuntimeService().abortAllForPlayerWithStats(playerId);
         core.playerStateService().clearPlayerState(playerId);
     }
 
-    /**
-     * onServerLevelUnload exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
     private void onServerLevelUnload(ServerLevel level) {
         for (ServerPlayer player : level.players()) {
             onPlayerLogout(player);
         }
     }
 
-    /**
-     * onFabricEntityLoad exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
     private void onFabricEntityLoad(Entity entity, ServerLevel level) {
         if (entity instanceof ItemEntity itemEntity) {
             if (level.getNearestPlayer(entity, 8.0) instanceof ServerPlayer serverPlayer) {
-                String itemId = itemId(itemEntity.getItem());
-                toolEvents.onItemPickup(itemId, false);
+                String dropItemId = itemId(itemEntity.getItem());
+                LogUtils.logDebug("Observed item entity load player={} item={} count={}", serverPlayer.getScoreboardName(), dropItemId, itemEntity.getItem().getCount());
+                toolEvents.onItemPickup(dropItemId, false);
                 core.workerRuntimeService().interceptLiveDropForPlayer(
                     playerId(serverPlayer),
-                    "item:" + itemId,
+                    "item:" + dropItemId,
                     itemEntity.getItem().getCount(),
                     true
                 );
             }
         } else if (entity instanceof ExperienceOrb orb) {
             if (level.getNearestPlayer(entity, 8.0) instanceof ServerPlayer serverPlayer) {
+                LogUtils.logDebug("Observed xp orb load player={} value={}", serverPlayer.getScoreboardName(), orb.getValue());
                 core.workerRuntimeService().interceptLiveDropForPlayer(
                     playerId(serverPlayer),
                     "xp_orb",
@@ -188,33 +281,69 @@ public final class ModEntry implements ModInitializer {
         }
     }
 
-    /**
-     * routeToolUse exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
     private void routeToolUse(ItemStack stack, BlockPos pos, BlockState state) {
-        String itemId = itemId(stack);
         String blockId = blockId(state);
 
-        if (itemId.contains("pickaxe")) {
+        if (isPickaxeTool(stack)) {
             toolEvents.onPickaxeUse(pos.getX(), pos.getY(), pos.getZ(), blockId);
             return;
         }
-        if (itemId.contains("shovel")) {
+        if (isShovelTool(stack)) {
             toolEvents.onShovelUse(pos.getX(), pos.getY(), pos.getZ(), blockId);
             return;
         }
-        if (itemId.contains("hoe")) {
+        if (isHoeTool(stack)) {
             toolEvents.onHoeUse(pos.getX(), pos.getY(), pos.getZ(), blockId);
             return;
         }
-        if (itemId.contains("axe")) {
+        if (isAxeTool(stack)) {
             toolEvents.onAxeUse(pos.getX(), pos.getY(), pos.getZ(), blockId);
         }
     }
 
     private static String itemId(ItemStack stack) {
         return BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
+    }
+
+    private static boolean isExcavationTool(ItemStack stack) {
+        return isPickaxeTool(stack) || isShovelTool(stack);
+    }
+
+    private static boolean isExcavationBlock(BlockState state, ItemStack stack) {
+        if (isPickaxeTool(stack)) {
+            return state.is(BlockTags.MINEABLE_WITH_PICKAXE) || RegistryPredicates.isStoneLike(state) || RegistryPredicates.isOreLike(state);
+        }
+        if (isShovelTool(stack)) {
+            return state.is(BlockTags.MINEABLE_WITH_SHOVEL) || RegistryPredicates.isDirtLike(state);
+        }
+        return false;
+    }
+
+    private static boolean isSubstitutionTool(ItemStack stack) {
+        return isPickaxeTool(stack)
+            || stack.getItem() instanceof AxeItem
+            || stack.getItem() instanceof ShovelItem;
+    }
+
+    private static boolean isPickaxeTool(ItemStack stack) {
+        return BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath().endsWith("_pickaxe");
+    }
+
+    private static boolean isShovelTool(ItemStack stack) {
+        return stack.getItem() instanceof ShovelItem;
+    }
+
+    private static boolean isAxeTool(ItemStack stack) {
+        return stack.getItem() instanceof AxeItem;
+    }
+
+    private static boolean isHoeTool(ItemStack stack) {
+        return stack.getItem() instanceof HoeItem;
+    }
+
+    private boolean isFeatureEnabled(FeatureId featureId) {
+        var component = core.components().get(featureId);
+        return component != null && component.isEnabled();
     }
 
     private static String blockId(BlockState state) {
@@ -247,6 +376,8 @@ public final class ModEntry {
     private final ToolEventHandler toolEvents = new CommonEventHandlerImpl(core);
 
     public ModEntry(IEventBus modEventBus, ModContainer modContainer, Dist dist) {
+        LogUtils.applyConfiguredLogging();
+        LogUtils.logInfo("Initializing {} {} on NeoForge debugLogging={}", ModCommon.MOD_NAME, ModCommon.MOD_VERSION, LogUtils.isDebugLoggingEnabled());
         core.bootstrap();
         NeoForgeNetworkEvents.initialize(core);
         if (dist == Dist.CLIENT) {
@@ -270,6 +401,7 @@ public final class ModEntry {
             return;
         }
         long playerId = playerId(player);
+        LogUtils.logInfo("Player login player={} id={}", player.getScoreboardName(), playerId);
         SyncedClientConfig defaults = SyncedClientConfig.defaults();
         core.handlePlayerStateSyncPacket(new PlayerStateSyncPacket(playerId, defaults, defaults, new ServerOverridesConfig()));
     }
@@ -279,6 +411,7 @@ public final class ModEntry {
             return;
         }
         long playerId = playerId(player);
+        LogUtils.logInfo("Player logout player={} id={}", player.getScoreboardName(), playerId);
         core.workerRuntimeService().abortAllForPlayerWithStats(playerId);
         core.playerStateService().clearPlayerState(playerId);
     }
@@ -327,6 +460,7 @@ public final class ModEntry {
             return;
         }
         BlockState state = event.getFinalState() != null ? event.getFinalState() : event.getState();
+        LogUtils.logDebug("NeoForge tool modification player={} item={} block={} pos={}", event.getPlayer().getScoreboardName(), itemId(event.getHeldItemStack()), blockId(state), event.getPos());
         routeToolUse(event.getHeldItemStack(), event.getPos(), state);
     }
 
@@ -335,6 +469,7 @@ public final class ModEntry {
             return;
         }
 
+        LogUtils.logDebug("NeoForge right click player={} item={} block={} pos={}", event.getEntity().getScoreboardName(), itemId(event.getItemStack()), blockId(event.getLevel().getBlockState(event.getPos())), event.getPos());
         routeToolUse(event.getItemStack(), event.getPos(), event.getLevel().getBlockState(event.getPos()));
     }
 
@@ -357,28 +492,43 @@ public final class ModEntry {
     }
 
     private void routeToolUse(ItemStack stack, BlockPos pos, BlockState state) {
-        String itemId = itemId(stack);
         String blockId = blockId(state);
 
-        if (itemId.contains("pickaxe")) {
+        if (isPickaxeTool(stack)) {
             toolEvents.onPickaxeUse(pos.getX(), pos.getY(), pos.getZ(), blockId);
             return;
         }
-        if (itemId.contains("shovel")) {
+        if (isShovelTool(stack)) {
             toolEvents.onShovelUse(pos.getX(), pos.getY(), pos.getZ(), blockId);
             return;
         }
-        if (itemId.contains("hoe")) {
+        if (isHoeTool(stack)) {
             toolEvents.onHoeUse(pos.getX(), pos.getY(), pos.getZ(), blockId);
             return;
         }
-        if (itemId.contains("axe")) {
+        if (isAxeTool(stack)) {
             toolEvents.onAxeUse(pos.getX(), pos.getY(), pos.getZ(), blockId);
         }
     }
 
     private static String itemId(ItemStack stack) {
         return BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
+    }
+
+    private static boolean isPickaxeTool(ItemStack stack) {
+        return BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath().endsWith("_pickaxe");
+    }
+
+    private static boolean isShovelTool(ItemStack stack) {
+        return stack.getItem() instanceof ShovelItem;
+    }
+
+    private static boolean isAxeTool(ItemStack stack) {
+        return stack.getItem() instanceof AxeItem;
+    }
+
+    private static boolean isHoeTool(ItemStack stack) {
+        return stack.getItem() instanceof HoeItem;
     }
 
     private static String blockId(BlockState state) {

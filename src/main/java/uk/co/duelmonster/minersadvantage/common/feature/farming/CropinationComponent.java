@@ -3,6 +3,7 @@ package uk.co.duelmonster.minersadvantage.common.feature.farming;
 import uk.co.duelmonster.minersadvantage.common.component.ComponentLifecycle;
 import uk.co.duelmonster.minersadvantage.common.component.ComponentTickHelper;
 import uk.co.duelmonster.minersadvantage.common.config.CropinationConfig;
+import uk.co.duelmonster.minersadvantage.common.registry.RegistryPredicates;
 import uk.co.duelmonster.minersadvantage.common.services.farming.CropinationCoreService;
 
 import uk.co.duelmonster.minersadvantage.common.services.farming.CropinationCoreService.CropAction;
@@ -96,8 +97,8 @@ public final class CropinationComponent implements ComponentLifecycle {
         }
 
         var context = ComponentTickHelper.getContext();
-        if (context.blockId().contains("crop")) {
-            int cropAge = context.blockId().contains("mature") ? 7 : 6;
+        if (RegistryPredicates.isCropBlockId(context.blockId())) {
+            int cropAge = 7;
             int availableSeeds = config.harvestSeeds() ? 8 : 0;
             lastAction = service.evaluateCrop(cropAge, 7, availableSeeds, config.harvestSeeds(), 5, 5);
         } else {

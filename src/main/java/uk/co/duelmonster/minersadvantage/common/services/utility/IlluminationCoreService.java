@@ -13,6 +13,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import uk.co.duelmonster.minersadvantage.common.Functions;
+import uk.co.duelmonster.minersadvantage.common.registry.RegistryPredicates;
 
 /**
  * IlluminationCoreService keeps this part of Miners Advantage running without turning server ticks into confetti.
@@ -146,7 +147,7 @@ public final class IlluminationCoreService {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public boolean isManualMode(String toolHint) {
-        return toolHint.contains("manual");
+        return RegistryPredicates.isManualToolMode(toolHint);
     }
 
     /**
@@ -154,10 +155,10 @@ public final class IlluminationCoreService {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public TorchPlacement selectPlacement(boolean leftWallAvailable, boolean rightWallAvailable, String toolHint) {
-        if (toolHint.contains("manual_left")) {
+        if (RegistryPredicates.isManualLeftMode(toolHint)) {
             return leftWallAvailable ? TorchPlacement.LEFT_WALL : TorchPlacement.FLOOR;
         }
-        if (toolHint.contains("manual_right")) {
+        if (RegistryPredicates.isManualRightMode(toolHint)) {
             return rightWallAvailable ? TorchPlacement.RIGHT_WALL : TorchPlacement.FLOOR;
         }
         if (toolHint.contains("manual_both") || toolHint.contains("manual_wall")) {

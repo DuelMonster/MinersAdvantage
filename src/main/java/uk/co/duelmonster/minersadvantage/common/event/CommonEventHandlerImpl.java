@@ -2,6 +2,7 @@ package uk.co.duelmonster.minersadvantage.common.event;
 
 import uk.co.duelmonster.minersadvantage.common.MinersAdvantageCore;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
+import uk.co.duelmonster.minersadvantage.common.registry.RegistryPredicates;
 
 /**
  * CommonEventHandlerImpl keeps this part of Miners Advantage running without turning server ticks into confetti.
@@ -24,12 +25,12 @@ public final class CommonEventHandlerImpl implements ToolEventHandler {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public void onPickaxeUse(int blockX, int blockY, int blockZ, String blockId) {
-        if (blockId.contains("ore") || blockId.contains("stone")) {
-            if (blockId.contains("deep") || blockId.contains("stone")) {
-                FeatureEventHandler.onToolUse(FeatureId.SHAFTANATION, blockX, blockY, blockZ, blockId, "pickaxe");
-            } else {
-                FeatureEventHandler.onToolUse(FeatureId.EXCAVATION, blockX, blockY, blockZ, blockId, "pickaxe");
-            }
+        if (RegistryPredicates.isStoneLikeBlockId(blockId)) {
+            FeatureEventHandler.onToolUse(FeatureId.SHAFTANATION, blockX, blockY, blockZ, blockId, "pickaxe");
+            return;
+        }
+        if (RegistryPredicates.isOreLikeBlockId(blockId)) {
+            FeatureEventHandler.onToolUse(FeatureId.EXCAVATION, blockX, blockY, blockZ, blockId, "pickaxe");
         }
     }
 
@@ -39,7 +40,7 @@ public final class CommonEventHandlerImpl implements ToolEventHandler {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public void onShovelUse(int blockX, int blockY, int blockZ, String blockId) {
-        if (blockId.contains("dirt") || blockId.contains("grass") || blockId.contains("sand")) {
+        if (RegistryPredicates.isDirtLikeBlockId(blockId)) {
             FeatureEventHandler.onToolUse(FeatureId.EXCAVATION, blockX, blockY, blockZ, blockId, "shovel");
         }
     }
@@ -50,9 +51,9 @@ public final class CommonEventHandlerImpl implements ToolEventHandler {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public void onHoeUse(int blockX, int blockY, int blockZ, String blockId) {
-        if (blockId.contains("crop")) {
+        if (RegistryPredicates.isCropBlockId(blockId)) {
             FeatureEventHandler.onToolUse(FeatureId.CROPINATION, blockX, blockY, blockZ, blockId, "hoe");
-        } else if (blockId.contains("grass") || blockId.contains("dirt")) {
+        } else if (RegistryPredicates.isDirtLikeBlockId(blockId)) {
             FeatureEventHandler.onToolUse(FeatureId.CULTIVATION, blockX, blockY, blockZ, blockId, "hoe");
         }
     }
@@ -63,7 +64,7 @@ public final class CommonEventHandlerImpl implements ToolEventHandler {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public void onAxeUse(int blockX, int blockY, int blockZ, String blockId) {
-        if (blockId.contains("log") || blockId.contains("stem")) {
+        if (RegistryPredicates.isLogLikeBlockId(blockId)) {
             FeatureEventHandler.onToolUse(FeatureId.LUMBINATION, blockX, blockY, blockZ, blockId, "axe");
         }
     }

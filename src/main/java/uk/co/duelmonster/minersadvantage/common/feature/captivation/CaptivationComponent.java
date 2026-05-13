@@ -5,6 +5,7 @@ import java.util.Set;
 import uk.co.duelmonster.minersadvantage.common.component.ComponentLifecycle;
     import uk.co.duelmonster.minersadvantage.common.component.ComponentTickHelper;
     import uk.co.duelmonster.minersadvantage.common.config.CaptivationConfig;
+import uk.co.duelmonster.minersadvantage.common.registry.RegistryPredicates;
 import uk.co.duelmonster.minersadvantage.common.services.captivation.CaptivationCoreService;
 
 /**
@@ -100,7 +101,7 @@ public final class CaptivationComponent implements ComponentLifecycle {
         }
 
         var context = ComponentTickHelper.getContext();
-        if (context.blockId().startsWith("item:")) {
+        if (RegistryPredicates.isContextItem(context.blockId())) {
             String itemId = context.blockId().substring(5);
             boolean withinRadius = service.isWithinRadius(
                 context.blockX(),
@@ -112,7 +113,7 @@ public final class CaptivationComponent implements ComponentLifecycle {
                 config.radiusHorizontal(),
                 config.radiusVertical()
             );
-            boolean inventoryOpen = !config.allowInGUI() && context.toolId().contains("gui");
+            boolean inventoryOpen = !config.allowInGUI() && RegistryPredicates.isGUIContext(context.toolId());
             lastDecision = service.evaluateCapture(itemId, false, inventoryOpen, config.allowInGUI(), withinRadius);
         } else {
             lastDecision = new CaptivationCoreService.CaptureDecision(false, false, false);

@@ -13,7 +13,7 @@ class PlayerStateServiceTest {
     @Test
     void storesAndRetrievesPlayerState() {
         PlayerStateService service = new PlayerStateService();
-        PlayerStateService.PlayerState state = new PlayerStateService.PlayerState(1L, true, 100L, 5);
+        PlayerStateService.PlayerState state = new PlayerStateService.PlayerState(1L, true, 100L, 5, true, false, false);
         service.updatePlayerState(1L, state);
 
         PlayerStateService.PlayerState retrieved = service.getPlayerState(1L);

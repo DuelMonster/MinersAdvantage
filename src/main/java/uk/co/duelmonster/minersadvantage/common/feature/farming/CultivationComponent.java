@@ -5,6 +5,7 @@ import java.util.List;
 import uk.co.duelmonster.minersadvantage.common.component.ComponentLifecycle;
     import uk.co.duelmonster.minersadvantage.common.component.ComponentTickHelper;
     import uk.co.duelmonster.minersadvantage.common.config.CultivationConfig;
+import uk.co.duelmonster.minersadvantage.common.registry.RegistryPredicates;
 import uk.co.duelmonster.minersadvantage.common.services.farming.FarmingCoreService;
 
 /**
@@ -96,7 +97,7 @@ public final class CultivationComponent implements ComponentLifecycle {
         }
 
         var context = ComponentTickHelper.getContext();
-        if (context.blockId().contains("dirt") || context.blockId().contains("grass")) {
+        if (RegistryPredicates.isDirtLikeBlockId(context.blockId())) {
             lastPlan = service.buildCultivationPlan(
                 context.blockX(),
                 context.blockY(),

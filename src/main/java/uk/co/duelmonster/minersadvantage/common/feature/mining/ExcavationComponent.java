@@ -5,6 +5,7 @@ import java.util.List;
 import uk.co.duelmonster.minersadvantage.common.component.ComponentLifecycle;
     import uk.co.duelmonster.minersadvantage.common.component.ComponentTickHelper;
     import uk.co.duelmonster.minersadvantage.common.config.ExcavationConfig;
+import uk.co.duelmonster.minersadvantage.common.registry.RegistryPredicates;
 import uk.co.duelmonster.minersadvantage.common.services.mining.ExcavationCoreService;
 
 /**
@@ -97,7 +98,7 @@ public final class ExcavationComponent implements ComponentLifecycle {
 
         var context = ComponentTickHelper.getContext();
         if (service.isBlock(context.blockId())) {
-            int verticalRadius = context.toolId().contains("shovel") ? 0 : config.radiusVertical();
+            int verticalRadius = RegistryPredicates.isShovelToolId(context.toolId()) ? 0 : config.radiusVertical();
             lastPlan = service.buildPlan(
                 context.blockX(),
                 context.blockY(),

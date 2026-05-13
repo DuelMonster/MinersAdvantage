@@ -31,6 +31,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import uk.co.duelmonster.minersadvantage.common.config.SyncedClientConfig;
+import uk.co.duelmonster.minersadvantage.common.registry.RegistryPredicates;
+import uk.co.duelmonster.minersadvantage.common.log.LogUtils;
 
 /**
  * Functions keeps this part of Miners Advantage running without turning server ticks into confetti.
@@ -50,7 +52,7 @@ public class Functions {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public static boolean isDebug() {
-        return java.lang.management.ManagementFactory.getRuntimeMXBean().getInputArguments().stream().anyMatch(s -> s.contains("jdwp"));
+        return LogUtils.isDebugLoggingEnabled();
     }
 
     /**
@@ -468,8 +470,7 @@ public class Functions {
             && clientConfig.veination().ores() != null
             && !clientConfig.veination().ores().isEmpty()
             && clientConfig.veination().ores().contains(itemName);
-        String blockPath = state.getBlock().toString().toLowerCase();
-        boolean likelyOre = blockPath.contains("ore");
+        boolean likelyOre = RegistryPredicates.isOreLike(state);
         return likelyOre || configuredOre;
     }
 

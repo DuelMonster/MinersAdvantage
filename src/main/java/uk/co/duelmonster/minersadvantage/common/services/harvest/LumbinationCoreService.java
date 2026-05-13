@@ -10,6 +10,7 @@ import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import uk.co.duelmonster.minersadvantage.common.Functions;
 import uk.co.duelmonster.minersadvantage.common.config.LumbinationConfig;
+import uk.co.duelmonster.minersadvantage.common.registry.RegistryPredicates;
 
 /**
  * LumbinationCoreService keeps this part of Miners Advantage running without turning server ticks into confetti.
@@ -83,7 +84,7 @@ public final class LumbinationCoreService {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public boolean isLog(String blockId) {
-        return blockId.contains("log") || blockId.contains("stem");
+        return RegistryPredicates.isLogLikeBlockId(blockId);
     }
 
     /**
@@ -91,7 +92,7 @@ public final class LumbinationCoreService {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public boolean isLeaf(String blockId) {
-        return blockId.contains("leaf") || blockId.contains("leaves");
+        return RegistryPredicates.isLeafLikeBlockId(blockId);
     }
 
     /**
@@ -99,7 +100,7 @@ public final class LumbinationCoreService {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public boolean isSapling(String blockId) {
-        return blockId.contains("sapling");
+        return RegistryPredicates.isSaplingBlock(blockId);
     }
 
     /**

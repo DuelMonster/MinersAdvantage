@@ -35,6 +35,7 @@ import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
      */
 public final class ClientInputHandler {
     private static ClientInputService.ClientInputState inputState = ClientInputService.ClientInputState.defaults();
+    private static ClientInputService.ClientInputState lastSyncedState = ClientInputService.ClientInputState.defaults();
     private static final KeyMapping.Category KEY_CATEGORY = createKeyCategory();
     //? if fabric {
     private static java.util.Map<KeyBindings.ClientAction, KeyMapping> keyMappings = new java.util.EnumMap<>(KeyBindings.ClientAction.class);
@@ -146,7 +147,11 @@ public final class ClientInputHandler {
     private static List<KeyBindings.ClientAction> getPressedActions() {
         List<KeyBindings.ClientAction> pressed = new java.util.ArrayList<>();
         for (java.util.Map.Entry<KeyBindings.ClientAction, KeyMapping> entry : keyMappings.entrySet()) {
-            if (entry.getValue().consumeClick()) {
+            boolean active = switch (entry.getKey()) {
+                case EXCAVATION_MODE_TOGGLE, EXCAVATION_SINGLE_LAYER_TOGGLE, SHAFT_VENT_TOGGLE -> entry.getValue().isDown();
+                default -> entry.getValue().consumeClick();
+            };
+            if (active) {
                 pressed.add(entry.getKey());
             }
         }
@@ -188,7 +193,12 @@ public final class ClientInputHandler {
             ClientPlayNetworking.send(new AbortWorkersPacket(playerId, "client:keybind"));
         }
 
-        if (!pressedSet.isEmpty() && (result.shouldSyncConfig() || result.shouldSyncVariables())) {
+        boolean activationStateChanged =
+            lastSyncedState.excavationToggled() != result.state().excavationToggled()
+                || lastSyncedState.singleLayerToggled() != result.state().singleLayerToggled()
+                || lastSyncedState.shaftVentToggled() != result.state().shaftVentToggled();
+
+        if ((activationStateChanged || !pressedSet.isEmpty()) && (result.shouldSyncConfig() || result.shouldSyncVariables())) {
             long playerId = 0L;
             Minecraft playerClient = Minecraft.getInstance();
             if (playerClient.player != null) {
@@ -199,8 +209,12 @@ public final class ClientInputHandler {
                 playerId,
                 defaults,
                 defaults,
-                new ServerOverridesConfig()
+                new ServerOverridesConfig(),
+                result.state().excavationToggled(),
+                result.state().singleLayerToggled(),
+                result.state().shaftVentToggled()
             ));
+            lastSyncedState = result.state();
         }
     }
     //?} else {

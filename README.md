@@ -35,6 +35,12 @@ Install NeoForge for a supported Minecraft version, then place the Miners Advant
 
 Configuration is managed through the modern shared config model and synced feature settings, with loader-specific screen registration for in-game access.
 
+## Debug Logging
+
+Project-wide diagnostic logging can be enabled at runtime by launching the game or dedicated server with `-Dminersadvantage.debugLogging=true`.
+
+When enabled, Miners Advantage raises its backend logger level to `DEBUG` on a best-effort basis and emits lifecycle, event, dispatch, and agent execution traces to the console/log file.
+
 ## Compatibility
 
 Miners Advantage is designed to remain compatible with FastItemFrames and other common quality-of-life client/server stacks where feature overlap does not conflict.

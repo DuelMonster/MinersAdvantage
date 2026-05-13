@@ -22,6 +22,20 @@ For a single active Stonecutter node, set the active version and run:
 ./gradlew build
 ```
 
+## Diagnostic Logging
+
+Miners Advantage now provides centralized project-wide diagnostic logging through `uk.co.duelmonster.minersadvantage.common.log.LogUtils`.
+
+Enable it by adding `-Dminersadvantage.debugLogging=true` to the JVM args for client or server runs.
+
+When enabled, startup attempts to raise the active logging backend to `DEBUG` through reflection against Log4j2 or Logback and emits debug traces for:
+
+- loader bootstrap
+- player login/logout
+- feature dispatch and config sync handling
+- Fabric and NeoForge tool/use event triggers
+- agent creation, queueing, completion, and manager cleanup
+
 ## Build System
 
 ### Core stack

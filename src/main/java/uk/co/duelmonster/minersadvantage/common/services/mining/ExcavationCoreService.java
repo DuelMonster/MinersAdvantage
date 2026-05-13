@@ -2,6 +2,7 @@ package uk.co.duelmonster.minersadvantage.common.services.mining;
 
 import java.util.ArrayList;
 import java.util.List;
+import uk.co.duelmonster.minersadvantage.common.registry.RegistryPredicates;
 
 /**
  * ExcavationCoreService keeps this part of Miners Advantage running without turning server ticks into confetti.
@@ -27,7 +28,7 @@ public final class ExcavationCoreService {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public boolean isOre(String blockId) {
-        return blockId.contains("ore");
+        return RegistryPredicates.isOreLikeBlockId(blockId);
     }
 
     /**

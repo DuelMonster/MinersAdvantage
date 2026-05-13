@@ -6,6 +6,7 @@ import java.util.Set;
 import uk.co.duelmonster.minersadvantage.common.component.ComponentLifecycle;
 import uk.co.duelmonster.minersadvantage.common.component.ComponentTickHelper;
 import uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig;
+import uk.co.duelmonster.minersadvantage.common.registry.RegistryPredicates;
 import uk.co.duelmonster.minersadvantage.common.services.substitution.SubstitutionCoreService;
 import uk.co.duelmonster.minersadvantage.common.services.substitution.SubstitutionCoreService.ToolCandidate;
 
@@ -108,8 +109,10 @@ public final class SubstitutionComponent implements ComponentLifecycle {
         }
 
         var context = ComponentTickHelper.getContext();
-        boolean oreContext = context.blockId().contains("ore");
-        boolean combatContext = context.blockId().startsWith("entity:") || context.toolId().contains("sword") || context.toolId().contains("combat");
+        boolean oreContext = RegistryPredicates.isOreLikeBlockId(context.blockId());
+        boolean combatContext = RegistryPredicates.isContextEntity(context.blockId())
+            || RegistryPredicates.isSwordToolId(context.toolId())
+            || RegistryPredicates.isCombatToolId(context.toolId());
         boolean switchBackToPrimary = !oreContext
             && !combatContext
             && lastSelectedToolId != null
