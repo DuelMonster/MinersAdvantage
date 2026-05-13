@@ -14,7 +14,7 @@ disable-model-invocation: false
 - You need a repeatable commit workflow with validation gates.
 
 ## Inputs
-- Commit intent (single commit or multiple logical commits).
+- Commit intent and expected logical grouping.
 - Commit rules source files:
   - .brainbox/rules/commit.rules.md
   - .brainbox/guides/COMMIT_STANDARDS.md
@@ -28,7 +28,7 @@ disable-model-invocation: false
 2. Classify changes into logical commit groups.
 - Group by purpose (feature, fix, refactor, docs, build, test, chore).
 - Keep commits focused on one logical outcome each.
-- If user explicitly requests one commit, use one commit.
+- Always split commits by logical type. Do not collapse mixed-purpose changes into a single commit.
 
 3. Select semantic type and subject.
 - Use emoji + type + ": " + short subject.
@@ -51,9 +51,9 @@ disable-model-invocation: false
 - Report what was committed and any remaining risks.
 
 ## Decision Points
-- One commit vs multiple commits:
-  - Multiple commit groups when changes have different intent.
-  - One commit when all files serve one cohesive purpose.
+- Commit grouping policy:
+  - Multiple commit groups are required when changes have different intent.
+  - Single-commit flow is allowed only when all files truly represent one type and one purpose.
 - Type selection:
   - `✨feature` for new functionality.
   - `🐞fix` for behavior correction.
@@ -72,4 +72,4 @@ disable-model-invocation: false
 ## Quick Prompt Examples
 - `/commit-outstanding-semantic commit all pending files with proper semantic types`
 - `/commit-outstanding-semantic split pending changes into refactor and docs commits`
-- `/commit-outstanding-semantic stage everything and make one semantic commit`
+- `/commit-outstanding-semantic group and commit by feature/fix/docs/build types`
