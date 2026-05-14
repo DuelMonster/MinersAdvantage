@@ -9,6 +9,34 @@ if (-not (Test-Path $changelogPath)) {
 }
 
 $changelogLines = Get-Content -Path $changelogPath
+$stagedFiles = @(git -C $repoRoot diff --cached --name-only --diff-filter=ACMR)
+
+if ($stagedFiles.Count -eq 0) {
+    Write-Host 'CHANGELOG validation passed.' -ForegroundColor Green
+    exit 0
+}
+
+$changelogStaged = $false
+$requiresChangelogUpdate = $false
+
+foreach ($file in $stagedFiles) {
+    $normalized = ($file -replace '\\', '/').Trim()
+    if ($normalized -eq 'CHANGELOG.md') {
+        $changelogStaged = $true
+        continue
+    }
+
+    if ($normalized -eq '.brainbox/state/version-bump-state.txt') {
+        continue
+    }
+
+    $requiresChangelogUpdate = $true
+}
+
+if ($requiresChangelogUpdate -and -not $changelogStaged) {
+    Write-Host 'CHANGELOG update required: stage CHANGELOG.md when committing substantive changes.' -ForegroundColor Red
+    exit 1
+}
 
 $hasVersionHeader = $false
 $hasBulletEntry = $false

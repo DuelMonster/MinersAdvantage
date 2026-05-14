@@ -139,6 +139,53 @@ Descriptor-driven registration is handled by ComponentRegistry.
 - `ServerOverridesConfig` controls feature-enable overrides and per-feature server enforcement flags.
 - Feature config records preserve current constructor call sites while carrying legacy parity fields such as blacklists, toggle modes, placement policies, and tool lists.
 
+### Substitution Rule Engine
+
+`SubstitutionConfig` includes `selectionRules`, which drive action/target-aware rule resolution for the substitution pipeline.
+
+Rule resolution order:
+
+1. Filter by `action` (`ANY` matches all)
+2. Filter by structural target match (`targetKind` + `targetId`)
+3. Evaluate `targetExpression` (`AND` / `OR` / `NOT` with parentheses)
+4. Choose best rule by `targetPriority`, then target specificity
+
+Candidate selection then applies the autoswitch-style comparator:
+
+1. `targetPriority`
+2. `targetMatch` multi-level rating
+3. `toolPriority`
+4. `toolMatch` multi-level rating
+5. currently selected slot
+6. smallest slot index
+
+Expression atoms currently supported by the substitution parser:
+
+- Target atoms:
+	- `block_tag:<id>`
+	- `target_block:<namespace:id>`
+	- `action:<name>`
+	- `requires_correct_tool`
+	- `mineable_pickaxe`, `mineable_axe`, `mineable_shovel`, `mineable_hoe`
+- Tool atoms:
+	- `tool_kind:<kind>` (`pickaxe`, `axe`, `shovel`, `hoe`)
+	- `item:<namespace:id>`
+	- `action:<name>`
+	- `correct_tool`
+	- `mining_enchantable`
+	- `required_kind`
+
+Per-rule data selectors:
+
+- `minSilkTouch`
+- `minFortune`
+- `requireMending`
+- `denyMending`
+
+If both `requireMending` and `denyMending` are set in a rule, config sanitization keeps `requireMending` and clears `denyMending`.
+
+Invalid expressions are rejected for that rule match path and logged via `LogUtils` when evaluated.
+
 ### Input surface
 
 - `KeyBindings` now carries a loader-neutral catalog of legacy-parity client actions and default keys.

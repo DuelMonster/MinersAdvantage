@@ -1,3 +1,11 @@
+## 0.4.0
+
+- Rework substitution selection to autoswitch-style candidate ordering with multi-level ratings and deterministic tie-breaks.
+- Add action-aware substitution rule tables for BREAK/INTERACT with per-rule target and tool priorities.
+- Add boolean expression support (`AND`/`OR`/`NOT`) for target/tool rule matching and enforce per-rule enchant constraints (silk, fortune, mending).
+- Wire substitution runtime with active-hand context and synchronized rule propagation across policy/default/category config paths.
+- Expand README and TECHNICAL with substitution rule expression syntax and practical rule authoring examples.
+
 ## 0.3.0
 
 - Phase 3 parity rewrite is complete across all four nodes with documentation and verification signoff.

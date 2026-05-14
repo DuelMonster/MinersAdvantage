@@ -3,6 +3,7 @@ package uk.co.duelmonster.minersadvantage.common.config.defaults;
 import java.util.List;
 import uk.co.duelmonster.minersadvantage.common.Constants;
 import uk.co.duelmonster.minersadvantage.common.TorchPlacement;
+import uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig.SelectionRule;
 
 /**
  * MAConfig_Defaults is the teammate that keeps this part of the mod understandable and stable.
@@ -151,6 +152,7 @@ public final class MAConfig_Defaults {
         public static final boolean ignoreIfValidTool = true;
         public static final boolean ignorePassiveMobs = true;
         public static final List<String> blacklist = List.of();
+        public static final List<SelectionRule> selectionRules = uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig.defaultSelectionRules();
     }
 
     /**

@@ -35,6 +35,78 @@ Install NeoForge for a supported Minecraft version, then place the Miners Advant
 
 Configuration is managed through the modern shared config model and synced feature settings, with loader-specific screen registration for in-game access.
 
+### Substitution Rule Expressions
+
+Substitution now supports rule-based, action-aware, expression-driven tool selection inspired by Fabric-Autoswitch selector flow.
+
+Each substitution rule can define:
+
+- `action`: `BREAK`, `INTERACT`, `ATTACK`, `STAT_CHANGE`, or `ANY`
+- `targetKind`: `BLOCK_TAG`, `ENTITY_TYPE`, or `ANY`
+- `targetId`: explicit target value used by `targetKind`
+- `requiredToolKind`: `pickaxe`, `axe`, `shovel`, `hoe`, or empty
+- `targetPriority` and `toolPriority`
+- `targetExpression` and `toolExpression` with `AND` / `OR` / `NOT` and parentheses
+- per-rule data selectors: `minSilkTouch`, `minFortune`, `requireMending`, `denyMending`
+
+Supported expression atoms include:
+
+- Target side: `block_tag:<id>`, `target_block:<namespace:id>`, `action:<name>`, `requires_correct_tool`, `mineable_pickaxe`, `mineable_axe`, `mineable_shovel`, `mineable_hoe`
+- Tool side: `tool_kind:<kind>`, `item:<namespace:id>`, `action:<name>`, `correct_tool`, `mining_enchantable`, `required_kind`
+
+#### Example 1: Simple Rule
+
+Prefer pickaxes for break actions on pickaxe-mineable blocks:
+
+```json
+{
+	"action": "BREAK",
+	"targetKind": "BLOCK_TAG",
+	"targetId": "minecraft:mineable/pickaxe",
+	"requiredToolKind": "pickaxe",
+	"targetPriority": 100,
+	"toolPriority": 10,
+	"toolExpression": "tool_kind:pickaxe AND correct_tool"
+}
+```
+
+#### Example 2: Nested Expression
+
+Match either shovel blocks or a specific block while excluding interact actions:
+
+```json
+{
+	"action": "ANY",
+	"targetKind": "ANY",
+	"targetId": "",
+	"targetPriority": 95,
+	"toolPriority": 8,
+	"targetExpression": "(block_tag:minecraft:mineable/shovel OR target_block:minecraft:gravel) AND NOT action:INTERACT",
+	"toolExpression": "tool_kind:shovel AND mining_enchantable"
+}
+```
+
+#### Example 3: Enchant-Gated Rule
+
+Require Fortune 3 and deny mending for ore-focused mining rules:
+
+```json
+{
+	"action": "BREAK",
+	"targetKind": "BLOCK_TAG",
+	"targetId": "minecraft:mineable/pickaxe",
+	"requiredToolKind": "pickaxe",
+	"targetPriority": 120,
+	"toolPriority": 12,
+	"toolExpression": "tool_kind:pickaxe AND correct_tool",
+	"minFortune": 3,
+	"denyMending": true,
+	"preferFortune": true
+}
+```
+
+When multiple rules match, higher `targetPriority` wins first, then specificity and comparator tie-breakers.
+
 ## Debug Logging
 
 Project-wide diagnostic logging can be enabled at runtime by launching the game or dedicated server with `-Dminersadvantage.debugLogging=true`.

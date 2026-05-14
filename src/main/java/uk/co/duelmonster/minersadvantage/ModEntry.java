@@ -9,6 +9,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -32,10 +33,13 @@ import uk.co.duelmonster.minersadvantage.agent.VeinationAgent;
 import uk.co.duelmonster.minersadvantage.agent.VentilationAgent;
 import uk.co.duelmonster.minersadvantage.common.MinersAdvantageCore;
 import uk.co.duelmonster.minersadvantage.common.config.ServerOverridesConfig;
+import uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig;
+import uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig.SubstitutionAction;
 import uk.co.duelmonster.minersadvantage.common.config.SyncedClientConfig;
 import uk.co.duelmonster.minersadvantage.common.event.CommonEventHandlerImpl;
 import uk.co.duelmonster.minersadvantage.common.event.ToolEventHandler;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
+import uk.co.duelmonster.minersadvantage.common.feature.utility.SubstitutionComponent;
 import uk.co.duelmonster.minersadvantage.common.log.LogUtils;
 import uk.co.duelmonster.minersadvantage.common.network.PlayerStateSyncPacket;
 import uk.co.duelmonster.minersadvantage.common.registry.RegistryPredicates;
@@ -95,7 +99,7 @@ public final class ModEntry implements ModInitializer {
 
             if (isFeatureEnabled(FeatureId.SUBSTITUTION) && isSubstitutionTool(stack)) {
                 LogUtils.logDebug("Block break trigger feature=Substitution player={} item={} pos={}", serverPlayer.getScoreboardName(), itemId, pos);
-                AgentManager.get().addAgent(serverPlayer, new SubstitutionAgent(serverPlayer, state));
+                AgentManager.get().addAgent(serverPlayer, new SubstitutionAgent(serverPlayer, state, SubstitutionAction.BREAK, InteractionHand.MAIN_HAND, substitutionConfig()));
             }
         });
 
@@ -118,7 +122,7 @@ public final class ModEntry implements ModInitializer {
 
             BlockPos pos = hitResult.getBlockPos();
             BlockState state = world.getBlockState(pos);
-            ItemStack stack = player.getMainHandItem();
+            ItemStack stack = player.getItemInHand(hand);
             String itemId = itemId(stack);
             String targetBlockId = blockId(state);
 
@@ -170,7 +174,7 @@ public final class ModEntry implements ModInitializer {
 
             if (isSubstitutionTool(stack) && player.isShiftKeyDown()) {
                 LogUtils.logDebug("Use block trigger feature=Substitution player={} item={} pos={}", serverPlayer.getScoreboardName(), itemId, pos);
-                AgentManager.get().addAgent(serverPlayer, new SubstitutionAgent(serverPlayer, state));
+                AgentManager.get().addAgent(serverPlayer, new SubstitutionAgent(serverPlayer, state, SubstitutionAction.INTERACT, hand, substitutionConfig()));
                 return InteractionResult.SUCCESS;
             }
 
@@ -322,7 +326,16 @@ public final class ModEntry implements ModInitializer {
     private static boolean isSubstitutionTool(ItemStack stack) {
         return isPickaxeTool(stack)
             || stack.getItem() instanceof AxeItem
-            || stack.getItem() instanceof ShovelItem;
+            || stack.getItem() instanceof ShovelItem
+            || stack.getItem() instanceof HoeItem;
+    }
+
+    private SubstitutionConfig substitutionConfig() {
+        var component = core.components().get(FeatureId.SUBSTITUTION);
+        if (component instanceof SubstitutionComponent substitutionComponent) {
+            return substitutionComponent.config();
+        }
+        return SyncedClientConfig.defaults().substitution();
     }
 
     private static boolean isPickaxeTool(ItemStack stack) {

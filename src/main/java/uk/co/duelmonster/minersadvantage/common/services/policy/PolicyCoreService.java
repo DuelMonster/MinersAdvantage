@@ -220,7 +220,8 @@ public final class PolicyCoreService {
             selected.favourFortune(),
             selected.ignoreIfValidTool(),
             selected.ignorePassiveMobs(),
-            selected.blacklist()
+            selected.blacklist(),
+            selected.selectionRules()
         );
     }
 

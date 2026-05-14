@@ -2,6 +2,7 @@ package uk.co.duelmonster.minersadvantage.common.config.categories;
 
 import java.util.List;
 import uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig;
+import uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig.SelectionRule;
 
 /**
  * MAConfig_Substitution is the teammate that keeps this part of the mod understandable and stable.
@@ -14,6 +15,7 @@ public final class MAConfig_Substitution extends MAConfig_BaseCategory {
     private boolean ignoreIfValidTool;
     private boolean ignorePassiveMobs;
     private List<String> blacklist;
+    private List<SelectionRule> selectionRules;
 
     /**
      * MAConfig_Substitution exists to keep this step focused, predictable, and debuggable.
@@ -27,6 +29,7 @@ public final class MAConfig_Substitution extends MAConfig_BaseCategory {
         this.ignoreIfValidTool = config.ignoreIfValidTool();
         this.ignorePassiveMobs = config.ignorePassiveMobs();
         this.blacklist = config.blacklist();
+        this.selectionRules = config.selectionRules();
     }
 
     public boolean switchBack() { return switchBack; }
@@ -35,4 +38,5 @@ public final class MAConfig_Substitution extends MAConfig_BaseCategory {
     public boolean ignoreIfValidTool() { return ignoreIfValidTool; }
     public boolean ignorePassiveMobs() { return ignorePassiveMobs; }
     public List<String> blacklist() { return blacklist; }
+    public List<SelectionRule> selectionRules() { return selectionRules; }
 }
