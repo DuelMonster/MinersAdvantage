@@ -16,6 +16,7 @@
 - Simplify player sync transport and policy flow to server-authoritative gameplay configuration with typed root snapshots.
 - Replace legacy config category wrappers with unified root-based UI bindings and remote-multiplayer authority lock messaging.
 - Add focused split-root coverage for TOML storage, sync core state, packet flow, and policy authority behavior.
+- Refresh README and TECHNICAL documentation for split-root config categories and multiplayer authority semantics.
 
 ## 0.4.0
 

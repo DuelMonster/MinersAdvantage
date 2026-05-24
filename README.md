@@ -33,7 +33,7 @@ Install NeoForge for a supported Minecraft version, then place the Miners Advant
 
 ## Configuration
 
-Configuration is managed through the modern shared config model and synced feature settings, with loader-specific screen registration for in-game access.
+Configuration is managed through split client/server roots persisted as TOML, with synced snapshots used for runtime transport. The in-game config screen now separates client-only settings (always editable locally) from gameplay settings. Gameplay settings are server-authoritative in multiplayer and are shown read-only when connected to a remote server.
 
 ### Substitution Rule Expressions
 

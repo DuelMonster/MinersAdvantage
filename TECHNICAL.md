@@ -69,7 +69,7 @@ As of 2026-05-11, milestone execution and verification gates confirm parity wiri
 2. **Client Input** — Keybindings are registered and client tick polling is wired; input-driven toggle and abort packets now traverse the transport layer
 3. **Server Events** — Login/logout, level unload, and entity load/join dispatch are wired across loaders, with NeoForge block tool modification event wiring and Fabric tool dispatch routed via interaction callbacks (no dedicated Fabric tool-modification event)
 4. **Networking** — Transport is wired for component toggles, aborts, player sync snapshots, feature dispatch packets, and SupremeVantage packets on both loaders
-5. **Config UI** — YACL screen builder is implemented with common and feature toggles, Fabric ModMenu factory is wired, and NeoForge config screen extension point registration is active
+5. **Config UI** — YACL screen builder is implemented with dedicated client/common/feature categories, Fabric ModMenu factory is wired, and NeoForge config screen extension point registration is active. Remote multiplayer exposes server-authoritative gameplay options as read-only while client-local options remain editable.
 6. **Assets** — Base localization/resource structure is migrated with `en_us.json` and `ru_ru.json`, including rewrite-era keybinding/localization keys
 
 For detailed source-level traceability and migration tasks, see [Parity Traceability Matrix](.brainbox/plans/traceability-migration-parity.md).
@@ -129,15 +129,15 @@ Descriptor-driven registration is handled by ComponentRegistry.
 | lumbination-core | LumbinationCoreService | trunk/leaf traversal planning and sapling replant intent |
 | captivation-core | CaptivationCoreService | item capture eligibility, GUI gate, and radius policy |
 | sync-core | SyncCoreService | typed per-player client/server config snapshots and effective merged state |
-| policy-core | PolicyCoreService | config range clamping and per-feature server override enforcement |
+| policy-core | PolicyCoreService | config range clamping and server-authoritative gameplay sanitization |
 | input-core | ClientInputService | client key-action state transitions and toggle packet intent generation |
 | supreme-vantage | SupremeVantageService | hidden code tracking and deterministic reward sequence progression |
 
 ### Config model
 
-- `SyncedClientConfig` now mirrors the modern shared feature records instead of using raw maps.
-- `ServerOverridesConfig` controls feature-enable overrides and per-feature server enforcement flags.
-- Feature config records preserve current constructor call sites while carrying legacy parity fields such as blacklists, toggle modes, placement policies, and tool lists.
+- `MAClientRootConfig` and `MAServerRootConfig` are the first-class split roots used across storage, sync, and UI paths.
+- TOML is the canonical persisted format with separate client and server files under the Miners Advantage config directory.
+- `SyncedClientConfig` remains as the transport/effective snapshot shape while split roots drive persisted state.
 
 ### Substitution Rule Engine
 
