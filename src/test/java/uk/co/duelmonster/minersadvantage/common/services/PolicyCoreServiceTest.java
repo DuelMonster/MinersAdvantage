@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
-import uk.co.duelmonster.minersadvantage.common.config.ServerOverridesConfig;
 import uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig;
 import uk.co.duelmonster.minersadvantage.common.config.SyncedClientConfig;
 import uk.co.duelmonster.minersadvantage.common.services.policy.PolicyCoreService;
@@ -16,15 +15,13 @@ import uk.co.duelmonster.minersadvantage.common.services.policy.PolicyCoreServic
  */
 class PolicyCoreServiceTest {
     @Test
-    void validatesRangesAndOverrides() {
+    void validatesRanges() {
         PolicyCoreService service = new PolicyCoreService();
         assertEquals(5, service.clampRange(9, 1, 5));
-        assertTrue(service.featureEnabled(true, true));
-        assertFalse(service.featureEnabled(true, false));
     }
 
     @Test
-    void mergesServerOverridesIntoEffectiveConfig() {
+    void appliesServerAuthoritativeConfigToEffectiveConfig() {
         PolicyCoreService service = new PolicyCoreService();
         SyncedClientConfig client = SyncedClientConfig.defaults();
         SyncedClientConfig server = new SyncedClientConfig(
@@ -42,9 +39,8 @@ class PolicyCoreServiceTest {
             client.veination(),
             client.ventilation()
         );
-        ServerOverridesConfig overrides = new ServerOverridesConfig(true, false, false, false, false, false, false, false, false, false, true, false, false);
 
-        SyncedClientConfig effective = service.applyServerOverrides(client, server, overrides);
+        SyncedClientConfig effective = service.applyServerAuthoritative(client, server);
 
         assertFalse(effective.substitution().enabled());
         assertTrue(effective.substitution().allowMending());
@@ -52,7 +48,7 @@ class PolicyCoreServiceTest {
     }
 
     @Test
-    void enforcesCrossFeatureCommonPolicyFlags() {
+    void enforcesServerCommonPolicyValues() {
         PolicyCoreService service = new PolicyCoreService();
         SyncedClientConfig client = SyncedClientConfig.defaults();
         SyncedClientConfig server = new SyncedClientConfig(
@@ -85,13 +81,38 @@ class PolicyCoreServiceTest {
             server.veination(),
             server.ventilation()
         );
-        ServerOverridesConfig overrides = new ServerOverridesConfig(false, true, false, false, false, false, false, false, false, false, false, false, false);
 
-        SyncedClientConfig effective = service.applyServerOverrides(client, serverWithCrossFeaturePolicy, overrides);
+        SyncedClientConfig effective = service.applyServerAuthoritative(client, serverWithCrossFeaturePolicy);
 
         assertFalse(effective.common().mineVeins());
         assertFalse(effective.common().autoIlluminate());
         assertEquals(6, effective.common().blocksPerTick());
         assertEquals(7, effective.common().blockRadius());
+    }
+
+    @Test
+    void usesServerGameplayConfigEvenWithoutEnforcementFlags() {
+        PolicyCoreService service = new PolicyCoreService();
+        SyncedClientConfig client = SyncedClientConfig.defaults();
+        SyncedClientConfig server = new SyncedClientConfig(
+            client.client(),
+            new uk.co.duelmonster.minersadvantage.common.config.CommonConfig(true, false, true, true, 2, true, 5, 3, 64),
+            client.captivation(),
+            client.cropination(),
+            client.cultivation(),
+            client.excavation(),
+            client.pathanation(),
+            client.illumination(),
+            client.lumbination(),
+            client.shaftanation(),
+            new SubstitutionConfig(false, true, false, true, true, true, true, client.substitution().blacklist()),
+            client.veination(),
+            client.ventilation()
+        );
+
+        SyncedClientConfig effective = service.applyServerAuthoritative(client, server);
+
+        assertFalse(effective.substitution().enabled());
+        assertTrue(effective.substitution().allowMending());
     }
 }

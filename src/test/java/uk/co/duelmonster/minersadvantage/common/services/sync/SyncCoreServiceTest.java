@@ -4,7 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.junit.jupiter.api.Test;
-import uk.co.duelmonster.minersadvantage.common.config.ServerOverridesConfig;
+import uk.co.duelmonster.minersadvantage.common.config.MAClientRootConfig;
+import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 import uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig;
 import uk.co.duelmonster.minersadvantage.common.config.SyncedClientConfig;
 import uk.co.duelmonster.minersadvantage.common.services.policy.PolicyCoreService;
@@ -35,9 +36,10 @@ class SyncCoreServiceTest {
             client.veination(),
             client.ventilation()
         );
-        ServerOverridesConfig overrides = new ServerOverridesConfig(false, false, false, false, false, false, false, false, false, false, true, false, false);
+        MAClientRootConfig clientRoot = MAClientRootConfig.fromSyncedConfig(client);
+        MAServerRootConfig serverRoot = MAServerRootConfig.fromSyncedConfig(server);
 
-        SyncCoreService.PlayerSyncState state = service.synchronize(42L, client, server, overrides, policy);
+        SyncCoreService.PlayerSyncState state = service.synchronize(42L, clientRoot, serverRoot, policy);
 
         assertEquals(1L, state.revision());
         assertFalse(state.effectiveConfig().substitution().ignoreIfValidTool());

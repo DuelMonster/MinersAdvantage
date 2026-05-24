@@ -15,6 +15,7 @@
 - Migrate configuration to split `MAClientRootConfig` and `MAServerRootConfig` roots with TOML-backed persistence for client/server state.
 - Simplify player sync transport and policy flow to server-authoritative gameplay configuration with typed root snapshots.
 - Replace legacy config category wrappers with unified root-based UI bindings and remote-multiplayer authority lock messaging.
+- Add focused split-root coverage for TOML storage, sync core state, packet flow, and policy authority behavior.
 
 ## 0.4.0
 

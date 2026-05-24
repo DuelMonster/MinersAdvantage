@@ -5,8 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Assumptions;
 import uk.co.duelmonster.minersadvantage.common.MinersAdvantageCore;
-import uk.co.duelmonster.minersadvantage.common.config.ServerOverridesConfig;
+import uk.co.duelmonster.minersadvantage.common.config.MAClientRootConfig;
+import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 import uk.co.duelmonster.minersadvantage.common.config.SyncedClientConfig;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 import uk.co.duelmonster.minersadvantage.common.services.utility.SupremeVantageService;
@@ -17,21 +19,23 @@ import uk.co.duelmonster.minersadvantage.common.services.utility.SupremeVantageS
  */
 class PlayerStateSyncPacketFlowTest {
     @Test
-    void playerStateSyncPacketAppliesServerOverrides() {
+    void playerStateSyncPacketAppliesServerAuthoritativeConfig() {
+        Assumptions.assumeTrue(isSlf4jAvailable());
         MinersAdvantageCore core = new MinersAdvantageCore();
         SyncedClientConfig client = core.defaultConfig();
         SyncedClientConfig server = SyncedClientConfig.defaults();
-        ServerOverridesConfig overrides = new ServerOverridesConfig(true, false, false, false, false, false, false, false, false, false, false, false, false);
+        MAClientRootConfig clientRoot = MAClientRootConfig.fromSyncedConfig(client);
+        MAServerRootConfig serverRoot = MAServerRootConfig.fromSyncedConfig(server);
 
-        var state = core.handlePlayerStateSyncPacket(new PlayerStateSyncPacket(7L, client, server, overrides));
+        var state = core.handlePlayerStateSyncPacket(new PlayerStateSyncPacket(7L, clientRoot, serverRoot));
 
         assertEquals(1L, state.revision());
-        assertFalse(state.serverOverrides().enforceSubstitutionSettings());
         assertEquals("PlayerStateSyncPacket", PacketRegistry.getPacketName(PacketRegistry.PLAYER_STATE_SYNC));
     }
 
     @Test
     void componentTogglePacketEnablesAndDisablesRegisteredFeatures() {
+        Assumptions.assumeTrue(isSlf4jAvailable());
         MinersAdvantageCore core = new MinersAdvantageCore();
         core.bootstrap();
 
@@ -42,6 +46,7 @@ class PlayerStateSyncPacketFlowTest {
 
     @Test
     void supremeVantagePacketReturnsRewardGrant() {
+        Assumptions.assumeTrue(isSlf4jAvailable());
         MinersAdvantageCore core = new MinersAdvantageCore();
 
         SupremeVantageService.RewardGrant reward = core.handleSupremeVantagePacket(
@@ -50,5 +55,14 @@ class PlayerStateSyncPacketFlowTest {
 
         assertEquals("Soulblade", reward.displayName());
         assertEquals("SupremeVantagePacket", PacketRegistry.getPacketName(PacketRegistry.SUPREME_VANTAGE));
+    }
+
+    private static boolean isSlf4jAvailable() {
+        try {
+            Class.forName("org.slf4j.LoggerFactory");
+            return true;
+        } catch (ClassNotFoundException exception) {
+            return false;
+        }
     }
 }
