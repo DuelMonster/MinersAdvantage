@@ -12,10 +12,27 @@ fi
 
 errors=()
 
+is_binary_file() {
+  local file="$1"
+  LC_ALL=C grep -Iq . "$file"
+  local status=$?
+  if [[ $status -eq 0 ]]; then
+    return 1
+  fi
+  if [[ $status -eq 1 ]]; then
+    return 0
+  fi
+  return 1
+}
+
 for relative in "${staged[@]}"; do
   [[ -z "$relative" ]] && continue
   full_path="$repo_root/$relative"
   [[ -f "$full_path" ]] || continue
+
+  if is_binary_file "$full_path"; then
+    continue
+  fi
 
   if [[ "$relative" =~ \.java$ ]]; then
     mapfile -t imports < <(grep -E '^\s*import\s+.+;\s*$' "$full_path" | sed 's/^\s*//;s/\s*$//')
@@ -55,11 +72,6 @@ for relative in "${staged[@]}"; do
   fi
 
   if [[ "$relative" =~ ^src/main/ || "$relative" =~ ^src/test/ ]]; then
-    # Skip binary assets (e.g., PNG) to avoid false-positive whitespace matches.
-    if ! grep -Iq . "$full_path"; then
-      continue
-    fi
-
     if grep -nE '[[:space:]]+$' "$full_path" >/dev/null; then
       while IFS= read -r row; do
         errors+=("$relative has trailing whitespace at line $row")

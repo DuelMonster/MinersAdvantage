@@ -20,9 +20,37 @@ $sourceFiles = @($staged | Where-Object { $_ -match '^(src/main|src/test)/' })
 
 $errors = New-Object System.Collections.Generic.List[string]
 
+function Test-IsBinaryFile {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Path
+    )
+
+    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) {
+        return $false
+    }
+
+    try {
+        $bytes = [System.IO.File]::ReadAllBytes($Path)
+        if ($bytes.Length -eq 0) {
+            return $false
+        }
+        foreach ($b in $bytes) {
+            if ($b -eq 0) {
+                return $true
+            }
+        }
+    } catch {
+        return $false
+    }
+
+    return $false
+}
+
 foreach ($relative in $javaFiles) {
     $fullPath = Join-Path $repoRoot $relative
     if (-not (Test-Path $fullPath)) { continue }
+    if (Test-IsBinaryFile -Path $fullPath) { continue }
 
     $lines = Get-Content -Path $fullPath
 
@@ -59,6 +87,7 @@ foreach ($relative in $javaFiles) {
 foreach ($relative in $sourceFiles) {
     $fullPath = Join-Path $repoRoot $relative
     if (-not (Test-Path $fullPath)) { continue }
+    if (Test-IsBinaryFile -Path $fullPath) { continue }
     $lines = Get-Content -Path $fullPath
     for ($i = 0; $i -lt $lines.Count; $i++) {
         if ($lines[$i] -match '\s+$') {

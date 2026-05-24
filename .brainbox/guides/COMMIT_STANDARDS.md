@@ -1,6 +1,6 @@
 # 🧑‍💻 Semantic Commit Guidelines
 
-This document outlines the commit message standards for Forget-Me-Crops to ensure clear, meaningful, and automatically-processable commit history.
+This document outlines the commit message standards for MinersAdvantage to ensure clear, meaningful, and automatically-processable commit history.
 
 ## Quick Reference
 

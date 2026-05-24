@@ -7,7 +7,7 @@
       "name": "debug fabric client",
       "preLaunchTask": "debug fabric client",
       "presentation": {
-        "group": "Forget-Me-Crops Debug (client)",
+        "group": "MinersAdvantage Debug (client)",
         "order": 0
       }
     },
@@ -17,7 +17,7 @@
       "name": "debug fabric client (no related mods)",
       "preLaunchTask": "debug fabric client (no related mods)",
       "presentation": {
-        "group": "Forget-Me-Crops Debug (client)",
+        "group": "MinersAdvantage Debug (client)",
         "order": 2
       }
     },
@@ -27,7 +27,7 @@
       "name": "debug neoforge client",
       "preLaunchTask": "debug neoforge client",
       "presentation": {
-        "group": "Forget-Me-Crops Debug (client)",
+        "group": "MinersAdvantage Debug (client)",
         "order": 1
       }
     },
@@ -37,7 +37,7 @@
       "name": "debug neoforge client (no related mods)",
       "preLaunchTask": "debug neoforge client (no related mods)",
       "presentation": {
-        "group": "Forget-Me-Crops Debug (client)",
+        "group": "MinersAdvantage Debug (client)",
         "order": 3
       }
     },
@@ -47,7 +47,7 @@
       "name": "debug fabric server",
       "preLaunchTask": "debug fabric server",
       "presentation": {
-        "group": "Forget-Me-Crops Debug (server)",
+        "group": "MinersAdvantage Debug (server)",
         "order": 0
       }
     },
@@ -57,7 +57,7 @@
       "name": "debug fabric server (no related mods)",
       "preLaunchTask": "debug fabric server (no related mods)",
       "presentation": {
-        "group": "Forget-Me-Crops Debug (server)",
+        "group": "MinersAdvantage Debug (server)",
         "order": 2
       }
     },
@@ -67,7 +67,7 @@
       "name": "debug neoforge server",
       "preLaunchTask": "debug neoforge server",
       "presentation": {
-        "group": "Forget-Me-Crops Debug (server)",
+        "group": "MinersAdvantage Debug (server)",
         "order": 1
       }
     },
@@ -77,97 +77,9 @@
       "name": "debug neoforge server (no related mods)",
       "preLaunchTask": "debug neoforge server (no related mods)",
       "presentation": {
-        "group": "Forget-Me-Crops Debug (server)",
+        "group": "MinersAdvantage Debug (server)",
         "order": 3
       }
-    },
-    {
-      "type": "java",
-      "request": "launch",
-      "name": "NeoForge Client (:1.21.11-neoforge)",
-      "presentation": {
-        "group": "Mod Development - 1.21.11-neoforge",
-        "order": 0
-      },
-      "projectName": "1.21.11-neoforge",
-      "mainClass": "net.neoforged.devlaunch.Main",
-      "args": [
-        "@D:\\Mod_Source\\MinersAdvantage\\versions\\1.21.11-neoforge\\build\\moddev\\clientRunProgramArgs.txt"
-      ],
-      "vmArgs": [
-        "@D:\\Mod_Source\\MinersAdvantage\\versions\\1.21.11-neoforge\\build\\moddev\\clientRunVmArgs.txt",
-        "-Dfml.modFolders\u003dmod%%D:\\Mod_Source\\MinersAdvantage\\versions\\1.21.11-neoforge\\bin\\main"
-      ],
-      "cwd": "${workspaceFolder}\\versions\\1.21.11-neoforge\\runs\\client",
-      "env": {},
-      "console": "internalConsole",
-      "shortenCommandLine": "none"
-    },
-    {
-      "type": "java",
-      "request": "launch",
-      "name": "NeoForge Server (:1.21.11-neoforge)",
-      "presentation": {
-        "group": "Mod Development - 1.21.11-neoforge",
-        "order": 1
-      },
-      "projectName": "1.21.11-neoforge",
-      "mainClass": "net.neoforged.devlaunch.Main",
-      "args": [
-        "@D:\\Mod_Source\\MinersAdvantage\\versions\\1.21.11-neoforge\\build\\moddev\\serverRunProgramArgs.txt"
-      ],
-      "vmArgs": [
-        "@D:\\Mod_Source\\MinersAdvantage\\versions\\1.21.11-neoforge\\build\\moddev\\serverRunVmArgs.txt",
-        "-Dfml.modFolders\u003dmod%%D:\\Mod_Source\\MinersAdvantage\\versions\\1.21.11-neoforge\\bin\\main"
-      ],
-      "cwd": "${workspaceFolder}\\versions\\1.21.11-neoforge\\runs\\server",
-      "env": {},
-      "console": "internalConsole",
-      "shortenCommandLine": "none"
-    },
-    {
-      "type": "java",
-      "request": "launch",
-      "name": "NeoForge Client (:26.1.2-neoforge)",
-      "presentation": {
-        "group": "Mod Development - 26.1.2-neoforge",
-        "order": 0
-      },
-      "projectName": "26.1.2-neoforge",
-      "mainClass": "net.neoforged.devlaunch.Main",
-      "args": [
-        "@D:\\Mod_Source\\MinersAdvantage\\versions\\26.1.2-neoforge\\build\\moddev\\clientRunProgramArgs.txt"
-      ],
-      "vmArgs": [
-        "@D:\\Mod_Source\\MinersAdvantage\\versions\\26.1.2-neoforge\\build\\moddev\\clientRunVmArgs.txt",
-        "-Dfml.modFolders\u003dmod%%D:\\Mod_Source\\MinersAdvantage\\versions\\26.1.2-neoforge\\bin\\main"
-      ],
-      "cwd": "${workspaceFolder}\\versions\\26.1.2-neoforge\\runs\\client",
-      "env": {},
-      "console": "internalConsole",
-      "shortenCommandLine": "none"
-    },
-    {
-      "type": "java",
-      "request": "launch",
-      "name": "NeoForge Server (:26.1.2-neoforge)",
-      "presentation": {
-        "group": "Mod Development - 26.1.2-neoforge",
-        "order": 1
-      },
-      "projectName": "26.1.2-neoforge",
-      "mainClass": "net.neoforged.devlaunch.Main",
-      "args": [
-        "@D:\\Mod_Source\\MinersAdvantage\\versions\\26.1.2-neoforge\\build\\moddev\\serverRunProgramArgs.txt"
-      ],
-      "vmArgs": [
-        "@D:\\Mod_Source\\MinersAdvantage\\versions\\26.1.2-neoforge\\build\\moddev\\serverRunVmArgs.txt",
-        "-Dfml.modFolders\u003dmod%%D:\\Mod_Source\\MinersAdvantage\\versions\\26.1.2-neoforge\\bin\\main"
-      ],
-      "cwd": "${workspaceFolder}\\versions\\26.1.2-neoforge\\runs\\server",
-      "env": {},
-      "console": "internalConsole",
-      "shortenCommandLine": "none"
     }
   ]
 }

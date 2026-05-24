@@ -1,6 +1,6 @@
 # 📝 Humanized Comment Style Guide
 
-This guide enforces the comedic, humanized comment style across Forget-Me-Crops. Every class, method, logic block, and significant line must have comments in this style.
+This guide enforces the comedic, humanized comment style across MinersAdvantage. Every class, method, logic block, and significant line must have comments in this style.
 
 ## Style Requirements
 

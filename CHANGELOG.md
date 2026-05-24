@@ -1,5 +1,6 @@
 ## 0.5.0
 
+- Align workspace validation, hook setup, and documentation rules with stricter parity checks.
 - Trigger substitution on block-attack start instead of post-break so tool selection applies before mining completes.
 - Restrict substitution candidate selection to hotbar slots and switch held tool by selected slot change rather than stack swapping.
 - Add start-trigger de-duplication and activity tracking to avoid repeated queueing while mining or interacting continuously.
