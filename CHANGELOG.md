@@ -1,3 +1,10 @@
+## 0.5.0
+
+- Trigger substitution on block-attack start instead of post-break so tool selection applies before mining completes.
+- Restrict substitution candidate selection to hotbar slots and switch held tool by selected slot change rather than stack swapping.
+- Add start-trigger de-duplication and activity tracking to avoid repeated queueing while mining or interacting continuously.
+- Improve switch-back timing so restore waits for break-target activity to end instead of reverting mid-action.
+
 ## 0.4.0
 
 - Rework substitution selection to autoswitch-style candidate ordering with multi-level ratings and deterministic tie-breaks.

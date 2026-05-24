@@ -49,6 +49,7 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
@@ -77,6 +78,27 @@ public final class ModEntry implements ModInitializer {
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> onPlayerLogout(handler.getPlayer()));
         ServerEntityEvents.ENTITY_LOAD.register(this::onFabricEntityLoad);
 
+        AttackBlockCallback.EVENT.register((player, world, hand, pos, direction) -> {
+            if (world.isClientSide() || !(player instanceof ServerPlayer serverPlayer)) {
+                return InteractionResult.PASS;
+            }
+
+            if (!isFeatureEnabled(FeatureId.SUBSTITUTION)) {
+                return InteractionResult.PASS;
+            }
+
+            BlockState state = world.getBlockState(pos);
+            ItemStack stack = player.getItemInHand(hand);
+
+            if (!SubstitutionAgent.shouldQueueStartSubstitution(serverPlayer, hand, SubstitutionAction.BREAK, pos)) {
+                return InteractionResult.PASS;
+            }
+
+            LogUtils.logDebug("Attack block trigger feature=Substitution player={} hand={} item={} pos={}", serverPlayer.getScoreboardName(), hand, itemId(stack), pos);
+            AgentManager.get().addAgent(serverPlayer, new SubstitutionAgent(serverPlayer, state, SubstitutionAction.BREAK, hand, substitutionConfig()));
+            return InteractionResult.PASS;
+        });
+
         PlayerBlockBreakEvents.AFTER.register((level, player, pos, state, blockEntity) -> {
             if (level.isClientSide() || !(player instanceof ServerPlayer serverPlayer)) {
                 return;
@@ -95,11 +117,6 @@ public final class ModEntry implements ModInitializer {
             } else if (isAxeTool(stack) && state.is(BlockTags.LOGS)) {
                 LogUtils.logDebug("Block break trigger feature=Lumbination player={} item={} block={} pos={}", serverPlayer.getScoreboardName(), itemId, brokenBlockId, pos);
                 AgentManager.get().addAgent(serverPlayer, new LumbinationAgent(serverPlayer, pos, state.getBlock()));
-            }
-
-            if (isFeatureEnabled(FeatureId.SUBSTITUTION) && isSubstitutionTool(stack)) {
-                LogUtils.logDebug("Block break trigger feature=Substitution player={} item={} pos={}", serverPlayer.getScoreboardName(), itemId, pos);
-                AgentManager.get().addAgent(serverPlayer, new SubstitutionAgent(serverPlayer, state, SubstitutionAction.BREAK, InteractionHand.MAIN_HAND, substitutionConfig()));
             }
         });
 
@@ -172,7 +189,11 @@ public final class ModEntry implements ModInitializer {
                 return InteractionResult.SUCCESS;
             }
 
-            if (isSubstitutionTool(stack) && player.isShiftKeyDown()) {
+            if (isFeatureEnabled(FeatureId.SUBSTITUTION) && player.isShiftKeyDown()) {
+                if (!SubstitutionAgent.shouldQueueStartSubstitution(serverPlayer, hand, SubstitutionAction.INTERACT, pos)) {
+                    SubstitutionAgent.markSubstitutionActivity(serverPlayer, hand, SubstitutionAction.INTERACT, pos);
+                    return InteractionResult.SUCCESS;
+                }
                 LogUtils.logDebug("Use block trigger feature=Substitution player={} item={} pos={}", serverPlayer.getScoreboardName(), itemId, pos);
                 AgentManager.get().addAgent(serverPlayer, new SubstitutionAgent(serverPlayer, state, SubstitutionAction.INTERACT, hand, substitutionConfig()));
                 return InteractionResult.SUCCESS;
@@ -187,10 +208,15 @@ public final class ModEntry implements ModInitializer {
                 AgentManager.get().tick(level);
                 if (tickCount % 20 == 0) {
                     for (ServerPlayer serverPlayer : level.players()) {
+                        SubstitutionAgent.processSwitchBack(serverPlayer);
                         if (!AgentManager.get().hasAgentType(serverPlayer, CaptivationAgent.class)) {
                             LogUtils.logDebug("Server tick trigger feature=Captivation player={} intervalTicks={}", serverPlayer.getScoreboardName(), tickCount);
                             AgentManager.get().addAgent(serverPlayer, new CaptivationAgent(serverPlayer, 6.0));
                         }
+                    }
+                } else {
+                    for (ServerPlayer serverPlayer : level.players()) {
+                        SubstitutionAgent.processSwitchBack(serverPlayer);
                     }
                 }
             }
@@ -249,6 +275,7 @@ public final class ModEntry implements ModInitializer {
     private void onPlayerLogout(ServerPlayer player) {
         long playerId = playerId(player);
         LogUtils.logInfo("Player logout player={} id={}", player.getScoreboardName(), playerId);
+        SubstitutionAgent.clearRestoreState(player);
         core.workerRuntimeService().abortAllForPlayerWithStats(playerId);
         core.playerStateService().clearPlayerState(playerId);
     }
@@ -425,6 +452,7 @@ public final class ModEntry {
         }
         long playerId = playerId(player);
         LogUtils.logInfo("Player logout player={} id={}", player.getScoreboardName(), playerId);
+        SubstitutionAgent.clearRestoreState(player);
         core.workerRuntimeService().abortAllForPlayerWithStats(playerId);
         core.playerStateService().clearPlayerState(playerId);
     }
@@ -434,6 +462,7 @@ public final class ModEntry {
             return;
         }
         for (ServerPlayer player : level.players()) {
+            SubstitutionAgent.clearRestoreState(player);
             core.workerRuntimeService().abortAllForPlayerWithStats(player.getUUID().getLeastSignificantBits());
             core.playerStateService().clearPlayerState(player.getUUID().getLeastSignificantBits());
         }
@@ -484,11 +513,38 @@ public final class ModEntry {
 
         LogUtils.logDebug("NeoForge right click player={} item={} block={} pos={}", event.getEntity().getScoreboardName(), itemId(event.getItemStack()), blockId(event.getLevel().getBlockState(event.getPos())), event.getPos());
         routeToolUse(event.getItemStack(), event.getPos(), event.getLevel().getBlockState(event.getPos()));
+
+        if (!(event.getEntity() instanceof ServerPlayer serverPlayer)) {
+            return;
+        }
+        if (!isFeatureEnabled(FeatureId.SUBSTITUTION)) {
+            return;
+        }
+
+        ItemStack stack = event.getItemStack();
+        if (event.getEntity().isShiftKeyDown()) {
+            BlockState state = event.getLevel().getBlockState(event.getPos());
+            if (!SubstitutionAgent.shouldQueueStartSubstitution(serverPlayer, event.getHand(), SubstitutionAction.INTERACT, event.getPos())) {
+                SubstitutionAgent.markSubstitutionActivity(serverPlayer, event.getHand(), SubstitutionAction.INTERACT, event.getPos());
+                return;
+            }
+            AgentManager.get().addAgent(serverPlayer, new SubstitutionAgent(serverPlayer, state, SubstitutionAction.INTERACT, event.getHand(), substitutionConfig()));
+        }
     }
 
     private void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
         if (event.getEntity() == null || event.getLevel().isClientSide()) {
             return;
+        }
+
+        if (event.getEntity() instanceof ServerPlayer serverPlayer && isFeatureEnabled(FeatureId.SUBSTITUTION)) {
+            ItemStack stack = event.getItemStack();
+            BlockState state = event.getLevel().getBlockState(event.getPos());
+            if (!SubstitutionAgent.shouldQueueStartSubstitution(serverPlayer, event.getHand(), SubstitutionAction.BREAK, event.getPos())) {
+                SubstitutionAgent.markSubstitutionActivity(serverPlayer, event.getHand(), SubstitutionAction.BREAK, event.getPos());
+            } else {
+                AgentManager.get().addAgent(serverPlayer, new SubstitutionAgent(serverPlayer, state, SubstitutionAction.BREAK, event.getHand(), substitutionConfig()));
+            }
         }
 
         String blockId = BuiltInRegistries.BLOCK.getKey(event.getLevel().getBlockState(event.getPos()).getBlock()).toString();
@@ -501,6 +557,13 @@ public final class ModEntry {
     }
 
     private void onServerTick(ServerTickEvent.Post event) {
+        if (event.getServer() != null) {
+            for (ServerLevel level : event.getServer().getAllLevels()) {
+                for (ServerPlayer serverPlayer : level.players()) {
+                    SubstitutionAgent.processSwitchBack(serverPlayer);
+                }
+            }
+        }
         toolEvents.onServerTick();
     }
 
@@ -526,6 +589,26 @@ public final class ModEntry {
 
     private static String itemId(ItemStack stack) {
         return BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
+    }
+
+    private static boolean isSubstitutionTool(ItemStack stack) {
+        return isPickaxeTool(stack)
+            || stack.getItem() instanceof AxeItem
+            || stack.getItem() instanceof ShovelItem
+            || stack.getItem() instanceof HoeItem;
+    }
+
+    private SubstitutionConfig substitutionConfig() {
+        var component = core.components().get(FeatureId.SUBSTITUTION);
+        if (component instanceof SubstitutionComponent substitutionComponent) {
+            return substitutionComponent.config();
+        }
+        return SyncedClientConfig.defaults().substitution();
+    }
+
+    private boolean isFeatureEnabled(FeatureId featureId) {
+        var component = core.components().get(featureId);
+        return component != null && component.isEnabled();
     }
 
     private static boolean isPickaxeTool(ItemStack stack) {

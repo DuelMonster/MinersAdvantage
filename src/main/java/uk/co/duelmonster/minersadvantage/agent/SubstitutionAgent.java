@@ -1,5 +1,6 @@
 package uk.co.duelmonster.minersadvantage.agent;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,11 +9,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.function.Predicate;
-import net.minecraft.tags.BlockTags;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.HoeItem;
@@ -30,7 +35,12 @@ import uk.co.duelmonster.minersadvantage.common.log.LogUtils;
  * SubstitutionAgent: swaps the player's held tool for the best available one in inventory.
  */
 public class SubstitutionAgent extends Agent {
-    private static final int INVENTORY_TOOL_SLOTS = 36;
+    private static final int HOTBAR_TOOL_SLOTS = 9;
+    private static final int RESTORE_IDLE_TICKS = 3;
+    private static final double TARGET_RANGE_SQ = 36.0;
+    private static final int QUEUE_DEDUPE_TICKS = 1;
+    private static final ConcurrentMap<RestoreKey, RestoreState> RESTORE_STATES = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<QueueKey, QueueState> QUEUE_STATES = new ConcurrentHashMap<>();
 
     private static final Comparator<Candidate> CANDIDATE_COMPARATOR =
         Comparator.comparingInt(Candidate::targetPriority)
@@ -40,6 +50,160 @@ public class SubstitutionAgent extends Agent {
             .thenComparing(Candidate::isSelected, Boolean::compare)
             .thenComparing(Candidate::slot, Comparator.reverseOrder());
 
+    private static boolean hasActiveBreakTarget(ServerPlayer player, QueueState queueState) {
+        Object gameMode = resolvePlayerGameMode(player);
+        if (gameMode != null) {
+            if (readBooleanMember(gameMode, "isDestroyingBlock", "destroying", "isDestroying")) {
+                return true;
+            }
+
+            BlockPos destroyPos = readBlockPosMember(gameMode, "destroyPos", "destroyPosCurrent", "delayedDestroyPos");
+            if (destroyPos != null && isTargetInRangeAndSolid(player, destroyPos)) {
+                return true;
+            }
+        }
+
+        return queueState != null && isTargetInRangeAndSolid(player, queueState.lastTargetPos());
+    }
+
+    private static Object resolvePlayerGameMode(ServerPlayer player) {
+        try {
+            Field gameModeField = player.getClass().getField("gameMode");
+            return gameModeField.get(player);
+        } catch (ReflectiveOperationException ignored) {
+            // Why this exists: mappings can hide this member; try declared field then methods.
+        }
+
+        try {
+            Field gameModeField = player.getClass().getDeclaredField("gameMode");
+            gameModeField.setAccessible(true);
+            return gameModeField.get(player);
+        } catch (ReflectiveOperationException ignored) {
+            // Why this exists: mappings can expose accessors instead of fields.
+        }
+
+        for (Method method : player.getClass().getMethods()) {
+            if (method.getParameterCount() != 0) {
+                continue;
+            }
+            String lowered = method.getName().toLowerCase(Locale.ROOT);
+            if (!lowered.contains("gamemode")) {
+                continue;
+            }
+            try {
+                Object value = method.invoke(player);
+                if (value != null) {
+                    return value;
+                }
+            } catch (ReflectiveOperationException ignored) {
+                // Why this exists: keep searching alternative accessors.
+            }
+        }
+        return null;
+    }
+
+    private static boolean readBooleanMember(Object owner, String... hints) {
+        for (Method method : owner.getClass().getMethods()) {
+            if (method.getParameterCount() != 0) {
+                continue;
+            }
+            if (!boolean.class.equals(method.getReturnType()) && !Boolean.class.equals(method.getReturnType())) {
+                continue;
+            }
+            String lowered = method.getName().toLowerCase(Locale.ROOT);
+            for (String hint : hints) {
+                if (lowered.contains(hint.toLowerCase(Locale.ROOT))) {
+                    try {
+                        Object value = method.invoke(owner);
+                        if (value instanceof Boolean flag && flag) {
+                            return true;
+                        }
+                    } catch (ReflectiveOperationException ignored) {
+                        // Why this exists: continue trying fallback members.
+                    }
+                }
+            }
+        }
+
+        for (Field field : owner.getClass().getDeclaredFields()) {
+            if (!boolean.class.equals(field.getType()) && !Boolean.class.equals(field.getType())) {
+                continue;
+            }
+            String lowered = field.getName().toLowerCase(Locale.ROOT);
+            for (String hint : hints) {
+                if (lowered.contains(hint.toLowerCase(Locale.ROOT))) {
+                    try {
+                        field.setAccessible(true);
+                        if (field.getBoolean(owner)) {
+                            return true;
+                        }
+                    } catch (ReflectiveOperationException ignored) {
+                        // Why this exists: continue trying fallback members.
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private static BlockPos readBlockPosMember(Object owner, String... hints) {
+        for (Method method : owner.getClass().getMethods()) {
+            if (method.getParameterCount() != 0) {
+                continue;
+            }
+            if (!BlockPos.class.isAssignableFrom(method.getReturnType())) {
+                continue;
+            }
+            String lowered = method.getName().toLowerCase(Locale.ROOT);
+            for (String hint : hints) {
+                if (lowered.contains(hint.toLowerCase(Locale.ROOT))) {
+                    try {
+                        Object value = method.invoke(owner);
+                        if (value instanceof BlockPos pos) {
+                            return pos;
+                        }
+                    } catch (ReflectiveOperationException ignored) {
+                        // Why this exists: continue trying fallback members.
+                    }
+                }
+            }
+        }
+
+        for (Field field : owner.getClass().getDeclaredFields()) {
+            if (!BlockPos.class.isAssignableFrom(field.getType())) {
+                continue;
+            }
+            String lowered = field.getName().toLowerCase(Locale.ROOT);
+            for (String hint : hints) {
+                if (lowered.contains(hint.toLowerCase(Locale.ROOT))) {
+                    try {
+                        field.setAccessible(true);
+                        Object value = field.get(owner);
+                        if (value instanceof BlockPos pos) {
+                            return pos;
+                        }
+                    } catch (ReflectiveOperationException ignored) {
+                        // Why this exists: continue trying fallback members.
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private static boolean isTargetInRangeAndSolid(ServerPlayer player, BlockPos pos) {
+        if (pos == null) {
+            return false;
+        }
+        if (player.level().getBlockState(pos).isAir()) {
+            return false;
+        }
+
+        double x = player.getX() - (pos.getX() + 0.5D);
+        double y = player.getY() - (pos.getY() + 0.5D);
+        double z = player.getZ() - (pos.getZ() + 0.5D);
+        return x * x + y * y + z * z <= TARGET_RANGE_SQ;
+    }
     private enum ToolKind {
         PICKAXE,
         AXE,
@@ -113,15 +277,22 @@ public class SubstitutionAgent extends Agent {
 
         ItemStack replacement = best.stack();
         if (replacement.isEmpty() || ItemStack.isSameItemSameComponents(held, replacement)) {
+            touchRestoreState();
             return finish("best candidate equals held");
         }
 
-        ItemStack previous = held.copy();
-        player.setItemInHand(hand, replacement.copy());
-        player.getInventory().setItem(best.slot(), previous);
+        if (hand != InteractionHand.MAIN_HAND) {
+            return finish("substitution currently supports main hand only");
+        }
+
+        int previousSelectedSlot = hand == InteractionHand.MAIN_HAND ? selectedHotbarSlot() : -1;
+        if (!setSelectedHotbarSlot(player, best.slot())) {
+            return finish("unable to set selected hotbar slot");
+        }
+        rememberRestoreState(previousSelectedSlot, best.slot());
 
         LogUtils.logDebug(
-            "Substitution switched player={} hand={} slot={} held={} replacement={} target={} requiredKind={}",
+            "Substitution selected slot player={} hand={} slot={} held={} replacement={} target={} requiredKind={}",
             player.getScoreboardName(),
             hand,
             best.slot(),
@@ -142,7 +313,7 @@ public class SubstitutionAgent extends Agent {
         }
 
         int selectedHotbarSlot = selectedHotbarSlot();
-        for (int slot = 0; slot < Math.min(INVENTORY_TOOL_SLOTS, player.getInventory().getContainerSize()); slot++) {
+        for (int slot = 0; slot < Math.min(HOTBAR_TOOL_SLOTS, player.getInventory().getContainerSize()); slot++) {
             ItemStack stack = player.getInventory().getItem(slot);
             if (stack.isEmpty()) {
                 continue;
@@ -446,6 +617,225 @@ public class SubstitutionAgent extends Agent {
     }
 
     private int selectedHotbarSlot() {
+        return selectedHotbarSlot(player);
+    }
+
+    private void rememberRestoreState(int previousSelectedSlot, int switchedToSlot) {
+        if (!config.switchBack()) {
+            clearRestoreState(player, hand);
+            return;
+        }
+
+        RestoreKey key = new RestoreKey(player.getUUID(), hand);
+        RESTORE_STATES.put(
+            key,
+            new RestoreState(
+                previousSelectedSlot,
+                switchedToSlot,
+                player.level().getGameTime(),
+                action
+            )
+        );
+    }
+
+    private void touchRestoreState() {
+        touchRestoreState(player, hand);
+    }
+
+    public static boolean shouldQueueStartSubstitution(
+        ServerPlayer player,
+        InteractionHand hand,
+        SubstitutionAction action,
+        BlockPos targetPos
+    ) {
+        if (player == null || hand == null || action == null || targetPos == null) {
+            return true;
+        }
+
+        long now = player.level().getGameTime();
+        QueueKey key = new QueueKey(player.getUUID(), hand, action);
+        QueueState previous = QUEUE_STATES.get(key);
+        if (previous != null) {
+            boolean sameTarget = previous.lastTargetPos().equals(targetPos);
+            if (sameTarget && now - previous.lastQueuedTick() <= QUEUE_DEDUPE_TICKS) {
+                QUEUE_STATES.put(key, previous.withLastSeenTick(now));
+                touchRestoreState(player, hand);
+                return false;
+            }
+        }
+
+        QUEUE_STATES.put(key, new QueueState(targetPos.immutable(), now, now));
+        touchRestoreState(player, hand);
+        return true;
+    }
+
+    public static void markSubstitutionActivity(ServerPlayer player, InteractionHand hand, SubstitutionAction action, BlockPos targetPos) {
+        if (player == null || hand == null || action == null || targetPos == null) {
+            return;
+        }
+
+        long now = player.level().getGameTime();
+        QueueKey key = new QueueKey(player.getUUID(), hand, action);
+        QueueState previous = QUEUE_STATES.get(key);
+        if (previous == null) {
+            QUEUE_STATES.put(key, new QueueState(targetPos.immutable(), now, now));
+        } else {
+            QUEUE_STATES.put(key, previous.withTargetAndSeen(targetPos.immutable(), now));
+        }
+        touchRestoreState(player, hand);
+    }
+
+    private static void touchRestoreState(ServerPlayer player, InteractionHand hand) {
+        RestoreKey key = new RestoreKey(player.getUUID(), hand);
+        RestoreState state = RESTORE_STATES.get(key);
+        if (state == null) {
+            return;
+        }
+
+        RESTORE_STATES.put(key, state.withLastActivityTick(player.level().getGameTime()));
+    }
+
+    public static void processSwitchBack(ServerPlayer player) {
+        if (player == null) {
+            return;
+        }
+
+        processSwitchBack(player, InteractionHand.MAIN_HAND);
+        processSwitchBack(player, InteractionHand.OFF_HAND);
+    }
+
+    public static void clearRestoreState(ServerPlayer player) {
+        if (player == null) {
+            return;
+        }
+
+        clearRestoreState(player, InteractionHand.MAIN_HAND);
+        clearRestoreState(player, InteractionHand.OFF_HAND);
+        QUEUE_STATES.keySet().removeIf(key -> key.playerId().equals(player.getUUID()));
+    }
+
+    private static void processSwitchBack(ServerPlayer player, InteractionHand hand) {
+        RestoreKey key = new RestoreKey(player.getUUID(), hand);
+        RestoreState state = RESTORE_STATES.get(key);
+        if (state == null) {
+            return;
+        }
+
+        long now = player.level().getGameTime();
+        if (now - state.lastActivityTick() <= RESTORE_IDLE_TICKS) {
+            return;
+        }
+
+        QueueState queueState = QUEUE_STATES.get(new QueueKey(player.getUUID(), hand, state.action()));
+        if (state.action() == SubstitutionAction.BREAK && hasActiveBreakTarget(player, queueState)) {
+            RESTORE_STATES.put(key, state.withLastActivityTick(now));
+            return;
+        }
+
+        if (queueState != null && now - queueState.lastSeenTick() <= RESTORE_IDLE_TICKS) {
+            RESTORE_STATES.put(key, state.withLastActivityTick(now));
+            return;
+        }
+
+        if (isStillUsingTool(player)) {
+            RESTORE_STATES.put(key, state.withLastActivityTick(now));
+            return;
+        }
+
+        if (hand == InteractionHand.MAIN_HAND) {
+            int selectedSlot = selectedHotbarSlot(player);
+            if (selectedSlot != state.switchedToSlot()) {
+                RESTORE_STATES.remove(key);
+                LogUtils.logDebug(
+                    "Substitution restore skipped player={} hand={} reason=selected-slot-changed expected={} current={}",
+                    player.getScoreboardName(),
+                    hand,
+                    state.switchedToSlot(),
+                    selectedSlot
+                );
+                return;
+            }
+        }
+
+        if (state.previousSelectedSlot() < 0 || state.previousSelectedSlot() >= Math.min(HOTBAR_TOOL_SLOTS, player.getInventory().getContainerSize())) {
+            RESTORE_STATES.remove(key);
+            return;
+        }
+
+        if (!setSelectedHotbarSlot(player, state.previousSelectedSlot())) {
+            RESTORE_STATES.remove(key);
+            return;
+        }
+        RESTORE_STATES.remove(key);
+
+        LogUtils.logDebug(
+            "Substitution restored player={} hand={} slot={} action={}",
+            player.getScoreboardName(),
+            hand,
+            state.previousSelectedSlot(),
+            state.action()
+        );
+    }
+
+    private static void clearRestoreState(ServerPlayer player, InteractionHand hand) {
+        RESTORE_STATES.remove(new RestoreKey(player.getUUID(), hand));
+    }
+
+    private static boolean isStillUsingTool(ServerPlayer player) {
+        if (player.isUsingItem()) {
+            return true;
+        }
+
+        for (Method method : player.getClass().getMethods()) {
+            if (method.getParameterCount() != 0) {
+                continue;
+            }
+            if (!boolean.class.equals(method.getReturnType()) && !Boolean.class.equals(method.getReturnType())) {
+                continue;
+            }
+
+            String name = method.getName();
+            String lowered = name.toLowerCase(Locale.ROOT);
+            if (!lowered.contains("swing")) {
+                continue;
+            }
+
+            try {
+                Object value = method.invoke(player);
+                if (value instanceof Boolean flag && flag) {
+                    return true;
+                }
+            } catch (ReflectiveOperationException ignored) {
+                // Why this exists: mixed mappings differ across targets and should not break restore logic.
+            }
+        }
+
+        for (Method method : player.getClass().getMethods()) {
+            if (method.getParameterCount() != 0) {
+                continue;
+            }
+            if (!int.class.equals(method.getReturnType()) && !Integer.class.equals(method.getReturnType())) {
+                continue;
+            }
+
+            String lowered = method.getName().toLowerCase(Locale.ROOT);
+            if (!lowered.contains("swing")) {
+                continue;
+            }
+
+            try {
+                Object value = method.invoke(player);
+                if (value instanceof Integer counter && counter > 0) {
+                    return true;
+                }
+            } catch (ReflectiveOperationException ignored) {
+                // Why this exists: mixed mappings differ across targets and should not break restore logic.
+            }
+        }
+        return false;
+    }
+
+    private static int selectedHotbarSlot(ServerPlayer player) {
         try {
             Method getSelectedSlot = player.getInventory().getClass().getMethod("getSelectedSlot");
             Object value = getSelectedSlot.invoke(player.getInventory());
@@ -455,7 +845,117 @@ public class SubstitutionAgent extends Agent {
         } catch (ReflectiveOperationException ignored) {
             // Why this exists: fall through to a safe default for mixed mappings.
         }
+
+        try {
+            Field selectedField = player.getInventory().getClass().getDeclaredField("selected");
+            selectedField.setAccessible(true);
+            return selectedField.getInt(player.getInventory());
+        } catch (ReflectiveOperationException ignored) {
+            // Why this exists: mixed mappings may expose selected slot as a field.
+        }
         return 0;
+    }
+
+    private static boolean setSelectedHotbarSlot(ServerPlayer player, int slot) {
+        if (slot < 0 || slot >= HOTBAR_TOOL_SLOTS) {
+            return false;
+        }
+
+        Object inventory = player.getInventory();
+        boolean selected = false;
+        try {
+            Method method = inventory.getClass().getMethod("setSelectedSlot", int.class);
+            method.invoke(inventory, slot);
+            selected = true;
+        } catch (ReflectiveOperationException ignored) {
+            // Why this exists: try alternate names/field for mixed mappings.
+        }
+
+        if (!selected) {
+            try {
+                Method method = inventory.getClass().getMethod("setSelected", int.class);
+                method.invoke(inventory, slot);
+                selected = true;
+            } catch (ReflectiveOperationException ignored) {
+                // Why this exists: try alternate names/field for mixed mappings.
+            }
+        }
+
+        if (!selected) {
+            try {
+                Field selectedField = inventory.getClass().getDeclaredField("selected");
+                selectedField.setAccessible(true);
+                selectedField.setInt(inventory, slot);
+                selected = true;
+            } catch (ReflectiveOperationException ignored) {
+                // Why this exists: mixed mappings may expose selected slot as a field.
+            }
+        }
+
+        if (selected) {
+            syncSelectedSlotToClient(player, slot);
+        }
+        return selected;
+    }
+
+    private static void syncSelectedSlotToClient(ServerPlayer player, int slot) {
+        Object connection = null;
+        try {
+            Field connectionField = player.getClass().getField("connection");
+            connection = connectionField.get(player);
+        } catch (ReflectiveOperationException ignored) {
+            // Why this exists: mappings differ; try accessor method next.
+        }
+
+        if (connection == null) {
+            for (Method method : player.getClass().getMethods()) {
+                if (method.getParameterCount() == 0 && method.getName().toLowerCase(Locale.ROOT).contains("connection")) {
+                    try {
+                        connection = method.invoke(player);
+                        break;
+                    } catch (ReflectiveOperationException ignored) {
+                        // Why this exists: continue probing compatible accessors.
+                    }
+                }
+            }
+        }
+
+        if (connection == null) {
+            return;
+        }
+
+        Object packet = tryCreateHeldSlotPacket(slot);
+        if (packet == null) {
+            return;
+        }
+
+        for (Method method : connection.getClass().getMethods()) {
+            if (!"send".equals(method.getName()) || method.getParameterCount() != 1) {
+                continue;
+            }
+            try {
+                method.invoke(connection, packet);
+                return;
+            } catch (ReflectiveOperationException ignored) {
+                // Why this exists: method signatures differ by target; try next overload.
+            }
+        }
+    }
+
+    private static Object tryCreateHeldSlotPacket(int slot) {
+        String[] packetTypes = new String[] {
+            "net.minecraft.network.protocol.game.ClientboundSetHeldSlotPacket",
+            "net.minecraft.network.protocol.game.ClientboundSetCarriedItemPacket"
+        };
+        for (String packetType : packetTypes) {
+            try {
+                Class<?> type = Class.forName(packetType);
+                return type.getConstructor(int.class).newInstance(slot);
+            } catch (ReflectiveOperationException ignored) {
+                // Why this exists: class names differ across versions/mappings.
+            }
+        }
+        return null;
     }
 
     private int enchantmentLevel(ItemStack stack, Object enchantmentKey) {
@@ -556,6 +1056,33 @@ public class SubstitutionAgent extends Agent {
         boolean requireMending,
         boolean denyMending
     ) {
+    }
+
+    private record RestoreKey(UUID playerId, InteractionHand hand) {
+    }
+
+    private record RestoreState(
+        int previousSelectedSlot,
+        int switchedToSlot,
+        long lastActivityTick,
+        SubstitutionAction action
+    ) {
+        private RestoreState withLastActivityTick(long tick) {
+            return new RestoreState(previousSelectedSlot, switchedToSlot, tick, action);
+        }
+    }
+
+    private record QueueKey(UUID playerId, InteractionHand hand, SubstitutionAction action) {
+    }
+
+    private record QueueState(BlockPos lastTargetPos, long lastQueuedTick, long lastSeenTick) {
+        private QueueState withLastSeenTick(long tick) {
+            return new QueueState(lastTargetPos, lastQueuedTick, tick);
+        }
+
+        private QueueState withTargetAndSeen(BlockPos targetPos, long tick) {
+            return new QueueState(targetPos, lastQueuedTick, tick);
+        }
     }
 
     private static final class BooleanExpressionParser {
