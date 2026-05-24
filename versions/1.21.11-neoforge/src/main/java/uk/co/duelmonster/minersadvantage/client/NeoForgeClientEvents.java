@@ -15,8 +15,8 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-import uk.co.duelmonster.minersadvantage.common.config.ServerOverridesConfig;
-import uk.co.duelmonster.minersadvantage.common.config.SyncedClientConfig;
+import uk.co.duelmonster.minersadvantage.common.config.MAClientRootConfig;
+import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 import uk.co.duelmonster.minersadvantage.common.network.AbortWorkersPacket;
 import uk.co.duelmonster.minersadvantage.common.network.ComponentTogglePacket;
 import uk.co.duelmonster.minersadvantage.common.network.PlayerStateSyncPacket;
@@ -102,12 +102,10 @@ public final class NeoForgeClientEvents {
             if (minecraft.player != null) {
                 playerId = minecraft.player.getUUID().getLeastSignificantBits();
             }
-            SyncedClientConfig defaults = SyncedClientConfig.defaults();
             ClientPacketDistributor.sendToServer(new PlayerStateSyncPacket(
                 playerId,
-                defaults,
-                defaults,
-                new ServerOverridesConfig()
+                MAClientRootConfig.defaults(),
+                MAServerRootConfig.defaults()
             ));
         }
     }

@@ -5,8 +5,8 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import uk.co.duelmonster.minersadvantage.common.config.ServerOverridesConfig;
-import uk.co.duelmonster.minersadvantage.common.config.SyncedClientConfig;
+import uk.co.duelmonster.minersadvantage.common.config.MAClientRootConfig;
+import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 
 /**
  * PlayerStateSyncPacket keeps this part of Miners Advantage running without turning server ticks into confetti.
@@ -14,9 +14,8 @@ import uk.co.duelmonster.minersadvantage.common.config.SyncedClientConfig;
  */
 public record PlayerStateSyncPacket(
     long playerId,
-    SyncedClientConfig clientConfig,
-    SyncedClientConfig serverConfig,
-    ServerOverridesConfig serverOverrides,
+    MAClientRootConfig clientConfig,
+    MAServerRootConfig serverConfig,
     boolean excavationToggled,
     boolean singleLayerToggled,
     boolean shaftVentToggled
@@ -28,11 +27,10 @@ public record PlayerStateSyncPacket(
 
     public PlayerStateSyncPacket(
         long playerId,
-        SyncedClientConfig clientConfig,
-        SyncedClientConfig serverConfig,
-        ServerOverridesConfig serverOverrides
+        MAClientRootConfig clientConfig,
+        MAServerRootConfig serverConfig
     ) {
-        this(playerId, clientConfig, serverConfig, serverOverrides, false, false, false);
+        this(playerId, clientConfig, serverConfig, false, false, false);
     }
 
     @Override
@@ -69,19 +67,16 @@ public record PlayerStateSyncPacket(
                 packet -> GSON.toJson(packet.clientConfig()),
                 ByteBufCodecs.STRING_UTF8,
                 packet -> GSON.toJson(packet.serverConfig()),
-                ByteBufCodecs.STRING_UTF8,
-                packet -> GSON.toJson(packet.serverOverrides()),
                 ByteBufCodecs.BOOL,
                 PlayerStateSyncPacket::excavationToggled,
                 ByteBufCodecs.BOOL,
                 PlayerStateSyncPacket::singleLayerToggled,
                 ByteBufCodecs.BOOL,
                 PlayerStateSyncPacket::shaftVentToggled,
-                (playerId, clientJson, serverJson, overridesJson, excavationToggled, singleLayerToggled, shaftVentToggled) -> new PlayerStateSyncPacket(
+                (playerId, clientJson, serverJson, excavationToggled, singleLayerToggled, shaftVentToggled) -> new PlayerStateSyncPacket(
                     playerId,
-                    GSON.fromJson(clientJson, SyncedClientConfig.class),
-                    GSON.fromJson(serverJson, SyncedClientConfig.class),
-                    GSON.fromJson(overridesJson, ServerOverridesConfig.class),
+                    GSON.fromJson(clientJson, MAClientRootConfig.class),
+                    GSON.fromJson(serverJson, MAServerRootConfig.class),
                     excavationToggled,
                     singleLayerToggled,
                     shaftVentToggled

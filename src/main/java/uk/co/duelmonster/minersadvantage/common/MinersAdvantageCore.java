@@ -15,8 +15,8 @@ import uk.co.duelmonster.minersadvantage.common.config.ExcavationConfig;
 import uk.co.duelmonster.minersadvantage.common.config.IlluminationConfig;
 import uk.co.duelmonster.minersadvantage.common.config.LumbinationConfig;
 import uk.co.duelmonster.minersadvantage.common.config.MAConfig_Base;
+import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 import uk.co.duelmonster.minersadvantage.common.config.PathanationConfig;
-import uk.co.duelmonster.minersadvantage.common.config.ServerOverridesConfig;
 import uk.co.duelmonster.minersadvantage.common.config.ShaftanationConfig;
 import uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig;
 import uk.co.duelmonster.minersadvantage.common.config.SyncedClientConfig;
@@ -61,7 +61,6 @@ public final class MinersAdvantageCore {
     private final SyncCoreService syncCoreService;
     private final SupremeVantageService supremeVantageService;
     private final SyncedClientConfig defaultConfig;
-    private final ServerOverridesConfig defaultServerOverrides;
 
     /**
      * MinersAdvantageCore exists so this code path does one job clearly instead of spreading chaos across callers.
@@ -74,7 +73,6 @@ public final class MinersAdvantageCore {
         this.syncCoreService = new SyncCoreService();
         this.supremeVantageService = new SupremeVantageService();
         this.defaultConfig = MAConfig_Base.getGlobalConfig();
-        this.defaultServerOverrides = new ServerOverridesConfig();
     }
 
     /**
@@ -189,7 +187,8 @@ public final class MinersAdvantageCore {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public SyncCoreService.PlayerSyncState handlePlayerStateSyncPacket(PlayerStateSyncPacket packet) {
-        LogUtils.logDebug("Synchronizing player state playerId={} commonConfig={}", packet.playerId(), packet.clientConfig().common());
+        MAServerRootConfig authoritativeServerConfig = MAConfig_Base.getServerRootConfig();
+        LogUtils.logDebug("Synchronizing player state playerId={} commonConfig={}", packet.playerId(), authoritativeServerConfig.common());
         PlayerStateService.PlayerState current = playerStateService.getPlayerState(packet.playerId());
         playerStateService.updatePlayerState(
             packet.playerId(),
@@ -206,11 +205,11 @@ public final class MinersAdvantageCore {
         SyncCoreService.PlayerSyncState state = syncCoreService.synchronize(
             packet.playerId(),
             packet.clientConfig(),
-            packet.serverConfig(),
-            packet.serverOverrides(),
+            authoritativeServerConfig,
             policyCoreService
         );
-        MAConfig_Base.setGlobalConfig(state.effectiveConfig());
+        MAConfig_Base.setClientRootConfig(state.clientConfig());
+        MAConfig_Base.setServerRootConfig(state.serverConfig());
         return state;
     }
 
@@ -295,11 +294,4 @@ public final class MinersAdvantageCore {
         return supremeVantageService;
     }
 
-    /**
-     * defaultServerOverrides exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    public ServerOverridesConfig defaultServerOverrides() {
-        return defaultServerOverrides;
-    }
 }

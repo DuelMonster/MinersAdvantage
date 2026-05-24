@@ -2,11 +2,11 @@
 package uk.co.duelmonster.minersadvantage.client;
 
 import java.util.HashSet;
-import java.util.List;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Set;
-import uk.co.duelmonster.minersadvantage.common.config.ServerOverridesConfig;
-import uk.co.duelmonster.minersadvantage.common.config.SyncedClientConfig;
+import uk.co.duelmonster.minersadvantage.common.config.MAClientRootConfig;
+import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 import uk.co.duelmonster.minersadvantage.common.network.AbortWorkersPacket;
 import uk.co.duelmonster.minersadvantage.common.network.ComponentTogglePacket;
 import uk.co.duelmonster.minersadvantage.common.network.PlayerStateSyncPacket;
@@ -204,12 +204,10 @@ public final class ClientInputHandler {
             if (playerClient.player != null) {
                 playerId = playerClient.player.getUUID().getLeastSignificantBits();
             }
-            SyncedClientConfig defaults = SyncedClientConfig.defaults();
             ClientPlayNetworking.send(new PlayerStateSyncPacket(
                 playerId,
-                defaults,
-                defaults,
-                new ServerOverridesConfig(),
+                MAClientRootConfig.defaults(),
+                MAServerRootConfig.defaults(),
                 result.state().excavationToggled(),
                 result.state().singleLayerToggled(),
                 result.state().shaftVentToggled()

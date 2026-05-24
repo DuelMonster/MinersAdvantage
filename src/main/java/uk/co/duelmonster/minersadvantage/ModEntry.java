@@ -33,7 +33,8 @@ import uk.co.duelmonster.minersadvantage.agent.SubstitutionAgent;
 import uk.co.duelmonster.minersadvantage.agent.VeinationAgent;
 import uk.co.duelmonster.minersadvantage.agent.VentilationAgent;
 import uk.co.duelmonster.minersadvantage.common.MinersAdvantageCore;
-import uk.co.duelmonster.minersadvantage.common.config.ServerOverridesConfig;
+import uk.co.duelmonster.minersadvantage.common.config.MAClientRootConfig;
+import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 import uk.co.duelmonster.minersadvantage.common.config.MAConfig_Base;
 import uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig;
 import uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig.SubstitutionAction;
@@ -331,8 +332,9 @@ public final class ModEntry implements ModInitializer {
     private void onPlayerLogin(ServerPlayer player) {
         long playerId = playerId(player);
         LogUtils.logInfo("Player login player={} id={}", player.getScoreboardName(), playerId);
-        SyncedClientConfig global = MAConfig_Base.getGlobalConfig();
-        core.handlePlayerStateSyncPacket(new PlayerStateSyncPacket(playerId, global, global, new ServerOverridesConfig()));
+        MAClientRootConfig clientConfig = MAConfig_Base.getClientRootConfig();
+        MAServerRootConfig serverConfig = MAConfig_Base.getServerRootConfig();
+        core.handlePlayerStateSyncPacket(new PlayerStateSyncPacket(playerId, clientConfig, serverConfig));
     }
 
     private void onPlayerLogout(ServerPlayer player) {
@@ -525,8 +527,9 @@ public final class ModEntry {
         }
         long playerId = playerId(player);
         LogUtils.logInfo("Player login player={} id={}", player.getScoreboardName(), playerId);
-        SyncedClientConfig defaults = SyncedClientConfig.defaults();
-        core.handlePlayerStateSyncPacket(new PlayerStateSyncPacket(playerId, defaults, defaults, new ServerOverridesConfig()));
+        MAClientRootConfig clientConfig = MAConfig_Base.getClientRootConfig();
+        MAServerRootConfig serverConfig = MAConfig_Base.getServerRootConfig();
+        core.handlePlayerStateSyncPacket(new PlayerStateSyncPacket(playerId, clientConfig, serverConfig));
     }
 
     private void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {

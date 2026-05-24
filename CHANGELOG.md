@@ -12,6 +12,9 @@
 - Restrict substitution candidate selection to hotbar slots and switch held tool by selected slot change rather than stack swapping.
 - Add start-trigger de-duplication and activity tracking to avoid repeated queueing while mining or interacting continuously.
 - Improve switch-back timing so restore waits for break-target activity to end instead of reverting mid-action.
+- Migrate configuration to split `MAClientRootConfig` and `MAServerRootConfig` roots with TOML-backed persistence for client/server state.
+- Simplify player sync transport and policy flow to server-authoritative gameplay configuration with typed root snapshots.
+- Replace legacy config category wrappers with unified root-based UI bindings and remote-multiplayer authority lock messaging.
 
 ## 0.4.0
 

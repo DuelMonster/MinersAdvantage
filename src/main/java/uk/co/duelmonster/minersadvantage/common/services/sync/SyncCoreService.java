@@ -2,7 +2,8 @@ package uk.co.duelmonster.minersadvantage.common.services.sync;
 
 import java.util.HashMap;
 import java.util.Map;
-import uk.co.duelmonster.minersadvantage.common.config.ServerOverridesConfig;
+import uk.co.duelmonster.minersadvantage.common.config.MAClientRootConfig;
+import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 import uk.co.duelmonster.minersadvantage.common.config.SyncedClientConfig;
 import uk.co.duelmonster.minersadvantage.common.services.policy.PolicyCoreService;
 
@@ -18,9 +19,8 @@ public final class SyncCoreService {
     public record PlayerSyncState(
         long playerId,
         long revision,
-        SyncedClientConfig clientConfig,
-        SyncedClientConfig serverConfig,
-        ServerOverridesConfig serverOverrides,
+        MAClientRootConfig clientConfig,
+        MAServerRootConfig serverConfig,
         SyncedClientConfig effectiveConfig
     ) {}
 
@@ -28,15 +28,18 @@ public final class SyncCoreService {
 
     public PlayerSyncState synchronize(
         long playerId,
-        SyncedClientConfig clientConfig,
-        SyncedClientConfig serverConfig,
-        ServerOverridesConfig serverOverrides,
+        MAClientRootConfig clientConfig,
+        MAServerRootConfig serverConfig,
         PolicyCoreService policyCoreService
     ) {
         PlayerSyncState previous = perPlayerState.get(playerId);
         long revision = previous == null ? 1L : previous.revision() + 1L;
-        SyncedClientConfig effectiveConfig = policyCoreService.applyServerOverrides(clientConfig, serverConfig, serverOverrides);
-        PlayerSyncState state = new PlayerSyncState(playerId, revision, clientConfig, serverConfig, serverOverrides, effectiveConfig);
+        MAClientRootConfig clientValue = clientConfig == null ? MAClientRootConfig.defaults() : clientConfig;
+        MAServerRootConfig serverValue = serverConfig == null ? MAServerRootConfig.defaults() : serverConfig;
+        SyncedClientConfig clientSynced = clientValue.toSyncedConfig(serverValue);
+        SyncedClientConfig serverSynced = serverValue.toSyncedConfig(clientValue.client());
+        SyncedClientConfig effectiveConfig = policyCoreService.applyServerAuthoritative(clientSynced, serverSynced);
+        PlayerSyncState state = new PlayerSyncState(playerId, revision, clientValue, serverValue, effectiveConfig);
         perPlayerState.put(playerId, state);
         return state;
     }
@@ -51,9 +54,8 @@ public final class SyncCoreService {
             new PlayerSyncState(
                 playerId,
                 0L,
-                SyncedClientConfig.defaults(),
-                SyncedClientConfig.defaults(),
-                new ServerOverridesConfig(),
+                MAClientRootConfig.defaults(),
+                MAServerRootConfig.defaults(),
                 SyncedClientConfig.defaults()
             )
         );

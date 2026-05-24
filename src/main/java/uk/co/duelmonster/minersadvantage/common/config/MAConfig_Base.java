@@ -1,13 +1,11 @@
 package uk.co.duelmonster.minersadvantage.common.config;
 
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Objects;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import uk.co.duelmonster.minersadvantage.common.JsonHelper;
+import uk.co.duelmonster.minersadvantage.common.config.storage.MATomlConfigStore;
 import uk.co.duelmonster.minersadvantage.common.log.LogUtils;
 
 /**
@@ -15,9 +13,14 @@ import uk.co.duelmonster.minersadvantage.common.log.LogUtils;
  */
 public class MAConfig_Base {
     private static final Path CONFIG_DIR = Path.of(System.getProperty("user.dir"), "config", "minersadvantage");
-    private static final Path GLOBAL_CONFIG_FILE = CONFIG_DIR.resolve("client-config.json");
+    private static final Path LEGACY_JSON_CONFIG_FILE = CONFIG_DIR.resolve("client-config.json");
     private static final Map<UUID, SyncedClientConfig> PLAYER_CONFIGS = new ConcurrentHashMap<>();
-    private static volatile SyncedClientConfig globalConfig = loadGlobalConfig();
+    private static volatile MAClientRootConfig clientRootConfig = MAClientRootConfig.defaults();
+    private static volatile MAServerRootConfig serverRootConfig = MAServerRootConfig.defaults();
+
+    static {
+        setGlobalConfigInternal(loadGlobalConfig());
+    }
 
     protected MAConfig_Base() {}
 
@@ -27,9 +30,9 @@ public class MAConfig_Base {
      */
     public static SyncedClientConfig getPlayerConfig(UUID playerId) {
         if (playerId == null) {
-            return globalConfig;
+            return getGlobalConfig();
         }
-        return PLAYER_CONFIGS.getOrDefault(playerId, globalConfig);
+        return PLAYER_CONFIGS.getOrDefault(playerId, getGlobalConfig());
     }
 
     /**
@@ -37,7 +40,15 @@ public class MAConfig_Base {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public static SyncedClientConfig getGlobalConfig() {
-        return globalConfig;
+        return serverRootConfig.toSyncedConfig(clientRootConfig.client());
+    }
+
+    public static MAClientRootConfig getClientRootConfig() {
+        return clientRootConfig;
+    }
+
+    public static MAServerRootConfig getServerRootConfig() {
+        return serverRootConfig;
     }
 
     /**
@@ -45,8 +56,18 @@ public class MAConfig_Base {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public static void setGlobalConfig(SyncedClientConfig config) {
-        globalConfig = config == null ? SyncedClientConfig.defaults() : config;
-        saveGlobalConfig(globalConfig);
+        setGlobalConfigInternal(config == null ? SyncedClientConfig.defaults() : config);
+        saveGlobalConfig(getGlobalConfig());
+    }
+
+    public static void setClientRootConfig(MAClientRootConfig clientConfig) {
+        clientRootConfig = clientConfig == null ? MAClientRootConfig.defaults() : clientConfig;
+        saveGlobalConfig(getGlobalConfig());
+    }
+
+    public static void setServerRootConfig(MAServerRootConfig serverConfig) {
+        serverRootConfig = serverConfig == null ? MAServerRootConfig.defaults() : serverConfig;
+        saveGlobalConfig(getGlobalConfig());
     }
 
     /**
@@ -86,30 +107,35 @@ public class MAConfig_Base {
     private static SyncedClientConfig loadGlobalConfig() {
         try {
             Files.createDirectories(CONFIG_DIR);
-            if (Files.isRegularFile(GLOBAL_CONFIG_FILE)) {
-                String json = Files.readString(GLOBAL_CONFIG_FILE, StandardCharsets.UTF_8);
-                SyncedClientConfig parsed = JsonHelper.fromJson(json, SyncedClientConfig.class);
-                if (parsed != null) {
-                    return parsed;
-                }
-                LogUtils.logWarn("Config parse failed for {}. Recreating with defaults.", GLOBAL_CONFIG_FILE);
-            }
         } catch (Exception exception) {
-            LogUtils.logWarn("Unable to load config from {}: {}", GLOBAL_CONFIG_FILE, exception.getMessage());
+            LogUtils.logWarn("Unable to create config directory {}: {}", CONFIG_DIR, exception.getMessage());
         }
 
-        SyncedClientConfig defaults = SyncedClientConfig.defaults();
-        saveGlobalConfig(defaults);
-        return defaults;
+        SyncedClientConfig loaded = MATomlConfigStore.load(CONFIG_DIR, SyncedClientConfig.defaults());
+        setGlobalConfigInternal(loaded);
+        saveGlobalConfig(getGlobalConfig());
+        removeLegacyJsonConfig();
+        return loaded;
     }
 
     private static void saveGlobalConfig(SyncedClientConfig config) {
-        SyncedClientConfig value = Objects.requireNonNullElseGet(config, SyncedClientConfig::defaults);
+        MATomlConfigStore.save(CONFIG_DIR, config == null ? SyncedClientConfig.defaults() : config);
+    }
+
+    private static void setGlobalConfigInternal(SyncedClientConfig config) {
+        SyncedClientConfig value = config == null ? SyncedClientConfig.defaults() : config;
+        clientRootConfig = MAClientRootConfig.fromSyncedConfig(value);
+        serverRootConfig = MAServerRootConfig.fromSyncedConfig(value);
+    }
+
+    private static void removeLegacyJsonConfig() {
+        if (!Files.isRegularFile(LEGACY_JSON_CONFIG_FILE)) {
+            return;
+        }
         try {
-            Files.createDirectories(CONFIG_DIR);
-            Files.writeString(GLOBAL_CONFIG_FILE, JsonHelper.toJson(value), StandardCharsets.UTF_8);
+            Files.deleteIfExists(LEGACY_JSON_CONFIG_FILE);
         } catch (Exception exception) {
-            LogUtils.logWarn("Unable to save config to {}: {}", GLOBAL_CONFIG_FILE, exception.getMessage());
+            LogUtils.logWarn("Unable to remove legacy JSON config {}: {}", LEGACY_JSON_CONFIG_FILE, exception.getMessage());
         }
     }
 }
