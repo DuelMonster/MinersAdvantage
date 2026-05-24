@@ -1,11 +1,8 @@
 package uk.co.duelmonster.minersadvantage.common.network.packets;
 
 import java.util.UUID;
-import uk.co.duelmonster.minersadvantage.common.JsonHelper;
 import uk.co.duelmonster.minersadvantage.common.SyncType;
 import uk.co.duelmonster.minersadvantage.common.Variables;
-import uk.co.duelmonster.minersadvantage.common.config.MAConfig_Base;
-import uk.co.duelmonster.minersadvantage.common.config.SyncedClientConfig;
 import uk.co.duelmonster.minersadvantage.common.network.packetids.PacketId;
 
 /**
@@ -46,19 +43,6 @@ public class PacketSynchronization implements IMAPacket {
                 Variables.set(senderUuid, pkt.payload);
             } else {
                 Variables.set(pkt.payload);
-            }
-            return;
-        }
-
-        if (pkt.syncType == SyncType.ClientConfig) {
-            SyncedClientConfig config = JsonHelper.fromJson(pkt.payload, SyncedClientConfig.class);
-            if (config == null) {
-                return;
-            }
-            if (playToServer && senderUuid != null) {
-                MAConfig_Base.setPlayerConfig(senderUuid, config);
-            } else {
-                MAConfig_Base.setGlobalConfig(config);
             }
         }
     }

@@ -5,5 +5,5 @@ package uk.co.duelmonster.minersadvantage.common;
  * It exists so behavior stays explicit instead of becoming mystery spaghetti at 2 AM.
  */
 public enum SyncType {
-    Variables, ClientConfig, ServerConfig
+    Variables
 }

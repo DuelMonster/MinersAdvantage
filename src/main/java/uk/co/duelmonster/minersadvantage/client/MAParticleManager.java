@@ -1,6 +1,6 @@
 package uk.co.duelmonster.minersadvantage.client;
 
-import uk.co.duelmonster.minersadvantage.common.config.MAConfig;
+import uk.co.duelmonster.minersadvantage.common.config.MAConfig_Base;
 
 /**
  * Legacy compatibility holder for particle manager interception state.
@@ -49,6 +49,6 @@ public final class MAParticleManager {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public static boolean shouldAddTerrainParticles() {
-        return !MAConfig.CLIENT.disableParticleEffects();
+        return !MAConfig_Base.getClientRootConfig().client().disableParticleEffects();
     }
 }

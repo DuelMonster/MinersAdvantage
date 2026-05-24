@@ -138,6 +138,7 @@ Descriptor-driven registration is handled by ComponentRegistry.
 - `MAClientRootConfig` and `MAServerRootConfig` are the first-class split roots used across storage, sync, and UI paths.
 - TOML is the canonical persisted format with separate client and server files under the Miners Advantage config directory.
 - `SyncedClientConfig` remains as the transport/effective snapshot shape while split roots drive persisted state.
+- Legacy JSON config cleanup paths and legacy `SyncType.ClientConfig` synchronization handling have been removed.
 
 ### Substitution Rule Engine
 

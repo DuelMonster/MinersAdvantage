@@ -9,11 +9,10 @@ import uk.co.duelmonster.minersadvantage.common.config.storage.MATomlConfigStore
 import uk.co.duelmonster.minersadvantage.common.log.LogUtils;
 
 /**
- * Legacy compatibility facade for per-player config lookups.
+ * Central facade for per-player and global config snapshots.
  */
 public class MAConfig_Base {
     private static final Path CONFIG_DIR = Path.of(System.getProperty("user.dir"), "config", "minersadvantage");
-    private static final Path LEGACY_JSON_CONFIG_FILE = CONFIG_DIR.resolve("client-config.json");
     private static final Map<UUID, SyncedClientConfig> PLAYER_CONFIGS = new ConcurrentHashMap<>();
     private static volatile MAClientRootConfig clientRootConfig = MAClientRootConfig.defaults();
     private static volatile MAServerRootConfig serverRootConfig = MAServerRootConfig.defaults();
@@ -114,7 +113,6 @@ public class MAConfig_Base {
         SyncedClientConfig loaded = MATomlConfigStore.load(CONFIG_DIR, SyncedClientConfig.defaults());
         setGlobalConfigInternal(loaded);
         saveGlobalConfig(getGlobalConfig());
-        removeLegacyJsonConfig();
         return loaded;
     }
 
@@ -126,16 +124,5 @@ public class MAConfig_Base {
         SyncedClientConfig value = config == null ? SyncedClientConfig.defaults() : config;
         clientRootConfig = MAClientRootConfig.fromSyncedConfig(value);
         serverRootConfig = MAServerRootConfig.fromSyncedConfig(value);
-    }
-
-    private static void removeLegacyJsonConfig() {
-        if (!Files.isRegularFile(LEGACY_JSON_CONFIG_FILE)) {
-            return;
-        }
-        try {
-            Files.deleteIfExists(LEGACY_JSON_CONFIG_FILE);
-        } catch (Exception exception) {
-            LogUtils.logWarn("Unable to remove legacy JSON config {}: {}", LEGACY_JSON_CONFIG_FILE, exception.getMessage());
-        }
     }
 }
