@@ -97,7 +97,7 @@ public final class VeinationComponent implements ComponentLifecycle {
         }
 
         var context = ComponentTickHelper.getContext();
-        if (RegistryPredicates.isOreLikeBlockId(context.blockId()) && service.sameVein(context.blockId(), context.blockId())) {
+        if (RegistryPredicates.isOreLikeBlockId(context.blockId())) {
             int targetBlocks = service.estimatedBlocksInVein(config.maxVeinDistance(), 1);
             lastVein = service.buildVeinNodes(
                 context.blockX(),

@@ -234,7 +234,12 @@ public final class PolicyCoreService {
         return new VeinationConfig(
             featureEnabled(client.enabled(), server.enabled(), overrides.overrideFeatureEnablement()),
             clampRange(selected.maxVeinDistance(), 1, 64),
-            selected.ores()
+            selected.ores(),
+            selected.oreHarvestWithoutSneak(),
+            selected.dropOresAtFirstBrokenBlock(),
+            selected.increaseHarvestingTimePerOre(),
+            selected.increasedHarvestingTimePerOreModifier(),
+            selected.pickaxeBlacklist()
         );
     }
 

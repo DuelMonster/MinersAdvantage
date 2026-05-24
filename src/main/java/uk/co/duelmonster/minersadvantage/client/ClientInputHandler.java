@@ -198,7 +198,7 @@ public final class ClientInputHandler {
                 || lastSyncedState.singleLayerToggled() != result.state().singleLayerToggled()
                 || lastSyncedState.shaftVentToggled() != result.state().shaftVentToggled();
 
-        if ((activationStateChanged || !pressedSet.isEmpty()) && (result.shouldSyncConfig() || result.shouldSyncVariables())) {
+        if (activationStateChanged && (result.shouldSyncConfig() || result.shouldSyncVariables())) {
             long playerId = 0L;
             Minecraft playerClient = Minecraft.getInstance();
             if (playerClient.player != null) {

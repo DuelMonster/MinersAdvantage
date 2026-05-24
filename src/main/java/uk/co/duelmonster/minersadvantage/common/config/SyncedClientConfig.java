@@ -39,7 +39,7 @@ public record SyncedClientConfig(
             new LumbinationConfig(true, 32, 6, 8, true, true, false, true, true, List.of(), List.of(), List.of()),
             new ShaftanationConfig(true, 16, 10, 1, 2, TorchPlacement.FLOOR),
             new SubstitutionConfig(true, false, false, true, true, true, true, List.of()),
-            new VeinationConfig(true, 4, List.of()),
+            new VeinationConfig(true, 4, List.of(), true, true, true, 0.2D, List.of()),
             new VentilationConfig(true, 1, 16, 8, true)
         );
     }

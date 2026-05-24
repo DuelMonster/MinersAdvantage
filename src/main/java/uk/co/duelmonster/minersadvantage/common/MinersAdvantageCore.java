@@ -14,6 +14,7 @@ import uk.co.duelmonster.minersadvantage.common.config.CultivationConfig;
 import uk.co.duelmonster.minersadvantage.common.config.ExcavationConfig;
 import uk.co.duelmonster.minersadvantage.common.config.IlluminationConfig;
 import uk.co.duelmonster.minersadvantage.common.config.LumbinationConfig;
+import uk.co.duelmonster.minersadvantage.common.config.MAConfig_Base;
 import uk.co.duelmonster.minersadvantage.common.config.PathanationConfig;
 import uk.co.duelmonster.minersadvantage.common.config.ServerOverridesConfig;
 import uk.co.duelmonster.minersadvantage.common.config.ShaftanationConfig;
@@ -72,7 +73,7 @@ public final class MinersAdvantageCore {
         this.policyCoreService = new PolicyCoreService();
         this.syncCoreService = new SyncCoreService();
         this.supremeVantageService = new SupremeVantageService();
-        this.defaultConfig = SyncedClientConfig.defaults();
+        this.defaultConfig = MAConfig_Base.getGlobalConfig();
         this.defaultServerOverrides = new ServerOverridesConfig();
     }
 
@@ -202,13 +203,15 @@ public final class MinersAdvantageCore {
                 packet.shaftVentToggled()
             )
         );
-        return syncCoreService.synchronize(
+        SyncCoreService.PlayerSyncState state = syncCoreService.synchronize(
             packet.playerId(),
             packet.clientConfig(),
             packet.serverConfig(),
             packet.serverOverrides(),
             policyCoreService
         );
+        MAConfig_Base.setGlobalConfig(state.effectiveConfig());
+        return state;
     }
 
     /**

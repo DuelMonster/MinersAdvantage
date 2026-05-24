@@ -1,6 +1,7 @@
 package uk.co.duelmonster.minersadvantage;
 
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 import net.minecraft.core.BlockPos;
@@ -33,9 +34,11 @@ import uk.co.duelmonster.minersadvantage.agent.VeinationAgent;
 import uk.co.duelmonster.minersadvantage.agent.VentilationAgent;
 import uk.co.duelmonster.minersadvantage.common.MinersAdvantageCore;
 import uk.co.duelmonster.minersadvantage.common.config.ServerOverridesConfig;
+import uk.co.duelmonster.minersadvantage.common.config.MAConfig_Base;
 import uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig;
 import uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig.SubstitutionAction;
 import uk.co.duelmonster.minersadvantage.common.config.SyncedClientConfig;
+import uk.co.duelmonster.minersadvantage.common.config.VeinationConfig;
 import uk.co.duelmonster.minersadvantage.common.event.CommonEventHandlerImpl;
 import uk.co.duelmonster.minersadvantage.common.event.ToolEventHandler;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
@@ -43,6 +46,7 @@ import uk.co.duelmonster.minersadvantage.common.feature.utility.SubstitutionComp
 import uk.co.duelmonster.minersadvantage.common.log.LogUtils;
 import uk.co.duelmonster.minersadvantage.common.network.PlayerStateSyncPacket;
 import uk.co.duelmonster.minersadvantage.common.registry.RegistryPredicates;
+import uk.co.duelmonster.minersadvantage.common.services.utility.VeinationRuntimeService;
 
 //? if fabric {
 import net.fabricmc.api.ModInitializer;
@@ -63,6 +67,7 @@ import uk.co.duelmonster.minersadvantage.client.FabricNetworkEvents;
 public final class ModEntry implements ModInitializer {
     private final MinersAdvantageCore core = new MinersAdvantageCore();
     private final ToolEventHandler toolEvents = new CommonEventHandlerImpl(core);
+    private final VeinationRuntimeService veinationRuntime = new VeinationRuntimeService();
 
     @Override
     public void onInitialize() {
@@ -103,15 +108,25 @@ public final class ModEntry implements ModInitializer {
             if (level.isClientSide() || !(player instanceof ServerPlayer serverPlayer)) {
                 return;
             }
-            ItemStack stack = player.getMainHandItem();
+            ItemStack stack = SubstitutionAgent.effectiveBreakHandStack(serverPlayer, InteractionHand.MAIN_HAND);
             String itemId = itemId(stack);
             String brokenBlockId = blockId(state);
             long playerId = playerId(serverPlayer);
             var playerState = core.playerStateService().getPlayerState(playerId);
             boolean shaftModeActive = isFeatureEnabled(FeatureId.SHAFTANATION) && playerState.shaftVentToggled();
             boolean excavationActive = isFeatureEnabled(FeatureId.EXCAVATION) && playerState.isExcavationActive();
+            VeinationConfig veinationConfig = veinationConfig(serverPlayer);
+            boolean veinationGesture = veinationConfig.oreHarvestWithoutSneak() ? !player.isShiftKeyDown() : player.isShiftKeyDown();
+            boolean allowedPickaxe = veinationRuntime.isPickaxeAllowed(level, veinationConfig, stack);
 
-            if (!shaftModeActive && excavationActive && isExcavationTool(stack) && isExcavationBlock(state, stack)) {
+            if (isFeatureEnabled(FeatureId.VEINATION) && veinationGesture && isPickaxeTool(stack) && allowedPickaxe && RegistryPredicates.isOreLike(state)) {
+                LogUtils.logDebug("Block break trigger feature=Veination player={} item={} block={} pos={}", serverPlayer.getScoreboardName(), itemId, brokenBlockId, pos);
+                veinationRuntime.registerDropAnchor(serverPlayer, pos, veinationConfig);
+                AgentManager agentManager = AgentManager.get();
+                if (!agentManager.hasAgentType(serverPlayer, VeinationAgent.class)) {
+                    agentManager.addAgent(serverPlayer, new VeinationAgent(serverPlayer, pos, state, veinationRuntime, veinationConfig));
+                }
+            } else if (!shaftModeActive && excavationActive && isExcavationTool(stack) && isExcavationBlock(state, stack)) {
                 LogUtils.logDebug("Block break trigger feature=Excavation player={} item={} block={} pos={}", serverPlayer.getScoreboardName(), itemId, brokenBlockId, pos);
                 AgentManager.get().addAgent(serverPlayer, new ExcavationAgent(serverPlayer, pos, 3, state.getBlock()));
             } else if (isAxeTool(stack) && state.is(BlockTags.LOGS)) {
@@ -119,6 +134,8 @@ public final class ModEntry implements ModInitializer {
                 AgentManager.get().addAgent(serverPlayer, new LumbinationAgent(serverPlayer, pos, state.getBlock()));
             }
         });
+
+        registerCollectiveDigSpeedCallback();
 
         UseItemCallback.EVENT.register((player, world, hand) -> {
             if (world.isClientSide() || !(player instanceof ServerPlayer serverPlayer)) {
@@ -172,14 +189,7 @@ public final class ModEntry implements ModInitializer {
 
             if (isPickaxeTool(stack) && player.isShiftKeyDown()) {
                 if (RegistryPredicates.isOreLike(state)) {
-                    LogUtils.logDebug("Use block trigger feature=Veination player={} item={} block={} pos={}", serverPlayer.getScoreboardName(), itemId, targetBlockId, pos);
-                    AgentManager.get().addAgent(serverPlayer, new VeinationAgent(serverPlayer, pos));
-                    return InteractionResult.SUCCESS;
-                }
-                if (RegistryPredicates.isStoneLike(state)) {
-                    LogUtils.logDebug("Use block trigger feature=Shaftanation player={} item={} block={} pos={}", serverPlayer.getScoreboardName(), itemId, targetBlockId, pos);
-                    AgentManager.get().addAgent(serverPlayer, new ShaftanationAgent(serverPlayer, pos, 16));
-                    return InteractionResult.SUCCESS;
+                    return InteractionResult.PASS;
                 }
             }
 
@@ -265,11 +275,64 @@ public final class ModEntry implements ModInitializer {
         return Proxy.newProxyInstance(getClass().getClassLoader(), new Class[]{listenerClass}, handler);
     }
 
+    private void registerCollectiveDigSpeedCallback() {
+        try {
+            Class<?> collectivePlayerEventsClass = Class.forName("com.natamus.collective.fabric.callbacks.CollectivePlayerEvents");
+            Object digSpeedEvent = collectivePlayerEventsClass.getField("ON_PLAYER_DIG_SPEED_CALC").get(null);
+            Method registerMethod = findSingleArgumentMethod(digSpeedEvent.getClass(), "register");
+            if (registerMethod == null) {
+                LogUtils.logDebug("Collective dig speed callback registration skipped: register method not found");
+                return;
+            }
+            Class<?> listenerClass = registerMethod.getParameterTypes()[0];
+            Object callback = createCollectiveDigSpeedCallback(listenerClass);
+            registerMethod.invoke(digSpeedEvent, callback);
+            LogUtils.logDebug("Registered Collective Fabric dig speed callback for Veination");
+        } catch (ClassNotFoundException ignored) {
+            LogUtils.logDebug("Collective not present on Fabric classpath; dig speed callback not registered");
+        } catch (ReflectiveOperationException exception) {
+            throw new IllegalStateException("Unable to register Collective Fabric dig speed callback", exception);
+        }
+    }
+
+    private Object createCollectiveDigSpeedCallback(Class<?> listenerClass) {
+        InvocationHandler handler = (proxy, method, args) -> {
+            if (method.getDeclaringClass() == Object.class) {
+                return switch (method.getName()) {
+                    case "toString" -> "MinersAdvantageCollectiveDigSpeedCallback";
+                    case "hashCode" -> System.identityHashCode(proxy);
+                    case "equals" -> args != null && args.length > 0 && proxy == args[0];
+                    default -> null;
+                };
+            }
+
+            if (args == null || args.length < 4 || !(args[0] instanceof net.minecraft.world.level.Level level)
+                || !(args[1] instanceof Player player) || !(args[2] instanceof Float digSpeed)
+                || !(args[3] instanceof BlockState state)) {
+                return args != null && args.length > 2 && args[2] instanceof Float value ? value : 1.0F;
+            }
+
+            VeinationConfig activeConfig = player instanceof ServerPlayer serverPlayer ? veinationConfig(serverPlayer) : veinationConfig();
+            return veinationRuntime.adjustedDigSpeed(level, player, digSpeed, state, activeConfig);
+        };
+
+        return Proxy.newProxyInstance(getClass().getClassLoader(), new Class[]{listenerClass}, handler);
+    }
+
+    private Method findSingleArgumentMethod(Class<?> type, String name) {
+        for (Method method : type.getMethods()) {
+            if (method.getName().equals(name) && method.getParameterCount() == 1) {
+                return method;
+            }
+        }
+        return null;
+    }
+
     private void onPlayerLogin(ServerPlayer player) {
         long playerId = playerId(player);
         LogUtils.logInfo("Player login player={} id={}", player.getScoreboardName(), playerId);
-        SyncedClientConfig defaults = SyncedClientConfig.defaults();
-        core.handlePlayerStateSyncPacket(new PlayerStateSyncPacket(playerId, defaults, defaults, new ServerOverridesConfig()));
+        SyncedClientConfig global = MAConfig_Base.getGlobalConfig();
+        core.handlePlayerStateSyncPacket(new PlayerStateSyncPacket(playerId, global, global, new ServerOverridesConfig()));
     }
 
     private void onPlayerLogout(ServerPlayer player) {
@@ -291,6 +354,7 @@ public final class ModEntry implements ModInitializer {
             if (level.getNearestPlayer(entity, 8.0) instanceof ServerPlayer serverPlayer) {
                 String dropItemId = itemId(itemEntity.getItem());
                 LogUtils.logDebug("Observed item entity load player={} item={} count={}", serverPlayer.getScoreboardName(), dropItemId, itemEntity.getItem().getCount());
+                veinationRuntime.handleItemEntityJoin(level, entity, serverPlayer, veinationConfig(serverPlayer));
                 toolEvents.onItemPickup(dropItemId, false);
                 core.workerRuntimeService().interceptLiveDropForPlayer(
                     playerId(serverPlayer),
@@ -365,6 +429,22 @@ public final class ModEntry implements ModInitializer {
         return SyncedClientConfig.defaults().substitution();
     }
 
+    private VeinationConfig veinationConfig() {
+        return MAConfig_Base.getGlobalConfig().veination();
+    }
+
+    private VeinationConfig veinationConfig(ServerPlayer player) {
+        if (player == null) {
+            return veinationConfig();
+        }
+
+        var synced = core.syncCoreService().getPlayerState(playerId(player));
+        if (synced != null && synced.effectiveConfig() != null && synced.effectiveConfig().veination() != null) {
+            return synced.effectiveConfig().veination();
+        }
+        return veinationConfig();
+    }
+
     private static boolean isPickaxeTool(ItemStack stack) {
         return BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath().endsWith("_pickaxe");
     }
@@ -408,12 +488,14 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.minecraft.world.level.Level;
 import uk.co.duelmonster.minersadvantage.client.NeoForgeNetworkEvents;
 
 @Mod("minersadvantage")
 public final class ModEntry {
     private final MinersAdvantageCore core = new MinersAdvantageCore();
     private final ToolEventHandler toolEvents = new CommonEventHandlerImpl(core);
+    private final VeinationRuntimeService veinationRuntime = new VeinationRuntimeService();
 
     public ModEntry(IEventBus modEventBus, ModContainer modContainer, Dist dist) {
         LogUtils.applyConfiguredLogging();
@@ -428,6 +510,7 @@ public final class ModEntry {
         }
         NeoForge.EVENT_BUS.addListener(this::onRightClickBlock);
         NeoForge.EVENT_BUS.addListener(this::onLeftClickBlock);
+        NeoForge.EVENT_BUS.addListener(this::onBreakSpeed);
         NeoForge.EVENT_BUS.addListener(this::onServerTick);
         NeoForge.EVENT_BUS.addListener(this::onPlayerLogin);
         NeoForge.EVENT_BUS.addListener(this::onPlayerLogout);
@@ -477,6 +560,7 @@ public final class ModEntry {
         if (entity instanceof ItemEntity itemEntity) {
             if (level.getNearestPlayer(entity, 8.0) instanceof ServerPlayer serverPlayer) {
                 String itemId = itemId(itemEntity.getItem());
+                veinationRuntime.handleItemEntityJoin(level, entity, serverPlayer, veinationConfig());
                 toolEvents.onItemPickup(itemId, false);
                 core.workerRuntimeService().interceptLiveDropForPlayer(
                     playerId(serverPlayer),
@@ -537,6 +621,22 @@ public final class ModEntry {
             return;
         }
 
+        if (event.getEntity() instanceof ServerPlayer serverPlayer) {
+            ItemStack stack = event.getItemStack();
+            BlockState state = event.getLevel().getBlockState(event.getPos());
+            VeinationConfig config = veinationConfig();
+            boolean veinationGesture = config.oreHarvestWithoutSneak() ? !event.getEntity().isShiftKeyDown() : event.getEntity().isShiftKeyDown();
+            boolean allowedPickaxe = veinationRuntime.isPickaxeAllowed((Level) event.getLevel(), config, stack);
+
+            if (isFeatureEnabled(FeatureId.VEINATION) && veinationGesture && isPickaxeTool(stack) && allowedPickaxe && RegistryPredicates.isOreLike(state)) {
+                veinationRuntime.registerDropAnchor(serverPlayer, event.getPos(), config);
+                AgentManager agentManager = AgentManager.get();
+                if (!agentManager.hasAgentType(serverPlayer, VeinationAgent.class)) {
+                    agentManager.addAgent(serverPlayer, new VeinationAgent(serverPlayer, event.getPos(), veinationRuntime, config));
+                }
+            }
+        }
+
         if (event.getEntity() instanceof ServerPlayer serverPlayer && isFeatureEnabled(FeatureId.SUBSTITUTION)) {
             ItemStack stack = event.getItemStack();
             BlockState state = event.getLevel().getBlockState(event.getPos());
@@ -554,6 +654,23 @@ public final class ModEntry {
             1,
             true
         );
+    }
+
+    private void onBreakSpeed(PlayerEvent.BreakSpeed event) {
+        if (event.getEntity() == null || event.getEntity().level().isClientSide()) {
+            return;
+        }
+
+        float adjusted = veinationRuntime.adjustedDigSpeed(
+            event.getEntity().level(),
+            event.getEntity(),
+            event.getOriginalSpeed(),
+            event.getState(),
+            veinationConfig()
+        );
+        if (adjusted != event.getOriginalSpeed()) {
+            event.setNewSpeed(adjusted);
+        }
     }
 
     private void onServerTick(ServerTickEvent.Post event) {
@@ -604,6 +721,14 @@ public final class ModEntry {
             return substitutionComponent.config();
         }
         return SyncedClientConfig.defaults().substitution();
+    }
+
+    private VeinationConfig veinationConfig() {
+        var component = core.components().get(FeatureId.VEINATION);
+        if (component instanceof uk.co.duelmonster.minersadvantage.common.feature.utility.VeinationComponent veinationComponent) {
+            return veinationComponent.config();
+        }
+        return SyncedClientConfig.defaults().veination();
     }
 
     private boolean isFeatureEnabled(FeatureId featureId) {

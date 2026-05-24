@@ -1,5 +1,10 @@
 ## 0.5.0
 
+- Rework Veination discovery/runtime wiring to support AFTER-break origins, optional origin-state hints, and connected-vein queueing through a shared runtime service.
+- Add optional reflective Fabric Collective dig-speed callback registration so missing Collective dependencies do not break startup.
+- Align Veination defaults to harvest-without-sneak across synced defaults, legacy constructors, and policy/config plumbing.
+- Persist legacy global config to `config/minersadvantage/client-config.json` and load it for UI bootstrap, login sync seeding, and player state sync updates.
+- Reduce Fabric player-state sync spam by sending activation-state updates only when tracked toggle state changes.
 - Align workspace validation, hook setup, and documentation rules with stricter parity checks.
 - Trigger substitution on block-attack start instead of post-break so tool selection applies before mining completes.
 - Restrict substitution candidate selection to hotbar slots and switch held tool by selected slot change rather than stack swapping.

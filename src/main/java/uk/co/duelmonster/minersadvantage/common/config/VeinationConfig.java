@@ -9,17 +9,28 @@ import java.util.List;
 public record VeinationConfig(
     boolean enabled,
     int maxVeinDistance,
-    List<String> ores
+    List<String> ores,
+    boolean oreHarvestWithoutSneak,
+    boolean dropOresAtFirstBrokenBlock,
+    boolean increaseHarvestingTimePerOre,
+    double increasedHarvestingTimePerOreModifier,
+    List<String> pickaxeBlacklist
 ) {
     /**
      * VeinationConfig exists so this code path does one job clearly instead of spreading chaos across callers.
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public VeinationConfig(boolean enabled, int maxVeinDistance) {
-        this(enabled, maxVeinDistance, List.of());
+        this(enabled, maxVeinDistance, List.of(), true, true, true, 0.2D, List.of());
+    }
+
+    public VeinationConfig(boolean enabled, int maxVeinDistance, List<String> ores) {
+        this(enabled, maxVeinDistance, ores, true, true, true, 0.2D, List.of());
     }
 
     public VeinationConfig {
         ores = ores == null ? List.of() : List.copyOf(ores);
+        pickaxeBlacklist = pickaxeBlacklist == null ? List.of() : List.copyOf(pickaxeBlacklist);
+        increasedHarvestingTimePerOreModifier = Math.max(0.01D, Math.min(10.0D, increasedHarvestingTimePerOreModifier));
     }
 }

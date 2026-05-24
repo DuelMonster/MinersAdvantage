@@ -642,6 +642,32 @@ public class SubstitutionAgent extends Agent {
         touchRestoreState(player, hand);
     }
 
+    public static ItemStack effectiveBreakHandStack(ServerPlayer player, InteractionHand hand) {
+        if (player == null || hand == null) {
+            return ItemStack.EMPTY;
+        }
+
+        ItemStack current = player.getItemInHand(hand);
+        RestoreState state = RESTORE_STATES.get(new RestoreKey(player.getUUID(), hand));
+        if (state == null || state.action() != SubstitutionAction.BREAK) {
+            return current;
+        }
+
+        long now = player.level().getGameTime();
+        if (now - state.lastActivityTick() > (RESTORE_IDLE_TICKS + 1L)) {
+            return current;
+        }
+
+        int slot = state.switchedToSlot();
+        int maxSlot = Math.min(HOTBAR_TOOL_SLOTS, player.getInventory().getContainerSize());
+        if (slot < 0 || slot >= maxSlot) {
+            return current;
+        }
+
+        ItemStack switched = player.getInventory().getItem(slot);
+        return switched.isEmpty() ? current : switched;
+    }
+
     public static boolean shouldQueueStartSubstitution(
         ServerPlayer player,
         InteractionHand hand,

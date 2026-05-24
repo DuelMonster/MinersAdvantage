@@ -161,7 +161,13 @@ public final class MAConfig_Defaults {
      */
     public static final class Veination {
         public static final boolean enabled = true;
+        public static final int maxVeinDistance = 4;
         public static final List<String> ores = List.of();
+        public static final boolean oreHarvestWithoutSneak = true;
+        public static final boolean dropOresAtFirstBrokenBlock = true;
+        public static final boolean increaseHarvestingTimePerOre = true;
+        public static final double increasedHarvestingTimePerOreModifier = 0.2D;
+        public static final List<String> pickaxeBlacklist = List.of();
     }
 
     /**

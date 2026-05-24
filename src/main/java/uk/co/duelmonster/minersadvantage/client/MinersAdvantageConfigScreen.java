@@ -11,6 +11,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import uk.co.duelmonster.minersadvantage.common.config.CommonConfig;
+import uk.co.duelmonster.minersadvantage.common.config.MAConfig_Base;
 import uk.co.duelmonster.minersadvantage.common.config.ServerOverridesConfig;
 import uk.co.duelmonster.minersadvantage.common.config.SyncedClientConfig;
 import uk.co.duelmonster.minersadvantage.common.network.PlayerStateSyncPacket;
@@ -20,7 +21,7 @@ import uk.co.duelmonster.minersadvantage.common.network.PlayerStateSyncPacket;
  * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
  */
 public final class MinersAdvantageConfigScreen {
-    private static SyncedClientConfig currentConfig = SyncedClientConfig.defaults();
+    private static SyncedClientConfig currentConfig = MAConfig_Base.getGlobalConfig();
 
     /**
      * MinersAdvantageConfigScreen exists so this code path does one job clearly instead of spreading chaos across callers.
@@ -93,6 +94,7 @@ public final class MinersAdvantageConfigScreen {
                 .build())
             .save(() -> {
                 currentConfig = mutable.toSyncedClientConfig(currentConfig);
+                MAConfig_Base.setGlobalConfig(currentConfig);
                 sendClientSync(currentConfig);
             })
             .build()
@@ -288,7 +290,12 @@ public final class MinersAdvantageConfigScreen {
                 new uk.co.duelmonster.minersadvantage.common.config.VeinationConfig(
                     veinationEnabled,
                     baseline.veination().maxVeinDistance(),
-                    baseline.veination().ores()
+                    baseline.veination().ores(),
+                    baseline.veination().oreHarvestWithoutSneak(),
+                    baseline.veination().dropOresAtFirstBrokenBlock(),
+                    baseline.veination().increaseHarvestingTimePerOre(),
+                    baseline.veination().increasedHarvestingTimePerOreModifier(),
+                    baseline.veination().pickaxeBlacklist()
                 ),
                 new uk.co.duelmonster.minersadvantage.common.config.VentilationConfig(
                     ventilationEnabled,
