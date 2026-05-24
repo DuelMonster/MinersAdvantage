@@ -6,6 +6,7 @@
 - Persist legacy global config to `config/minersadvantage/client-config.json` and load it for UI bootstrap, login sync seeding, and player state sync updates.
 - Reduce Fabric player-state sync spam by sending activation-state updates only when tracked toggle state changes.
 - Add Veination config parity tests for legacy constructor defaults and modifier clamping.
+- Refresh VS Code launch/task definitions for the full Fabric/NeoForge debug matrix and simplified Java environment handling.
 - Align workspace validation, hook setup, and documentation rules with stricter parity checks.
 - Trigger substitution on block-attack start instead of post-break so tool selection applies before mining completes.
 - Restrict substitution candidate selection to hotbar slots and switch held tool by selected slot change rather than stack swapping.
