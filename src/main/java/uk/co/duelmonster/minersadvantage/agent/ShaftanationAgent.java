@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.WallTorchBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import uk.co.duelmonster.minersadvantage.common.config.CommonConfig;
 import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
@@ -28,6 +29,9 @@ public class ShaftanationAgent extends Agent {
     private final boolean autoIlluminate;
     private int dug = 0;
     private int torchPlacements = 0;
+
+    private record WallTorchJob(BlockPos pos, Direction facing) {}
+    private final Queue<WallTorchJob> wallTorchQueue = new LinkedList<>();
 
     public ShaftanationAgent(ServerPlayer player, BlockPos origin, int depth) {
         this(player, origin, player.getDirection(), new ShaftanationConfig(true, Math.max(1, depth), 8), new CommonConfig());
@@ -54,7 +58,7 @@ public class ShaftanationAgent extends Agent {
         int halfWidth = shaftWidth / 2;
         boolean alongZ = this.direction.getAxis() == Direction.Axis.Z;
         for (int depth = 1; depth <= targetDepth; depth++) {
-            BlockPos base = origin.relative(this.direction, depth);
+            BlockPos base = origin.relative(this.direction, depth).below();
             for (int w = -halfWidth; w <= halfWidth; w++) {
                 for (int h = 0; h < shaftHeight; h++) {
                     queue.add((alongZ ? base.offset(w, h, 0) : base.offset(0, h, w)).immutable());
@@ -82,8 +86,16 @@ public class ShaftanationAgent extends Agent {
             }
         }
 
-        if (queue.isEmpty() || dug >= blockLimit) {
-            return finish(queue.isEmpty() ? "shaft queue exhausted" : "shaft target reached");
+        WallTorchJob wallJob;
+        while ((wallJob = wallTorchQueue.peek()) != null && world.isEmptyBlock(wallJob.pos())) {
+            wallTorchQueue.poll();
+            world.setBlockAndUpdate(wallJob.pos(), Blocks.WALL_TORCH.defaultBlockState()
+                .setValue(WallTorchBlock.FACING, wallJob.facing()));
+            torchPlacements++;
+        }
+
+        if ((queue.isEmpty() && wallTorchQueue.isEmpty()) || dug >= blockLimit) {
+            return finish(queue.isEmpty() && wallTorchQueue.isEmpty() ? "shaft queue exhausted" : "shaft target reached");
         }
         return false;
     }
@@ -91,11 +103,23 @@ public class ShaftanationAgent extends Agent {
     private void addTorchTargets(BlockPos base, int halfWidth, boolean alongZ) {
         switch (config.torchPlacement()) {
             case FLOOR -> queue.add(base.immutable());
-            case LEFT_WALL -> queue.add((alongZ ? base.offset(-halfWidth, 1, 0) : base.offset(0, 1, -halfWidth)).immutable());
-            case RIGHT_WALL -> queue.add((alongZ ? base.offset(halfWidth, 1, 0) : base.offset(0, 1, halfWidth)).immutable());
+            case LEFT_WALL -> wallTorchQueue.add(new WallTorchJob(
+                (alongZ ? base.offset(-halfWidth, 1, 0) : base.offset(0, 1, -halfWidth)).immutable(),
+                alongZ ? Direction.EAST : Direction.SOUTH
+            ));
+            case RIGHT_WALL -> wallTorchQueue.add(new WallTorchJob(
+                (alongZ ? base.offset(halfWidth, 1, 0) : base.offset(0, 1, halfWidth)).immutable(),
+                alongZ ? Direction.WEST : Direction.NORTH
+            ));
             case BOTH_WALLS -> {
-                queue.add((alongZ ? base.offset(-halfWidth, 1, 0) : base.offset(0, 1, -halfWidth)).immutable());
-                queue.add((alongZ ? base.offset(halfWidth, 1, 0) : base.offset(0, 1, halfWidth)).immutable());
+                wallTorchQueue.add(new WallTorchJob(
+                    (alongZ ? base.offset(-halfWidth, 1, 0) : base.offset(0, 1, -halfWidth)).immutable(),
+                    alongZ ? Direction.EAST : Direction.SOUTH
+                ));
+                wallTorchQueue.add(new WallTorchJob(
+                    (alongZ ? base.offset(halfWidth, 1, 0) : base.offset(0, 1, halfWidth)).immutable(),
+                    alongZ ? Direction.WEST : Direction.NORTH
+                ));
             }
             default -> {
             }
@@ -110,11 +134,6 @@ public class ShaftanationAgent extends Agent {
             return false;
         }
 
-        return world.isEmptyBlock(pos)
-            && (!world.isEmptyBlock(pos.below())
-            || !world.isEmptyBlock(pos.north())
-            || !world.isEmptyBlock(pos.south())
-            || !world.isEmptyBlock(pos.east())
-            || !world.isEmptyBlock(pos.west()));
+        return world.isEmptyBlock(pos) && !world.isEmptyBlock(pos.below());
     }
 }
