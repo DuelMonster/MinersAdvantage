@@ -15,7 +15,7 @@ val loader = name.substringAfterLast("-")
 val isNeoForge = loader == "neoforge"
 val javaRelease = if (minecraft.startsWith("26.")) 25 else 21
 val clothConfigVersion = when ("$minecraft-$loader") {
-    "1.21.11-fabric" -> "17.0.144"
+    "1.21.11-fabric" -> "21.11.153"
     "1.21.11-neoforge" -> "21.11.153"
     "26.1.2-fabric" -> "26.1.154"
     "26.1.2-neoforge" -> "26.1.154"

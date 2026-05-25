@@ -6,7 +6,7 @@
 - Add focused split-root coverage for TOML storage, sync core state, packet flow, and policy authority behavior.
 - Refresh README and TECHNICAL documentation for split-root config categories and multiplayer authority semantics.
 - Remove remaining legacy config compatibility paths (`MAConfig` facade, JSON cleanup branch, and `SyncType.ClientConfig` sync handling).
-- Migrate config UI dependency and screen implementation from YACL to Cloth Config for FMC parity.
+- Migrate config UI dependency and screen implementation to Cloth Config for FMC parity.
 
 ## 0.5.0
 
