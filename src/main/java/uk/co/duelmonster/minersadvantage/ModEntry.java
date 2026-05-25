@@ -121,7 +121,10 @@ public final class ModEntry implements ModInitializer {
             }
 
             LogUtils.logDebug("Attack block trigger feature=Substitution player={} hand={} item={} pos={}", serverPlayer.getScoreboardName(), hand, itemId(stack), pos);
-            AgentManager.get().addAgent(serverPlayer, new SubstitutionAgent(serverPlayer, state, SubstitutionAction.BREAK, hand, substitutionConfig(serverPlayer)));
+            SubstitutionAgent agent = new SubstitutionAgent(serverPlayer, state, SubstitutionAction.BREAK, hand, substitutionConfig(serverPlayer));
+            if (!agent.tick()) {
+                AgentManager.get().addAgent(serverPlayer, agent);
+            }
             return InteractionResult.PASS;
         });
 
@@ -161,7 +164,10 @@ public final class ModEntry implements ModInitializer {
                 targetPos
             );
             String targetEntityTypeId = BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType()).toString();
-            AgentManager.get().addAgent(serverPlayer, new SubstitutionAgent(serverPlayer, contextState, SubstitutionAction.ATTACK, hand, config, targetEntityTypeId));
+            SubstitutionAgent agent = new SubstitutionAgent(serverPlayer, contextState, SubstitutionAction.ATTACK, hand, config, targetEntityTypeId);
+            if (!agent.tick()) {
+                AgentManager.get().addAgent(serverPlayer, agent);
+            }
             return InteractionResult.PASS;
         });
 
@@ -298,7 +304,10 @@ public final class ModEntry implements ModInitializer {
                     return InteractionResult.SUCCESS;
                 }
                 LogUtils.logDebug("Use block trigger feature=Substitution player={} item={} pos={}", serverPlayer.getScoreboardName(), itemId, pos);
-                AgentManager.get().addAgent(serverPlayer, new SubstitutionAgent(serverPlayer, state, SubstitutionAction.INTERACT, hand, substitutionConfig(serverPlayer)));
+                SubstitutionAgent agent = new SubstitutionAgent(serverPlayer, state, SubstitutionAction.INTERACT, hand, substitutionConfig(serverPlayer));
+                if (!agent.tick()) {
+                    AgentManager.get().addAgent(serverPlayer, agent);
+                }
                 return InteractionResult.SUCCESS;
             }
 
@@ -980,7 +989,10 @@ public final class ModEntry {
                 SubstitutionAgent.markSubstitutionActivity(serverPlayer, event.getHand(), SubstitutionAction.INTERACT, pos);
                 return;
             }
-            AgentManager.get().addAgent(serverPlayer, new SubstitutionAgent(serverPlayer, state, SubstitutionAction.INTERACT, event.getHand(), substitutionConfig(serverPlayer)));
+            SubstitutionAgent agent = new SubstitutionAgent(serverPlayer, state, SubstitutionAction.INTERACT, event.getHand(), substitutionConfig(serverPlayer));
+            if (!agent.tick()) {
+                AgentManager.get().addAgent(serverPlayer, agent);
+            }
         }
     }
 
@@ -1040,10 +1052,10 @@ public final class ModEntry {
         }
 
         String targetEntityTypeId = BuiltInRegistries.ENTITY_TYPE.getKey(target.getType()).toString();
-        AgentManager.get().addAgent(
-            serverPlayer,
-            new SubstitutionAgent(serverPlayer, contextState, SubstitutionAction.ATTACK, InteractionHand.MAIN_HAND, config, targetEntityTypeId)
-        );
+        SubstitutionAgent agent = new SubstitutionAgent(serverPlayer, contextState, SubstitutionAction.ATTACK, InteractionHand.MAIN_HAND, config, targetEntityTypeId);
+        if (!agent.tick()) {
+            AgentManager.get().addAgent(serverPlayer, agent);
+        }
     }
 
     private void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
@@ -1104,7 +1116,10 @@ public final class ModEntry {
             if (!SubstitutionAgent.shouldQueueStartSubstitution(serverPlayer, event.getHand(), SubstitutionAction.BREAK, event.getPos())) {
                 SubstitutionAgent.markSubstitutionActivity(serverPlayer, event.getHand(), SubstitutionAction.BREAK, event.getPos());
             } else {
-                AgentManager.get().addAgent(serverPlayer, new SubstitutionAgent(serverPlayer, state, SubstitutionAction.BREAK, event.getHand(), substitutionConfig(serverPlayer)));
+                SubstitutionAgent agent = new SubstitutionAgent(serverPlayer, state, SubstitutionAction.BREAK, event.getHand(), substitutionConfig(serverPlayer));
+                if (!agent.tick()) {
+                    AgentManager.get().addAgent(serverPlayer, agent);
+                }
             }
         }
 

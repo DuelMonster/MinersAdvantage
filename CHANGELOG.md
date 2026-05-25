@@ -1,14 +1,12 @@
-## Unreleased
+## 0.6.0
 
 - Complete runtime config-option parity wiring across Fabric and NeoForge event routes, including right/left click dispatch and server tick orchestration gates.
+- Make substitution switch tools on the initiating click instead of the following tick.
 - Enforce synchronized common-feature behavior for veination, captivation, substitution, cultivation, illumination, pathanation, shaftanation, ventilation, excavation, and lumbination agents.
 - Add veination ore allowlist runtime checks and substitution ATTACK context support with entity-type-aware rule targeting.
 - Improve cropination replant/seed behavior and lumbination leaves/shears/durability/replant handling for closer legacy behavior alignment.
 - Update TECHNICAL documentation with the 2026-05-25 runtime parity sweep and cross-node compatibility caveat notes.
 - Clarify NeoForge 26.1.2 left-click routing notes in TECHNICAL parity caveat guidance.
-
-## 0.6.0
-
 - Rework the Features tab into dedicated per-feature launcher rows with live status coloring, per-feature reset confirmation, and stable save/back behavior.
 - Migrate configuration to split `MAClientRootConfig` and `MAServerRootConfig` roots with TOML-backed persistence for client/server state.
 - Simplify player sync transport and policy flow to server-authoritative gameplay configuration with typed root snapshots.
