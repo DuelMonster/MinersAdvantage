@@ -1,12 +1,9 @@
 package uk.co.duelmonster.minersadvantage.client;
 
-import dev.isxander.yacl3.api.ConfigCategory;
-import dev.isxander.yacl3.api.Option;
-import dev.isxander.yacl3.api.OptionDescription;
-import dev.isxander.yacl3.api.YetAnotherConfigLib;
-import dev.isxander.yacl3.api.controller.IntegerSliderControllerBuilder;
-import dev.isxander.yacl3.api.controller.TickBoxControllerBuilder;
 import java.lang.reflect.Method;
+import me.shedaniel.clothconfig2.api.ConfigBuilder;
+import me.shedaniel.clothconfig2.api.ConfigCategory;
+import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -39,89 +36,49 @@ public final class MinersAdvantageConfigScreen {
     public static Screen create(Screen parent) {
         MutableConfig mutable = new MutableConfig(currentClientConfig, currentServerConfig);
         boolean gameplayEditable = isGameplayEditable();
-        ConfigCategory.Builder clientCategory = ConfigCategory.createBuilder()
-            .name(Component.literal("Client"));
-        ConfigCategory.Builder generalCategory = ConfigCategory.createBuilder()
-            .name(Component.literal("General"));
-        ConfigCategory.Builder featuresCategory = ConfigCategory.createBuilder()
-            .name(Component.literal("Features"));
+        ConfigBuilder builder = ConfigBuilder.create()
+            .setParentScreen(parent)
+            .setTitle(Component.literal("Miners Advantage"));
+        ConfigEntryBuilder entryBuilder = builder.entryBuilder();
+
+        ConfigCategory clientCategory = builder.getOrCreateCategory(Component.literal("Client"));
+        ConfigCategory generalCategory = builder.getOrCreateCategory(Component.literal("General"));
+        ConfigCategory featuresCategory = builder.getOrCreateCategory(Component.literal("Features"));
 
         if (!gameplayEditable) {
-            generalCategory.option(authorityNoticeOption());
-            featuresCategory.option(authorityNoticeOption());
+            generalCategory.addEntry(authorityNoticeEntry(entryBuilder));
+            featuresCategory.addEntry(authorityNoticeEntry(entryBuilder));
         }
 
-        clientCategory
-            .option(Option.<Boolean>createBuilder()
-                .name(Component.literal("Disable Particle Effects"))
-                .description(OptionDescription.of(Component.literal("Disable Miners Advantage particle effects on this client only.")))
-                .binding(currentClientConfig.client().disableParticleEffects(), () -> mutable.disableParticleEffects, value -> mutable.disableParticleEffects = value)
-                .controller(TickBoxControllerBuilder::create)
-                .build());
+        clientCategory.addEntry(entryBuilder.startBooleanToggle(
+                Component.literal("Disable Particle Effects"),
+                mutable.disableParticleEffects
+            )
+            .setDefaultValue(currentClientConfig.client().disableParticleEffects())
+            .setTooltip(Component.literal("Disable Miners Advantage particle effects on this client only."))
+            .setSaveConsumer(value -> mutable.disableParticleEffects = value)
+            .build());
 
-        generalCategory
-            .option(Option.<Boolean>createBuilder()
-                .name(Component.literal("TPS Guard"))
-                .description(OptionDescription.of(authorityAwareDescription("Reduces heavy processing when TPS drops.", gameplayEditable)))
-                .binding(currentServerConfig.common().tpsGuard(), () -> mutable.tpsGuard, value -> mutable.tpsGuard = value)
-                .available(gameplayEditable)
-                .controller(TickBoxControllerBuilder::create)
-                .build())
-            .option(Option.<Boolean>createBuilder()
-                .name(Component.literal("Gather Drops"))
-                .description(OptionDescription.of(authorityAwareDescription("Allow automation to pull nearby drops.", gameplayEditable)))
-                .binding(currentServerConfig.common().gatherDrops(), () -> mutable.gatherDrops, value -> mutable.gatherDrops = value)
-                .available(gameplayEditable)
-                .controller(TickBoxControllerBuilder::create)
-                .build())
-            .option(Option.<Boolean>createBuilder()
-                .name(Component.literal("Auto Illuminate"))
-                .description(OptionDescription.of(authorityAwareDescription("Permit automatic torch placement behavior.", gameplayEditable)))
-                .binding(currentServerConfig.common().autoIlluminate(), () -> mutable.autoIlluminate, value -> mutable.autoIlluminate = value)
-                .available(gameplayEditable)
-                .controller(TickBoxControllerBuilder::create)
-                .build())
-            .option(Option.<Boolean>createBuilder()
-                .name(Component.literal("Mine Veins"))
-                .description(OptionDescription.of(authorityAwareDescription("Permit connected ore mining logic.", gameplayEditable)))
-                .binding(currentServerConfig.common().mineVeins(), () -> mutable.mineVeins, value -> mutable.mineVeins = value)
-                .available(gameplayEditable)
-                .controller(TickBoxControllerBuilder::create)
-                .build())
-            .option(Option.<Integer>createBuilder()
-                .name(Component.literal("Blocks Per Tick"))
-                .description(OptionDescription.of(authorityAwareDescription("Maximum blocks processed each server tick.", gameplayEditable)))
-                .binding(currentServerConfig.common().blocksPerTick(), () -> mutable.blocksPerTick, value -> mutable.blocksPerTick = value)
-                .available(gameplayEditable)
-                .controller(option -> IntegerSliderControllerBuilder.create(option).range(1, 8).step(1))
-                .build())
-            .option(Option.<Integer>createBuilder()
-                .name(Component.literal("Block Limit"))
-                .description(OptionDescription.of(authorityAwareDescription("Hard cap for an operation size.", gameplayEditable)))
-                .binding(currentServerConfig.common().blockLimit(), () -> mutable.blockLimit, value -> mutable.blockLimit = value)
-                .available(gameplayEditable)
-                .controller(option -> IntegerSliderControllerBuilder.create(option).range(1, 256).step(1))
-                .build());
+        addGameplayBoolean(generalCategory, entryBuilder, "TPS Guard", "Reduces heavy processing when TPS drops.", mutable.tpsGuard, currentServerConfig.common().tpsGuard(), gameplayEditable, value -> mutable.tpsGuard = value);
+        addGameplayBoolean(generalCategory, entryBuilder, "Gather Drops", "Allow automation to pull nearby drops.", mutable.gatherDrops, currentServerConfig.common().gatherDrops(), gameplayEditable, value -> mutable.gatherDrops = value);
+        addGameplayBoolean(generalCategory, entryBuilder, "Auto Illuminate", "Permit automatic torch placement behavior.", mutable.autoIlluminate, currentServerConfig.common().autoIlluminate(), gameplayEditable, value -> mutable.autoIlluminate = value);
+        addGameplayBoolean(generalCategory, entryBuilder, "Mine Veins", "Permit connected ore mining logic.", mutable.mineVeins, currentServerConfig.common().mineVeins(), gameplayEditable, value -> mutable.mineVeins = value);
+        addGameplayInt(generalCategory, entryBuilder, "Blocks Per Tick", "Maximum blocks processed each server tick.", mutable.blocksPerTick, currentServerConfig.common().blocksPerTick(), 1, 8, gameplayEditable, value -> mutable.blocksPerTick = value);
+        addGameplayInt(generalCategory, entryBuilder, "Block Limit", "Hard cap for an operation size.", mutable.blockLimit, currentServerConfig.common().blockLimit(), 1, 256, gameplayEditable, value -> mutable.blockLimit = value);
 
-        featuresCategory
-            .option(featureToggle("Captivation", () -> mutable.captivationEnabled, value -> mutable.captivationEnabled = value, currentServerConfig.captivation().enabled(), gameplayEditable))
-            .option(featureToggle("Cropination", () -> mutable.cropinationEnabled, value -> mutable.cropinationEnabled = value, currentServerConfig.cropination().enabled(), gameplayEditable))
-            .option(featureToggle("Cultivation", () -> mutable.cultivationEnabled, value -> mutable.cultivationEnabled = value, currentServerConfig.cultivation().enabled(), gameplayEditable))
-            .option(featureToggle("Excavation", () -> mutable.excavationEnabled, value -> mutable.excavationEnabled = value, currentServerConfig.excavation().enabled(), gameplayEditable))
-            .option(featureToggle("Pathanation", () -> mutable.pathanationEnabled, value -> mutable.pathanationEnabled = value, currentServerConfig.pathanation().enabled(), gameplayEditable))
-            .option(featureToggle("Illumination", () -> mutable.illuminationEnabled, value -> mutable.illuminationEnabled = value, currentServerConfig.illumination().enabled(), gameplayEditable))
-            .option(featureToggle("Lumbination", () -> mutable.lumbinationEnabled, value -> mutable.lumbinationEnabled = value, currentServerConfig.lumbination().enabled(), gameplayEditable))
-            .option(featureToggle("Shaftanation", () -> mutable.shaftanationEnabled, value -> mutable.shaftanationEnabled = value, currentServerConfig.shaftanation().enabled(), gameplayEditable))
-            .option(featureToggle("Substitution", () -> mutable.substitutionEnabled, value -> mutable.substitutionEnabled = value, currentServerConfig.substitution().enabled(), gameplayEditable))
-            .option(featureToggle("Veination", () -> mutable.veinationEnabled, value -> mutable.veinationEnabled = value, currentServerConfig.veination().enabled(), gameplayEditable))
-            .option(featureToggle("Ventilation", () -> mutable.ventilationEnabled, value -> mutable.ventilationEnabled = value, currentServerConfig.ventilation().enabled(), gameplayEditable));
+        addFeatureToggle(featuresCategory, entryBuilder, "Captivation", mutable.captivationEnabled, currentServerConfig.captivation().enabled(), gameplayEditable, value -> mutable.captivationEnabled = value);
+        addFeatureToggle(featuresCategory, entryBuilder, "Cropination", mutable.cropinationEnabled, currentServerConfig.cropination().enabled(), gameplayEditable, value -> mutable.cropinationEnabled = value);
+        addFeatureToggle(featuresCategory, entryBuilder, "Cultivation", mutable.cultivationEnabled, currentServerConfig.cultivation().enabled(), gameplayEditable, value -> mutable.cultivationEnabled = value);
+        addFeatureToggle(featuresCategory, entryBuilder, "Excavation", mutable.excavationEnabled, currentServerConfig.excavation().enabled(), gameplayEditable, value -> mutable.excavationEnabled = value);
+        addFeatureToggle(featuresCategory, entryBuilder, "Pathanation", mutable.pathanationEnabled, currentServerConfig.pathanation().enabled(), gameplayEditable, value -> mutable.pathanationEnabled = value);
+        addFeatureToggle(featuresCategory, entryBuilder, "Illumination", mutable.illuminationEnabled, currentServerConfig.illumination().enabled(), gameplayEditable, value -> mutable.illuminationEnabled = value);
+        addFeatureToggle(featuresCategory, entryBuilder, "Lumbination", mutable.lumbinationEnabled, currentServerConfig.lumbination().enabled(), gameplayEditable, value -> mutable.lumbinationEnabled = value);
+        addFeatureToggle(featuresCategory, entryBuilder, "Shaftanation", mutable.shaftanationEnabled, currentServerConfig.shaftanation().enabled(), gameplayEditable, value -> mutable.shaftanationEnabled = value);
+        addFeatureToggle(featuresCategory, entryBuilder, "Substitution", mutable.substitutionEnabled, currentServerConfig.substitution().enabled(), gameplayEditable, value -> mutable.substitutionEnabled = value);
+        addFeatureToggle(featuresCategory, entryBuilder, "Veination", mutable.veinationEnabled, currentServerConfig.veination().enabled(), gameplayEditable, value -> mutable.veinationEnabled = value);
+        addFeatureToggle(featuresCategory, entryBuilder, "Ventilation", mutable.ventilationEnabled, currentServerConfig.ventilation().enabled(), gameplayEditable, value -> mutable.ventilationEnabled = value);
 
-        return YetAnotherConfigLib.createBuilder()
-            .title(Component.literal("Miners Advantage"))
-            .category(clientCategory.build())
-            .category(generalCategory.build())
-            .category(featuresCategory.build())
-            .save(() -> {
+        builder.setSavingRunnable(() -> {
                 currentClientConfig = mutable.toClientRootConfig(currentClientConfig);
                 MAConfig_Base.setClientRootConfig(currentClientConfig);
                 if (gameplayEditable) {
@@ -131,34 +88,91 @@ public final class MinersAdvantageConfigScreen {
                     currentServerConfig = MAConfig_Base.getServerRootConfig();
                 }
                 sendClientSync(currentClientConfig);
-            })
-            .build()
-            .generateScreen(parent);
+            });
+
+        return builder.build();
     }
 
-    private static Option<Boolean> featureToggle(
+    private static void addFeatureToggle(
+        ConfigCategory category,
+        ConfigEntryBuilder entryBuilder,
         String label,
-        java.util.function.Supplier<Boolean> getter,
-        java.util.function.Consumer<Boolean> setter,
+        boolean currentValue,
         boolean defaultValue,
-        boolean available
+        boolean editable,
+        java.util.function.Consumer<Boolean> consumer
     ) {
-        return Option.<Boolean>createBuilder()
-            .name(Component.literal(label))
-            .description(OptionDescription.of(authorityAwareDescription("Enable or disable " + label + ".", available)))
-            .binding(defaultValue, getter, setter)
-            .available(available)
-            .controller(TickBoxControllerBuilder::create)
-            .build();
+        if (!editable) {
+            category.addEntry(entryBuilder.startTextDescription(
+                    Component.literal(label + ": " + (currentValue ? "Enabled" : "Disabled"))
+                )
+                .build());
+            return;
+        }
+
+        category.addEntry(entryBuilder.startBooleanToggle(Component.literal(label), currentValue)
+            .setDefaultValue(defaultValue)
+            .setTooltip(authorityAwareDescription("Enable or disable " + label + ".", editable))
+            .setSaveConsumer(consumer)
+            .build());
     }
 
-    private static Option<Boolean> authorityNoticeOption() {
-        return Option.<Boolean>createBuilder()
-            .name(Component.literal("Gameplay Authority"))
-            .description(OptionDescription.of(Component.literal("Gameplay settings are controlled by the server while connected to remote multiplayer.")))
-            .binding(true, () -> true, value -> { })
-            .available(false)
-            .controller(TickBoxControllerBuilder::create)
+    private static void addGameplayBoolean(
+        ConfigCategory category,
+        ConfigEntryBuilder entryBuilder,
+        String label,
+        String description,
+        boolean currentValue,
+        boolean defaultValue,
+        boolean editable,
+        java.util.function.Consumer<Boolean> consumer
+    ) {
+        if (!editable) {
+            category.addEntry(entryBuilder.startTextDescription(
+                    Component.literal(label + ": " + (currentValue ? "Enabled" : "Disabled"))
+                )
+                .build());
+            return;
+        }
+
+        category.addEntry(entryBuilder.startBooleanToggle(Component.literal(label), currentValue)
+            .setDefaultValue(defaultValue)
+            .setTooltip(authorityAwareDescription(description, editable))
+            .setSaveConsumer(consumer)
+            .build());
+    }
+
+    private static void addGameplayInt(
+        ConfigCategory category,
+        ConfigEntryBuilder entryBuilder,
+        String label,
+        String description,
+        int currentValue,
+        int defaultValue,
+        int min,
+        int max,
+        boolean editable,
+        java.util.function.Consumer<Integer> consumer
+    ) {
+        if (!editable) {
+            category.addEntry(entryBuilder.startTextDescription(
+                    Component.literal(label + ": " + currentValue)
+                )
+                .build());
+            return;
+        }
+
+        category.addEntry(entryBuilder.startIntField(Component.literal(label), currentValue)
+            .setDefaultValue(defaultValue)
+            .setMin(min)
+            .setMax(max)
+            .setTooltip(authorityAwareDescription(description, editable))
+            .setSaveConsumer(consumer)
+            .build());
+    }
+
+    private static me.shedaniel.clothconfig2.api.AbstractConfigListEntry<?> authorityNoticeEntry(ConfigEntryBuilder entryBuilder) {
+        return entryBuilder.startTextDescription(Component.literal("Gameplay settings are controlled by the server while connected to remote multiplayer."))
             .build();
     }
 

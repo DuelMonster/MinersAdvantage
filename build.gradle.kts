@@ -14,6 +14,13 @@ val minecraft = property("deps.minecraft") as String
 val loader = name.substringAfterLast("-")
 val isNeoForge = loader == "neoforge"
 val javaRelease = if (minecraft.startsWith("26.")) 25 else 21
+val clothConfigVersion = when ("$minecraft-$loader") {
+    "1.21.11-fabric" -> "17.0.144"
+    "1.21.11-neoforge" -> "21.11.153"
+    "26.1.2-fabric" -> "26.1.154"
+    "26.1.2-neoforge" -> "26.1.154"
+    else -> error("No Cloth Config version mapping for $minecraft-$loader")
+}
 
 modstitch {
     minecraftVersion = minecraft
@@ -34,7 +41,7 @@ modstitch {
                 "mod_homepage" to "https://github.com/duelmonster/MinersAdvantage",
                 "mod_issue_tracker" to "https://github.com/duelmonster/MinersAdvantage/issues",
                 "minecraft_version_range" to "[1.21.11,)",
-                "yacl_version_range" to "[3.8.2,)",
+                "cloth_config_version_range" to "[$clothConfigVersion,)",
                 "neoforge_loader_range" to "[10,)"
             )
         )
@@ -164,14 +171,14 @@ afterEvaluate {
 dependencies {
     modstitch.loom {
         modstitchModImplementation("net.fabricmc.fabric-api:fabric-api:${property("deps.fabric_api")}")
-        modstitchModImplementation("dev.isxander:yet-another-config-lib:${property("deps.yacl")}-fabric") {
+        modstitchModImplementation("me.shedaniel.cloth:cloth-config-fabric:$clothConfigVersion") {
             exclude(group = "net.fabricmc.fabric-api")
         }
         modstitchModImplementation("com.terraformersmc:modmenu:${property("deps.modmenu")}")
     }
 
     modstitch.moddevgradle {
-        modstitchModImplementation("dev.isxander:yet-another-config-lib:${property("deps.yacl")}-neoforge")
+        modstitchModImplementation("me.shedaniel.cloth:cloth-config-neoforge:$clothConfigVersion")
     }
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
@@ -179,6 +186,10 @@ dependencies {
     if (isNeoForge) {
         testRuntimeOnly("net.neoforged:neoforge:${property("deps.neoforge")}")
     }
+}
+
+repositories {
+    maven("https://maven.shedaniel.me/")
 }
 
 tasks.withType<Test> {

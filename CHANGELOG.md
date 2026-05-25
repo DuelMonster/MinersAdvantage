@@ -1,3 +1,13 @@
+## 0.6.0
+
+- Migrate configuration to split `MAClientRootConfig` and `MAServerRootConfig` roots with TOML-backed persistence for client/server state.
+- Simplify player sync transport and policy flow to server-authoritative gameplay configuration with typed root snapshots.
+- Replace legacy config category wrappers with unified root-based UI bindings and remote-multiplayer authority lock messaging.
+- Add focused split-root coverage for TOML storage, sync core state, packet flow, and policy authority behavior.
+- Refresh README and TECHNICAL documentation for split-root config categories and multiplayer authority semantics.
+- Remove remaining legacy config compatibility paths (`MAConfig` facade, JSON cleanup branch, and `SyncType.ClientConfig` sync handling).
+- Migrate config UI dependency and screen implementation from YACL to Cloth Config for FMC parity.
+
 ## 0.5.0
 
 - Rework Veination discovery/runtime wiring to support AFTER-break origins, optional origin-state hints, and connected-vein queueing through a shared runtime service.
@@ -12,12 +22,6 @@
 - Restrict substitution candidate selection to hotbar slots and switch held tool by selected slot change rather than stack swapping.
 - Add start-trigger de-duplication and activity tracking to avoid repeated queueing while mining or interacting continuously.
 - Improve switch-back timing so restore waits for break-target activity to end instead of reverting mid-action.
-- Migrate configuration to split `MAClientRootConfig` and `MAServerRootConfig` roots with TOML-backed persistence for client/server state.
-- Simplify player sync transport and policy flow to server-authoritative gameplay configuration with typed root snapshots.
-- Replace legacy config category wrappers with unified root-based UI bindings and remote-multiplayer authority lock messaging.
-- Add focused split-root coverage for TOML storage, sync core state, packet flow, and policy authority behavior.
-- Refresh README and TECHNICAL documentation for split-root config categories and multiplayer authority semantics.
-- Remove remaining legacy config compatibility paths (`MAConfig` facade, JSON cleanup branch, and `SyncType.ClientConfig` sync handling).
 
 ## 0.4.0
 
@@ -39,7 +43,7 @@
 - ✅ M3: Keybindings & Client Input complete - Fabric and NeoForge client input wired across all four nodes
 - ✅ M4: Networking transport layer complete - component toggle, abort workers, player sync, feature dispatch, and SupremeVantage packet transport wired across Fabric and NeoForge
 - ✅ M5: Server events & dispatch complete - login/logout, level unload, entity load/join handling, and NeoForge tool-modification hook wired
-- ✅ M6: Config UI complete - shared YACL screen implemented, Fabric ModMenu factory wired, NeoForge config screen extension point registered
+- ✅ M6: Config UI complete - shared Cloth Config screen implemented, Fabric ModMenu factory wired, NeoForge config screen extension point registered
 - ✅ M7: Assets/Localization migration complete - migrated `en_us.json` and `ru_ru.json` into modern resources and added rewrite keybinding/localization keys
 - ✅ M8: Documentation signoff complete - traceability matrix refreshed to current milestone status
 - ✅ M9: Verification/regression gate complete - `chiseledBuild` and targeted NeoForge test gates pass

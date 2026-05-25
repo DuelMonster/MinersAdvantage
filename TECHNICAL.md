@@ -69,7 +69,7 @@ As of 2026-05-11, milestone execution and verification gates confirm parity wiri
 2. **Client Input** — Keybindings are registered and client tick polling is wired; input-driven toggle and abort packets now traverse the transport layer
 3. **Server Events** — Login/logout, level unload, and entity load/join dispatch are wired across loaders, with NeoForge block tool modification event wiring and Fabric tool dispatch routed via interaction callbacks (no dedicated Fabric tool-modification event)
 4. **Networking** — Transport is wired for component toggles, aborts, player sync snapshots, feature dispatch packets, and SupremeVantage packets on both loaders
-5. **Config UI** — YACL screen builder is implemented with dedicated client/common/feature categories, Fabric ModMenu factory is wired, and NeoForge config screen extension point registration is active. Remote multiplayer exposes server-authoritative gameplay options as read-only while client-local options remain editable.
+5. **Config UI** — Cloth Config screen builder is implemented with dedicated client/common/feature categories, Fabric ModMenu factory is wired, and NeoForge config screen extension point registration is active. Remote multiplayer exposes server-authoritative gameplay options as read-only while client-local options remain editable.
 6. **Assets** — Base localization/resource structure is migrated with `en_us.json` and `ru_ru.json`, including rewrite-era keybinding/localization keys
 
 For detailed source-level traceability and migration tasks, see [Parity Traceability Matrix](.brainbox/plans/traceability-migration-parity.md).
@@ -83,7 +83,7 @@ The 9-phase governance-enforced milestone plan (started 2026-05-11) is now compl
 - M3: Keybindings & client input runtime
 - M4: Networking transport layer (completed)
 - M5: Server events & dispatch (completed)
-- M6: Config UI (YACL + ModMenu + NeoForge) (completed)
+- M6: Config UI (Cloth Config + ModMenu + NeoForge) (completed)
 - M7: Assets & localization (completed)
 - M8: Documentation signoff (completed)
 - M9: Verification & regression gate (completed)
