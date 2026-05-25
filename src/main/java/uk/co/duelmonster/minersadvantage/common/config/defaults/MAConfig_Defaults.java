@@ -120,7 +120,7 @@ public final class MAConfig_Defaults {
         public static final boolean destroyLeaves = true;
         public static final boolean leavesAffectDurability = false;
         public static final boolean replantSaplings = true;
-        public static final boolean useShearsOnLeaves = true;
+        public static final boolean useCanopyTool = true;
         public static final boolean ignorePlayerPlacedLeaves = true;
         public static final int leafRange = 6;
         public static final int trunkRange = 32;

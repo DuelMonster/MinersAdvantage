@@ -15,7 +15,7 @@ public record LumbinationConfig(
     boolean destroyLeaves,
     boolean leavesAffectDurability,
     boolean replantSaplings,
-    boolean useShearsOnLeaves,
+    boolean useCanopyTool,
     boolean ignorePlayerPlacedLeaves,
     List<String> logs,
     List<String> leaves,

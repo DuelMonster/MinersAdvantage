@@ -6,6 +6,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.HoeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ShearsItem;
 import net.minecraft.world.level.block.Block;
@@ -160,10 +161,10 @@ public class LumbinationAgent extends Agent {
                 ItemStack originalMainHand = player.getMainHandItem().copy();
                 boolean restoreMainHand = false;
 
-                if (config.useShearsOnLeaves()) {
-                    ItemStack shears = firstShearsInInventory();
-                    if (!shears.isEmpty()) {
-                        player.setItemInHand(InteractionHand.MAIN_HAND, shears.copy());
+                if (config.useCanopyTool()) {
+                    ItemStack canopyTool = firstCanopyToolInInventory();
+                    if (!canopyTool.isEmpty()) {
+                        player.setItemInHand(InteractionHand.MAIN_HAND, canopyTool.copy());
                         restoreMainHand = true;
                     }
                 }
@@ -342,14 +343,14 @@ public class LumbinationAgent extends Agent {
             || block.defaultBlockState().is(BlockTags.WART_BLOCKS);
     }
 
-    private ItemStack firstShearsInInventory() {
+    private ItemStack firstCanopyToolInInventory() {
         if (player == null || player.getInventory() == null) {
             return ItemStack.EMPTY;
         }
 
         for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
             ItemStack stack = player.getInventory().getItem(slot);
-            if (!stack.isEmpty() && stack.getItem() instanceof ShearsItem) {
+            if (!stack.isEmpty() && (stack.getItem() instanceof ShearsItem || stack.getItem() instanceof HoeItem)) {
                 return stack;
             }
         }
@@ -482,7 +483,7 @@ public class LumbinationAgent extends Agent {
 
     private boolean hasAvailableSaplings(Block saplingBlock, int required) {
         int inventoryCount = countInventorySaplings(saplingBlock);
-        if (config.useShearsOnLeaves()) {
+        if (config.useCanopyTool()) {
             return inventoryCount >= required;
         }
         return inventoryCount + harvestedSaplings >= required;
@@ -507,9 +508,9 @@ public class LumbinationAgent extends Agent {
     private boolean consumeSaplingsForReplant(Block saplingBlock, int required) {
         int availableInventory = countInventorySaplings(saplingBlock);
         int availableDrops = harvestedSaplings;
-        boolean shearsModeActive = config.useShearsOnLeaves();
+        boolean canopyToolModeActive = config.useCanopyTool();
 
-        if (shearsModeActive) {
+        if (canopyToolModeActive) {
             if (availableInventory < required) {
                 return false;
             }

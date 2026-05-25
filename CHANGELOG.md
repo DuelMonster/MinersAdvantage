@@ -1,6 +1,7 @@
 ## 0.7.0
 
 - Bump mod version to `0.7.0` and advance the tracked daily bump date.
+- Rename Lumbination `use_shears_on_leaves` mode to `use_canopy_tool` across runtime, config storage, and UI labels.
 - Allow excavation, shaftanation, and ventilation agents to fan out into veination when `common.mine_veins` is enabled and ore eligibility checks pass.
 - Remove veination queue caps so connected ore discovery and processing are no longer limited by a fixed block ceiling.
 - Capture the triggering tool stack for agent-driven veination fan-out so substitution-driven hand changes do not suppress ore chaining.

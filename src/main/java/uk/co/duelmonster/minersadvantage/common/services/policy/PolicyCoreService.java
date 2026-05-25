@@ -158,7 +158,7 @@ public final class PolicyCoreService {
             selected.destroyLeaves(),
             selected.leavesAffectDurability(),
             selected.replantSaplings(),
-            selected.useShearsOnLeaves(),
+            selected.useCanopyTool(),
             selected.ignorePlayerPlacedLeaves(),
             selected.logs(),
             selected.leaves(),
