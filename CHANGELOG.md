@@ -5,6 +5,7 @@
 - Add veination ore allowlist runtime checks and substitution ATTACK context support with entity-type-aware rule targeting.
 - Improve cropination replant/seed behavior and lumbination leaves/shears/durability/replant handling for closer legacy behavior alignment.
 - Update TECHNICAL documentation with the 2026-05-25 runtime parity sweep and cross-node compatibility caveat notes.
+- Clarify NeoForge 26.1.2 left-click routing notes in TECHNICAL parity caveat guidance.
 
 ## 0.6.0
 

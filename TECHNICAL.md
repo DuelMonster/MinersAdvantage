@@ -74,6 +74,30 @@ As of 2026-05-11, milestone execution and verification gates confirm parity wiri
 
 For detailed source-level traceability and migration tasks, see [Parity Traceability Matrix](.brainbox/plans/traceability-migration-parity.md).
 
+### Runtime Parity Sweep (2026-05-25)
+
+An additional runtime-consumption sweep completed on 2026-05-25 wired previously inert config paths into active runtime behavior and aligned Fabric/NeoForge dispatch handling more closely.
+
+Highlights:
+
+- Common settings now affect runtime processing and dispatch paths (`mineVeins`, `gatherDrops`, `autoIlluminate`, tick-delay/TPS orchestrator wiring)
+- Feature agents were refactored to consume effective per-player config in active code paths (captivation, cropination, cultivation, excavation, illumination, lumbination, pathanation, shaftanation, ventilation, veination)
+- Veination allowlists are now enforced at trigger and discovery levels (`ores`, `pickaxeBlacklist`)
+- Substitution ATTACK context routing now exists on both loaders, including `ignorePassiveMobs` and `ENTITY_TYPE` selection-rule matching
+- NeoForge trigger flow now includes right-click item/block and attack substitutions plus broader feature dispatch parity routes
+
+Validation status:
+
+- `./scripts/validate-compile-matrix.ps1` passed for:
+	- `1.21.11-fabric`
+	- `1.21.11-neoforge`
+	- `26.1.2-fabric`
+	- `26.1.2-neoforge`
+
+Known loader-specific caveat:
+
+- NeoForge `26.1.2` does not expose the same `BlockEvent.BreakEvent` type used in newer mappings, so equivalent mining-trigger feature routing is handled in `LeftClickBlock` for cross-node compatibility.
+
 ### Modernization Plan
 
 The 9-phase governance-enforced milestone plan (started 2026-05-11) is now complete:
