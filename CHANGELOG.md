@@ -12,6 +12,7 @@
 - Rewrite VentilationAgent to dig a 1×1 vertical column (up or down) from the triggered face, with per-block ladder placement that draws from player inventory.
 - Fix shaft floor height sitting one block too high by shifting the cross-section base down one block so the floor aligns with the player's foot level.
 - Fix shaft auto-illumination placing floor torches in mid-air for wall-placement modes by using WALL_TORCH blocks with correct facing instead of freestanding torches.
+- Fix shaft generation to anchor floor height to the player's feet and include the initial x/z layer when carving.
 - Enforce synchronized common-feature behavior for veination, captivation, substitution, cultivation, illumination, pathanation, shaftanation, ventilation, excavation, and lumbination agents.
 - Add veination ore allowlist runtime checks and substitution ATTACK context support with entity-type-aware rule targeting.
 - Improve cropination replant/seed behavior and lumbination leaves/shears/durability/replant handling for closer legacy behavior alignment.

@@ -57,14 +57,15 @@ public class ShaftanationAgent extends Agent {
 
         int halfWidth = shaftWidth / 2;
         boolean alongZ = this.direction.getAxis() == Direction.Axis.Z;
-        for (int depth = 1; depth <= targetDepth; depth++) {
-            BlockPos base = origin.relative(this.direction, depth).below();
+        BlockPos floorOrigin = new BlockPos(origin.getX(), player.blockPosition().getY(), origin.getZ());
+        for (int depth = 0; depth < targetDepth; depth++) {
+            BlockPos base = floorOrigin.relative(this.direction, depth);
             for (int w = -halfWidth; w <= halfWidth; w++) {
                 for (int h = 0; h < shaftHeight; h++) {
                     queue.add((alongZ ? base.offset(w, h, 0) : base.offset(0, h, w)).immutable());
                 }
             }
-            if (autoIlluminate && depth % 5 == 0) {
+            if (autoIlluminate && depth > 0 && depth % 5 == 0) {
                 addTorchTargets(base, halfWidth, alongZ);
             }
         }
