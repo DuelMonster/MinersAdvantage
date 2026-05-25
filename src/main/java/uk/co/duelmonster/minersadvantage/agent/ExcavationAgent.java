@@ -3,12 +3,16 @@ package uk.co.duelmonster.minersadvantage.agent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import uk.co.duelmonster.minersadvantage.common.config.CommonConfig;
 import uk.co.duelmonster.minersadvantage.common.config.ExcavationConfig;
 import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
+import uk.co.duelmonster.minersadvantage.common.config.VeinationConfig;
+import uk.co.duelmonster.minersadvantage.common.registry.RegistryPredicates;
+import uk.co.duelmonster.minersadvantage.common.services.utility.VeinationRuntimeService;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -28,6 +32,10 @@ public class ExcavationAgent extends Agent {
     private final Set<BlockPos> visited = new HashSet<>();
     private final int blocksPerTick;
     private final int blockLimit;
+    private final boolean mineVeins;
+    private final VeinationRuntimeService veinationRuntime;
+    private final VeinationConfig veinationConfig;
+    private final ItemStack veinationTriggerTool;
     private int processed = 0;
 
     public ExcavationAgent(ServerPlayer player, BlockPos origin, int radius) {
@@ -63,6 +71,35 @@ public class ExcavationAgent extends Agent {
         int horizontalRadius,
         int verticalRadius
     ) {
+        this(player, origin, originState, config, commonConfig, horizontalRadius, verticalRadius, null, null);
+    }
+
+    public ExcavationAgent(
+        ServerPlayer player,
+        BlockPos origin,
+        BlockState originState,
+        ExcavationConfig config,
+        CommonConfig commonConfig,
+        int horizontalRadius,
+        int verticalRadius,
+        VeinationRuntimeService veinationRuntime,
+        VeinationConfig veinationConfig
+    ) {
+        this(player, origin, originState, config, commonConfig, horizontalRadius, verticalRadius, veinationRuntime, veinationConfig, ItemStack.EMPTY);
+    }
+
+    public ExcavationAgent(
+        ServerPlayer player,
+        BlockPos origin,
+        BlockState originState,
+        ExcavationConfig config,
+        CommonConfig commonConfig,
+        int horizontalRadius,
+        int verticalRadius,
+        VeinationRuntimeService veinationRuntime,
+        VeinationConfig veinationConfig,
+        ItemStack veinationTriggerTool
+    ) {
         super(player);
         this.origin = origin;
         this.originState = originState == null ? Blocks.AIR.defaultBlockState() : originState;
@@ -72,6 +109,10 @@ public class ExcavationAgent extends Agent {
         int globalBlocksPerTick = commonConfig == null ? 1 : Math.max(1, commonConfig.blocksPerTick());
         this.blocksPerTick = Math.max(1, Math.min(globalBlocksPerTick, this.config.processesPerTick()));
         this.blockLimit = commonConfig == null ? 64 : Math.max(1, commonConfig.blockLimit());
+        this.mineVeins = commonConfig == null || commonConfig.mineVeins();
+        this.veinationRuntime = veinationRuntime;
+        this.veinationConfig = veinationConfig;
+        this.veinationTriggerTool = veinationTriggerTool == null ? ItemStack.EMPTY : veinationTriggerTool.copy();
 
         String originBlockId = BuiltInRegistries.BLOCK.getKey(this.originState.getBlock()).toString();
         if (this.config.isBlacklisted(originBlockId)) {
@@ -102,6 +143,7 @@ public class ExcavationAgent extends Agent {
 
             if (state.getBlock() != Blocks.AIR && isTargetState(state)) {
                 world.destroyBlock(pos, true, player);
+                maybeFanOutVeination(pos, state);
                 processed++;
                 count++;
                 enqueueNeighbors(pos);
@@ -140,5 +182,31 @@ public class ExcavationAgent extends Agent {
             return state.getBlock() == originState.getBlock();
         }
         return state.equals(originState);
+    }
+
+    private void maybeFanOutVeination(BlockPos pos, BlockState brokenState) {
+        if (!mineVeins || veinationRuntime == null || veinationConfig == null || !veinationConfig.enabled()) {
+            return;
+        }
+
+        ItemStack toolStack = veinationTriggerTool.isEmpty() ? player.getMainHandItem() : veinationTriggerTool;
+
+        if (!RegistryPredicates.isPickaxeTool(toolStack)) {
+            return;
+        }
+
+        if (!veinationRuntime.isPickaxeAllowed(world, veinationConfig, toolStack)) {
+            return;
+        }
+
+        if (!veinationRuntime.isOreAllowed(veinationConfig, brokenState)) {
+            return;
+        }
+
+        AgentManager agentManager = AgentManager.get();
+        veinationRuntime.registerDropAnchor(player, pos, veinationConfig);
+        if (!agentManager.hasAgentType(player, VeinationAgent.class)) {
+            agentManager.addAgent(player, new VeinationAgent(player, pos, brokenState, veinationRuntime, veinationConfig));
+        }
     }
 }

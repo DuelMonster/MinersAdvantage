@@ -50,9 +50,10 @@ public final class VeinationCoreService {
 
     public List<BlockPos> discoverConnectedVein(Level world, BlockPos origin, BlockState originHint, int maxVeinDistance, int maxBlocks) {
         List<BlockPos> vein = new ArrayList<>();
-        if (world == null || origin == null || maxVeinDistance < 0 || maxBlocks <= 0) {
+        if (world == null || origin == null || maxVeinDistance < 0) {
             return vein;
         }
+        int effectiveMaxBlocks = maxBlocks <= 0 ? Integer.MAX_VALUE : maxBlocks;
 
         BlockState originState = world.getBlockState(origin);
         BlockState effectiveOriginState = RegistryPredicates.isOreLike(originState) ? originState : originHint;
@@ -84,7 +85,7 @@ public final class VeinationCoreService {
         }
 
         int maxDistanceSquared = maxVeinDistance * maxVeinDistance;
-        while (!queue.isEmpty() && vein.size() < maxBlocks) {
+        while (!queue.isEmpty() && vein.size() < effectiveMaxBlocks) {
             BlockPos current = queue.removeFirst();
             if (current.distSqr(origin) > maxDistanceSquared) {
                 continue;

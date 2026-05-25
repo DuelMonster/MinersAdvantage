@@ -17,8 +17,6 @@ public class VeinationAgent extends Agent {
     private final VeinationRuntimeService runtime;
     private final VeinationConfig config;
     private int blocksPerTick = 8;
-    private int processed = 0;
-    private int blockLimit = 64;
 
     public VeinationAgent(ServerPlayer player, BlockPos origin, VeinationRuntimeService runtime, VeinationConfig config) {
         this(player, origin, null, runtime, config);
@@ -28,24 +26,23 @@ public class VeinationAgent extends Agent {
         super(player);
         this.runtime = runtime;
         this.config = config;
-        queue.addAll(runtime.discoverVein(world, origin, originStateHint, config, blockLimit));
+        queue.addAll(runtime.discoverVein(world, origin, originStateHint, config));
     }
 
     @Override
     public boolean tick() {
         int count = 0;
-        while (!queue.isEmpty() && count < blocksPerTick && processed < blockLimit) {
+        while (!queue.isEmpty() && count < blocksPerTick) {
             BlockPos pos = queue.poll();
             if (world.getBlockState(pos).isAir()) {
                 continue;
             }
 
             world.destroyBlock(pos, true, player);
-            processed++;
             count++;
         }
-        if (queue.isEmpty() || processed >= blockLimit) {
-            return finish(queue.isEmpty() ? "vein queue exhausted" : "vein block limit reached");
+        if (queue.isEmpty()) {
+            return finish("vein queue exhausted");
         }
         return false;
     }

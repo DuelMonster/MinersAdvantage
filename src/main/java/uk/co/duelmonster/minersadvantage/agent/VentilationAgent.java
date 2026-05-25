@@ -11,7 +11,10 @@ import net.minecraft.world.level.block.LadderBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import uk.co.duelmonster.minersadvantage.common.config.CommonConfig;
 import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
+import uk.co.duelmonster.minersadvantage.common.config.VeinationConfig;
 import uk.co.duelmonster.minersadvantage.common.config.VentilationConfig;
+import uk.co.duelmonster.minersadvantage.common.registry.RegistryPredicates;
+import uk.co.duelmonster.minersadvantage.common.services.utility.VeinationRuntimeService;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -27,6 +30,10 @@ public class VentilationAgent extends Agent {
     private int dug = 0;
     private final int blocksPerTick;
     private final int blockLimit;
+    private final boolean mineVeins;
+    private final VeinationRuntimeService veinationRuntime;
+    private final VeinationConfig veinationConfig;
+    private final ItemStack veinationTriggerTool;
     private int ladderPlacements = 0;
 
     public VentilationAgent(ServerPlayer player, BlockPos origin, int length) {
@@ -38,6 +45,31 @@ public class VentilationAgent extends Agent {
     }
 
     public VentilationAgent(ServerPlayer player, BlockPos origin, Direction direction, VentilationConfig config, CommonConfig commonConfig) {
+        this(player, origin, direction, config, commonConfig, null, null);
+    }
+
+    public VentilationAgent(
+        ServerPlayer player,
+        BlockPos origin,
+        Direction direction,
+        VentilationConfig config,
+        CommonConfig commonConfig,
+        VeinationRuntimeService veinationRuntime,
+        VeinationConfig veinationConfig
+    ) {
+        this(player, origin, direction, config, commonConfig, veinationRuntime, veinationConfig, ItemStack.EMPTY);
+    }
+
+    public VentilationAgent(
+        ServerPlayer player,
+        BlockPos origin,
+        Direction direction,
+        VentilationConfig config,
+        CommonConfig commonConfig,
+        VeinationRuntimeService veinationRuntime,
+        VeinationConfig veinationConfig,
+        ItemStack veinationTriggerTool
+    ) {
         super(player);
         this.origin = origin;
         this.direction = direction == Direction.UP ? Direction.UP : Direction.DOWN;
@@ -47,6 +79,10 @@ public class VentilationAgent extends Agent {
         int globalBlocksPerTick = commonConfig == null ? 1 : Math.max(1, commonConfig.blocksPerTick());
         this.blocksPerTick = Math.max(1, Math.min(globalBlocksPerTick, this.config.processesPerTick()));
         this.blockLimit = commonConfig == null ? 64 : Math.max(1, commonConfig.blockLimit());
+        this.mineVeins = commonConfig == null || commonConfig.mineVeins();
+        this.veinationRuntime = veinationRuntime;
+        this.veinationConfig = veinationConfig;
+        this.veinationTriggerTool = veinationTriggerTool == null ? ItemStack.EMPTY : veinationTriggerTool.copy();
 
         for (int depth = 1; depth <= ventDepth; depth++) {
             queue.add(origin.relative(this.direction, depth).immutable());
@@ -61,6 +97,7 @@ public class VentilationAgent extends Agent {
             BlockState state = world.getBlockState(pos);
             if (!state.isAir()) {
                 world.destroyBlock(pos, true, player);
+                maybeFanOutVeination(pos, state);
                 dug++;
                 count++;
                 if (direction == Direction.DOWN && config.placeLadders()) {
@@ -104,5 +141,31 @@ public class VentilationAgent extends Agent {
             }
         }
         return null;
+    }
+
+    private void maybeFanOutVeination(BlockPos pos, BlockState brokenState) {
+        if (!mineVeins || veinationRuntime == null || veinationConfig == null || !veinationConfig.enabled()) {
+            return;
+        }
+
+        ItemStack toolStack = veinationTriggerTool.isEmpty() ? player.getMainHandItem() : veinationTriggerTool;
+
+        if (!RegistryPredicates.isPickaxeTool(toolStack)) {
+            return;
+        }
+
+        if (!veinationRuntime.isPickaxeAllowed(world, veinationConfig, toolStack)) {
+            return;
+        }
+
+        if (!veinationRuntime.isOreAllowed(veinationConfig, brokenState)) {
+            return;
+        }
+
+        AgentManager agentManager = AgentManager.get();
+        veinationRuntime.registerDropAnchor(player, pos, veinationConfig);
+        if (!agentManager.hasAgentType(player, VeinationAgent.class)) {
+            agentManager.addAgent(player, new VeinationAgent(player, pos, brokenState, veinationRuntime, veinationConfig));
+        }
     }
 }

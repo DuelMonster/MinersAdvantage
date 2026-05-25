@@ -3,12 +3,16 @@ package uk.co.duelmonster.minersadvantage.agent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.state.BlockState;
 import uk.co.duelmonster.minersadvantage.common.config.CommonConfig;
 import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 import uk.co.duelmonster.minersadvantage.common.config.ShaftanationConfig;
+import uk.co.duelmonster.minersadvantage.common.config.VeinationConfig;
 import uk.co.duelmonster.minersadvantage.common.log.LogUtils;
+import uk.co.duelmonster.minersadvantage.common.registry.RegistryPredicates;
+import uk.co.duelmonster.minersadvantage.common.services.utility.VeinationRuntimeService;
 
 import java.util.Deque;
 import java.util.LinkedList;
@@ -31,6 +35,10 @@ public class ShaftanationAgent extends Agent {
     private final int blockLimit;
     private final boolean autoIlluminate;
     private final int torchLowestLightLevel;
+    private final boolean mineVeins;
+    private final VeinationRuntimeService veinationRuntime;
+    private final VeinationConfig veinationConfig;
+    private final ItemStack veinationTriggerTool;
     private int dug = 0;
     private int torchPlacements = 0;
     private int torchLightWaitTicks = 0;
@@ -63,6 +71,33 @@ public class ShaftanationAgent extends Agent {
     }
 
     public ShaftanationAgent(ServerPlayer player, BlockPos origin, Direction direction, ShaftanationConfig config, CommonConfig commonConfig, int torchLowestLightLevel) {
+        this(player, origin, direction, config, commonConfig, torchLowestLightLevel, null, null);
+    }
+
+    public ShaftanationAgent(
+        ServerPlayer player,
+        BlockPos origin,
+        Direction direction,
+        ShaftanationConfig config,
+        CommonConfig commonConfig,
+        int torchLowestLightLevel,
+        VeinationRuntimeService veinationRuntime,
+        VeinationConfig veinationConfig
+    ) {
+        this(player, origin, direction, config, commonConfig, torchLowestLightLevel, veinationRuntime, veinationConfig, ItemStack.EMPTY);
+    }
+
+    public ShaftanationAgent(
+        ServerPlayer player,
+        BlockPos origin,
+        Direction direction,
+        ShaftanationConfig config,
+        CommonConfig commonConfig,
+        int torchLowestLightLevel,
+        VeinationRuntimeService veinationRuntime,
+        VeinationConfig veinationConfig,
+        ItemStack veinationTriggerTool
+    ) {
         super(player);
         this.origin = origin;
         this.direction = direction != null && direction.getAxis().isHorizontal() ? direction : player.getDirection();
@@ -76,6 +111,10 @@ public class ShaftanationAgent extends Agent {
         this.blockLimit = commonConfig == null ? 64 : Math.max(1, commonConfig.blockLimit());
         this.autoIlluminate = commonConfig == null || commonConfig.autoIlluminate();
         this.torchLowestLightLevel = Math.max(0, torchLowestLightLevel);
+        this.mineVeins = commonConfig == null || commonConfig.mineVeins();
+        this.veinationRuntime = veinationRuntime;
+        this.veinationConfig = veinationConfig;
+        this.veinationTriggerTool = veinationTriggerTool == null ? ItemStack.EMPTY : veinationTriggerTool.copy();
 
         int halfWidth = shaftWidth / 2;
         boolean alongZ = this.direction.getAxis() == Direction.Axis.Z;
@@ -101,6 +140,7 @@ public class ShaftanationAgent extends Agent {
             BlockState state = world.getBlockState(pos);
             if (!state.isAir()) {
                 world.destroyBlock(pos, true, player);
+                maybeFanOutVeination(pos, state);
                 dug++;
                 count++;
             }
@@ -230,5 +270,31 @@ public class ShaftanationAgent extends Agent {
         int atTorch = world.getBrightness(LightLayer.BLOCK, pos);
         int aboveTorch = world.getBrightness(LightLayer.BLOCK, pos.above());
         return Math.min(atTorch, aboveTorch);
+    }
+
+    private void maybeFanOutVeination(BlockPos pos, BlockState brokenState) {
+        if (!mineVeins || veinationRuntime == null || veinationConfig == null || !veinationConfig.enabled()) {
+            return;
+        }
+
+        ItemStack toolStack = veinationTriggerTool.isEmpty() ? player.getMainHandItem() : veinationTriggerTool;
+
+        if (!RegistryPredicates.isPickaxeTool(toolStack)) {
+            return;
+        }
+
+        if (!veinationRuntime.isPickaxeAllowed(world, veinationConfig, toolStack)) {
+            return;
+        }
+
+        if (!veinationRuntime.isOreAllowed(veinationConfig, brokenState)) {
+            return;
+        }
+
+        AgentManager agentManager = AgentManager.get();
+        veinationRuntime.registerDropAnchor(player, pos, veinationConfig);
+        if (!agentManager.hasAgentType(player, VeinationAgent.class)) {
+            agentManager.addAgent(player, new VeinationAgent(player, pos, brokenState, veinationRuntime, veinationConfig));
+        }
     }
 }

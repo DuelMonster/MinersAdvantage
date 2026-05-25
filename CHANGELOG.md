@@ -1,3 +1,10 @@
+## 0.7.0
+
+- Allow excavation, shaftanation, and ventilation agents to fan out into veination when `common.mine_veins` is enabled and ore eligibility checks pass.
+- Remove veination queue caps so connected ore discovery and processing are no longer limited by a fixed block ceiling.
+- Capture the triggering tool stack for agent-driven veination fan-out so substitution-driven hand changes do not suppress ore chaining.
+- Fix `AgentManager` tick-time concurrent modification by deferring agent additions during iteration and flushing queued agents after the tick pass.
+
 ## 0.6.0
 
 - Remove excavation, shaftanation, and ventilation trigger block/tool restrictions so activation can start from arbitrary targets and held items.

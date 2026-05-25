@@ -168,7 +168,29 @@ public final class VeinationRuntimeService {
         return digSpeed / (1.0F + (oreCount * (float) config.increasedHarvestingTimePerOreModifier()));
     }
 
+    public List<BlockPos> discoverVein(Level level, BlockPos origin, VeinationConfig config) {
+        BlockState originState = level == null || origin == null ? null : level.getBlockState(origin);
+        if (!isOreAllowed(config, originState)) {
+            return List.of();
+        }
+        return new ArrayList<>(coreService.discoverConnectedVein(level, origin, config.maxVeinDistance(), 0));
+    }
+
+    public List<BlockPos> discoverVein(Level level, BlockPos origin, BlockState originStateHint, VeinationConfig config) {
+        BlockState candidateState = originStateHint;
+        if (candidateState == null && level != null && origin != null) {
+            candidateState = level.getBlockState(origin);
+        }
+        if (!isOreAllowed(config, candidateState)) {
+            return List.of();
+        }
+        return new ArrayList<>(coreService.discoverConnectedVein(level, origin, originStateHint, config.maxVeinDistance(), 0));
+    }
+
     public List<BlockPos> discoverVein(Level level, BlockPos origin, VeinationConfig config, int maxBlocks) {
+        if (maxBlocks <= 0) {
+            return discoverVein(level, origin, config);
+        }
         BlockState originState = level == null || origin == null ? null : level.getBlockState(origin);
         if (!isOreAllowed(config, originState)) {
             return List.of();
@@ -177,6 +199,9 @@ public final class VeinationRuntimeService {
     }
 
     public List<BlockPos> discoverVein(Level level, BlockPos origin, BlockState originStateHint, VeinationConfig config, int maxBlocks) {
+        if (maxBlocks <= 0) {
+            return discoverVein(level, origin, originStateHint, config);
+        }
         BlockState candidateState = originStateHint;
         if (candidateState == null && level != null && origin != null) {
             candidateState = level.getBlockState(origin);
