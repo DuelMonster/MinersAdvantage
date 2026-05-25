@@ -1,6 +1,7 @@
 package uk.co.duelmonster.minersadvantage.agent;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -12,10 +13,11 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 /**
- * ShaftanationAgent: digs a vertical shaft down from the origin.
+ * ShaftanationAgent: digs a horizontal shaft in the player's facing direction.
  */
 public class ShaftanationAgent extends Agent {
     private final BlockPos origin;
+    private final Direction direction;
     private final ShaftanationConfig config;
     private final Queue<BlockPos> queue = new LinkedList<>();
     private final int targetDepth;
@@ -28,12 +30,17 @@ public class ShaftanationAgent extends Agent {
     private int torchPlacements = 0;
 
     public ShaftanationAgent(ServerPlayer player, BlockPos origin, int depth) {
-        this(player, origin, new ShaftanationConfig(true, Math.max(1, depth), 8), new CommonConfig());
+        this(player, origin, player.getDirection(), new ShaftanationConfig(true, Math.max(1, depth), 8), new CommonConfig());
     }
 
     public ShaftanationAgent(ServerPlayer player, BlockPos origin, ShaftanationConfig config, CommonConfig commonConfig) {
+        this(player, origin, player.getDirection(), config, commonConfig);
+    }
+
+    public ShaftanationAgent(ServerPlayer player, BlockPos origin, Direction direction, ShaftanationConfig config, CommonConfig commonConfig) {
         super(player);
         this.origin = origin;
+        this.direction = direction != null && direction.getAxis().isHorizontal() ? direction : player.getDirection();
         this.config = config == null ? MAServerRootConfig.defaults().shaftanation() : config;
         this.targetDepth = Math.max(1, this.config.maxDepth());
         this.shaftWidth = Math.max(1, this.config.shaftWidth());
@@ -45,16 +52,16 @@ public class ShaftanationAgent extends Agent {
         this.autoIlluminate = commonConfig == null || commonConfig.autoIlluminate();
 
         int halfWidth = shaftWidth / 2;
+        boolean alongZ = this.direction.getAxis() == Direction.Axis.Z;
         for (int depth = 1; depth <= targetDepth; depth++) {
-            BlockPos base = origin.below(depth);
-            for (int x = -halfWidth; x <= halfWidth; x++) {
-                for (int y = 0; y < shaftHeight; y++) {
-                    queue.add(base.offset(x, y, 0).immutable());
+            BlockPos base = origin.relative(this.direction, depth);
+            for (int w = -halfWidth; w <= halfWidth; w++) {
+                for (int h = 0; h < shaftHeight; h++) {
+                    queue.add((alongZ ? base.offset(w, h, 0) : base.offset(0, h, w)).immutable());
                 }
             }
-
             if (autoIlluminate && depth % 5 == 0) {
-                addTorchTargets(base, halfWidth);
+                addTorchTargets(base, halfWidth, alongZ);
             }
         }
     }
@@ -81,14 +88,14 @@ public class ShaftanationAgent extends Agent {
         return false;
     }
 
-    private void addTorchTargets(BlockPos base, int halfWidth) {
+    private void addTorchTargets(BlockPos base, int halfWidth, boolean alongZ) {
         switch (config.torchPlacement()) {
-            case FLOOR -> queue.add(base.above().immutable());
-            case LEFT_WALL -> queue.add(base.offset(-halfWidth, 1, 0).immutable());
-            case RIGHT_WALL -> queue.add(base.offset(halfWidth, 1, 0).immutable());
+            case FLOOR -> queue.add(base.immutable());
+            case LEFT_WALL -> queue.add((alongZ ? base.offset(-halfWidth, 1, 0) : base.offset(0, 1, -halfWidth)).immutable());
+            case RIGHT_WALL -> queue.add((alongZ ? base.offset(halfWidth, 1, 0) : base.offset(0, 1, halfWidth)).immutable());
             case BOTH_WALLS -> {
-                queue.add(base.offset(-halfWidth, 1, 0).immutable());
-                queue.add(base.offset(halfWidth, 1, 0).immutable());
+                queue.add((alongZ ? base.offset(-halfWidth, 1, 0) : base.offset(0, 1, -halfWidth)).immutable());
+                queue.add((alongZ ? base.offset(halfWidth, 1, 0) : base.offset(0, 1, halfWidth)).immutable());
             }
             default -> {
             }

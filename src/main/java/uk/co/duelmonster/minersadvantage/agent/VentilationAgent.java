@@ -1,8 +1,13 @@
 package uk.co.duelmonster.minersadvantage.agent;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LadderBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import uk.co.duelmonster.minersadvantage.common.config.CommonConfig;
 import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
@@ -12,13 +17,12 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 /**
- * VentilationAgent: digs a horizontal tunnel for ventilation.
+ * VentilationAgent: digs a vertical vent shaft upward or downward from the origin.
  */
 public class VentilationAgent extends Agent {
     private final BlockPos origin;
+    private final Direction direction;
     private final VentilationConfig config;
-    private final int horizontalRange;
-    private final int verticalRange;
     private final Queue<BlockPos> queue = new LinkedList<>();
     private int dug = 0;
     private final int blocksPerTick;
@@ -26,24 +30,26 @@ public class VentilationAgent extends Agent {
     private int ladderPlacements = 0;
 
     public VentilationAgent(ServerPlayer player, BlockPos origin, int length) {
-        this(player, origin, new VentilationConfig(true, Math.max(1, length), 1, 8), new CommonConfig());
+        this(player, origin, Direction.DOWN, new VentilationConfig(true, Math.max(1, length), 1, 8), new CommonConfig());
     }
 
     public VentilationAgent(ServerPlayer player, BlockPos origin, VentilationConfig config, CommonConfig commonConfig) {
+        this(player, origin, Direction.DOWN, config, commonConfig);
+    }
+
+    public VentilationAgent(ServerPlayer player, BlockPos origin, Direction direction, VentilationConfig config, CommonConfig commonConfig) {
         super(player);
         this.origin = origin;
+        this.direction = direction == Direction.UP ? Direction.UP : Direction.DOWN;
         this.config = config == null ? MAServerRootConfig.defaults().ventilation() : config;
-        this.horizontalRange = Math.max(1, this.config.radiusHorizontal());
-        this.verticalRange = Math.max(0, this.config.radiusVertical());
+        int ventDepth = Math.max(1, this.config.radiusVertical());
 
         int globalBlocksPerTick = commonConfig == null ? 1 : Math.max(1, commonConfig.blocksPerTick());
         this.blocksPerTick = Math.max(1, Math.min(globalBlocksPerTick, this.config.processesPerTick()));
         this.blockLimit = commonConfig == null ? 64 : Math.max(1, commonConfig.blockLimit());
 
-        for (int x = 1; x <= horizontalRange; x++) {
-            for (int y = -verticalRange; y <= verticalRange; y++) {
-                queue.add(origin.offset(x, y, 0).immutable());
-            }
+        for (int depth = 1; depth <= ventDepth; depth++) {
+            queue.add(origin.relative(this.direction, depth).immutable());
         }
     }
 
@@ -57,13 +63,8 @@ public class VentilationAgent extends Agent {
                 world.destroyBlock(pos, true, player);
                 dug++;
                 count++;
-
-                if (config.placeLadders() && dug % 3 == 0 && world.isEmptyBlock(pos)) {
-                    BlockPos anchor = pos.west();
-                    if (!world.isEmptyBlock(anchor)) {
-                        world.setBlockAndUpdate(pos, Blocks.LADDER.defaultBlockState());
-                        ladderPlacements++;
-                    }
+                if (direction == Direction.DOWN && config.placeLadders()) {
+                    tryPlaceLadder(pos);
                 }
             }
         }
@@ -72,5 +73,36 @@ public class VentilationAgent extends Agent {
             return finish(queue.isEmpty() ? "ventilation queue exhausted" : "ventilation target reached");
         }
         return false;
+    }
+
+    private void tryPlaceLadder(BlockPos pos) {
+        ItemStack ladderStack = findLadderInInventory();
+        if (ladderStack == null) {
+            return;
+        }
+        Direction[] sides = {Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST};
+        for (Direction wallDir : sides) {
+            if (!world.isEmptyBlock(pos.relative(wallDir))) {
+                BlockState ladderState = Blocks.LADDER.defaultBlockState()
+                    .setValue(LadderBlock.FACING, wallDir.getOpposite());
+                if (world.isEmptyBlock(pos)) {
+                    world.setBlockAndUpdate(pos, ladderState);
+                    ladderStack.shrink(1);
+                    ladderPlacements++;
+                }
+                return;
+            }
+        }
+    }
+
+    private ItemStack findLadderInInventory() {
+        Inventory inv = player.getInventory();
+        for (int i = 0; i < inv.getContainerSize(); i++) {
+            ItemStack stack = inv.getItem(i);
+            if (!stack.isEmpty() && stack.is(Items.LADDER)) {
+                return stack;
+            }
+        }
+        return null;
     }
 }

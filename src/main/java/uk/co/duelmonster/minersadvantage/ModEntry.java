@@ -3,8 +3,11 @@ package uk.co.duelmonster.minersadvantage;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -89,6 +92,7 @@ public final class ModEntry implements ModInitializer {
     private final MinersAdvantageCore core = new MinersAdvantageCore();
     private final ToolEventHandler toolEvents = new CommonEventHandlerImpl(core);
     private final VeinationRuntimeService veinationRuntime = new VeinationRuntimeService();
+    private final Map<Long, BreakFaceState> lastBreakFaces = new ConcurrentHashMap<>();
 
     @Override
     public void onInitialize() {
@@ -108,6 +112,8 @@ public final class ModEntry implements ModInitializer {
             if (world.isClientSide() || !(player instanceof ServerPlayer serverPlayer)) {
                 return InteractionResult.PASS;
             }
+
+            rememberBreakFace(serverPlayer, pos, direction);
 
             if (!isFeatureEnabled(FeatureId.SUBSTITUTION)) {
                 return InteractionResult.PASS;
@@ -197,10 +203,17 @@ public final class ModEntry implements ModInitializer {
                     agentManager.addAgent(serverPlayer, new VeinationAgent(serverPlayer, pos, state, veinationRuntime, veinationConfig));
                 }
             } else if (shaftModeActive && isPickaxeTool(stack) && RegistryPredicates.isStoneLike(state)) {
-                LogUtils.logDebug("Block break trigger feature=Shaftanation player={} item={} block={} pos={}", serverPlayer.getScoreboardName(), itemId, brokenBlockId, pos);
+                Direction breakFace = consumeBreakFace(serverPlayer, pos);
+                boolean verticalFace = breakFace == Direction.UP || breakFace == Direction.DOWN;
                 AgentManager agentManager = AgentManager.get();
-                if (!agentManager.hasAgentType(serverPlayer, ShaftanationAgent.class)) {
-                    agentManager.addAgent(serverPlayer, new ShaftanationAgent(serverPlayer, pos, shaftanationConfig(serverPlayer), commonConfig(serverPlayer)));
+                if (verticalFace) {
+                    LogUtils.logDebug("Block break trigger feature=Ventilation player={} item={} block={} pos={} face={}", serverPlayer.getScoreboardName(), itemId, brokenBlockId, pos, breakFace);
+                    agentManager.addAgent(serverPlayer, new VentilationAgent(serverPlayer, pos, breakFace != null ? breakFace.getOpposite() : Direction.DOWN, ventilationConfig(serverPlayer), commonConfig(serverPlayer)));
+                } else {
+                    LogUtils.logDebug("Block break trigger feature=Shaftanation player={} item={} block={} pos={} face={}", serverPlayer.getScoreboardName(), itemId, brokenBlockId, pos, breakFace == null ? "unknown" : breakFace);
+                    if (!agentManager.hasAgentType(serverPlayer, ShaftanationAgent.class)) {
+                        agentManager.addAgent(serverPlayer, new ShaftanationAgent(serverPlayer, pos, serverPlayer.getDirection(), shaftanationConfig(serverPlayer), commonConfig(serverPlayer)));
+                    }
                 }
             } else if (!shaftModeActive && excavationActive && isExcavationTool(stack) && isExcavationBlock(state, stack)) {
                 LogUtils.logDebug("Block break trigger feature=Excavation player={} item={} block={} pos={}", serverPlayer.getScoreboardName(), itemId, brokenBlockId, pos);
@@ -284,8 +297,18 @@ public final class ModEntry implements ModInitializer {
 
             var playerState = core.playerStateService().getPlayerState(playerId(serverPlayer));
             if (playerState.shaftVentToggled() && isPickaxeTool(stack) && RegistryPredicates.isStoneLike(state) && !player.isShiftKeyDown()) {
-                LogUtils.logDebug("Use block trigger feature=Ventilation player={} item={} block={} pos={}", serverPlayer.getScoreboardName(), itemId, targetBlockId, pos);
-                AgentManager.get().addAgent(serverPlayer, new VentilationAgent(serverPlayer, pos, ventilationConfig(serverPlayer), commonConfig(serverPlayer)));
+                Direction face = hitResult.getDirection();
+                boolean verticalFace = face == Direction.UP || face == Direction.DOWN;
+                if (verticalFace) {
+                    LogUtils.logDebug("Use block trigger feature=Ventilation player={} item={} block={} pos={} face={}", serverPlayer.getScoreboardName(), itemId, targetBlockId, pos, face);
+                    AgentManager.get().addAgent(serverPlayer, new VentilationAgent(serverPlayer, pos, face.getOpposite(), ventilationConfig(serverPlayer), commonConfig(serverPlayer)));
+                } else {
+                    LogUtils.logDebug("Use block trigger feature=Shaftanation player={} item={} block={} pos={} face={}", serverPlayer.getScoreboardName(), itemId, targetBlockId, pos, face);
+                    AgentManager agentManager = AgentManager.get();
+                    if (!agentManager.hasAgentType(serverPlayer, ShaftanationAgent.class)) {
+                        agentManager.addAgent(serverPlayer, new ShaftanationAgent(serverPlayer, pos, serverPlayer.getDirection(), shaftanationConfig(serverPlayer), commonConfig(serverPlayer)));
+                    }
+                }
                 return InteractionResult.SUCCESS;
             }
 
@@ -470,6 +493,27 @@ public final class ModEntry implements ModInitializer {
                 );
             }
         }
+    }
+
+    private void rememberBreakFace(ServerPlayer serverPlayer, BlockPos pos, Direction face) {
+        if (serverPlayer == null || pos == null || face == null) {
+            return;
+        }
+        lastBreakFaces.put(playerId(serverPlayer), new BreakFaceState(pos.immutable(), face));
+    }
+
+    private Direction consumeBreakFace(ServerPlayer serverPlayer, BlockPos pos) {
+        if (serverPlayer == null || pos == null) {
+            return null;
+        }
+        BreakFaceState state = lastBreakFaces.remove(playerId(serverPlayer));
+        if (state == null || !state.pos().equals(pos)) {
+            return null;
+        }
+        return state.face();
+    }
+
+    private record BreakFaceState(BlockPos pos, Direction face) {
     }
 
     private void routeToolUse(ItemStack stack, BlockPos pos, BlockState state) {
@@ -823,6 +867,7 @@ public final class ModEntry {
     private final MinersAdvantageCore core = new MinersAdvantageCore();
     private final ToolEventHandler toolEvents = new CommonEventHandlerImpl(core);
     private final VeinationRuntimeService veinationRuntime = new VeinationRuntimeService();
+    private final Map<Long, BreakFaceState> lastBreakFaces = new ConcurrentHashMap<>();
 
     public ModEntry(IEventBus modEventBus, ModContainer modContainer, Dist dist) {
         LogUtils.applyConfiguredLogging();
@@ -959,7 +1004,16 @@ public final class ModEntry {
 
         var playerState = core.playerStateService().getPlayerState(playerId(serverPlayer));
         if (playerState.shaftVentToggled() && isPickaxeTool(stack) && RegistryPredicates.isStoneLike(state) && !event.getEntity().isShiftKeyDown()) {
-            AgentManager.get().addAgent(serverPlayer, new VentilationAgent(serverPlayer, pos, ventilationConfig(serverPlayer), commonConfig(serverPlayer)));
+            Direction face = event.getFace();
+            boolean verticalFace = face == Direction.UP || face == Direction.DOWN;
+            if (verticalFace) {
+                AgentManager.get().addAgent(serverPlayer, new VentilationAgent(serverPlayer, pos, face.getOpposite(), ventilationConfig(serverPlayer), commonConfig(serverPlayer)));
+            } else {
+                AgentManager agentManager = AgentManager.get();
+                if (!agentManager.hasAgentType(serverPlayer, ShaftanationAgent.class)) {
+                    agentManager.addAgent(serverPlayer, new ShaftanationAgent(serverPlayer, pos, serverPlayer.getDirection(), shaftanationConfig(serverPlayer), commonConfig(serverPlayer)));
+                }
+            }
             return;
         }
 
@@ -1049,6 +1103,7 @@ public final class ModEntry {
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
             ItemStack stack = SubstitutionAgent.effectiveBreakHandStack(serverPlayer, InteractionHand.MAIN_HAND);
             BlockState state = event.getLevel().getBlockState(event.getPos());
+            rememberBreakFace(serverPlayer, event.getPos(), event.getFace());
             long id = playerId(serverPlayer);
             var playerState = core.playerStateService().getPlayerState(id);
             boolean shaftModeActive = isFeatureEnabled(FeatureId.SHAFTANATION) && playerState.shaftVentToggled();
@@ -1066,9 +1121,13 @@ public final class ModEntry {
                     agentManager.addAgent(serverPlayer, new VeinationAgent(serverPlayer, event.getPos(), veinationRuntime, config));
                 }
             } else if (shaftModeActive && isPickaxeTool(stack) && RegistryPredicates.isStoneLike(state)) {
+                Direction breakFace = event.getFace();
+                boolean verticalFace = breakFace == Direction.UP || breakFace == Direction.DOWN;
                 AgentManager agentManager = AgentManager.get();
-                if (!agentManager.hasAgentType(serverPlayer, ShaftanationAgent.class)) {
-                    agentManager.addAgent(serverPlayer, new ShaftanationAgent(serverPlayer, event.getPos(), shaftanationConfig(serverPlayer), commonConfig(serverPlayer)));
+                if (verticalFace) {
+                    agentManager.addAgent(serverPlayer, new VentilationAgent(serverPlayer, event.getPos(), breakFace.getOpposite(), ventilationConfig(serverPlayer), commonConfig(serverPlayer)));
+                } else if (!agentManager.hasAgentType(serverPlayer, ShaftanationAgent.class)) {
+                    agentManager.addAgent(serverPlayer, new ShaftanationAgent(serverPlayer, event.getPos(), serverPlayer.getDirection(), shaftanationConfig(serverPlayer), commonConfig(serverPlayer)));
                 }
             } else if (!shaftModeActive && excavationActive && isExcavationTool(stack) && isExcavationBlock(state, stack)) {
                 ExcavationConfig excavationConfig = excavationConfig(serverPlayer);
@@ -1155,6 +1214,27 @@ public final class ModEntry {
             }
         }
         toolEvents.onServerTick();
+    }
+
+    private void rememberBreakFace(ServerPlayer serverPlayer, BlockPos pos, Direction face) {
+        if (serverPlayer == null || pos == null || face == null) {
+            return;
+        }
+        lastBreakFaces.put(playerId(serverPlayer), new BreakFaceState(pos.immutable(), face));
+    }
+
+    private Direction consumeBreakFace(ServerPlayer serverPlayer, BlockPos pos) {
+        if (serverPlayer == null || pos == null) {
+            return null;
+        }
+        BreakFaceState state = lastBreakFaces.remove(playerId(serverPlayer));
+        if (state == null || !state.pos().equals(pos)) {
+            return null;
+        }
+        return state.face();
+    }
+
+    private record BreakFaceState(BlockPos pos, Direction face) {
     }
 
     private void routeToolUse(ItemStack stack, BlockPos pos, BlockState state) {

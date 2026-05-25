@@ -6,6 +6,9 @@
 - Require the shaft/vent hold state before right-click stone ventilation can start.
 - Restore the Fabric illumination keybind by sending an explicit client illumination action packet.
 - Apply excavation single-layer mode by collapsing the vertical radius only while that hold is active.
+- Route shaft/vent pickaxe block-break activation by hit face so horizontal faces start shafts and vertical faces start vents.
+- Rewrite ShaftanationAgent to dig horizontally in the player's facing direction instead of downward, with correct cross-section axis based on direction.
+- Rewrite VentilationAgent to dig a 1×1 vertical column (up or down) from the triggered face, with per-block ladder placement that draws from player inventory.
 - Enforce synchronized common-feature behavior for veination, captivation, substitution, cultivation, illumination, pathanation, shaftanation, ventilation, excavation, and lumbination agents.
 - Add veination ore allowlist runtime checks and substitution ATTACK context support with entity-type-aware rule targeting.
 - Improve cropination replant/seed behavior and lumbination leaves/shears/durability/replant handling for closer legacy behavior alignment.
