@@ -105,6 +105,7 @@ public final class MATomlConfigStore {
                 boolValue(serverValues, "lumbination.leaves_affect_durability", fallback.lumbination().leavesAffectDurability()),
                 boolValue(serverValues, "lumbination.replant_saplings", fallback.lumbination().replantSaplings()),
                 boolValue(serverValues, "lumbination.use_shears_on_leaves", fallback.lumbination().useShearsOnLeaves()),
+                boolValue(serverValues, "lumbination.ignore_player_placed_leaves", fallback.lumbination().ignorePlayerPlacedLeaves()),
                 stringListValue(serverValues, "lumbination.logs", fallback.lumbination().logs()),
                 stringListValue(serverValues, "lumbination.leaves", fallback.lumbination().leaves()),
                 stringListValue(serverValues, "lumbination.axes", fallback.lumbination().axes())
@@ -209,6 +210,7 @@ public final class MATomlConfigStore {
         serverValues.put("lumbination.leaves_affect_durability", formatTomlValue(value.lumbination().leavesAffectDurability()));
         serverValues.put("lumbination.replant_saplings", formatTomlValue(value.lumbination().replantSaplings()));
         serverValues.put("lumbination.use_shears_on_leaves", formatTomlValue(value.lumbination().useShearsOnLeaves()));
+        serverValues.put("lumbination.ignore_player_placed_leaves", formatTomlValue(value.lumbination().ignorePlayerPlacedLeaves()));
         serverValues.put("lumbination.logs", formatTomlValue(value.lumbination().logs()));
         serverValues.put("lumbination.leaves", formatTomlValue(value.lumbination().leaves()));
         serverValues.put("lumbination.axes", formatTomlValue(value.lumbination().axes()));

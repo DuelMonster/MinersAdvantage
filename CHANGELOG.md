@@ -1,5 +1,13 @@
 ## 0.6.0
 
+- Rework Lumbination into a logs-first then leaves-second harvest flow to stop interleaved trunk/canopy breaking.
+- Replace leaf flood-fill traversal with a bounded canopy candidate pass derived from trunk bounds to reduce neighboring-tree bleed.
+- Remove Lumbination's common block-limit cutoff so large trees do not stop mid-harvest and leave floating canopies.
+- Add `ignore_player_placed_leaves` Lumbination config wiring across defaults, TOML storage, policy sanitization, sync defaults, and config UI.
+- Restore Lumbination log/leaf parity guards: require a valid origin leaf, restrict fallback log matching to origin log type, and enforce origin leaf block matching.
+- Improve Lumbination sapling replanting to use detected trunk base targets, support all-or-nothing 2x2 planting, and delay planting until full tree harvest completion.
+- Change Lumbination sapling consumption order to inventory-first with shears-mode inventory-only consumption.
+
 - Fix captivation recent-drop detection to keep player-thrown items exempt for the full 160-tick cooldown window.
 - Stop captivation from immediately re-pulling freshly dropped player items by honoring recent-drop ownership and pickup-delay signals.
 - Ignore newly dropped nearby items in captivation until drop ownership or pickup-delay windows have expired.

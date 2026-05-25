@@ -616,6 +616,7 @@ public final class MinersAdvantageConfigScreen {
             addGameplayBoolean(entries, entryBuilder, "Leaves Affect Durability", "Apply durability loss for processed leaves.", mutable.lumbinationLeavesAffectDurability, currentServerConfig.lumbination().leavesAffectDurability(), gameplayEditable, value -> mutable.lumbinationLeavesAffectDurability = value);
             addGameplayBoolean(entries, entryBuilder, "Replant Saplings", "Replant saplings after tree harvesting.", mutable.lumbinationReplantSaplings, currentServerConfig.lumbination().replantSaplings(), gameplayEditable, value -> mutable.lumbinationReplantSaplings = value);
             addGameplayBoolean(entries, entryBuilder, "Use Shears On Leaves", "Use shears behavior when harvesting leaves.", mutable.lumbinationUseShearsOnLeaves, currentServerConfig.lumbination().useShearsOnLeaves(), gameplayEditable, value -> mutable.lumbinationUseShearsOnLeaves = value);
+            addGameplayBoolean(entries, entryBuilder, "Ignore Player Placed Leaves", "Skip leaves placed by players (persistent leaves) when clearing the canopy.", mutable.lumbinationIgnorePlayerPlacedLeaves, currentServerConfig.lumbination().ignorePlayerPlacedLeaves(), gameplayEditable, value -> mutable.lumbinationIgnorePlayerPlacedLeaves = value);
             addSectionHeading(entries, entryBuilder, "Range");
             addGameplayInt(entries, entryBuilder, "Max Trunk Range", "Maximum trunk traversal range.", mutable.lumbinationMaxTrunkRange, currentServerConfig.lumbination().maxTrunkRange(), 1, 128, gameplayEditable, value -> mutable.lumbinationMaxTrunkRange = value);
             addGameplayInt(entries, entryBuilder, "Max Leaf Range", "Maximum leaf traversal range.", mutable.lumbinationMaxLeafRange, currentServerConfig.lumbination().maxLeafRange(), 1, 32, gameplayEditable, value -> mutable.lumbinationMaxLeafRange = value);
@@ -1044,6 +1045,7 @@ public final class MinersAdvantageConfigScreen {
         private boolean lumbinationLeavesAffectDurability;
         private boolean lumbinationReplantSaplings;
         private boolean lumbinationUseShearsOnLeaves;
+        private boolean lumbinationIgnorePlayerPlacedLeaves;
         private List<String> lumbinationLogs;
         private List<String> lumbinationLeaves;
         private List<String> lumbinationAxes;
@@ -1139,6 +1141,7 @@ public final class MinersAdvantageConfigScreen {
             this.lumbinationLeavesAffectDurability = config.lumbination().leavesAffectDurability();
             this.lumbinationReplantSaplings = config.lumbination().replantSaplings();
             this.lumbinationUseShearsOnLeaves = config.lumbination().useShearsOnLeaves();
+            this.lumbinationIgnorePlayerPlacedLeaves = config.lumbination().ignorePlayerPlacedLeaves();
             this.lumbinationLogs = new ArrayList<>(config.lumbination().logs());
             this.lumbinationLeaves = new ArrayList<>(config.lumbination().leaves());
             this.lumbinationAxes = new ArrayList<>(config.lumbination().axes());
@@ -1288,6 +1291,7 @@ public final class MinersAdvantageConfigScreen {
                 || lumbinationLeavesAffectDurability != defaults.leavesAffectDurability()
                 || lumbinationReplantSaplings != defaults.replantSaplings()
                 || lumbinationUseShearsOnLeaves != defaults.useShearsOnLeaves()
+                || lumbinationIgnorePlayerPlacedLeaves != defaults.ignorePlayerPlacedLeaves()
                 || !lumbinationLogs.equals(defaults.logs())
                 || !lumbinationLeaves.equals(defaults.leaves())
                 || !lumbinationAxes.equals(defaults.axes());
@@ -1304,6 +1308,7 @@ public final class MinersAdvantageConfigScreen {
             lumbinationLeavesAffectDurability = defaults.leavesAffectDurability();
             lumbinationReplantSaplings = defaults.replantSaplings();
             lumbinationUseShearsOnLeaves = defaults.useShearsOnLeaves();
+            lumbinationIgnorePlayerPlacedLeaves = defaults.ignorePlayerPlacedLeaves();
             lumbinationLogs = new ArrayList<>(defaults.logs());
             lumbinationLeaves = new ArrayList<>(defaults.leaves());
             lumbinationAxes = new ArrayList<>(defaults.axes());
@@ -1469,6 +1474,7 @@ public final class MinersAdvantageConfigScreen {
                     lumbinationLeavesAffectDurability,
                     lumbinationReplantSaplings,
                     lumbinationUseShearsOnLeaves,
+                    lumbinationIgnorePlayerPlacedLeaves,
                     lumbinationLogs,
                     lumbinationLeaves,
                     lumbinationAxes

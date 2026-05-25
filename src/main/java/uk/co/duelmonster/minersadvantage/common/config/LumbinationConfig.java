@@ -16,6 +16,7 @@ public record LumbinationConfig(
     boolean leavesAffectDurability,
     boolean replantSaplings,
     boolean useShearsOnLeaves,
+    boolean ignorePlayerPlacedLeaves,
     List<String> logs,
     List<String> leaves,
     List<String> axes
@@ -25,7 +26,7 @@ public record LumbinationConfig(
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public LumbinationConfig(boolean enabled, int maxTrunkRange, int maxLeafRange, int processesPerTick) {
-        this(enabled, maxTrunkRange, maxLeafRange, processesPerTick, true, true, false, true, true, List.of(), List.of(), List.of());
+        this(enabled, maxTrunkRange, maxLeafRange, processesPerTick, true, true, false, true, true, true, List.of(), List.of(), List.of());
     }
 
     public LumbinationConfig {

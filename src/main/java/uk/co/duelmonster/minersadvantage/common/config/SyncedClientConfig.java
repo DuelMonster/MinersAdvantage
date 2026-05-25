@@ -36,7 +36,7 @@ public record SyncedClientConfig(
             new ExcavationConfig(true, 3, 2, 10, false, false, false, List.of()),
             new PathanationConfig(true, 6, 3),
             new IlluminationConfig(true, 2, 1, 7, true),
-            new LumbinationConfig(true, 32, 6, 8, true, true, false, true, true, List.of(), List.of(), List.of()),
+            new LumbinationConfig(true, 32, 6, 8, true, true, false, true, true, true, List.of(), List.of(), List.of()),
             new ShaftanationConfig(true, 16, 10, 1, 2, TorchPlacement.FLOOR),
             new SubstitutionConfig(true, false, false, true, true, true, true, List.of()),
             new VeinationConfig(true, 4, List.of(), true, true, true, 0.2D, List.of()),
