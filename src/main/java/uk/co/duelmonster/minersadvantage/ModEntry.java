@@ -282,7 +282,8 @@ public final class ModEntry implements ModInitializer {
                 }
             }
 
-            if (isPickaxeTool(stack) && RegistryPredicates.isStoneLike(state) && !player.isShiftKeyDown()) {
+            var playerState = core.playerStateService().getPlayerState(playerId(serverPlayer));
+            if (playerState.shaftVentToggled() && isPickaxeTool(stack) && RegistryPredicates.isStoneLike(state) && !player.isShiftKeyDown()) {
                 LogUtils.logDebug("Use block trigger feature=Ventilation player={} item={} block={} pos={}", serverPlayer.getScoreboardName(), itemId, targetBlockId, pos);
                 AgentManager.get().addAgent(serverPlayer, new VentilationAgent(serverPlayer, pos, ventilationConfig(serverPlayer), commonConfig(serverPlayer)));
                 return InteractionResult.SUCCESS;
@@ -956,7 +957,8 @@ public final class ModEntry {
             return;
         }
 
-        if (isPickaxeTool(stack) && RegistryPredicates.isStoneLike(state) && !event.getEntity().isShiftKeyDown()) {
+        var playerState = core.playerStateService().getPlayerState(playerId(serverPlayer));
+        if (playerState.shaftVentToggled() && isPickaxeTool(stack) && RegistryPredicates.isStoneLike(state) && !event.getEntity().isShiftKeyDown()) {
             AgentManager.get().addAgent(serverPlayer, new VentilationAgent(serverPlayer, pos, ventilationConfig(serverPlayer), commonConfig(serverPlayer)));
             return;
         }
