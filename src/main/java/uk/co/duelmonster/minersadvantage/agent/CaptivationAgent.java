@@ -20,11 +20,11 @@ import java.util.UUID;
  * CaptivationAgent: pulls nearby drops toward the player (magnet effect).
  */
 public class CaptivationAgent extends Agent {
-    private static final double NO_PULL_RADIUS_SQUARED = 1.0D;
+    private static final double NO_PULL_RADIUS_SQUARED = 2.0D;
     private static final int PLAYER_DROP_COOLDOWN_TICKS = 160;
     private static final int PLAYER_DROP_PICKUP_DELAY_TICKS = 20;
-    private static final String[] DROPPER_GETTER_CANDIDATES = {"getThrower", "getOwner", "getTarget"};
-    private static final String[] DROPPER_FIELD_CANDIDATES = {"thrower", "owner", "target"};
+    private static final String[] DROPPER_GETTER_CANDIDATES = {"getThrower", "getThrowerId", "getOwner", "getOwnerId", "getTarget"};
+    private static final String[] DROPPER_FIELD_CANDIDATES = {"thrower", "throwerId", "owner", "ownerId", "target"};
     private static final String[] PICKUP_DELAY_GETTER_CANDIDATES = {"getPickUpDelay", "getPickupDelay"};
     private static final String[] PICKUP_DELAY_FIELD_CANDIDATES = {"pickupDelay", "pickUpDelay"};
 
@@ -123,7 +123,8 @@ public class CaptivationAgent extends Agent {
         if (getter != null) {
             try {
                 Object value = getter.invoke(item);
-                if (value instanceof UUID id) {
+                UUID id = extractDropperUuid(value);
+                if (id != null) {
                     return id;
                 }
             } catch (ReflectiveOperationException ignored) {
@@ -134,7 +135,8 @@ public class CaptivationAgent extends Agent {
         if (field != null) {
             try {
                 Object value = field.get(item);
-                if (value instanceof UUID id) {
+                UUID id = extractDropperUuid(value);
+                if (id != null) {
                     return id;
                 }
             } catch (IllegalAccessException ignored) {
@@ -152,7 +154,7 @@ public class CaptivationAgent extends Agent {
         for (String candidate : DROPPER_GETTER_CANDIDATES) {
             try {
                 Method method = item.getClass().getMethod(candidate);
-                if (method.getParameterCount() == 0 && UUID.class.isAssignableFrom(method.getReturnType())) {
+                if (method.getParameterCount() == 0 && canContainDropperUuid(method.getReturnType())) {
                     cachedDropperGetter = method;
                     dropperGetterResolved = true;
                     return cachedDropperGetter;
@@ -173,7 +175,7 @@ public class CaptivationAgent extends Agent {
         for (String candidate : DROPPER_FIELD_CANDIDATES) {
             try {
                 Field field = item.getClass().getDeclaredField(candidate);
-                if (UUID.class.isAssignableFrom(field.getType())) {
+                if (canContainDropperUuid(field.getType())) {
                     field.setAccessible(true);
                     cachedDropperField = field;
                     dropperFieldResolved = true;
@@ -220,7 +222,8 @@ public class CaptivationAgent extends Agent {
         for (String candidate : PICKUP_DELAY_GETTER_CANDIDATES) {
             try {
                 Method method = item.getClass().getMethod(candidate);
-                if (method.getParameterCount() == 0 && Number.class.isAssignableFrom(method.getReturnType())) {
+                if (method.getParameterCount() == 0
+                    && (Number.class.isAssignableFrom(method.getReturnType()) || method.getReturnType() == int.class)) {
                     cachedPickupDelayGetter = method;
                     pickupDelayGetterResolved = true;
                     return cachedPickupDelayGetter;
@@ -252,6 +255,20 @@ public class CaptivationAgent extends Agent {
         }
 
         pickupDelayFieldResolved = true;
+        return null;
+    }
+
+    private static boolean canContainDropperUuid(Class<?> type) {
+        return UUID.class.isAssignableFrom(type) || Entity.class.isAssignableFrom(type);
+    }
+
+    private static UUID extractDropperUuid(Object value) {
+        if (value instanceof UUID id) {
+            return id;
+        }
+        if (value instanceof Entity entity) {
+            return entity.getUUID();
+        }
         return null;
     }
 }

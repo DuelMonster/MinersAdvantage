@@ -1,5 +1,6 @@
 ## 0.6.0
 
+- Fix captivation recent-drop detection to keep player-thrown items exempt for the full 160-tick cooldown window.
 - Stop captivation from immediately re-pulling freshly dropped player items by honoring recent-drop ownership and pickup-delay signals.
 - Ignore newly dropped nearby items in captivation until drop ownership or pickup-delay windows have expired.
 - Restrict agent ticking to the active world dimension so cross-dimension agents do not progress on the wrong server tick.
