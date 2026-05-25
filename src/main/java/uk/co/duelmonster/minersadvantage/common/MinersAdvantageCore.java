@@ -4,6 +4,10 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
+import uk.co.duelmonster.minersadvantage.agent.AgentManager;
+import uk.co.duelmonster.minersadvantage.agent.IlluminationAgent;
 import uk.co.duelmonster.minersadvantage.common.component.ComponentDescriptor;
 import uk.co.duelmonster.minersadvantage.common.component.ComponentLifecycle;
 import uk.co.duelmonster.minersadvantage.common.component.ComponentRegistry;
@@ -38,6 +42,7 @@ import uk.co.duelmonster.minersadvantage.common.log.LogUtils;
 import uk.co.duelmonster.minersadvantage.common.network.AbortWorkersPacket;
 import uk.co.duelmonster.minersadvantage.common.network.ComponentTogglePacket;
 import uk.co.duelmonster.minersadvantage.common.network.FeatureDispatchPacket;
+import uk.co.duelmonster.minersadvantage.common.network.IlluminationActionPacket;
 import uk.co.duelmonster.minersadvantage.common.network.PlayerStateSyncPacket;
 import uk.co.duelmonster.minersadvantage.common.network.SupremeVantagePacket;
 import uk.co.duelmonster.minersadvantage.common.event.FeatureEventHandler;
@@ -239,6 +244,37 @@ public final class MinersAdvantageCore {
             packet.blockId(),
             packet.toolId()
         );
+    }
+
+    /**
+     * handleIlluminationActionPacket routes explicit client illumination requests into the live server agent path.
+     */
+    public boolean handleIlluminationActionPacket(ServerPlayer player, IlluminationActionPacket packet) {
+        if (player == null || packet == null) {
+            return false;
+        }
+
+        ComponentLifecycle component = components.get(FeatureId.ILLUMINATION);
+        if (component == null || !component.isEnabled()) {
+            return false;
+        }
+
+        SyncedClientConfig effectiveConfig = syncCoreService.getPlayerState(player.getUUID().getLeastSignificantBits()).effectiveConfig();
+        CommonConfig commonConfig = effectiveConfig == null ? defaultConfig.common() : effectiveConfig.common();
+        IlluminationConfig illuminationConfig = effectiveConfig == null ? defaultConfig.illumination() : effectiveConfig.illumination();
+        if (illuminationConfig == null || !illuminationConfig.enabled()) {
+            return false;
+        }
+
+        BlockPos origin = new BlockPos(packet.blockX(), packet.blockY(), packet.blockZ()).above();
+        LogUtils.logDebug(
+            "Handling illumination action player={} area={} origin={}",
+            player.getScoreboardName(),
+            packet.area(),
+            origin
+        );
+        AgentManager.get().addAgent(player, new IlluminationAgent(player, origin, illuminationConfig, commonConfig));
+        return true;
     }
 
     /**

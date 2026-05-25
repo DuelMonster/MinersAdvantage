@@ -9,6 +9,7 @@ import uk.co.duelmonster.minersadvantage.common.config.MAClientRootConfig;
 import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 import uk.co.duelmonster.minersadvantage.common.network.AbortWorkersPacket;
 import uk.co.duelmonster.minersadvantage.common.network.ComponentTogglePacket;
+import uk.co.duelmonster.minersadvantage.common.network.IlluminationActionPacket;
 import uk.co.duelmonster.minersadvantage.common.network.PlayerStateSyncPacket;
 import uk.co.duelmonster.minersadvantage.common.services.input.ClientInputService;
 
@@ -17,6 +18,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.world.phys.BlockHitResult;
 //?} else {
 /*
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
@@ -184,6 +186,13 @@ public final class ClientInputHandler {
             ClientPlayNetworking.send(packet);
         }
 
+        if (result.illuminatePlace()) {
+            sendIlluminationAction(false);
+        }
+        if (result.illuminateArea()) {
+            sendIlluminationAction(true);
+        }
+
         if (result.abortRequested()) {
             long playerId = 0L;
             Minecraft playerClient = Minecraft.getInstance();
@@ -214,6 +223,16 @@ public final class ClientInputHandler {
             ));
             lastSyncedState = result.state();
         }
+    }
+
+    private static void sendIlluminationAction(boolean area) {
+        Minecraft client = Minecraft.getInstance();
+        if (!(client.hitResult instanceof BlockHitResult blockHit)) {
+            return;
+        }
+
+        var pos = blockHit.getBlockPos();
+        ClientPlayNetworking.send(new IlluminationActionPacket(pos.getX(), pos.getY(), pos.getZ(), area));
     }
     //?} else {
     /*

@@ -4,6 +4,7 @@
 - Make substitution switch tools on the initiating click instead of the following tick.
 - Stop manual torch placement from auto-triggering illumination placement bursts.
 - Require the shaft/vent hold state before right-click stone ventilation can start.
+- Restore the Fabric illumination keybind by sending an explicit client illumination action packet.
 - Enforce synchronized common-feature behavior for veination, captivation, substitution, cultivation, illumination, pathanation, shaftanation, ventilation, excavation, and lumbination agents.
 - Add veination ore allowlist runtime checks and substitution ATTACK context support with entity-type-aware rule targeting.
 - Improve cropination replant/seed behavior and lumbination leaves/shears/durability/replant handling for closer legacy behavior alignment.
