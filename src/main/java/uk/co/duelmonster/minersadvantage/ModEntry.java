@@ -206,7 +206,7 @@ public final class ModEntry implements ModInitializer {
                 LogUtils.logDebug("Block break trigger feature=Excavation player={} item={} block={} pos={}", serverPlayer.getScoreboardName(), itemId, brokenBlockId, pos);
                 ExcavationConfig excavationConfig = excavationConfig(serverPlayer);
                 CommonConfig commonConfig = commonConfig(serverPlayer);
-                int verticalRadius = isShovelTool(stack) ? 0 : excavationConfig.radiusVertical();
+                int verticalRadius = isShovelTool(stack) || playerState.singleLayerToggled() ? 0 : excavationConfig.radiusVertical();
                 AgentManager.get().addAgent(
                     serverPlayer,
                     new ExcavationAgent(
@@ -1072,7 +1072,7 @@ public final class ModEntry {
                 }
             } else if (!shaftModeActive && excavationActive && isExcavationTool(stack) && isExcavationBlock(state, stack)) {
                 ExcavationConfig excavationConfig = excavationConfig(serverPlayer);
-                int verticalRadius = isShovelTool(stack) ? 0 : excavationConfig.radiusVertical();
+                int verticalRadius = isShovelTool(stack) || playerState.singleLayerToggled() ? 0 : excavationConfig.radiusVertical();
                 AgentManager.get().addAgent(
                     serverPlayer,
                     new ExcavationAgent(
