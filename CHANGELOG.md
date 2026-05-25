@@ -1,6 +1,7 @@
 ## 0.6.0
 
 - Stop captivation from immediately re-pulling freshly dropped player items by honoring recent-drop ownership and pickup-delay signals.
+- Ignore newly dropped nearby items in captivation until drop ownership or pickup-delay windows have expired.
 - Restrict agent ticking to the active world dimension so cross-dimension agents do not progress on the wrong server tick.
 - Keep agent queues dimension-scoped so server ticks do not advance agents from unloaded or different worlds.
 - Route manual illumination placement through the clicked face, add a dedicated placement agent, and require a solid supporting face before consuming torches.
