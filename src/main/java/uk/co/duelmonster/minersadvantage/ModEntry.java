@@ -36,13 +36,32 @@ import uk.co.duelmonster.minersadvantage.common.MinersAdvantageCore;
 import uk.co.duelmonster.minersadvantage.common.config.MAClientRootConfig;
 import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 import uk.co.duelmonster.minersadvantage.common.config.MAConfig_Base;
+import uk.co.duelmonster.minersadvantage.common.config.CaptivationConfig;
+import uk.co.duelmonster.minersadvantage.common.config.CommonConfig;
+import uk.co.duelmonster.minersadvantage.common.config.CropinationConfig;
+import uk.co.duelmonster.minersadvantage.common.config.CultivationConfig;
+import uk.co.duelmonster.minersadvantage.common.config.ExcavationConfig;
+import uk.co.duelmonster.minersadvantage.common.config.IlluminationConfig;
+import uk.co.duelmonster.minersadvantage.common.config.LumbinationConfig;
+import uk.co.duelmonster.minersadvantage.common.config.PathanationConfig;
+import uk.co.duelmonster.minersadvantage.common.config.ShaftanationConfig;
 import uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig;
 import uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig.SubstitutionAction;
 import uk.co.duelmonster.minersadvantage.common.config.SyncedClientConfig;
 import uk.co.duelmonster.minersadvantage.common.config.VeinationConfig;
+import uk.co.duelmonster.minersadvantage.common.config.VentilationConfig;
 import uk.co.duelmonster.minersadvantage.common.event.CommonEventHandlerImpl;
 import uk.co.duelmonster.minersadvantage.common.event.ToolEventHandler;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
+import uk.co.duelmonster.minersadvantage.common.feature.captivation.CaptivationComponent;
+import uk.co.duelmonster.minersadvantage.common.feature.farming.CropinationComponent;
+import uk.co.duelmonster.minersadvantage.common.feature.farming.CultivationComponent;
+import uk.co.duelmonster.minersadvantage.common.feature.harvest.LumbinationComponent;
+import uk.co.duelmonster.minersadvantage.common.feature.mining.ExcavationComponent;
+import uk.co.duelmonster.minersadvantage.common.feature.mining.ShaftanationComponent;
+import uk.co.duelmonster.minersadvantage.common.feature.mining.VentilationComponent;
+import uk.co.duelmonster.minersadvantage.common.feature.utility.IlluminationComponent;
+import uk.co.duelmonster.minersadvantage.common.feature.utility.PathanationComponent;
 import uk.co.duelmonster.minersadvantage.common.feature.utility.SubstitutionComponent;
 import uk.co.duelmonster.minersadvantage.common.log.LogUtils;
 import uk.co.duelmonster.minersadvantage.common.network.PlayerStateSyncPacket;
@@ -55,6 +74,7 @@ import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
+import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
@@ -101,7 +121,47 @@ public final class ModEntry implements ModInitializer {
             }
 
             LogUtils.logDebug("Attack block trigger feature=Substitution player={} hand={} item={} pos={}", serverPlayer.getScoreboardName(), hand, itemId(stack), pos);
-            AgentManager.get().addAgent(serverPlayer, new SubstitutionAgent(serverPlayer, state, SubstitutionAction.BREAK, hand, substitutionConfig()));
+            AgentManager.get().addAgent(serverPlayer, new SubstitutionAgent(serverPlayer, state, SubstitutionAction.BREAK, hand, substitutionConfig(serverPlayer)));
+            return InteractionResult.PASS;
+        });
+
+        AttackEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
+            if (world.isClientSide() || !(player instanceof ServerPlayer serverPlayer)) {
+                return InteractionResult.PASS;
+            }
+
+            if (!isFeatureEnabled(FeatureId.SUBSTITUTION)) {
+                return InteractionResult.PASS;
+            }
+
+            SubstitutionConfig config = substitutionConfig(serverPlayer);
+            if (config.ignorePassiveMobs() && entity.getType().getCategory().isFriendly()) {
+                return InteractionResult.PASS;
+            }
+
+            BlockPos targetPos = entity.blockPosition();
+            if (!SubstitutionAgent.shouldQueueStartSubstitution(serverPlayer, hand, SubstitutionAction.ATTACK, targetPos)) {
+                SubstitutionAgent.markSubstitutionActivity(serverPlayer, hand, SubstitutionAction.ATTACK, targetPos);
+                return InteractionResult.PASS;
+            }
+
+            BlockState contextState = world.getBlockState(targetPos);
+            if (contextState.isAir()) {
+                contextState = world.getBlockState(targetPos.below());
+            }
+            if (contextState.isAir()) {
+                contextState = world.getBlockState(serverPlayer.blockPosition());
+            }
+            LogUtils.logDebug(
+                "Attack entity trigger feature=Substitution player={} hand={} item={} targetEntity={} pos={}",
+                serverPlayer.getScoreboardName(),
+                hand,
+                itemId(player.getItemInHand(hand)),
+                BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType()),
+                targetPos
+            );
+            String targetEntityTypeId = BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType()).toString();
+            AgentManager.get().addAgent(serverPlayer, new SubstitutionAgent(serverPlayer, contextState, SubstitutionAction.ATTACK, hand, config, targetEntityTypeId));
             return InteractionResult.PASS;
         });
 
@@ -116,23 +176,49 @@ public final class ModEntry implements ModInitializer {
             var playerState = core.playerStateService().getPlayerState(playerId);
             boolean shaftModeActive = isFeatureEnabled(FeatureId.SHAFTANATION) && playerState.shaftVentToggled();
             boolean excavationActive = isFeatureEnabled(FeatureId.EXCAVATION) && playerState.isExcavationActive();
+            CommonConfig playerCommonConfig = commonConfig(serverPlayer);
             VeinationConfig veinationConfig = veinationConfig(serverPlayer);
             boolean veinationGesture = veinationConfig.oreHarvestWithoutSneak() ? !player.isShiftKeyDown() : player.isShiftKeyDown();
             boolean allowedPickaxe = veinationRuntime.isPickaxeAllowed(level, veinationConfig, stack);
 
-            if (isFeatureEnabled(FeatureId.VEINATION) && veinationGesture && isPickaxeTool(stack) && allowedPickaxe && RegistryPredicates.isOreLike(state)) {
+            boolean allowedOre = veinationRuntime.isOreAllowed(veinationConfig, state);
+
+            if (isFeatureEnabled(FeatureId.VEINATION) && playerCommonConfig.mineVeins() && veinationGesture && isPickaxeTool(stack) && allowedPickaxe && allowedOre) {
                 LogUtils.logDebug("Block break trigger feature=Veination player={} item={} block={} pos={}", serverPlayer.getScoreboardName(), itemId, brokenBlockId, pos);
                 veinationRuntime.registerDropAnchor(serverPlayer, pos, veinationConfig);
                 AgentManager agentManager = AgentManager.get();
                 if (!agentManager.hasAgentType(serverPlayer, VeinationAgent.class)) {
                     agentManager.addAgent(serverPlayer, new VeinationAgent(serverPlayer, pos, state, veinationRuntime, veinationConfig));
                 }
+            } else if (shaftModeActive && isPickaxeTool(stack) && RegistryPredicates.isStoneLike(state)) {
+                LogUtils.logDebug("Block break trigger feature=Shaftanation player={} item={} block={} pos={}", serverPlayer.getScoreboardName(), itemId, brokenBlockId, pos);
+                AgentManager agentManager = AgentManager.get();
+                if (!agentManager.hasAgentType(serverPlayer, ShaftanationAgent.class)) {
+                    agentManager.addAgent(serverPlayer, new ShaftanationAgent(serverPlayer, pos, shaftanationConfig(serverPlayer), commonConfig(serverPlayer)));
+                }
             } else if (!shaftModeActive && excavationActive && isExcavationTool(stack) && isExcavationBlock(state, stack)) {
                 LogUtils.logDebug("Block break trigger feature=Excavation player={} item={} block={} pos={}", serverPlayer.getScoreboardName(), itemId, brokenBlockId, pos);
-                AgentManager.get().addAgent(serverPlayer, new ExcavationAgent(serverPlayer, pos, 3, state.getBlock()));
-            } else if (isAxeTool(stack) && state.is(BlockTags.LOGS)) {
+                ExcavationConfig excavationConfig = excavationConfig(serverPlayer);
+                CommonConfig commonConfig = commonConfig(serverPlayer);
+                int verticalRadius = isShovelTool(stack) ? 0 : excavationConfig.radiusVertical();
+                AgentManager.get().addAgent(
+                    serverPlayer,
+                    new ExcavationAgent(
+                        serverPlayer,
+                        pos,
+                        state,
+                        excavationConfig,
+                        commonConfig,
+                        excavationConfig.radiusHorizontal(),
+                        verticalRadius
+                    )
+                );
+            } else if (isFeatureEnabled(FeatureId.LUMBINATION)) {
+                LumbinationConfig lumbinationConfig = lumbinationConfig(serverPlayer);
+                if (isConfiguredAxe(stack, lumbinationConfig) && isConfiguredLog(state, lumbinationConfig)) {
                 LogUtils.logDebug("Block break trigger feature=Lumbination player={} item={} block={} pos={}", serverPlayer.getScoreboardName(), itemId, brokenBlockId, pos);
-                AgentManager.get().addAgent(serverPlayer, new LumbinationAgent(serverPlayer, pos, state.getBlock()));
+                    AgentManager.get().addAgent(serverPlayer, new LumbinationAgent(serverPlayer, pos, state, lumbinationConfig, commonConfig(serverPlayer)));
+                }
             }
         });
 
@@ -144,7 +230,7 @@ public final class ModEntry implements ModInitializer {
             }
             if (player.isShiftKeyDown()) {
                 LogUtils.logDebug("Use item trigger feature=Captivation player={} hand={} item={}", serverPlayer.getScoreboardName(), hand, itemId(player.getMainHandItem()));
-                AgentManager.get().addAgent(serverPlayer, new CaptivationAgent(serverPlayer, 6.0));
+                AgentManager.get().addAgent(serverPlayer, new CaptivationAgent(serverPlayer, captivationConfig(serverPlayer)));
                 return InteractionResult.SUCCESS;
             }
             return InteractionResult.PASS;
@@ -166,25 +252,31 @@ public final class ModEntry implements ModInitializer {
             if (isHoeTool(stack)) {
                 if (RegistryPredicates.isCropBlock(state)) {
                     LogUtils.logDebug("Use block trigger feature=Cropination player={} item={} block={} pos={}", serverPlayer.getScoreboardName(), itemId, targetBlockId, pos);
-                    AgentManager.get().addAgent(serverPlayer, new CropinationAgent(serverPlayer, pos, 3));
+                    CommonConfig commonConfig = commonConfig(serverPlayer);
+                    AgentManager.get().addAgent(serverPlayer, new CropinationAgent(serverPlayer, pos, commonConfig.blockRadius(), cropinationConfig(serverPlayer), commonConfig));
                     return InteractionResult.SUCCESS;
                 }
                 if (RegistryPredicates.isDirtLike(state)) {
                     LogUtils.logDebug("Use block trigger feature=Cultivation player={} item={} block={} pos={}", serverPlayer.getScoreboardName(), itemId, targetBlockId, pos);
-                    AgentManager.get().addAgent(serverPlayer, new CultivationAgent(serverPlayer, pos, 3));
+                    CommonConfig commonConfig = commonConfig(serverPlayer);
+                    AgentManager.get().addAgent(serverPlayer, new CultivationAgent(serverPlayer, pos, commonConfig.blockRadius(), cultivationConfig(serverPlayer), commonConfig));
                     return InteractionResult.SUCCESS;
                 }
             }
 
             if (itemId.endsWith("_torch") || itemId.endsWith(":torch")) {
                 LogUtils.logDebug("Use block trigger feature=Illumination player={} item={} pos={}", serverPlayer.getScoreboardName(), itemId, pos);
-                AgentManager.get().addAgent(serverPlayer, new IlluminationAgent(serverPlayer, pos.above(), 8));
+                CommonConfig commonConfig = commonConfig(serverPlayer);
+                if (!commonConfig.autoIlluminate()) {
+                    return InteractionResult.PASS;
+                }
+                AgentManager.get().addAgent(serverPlayer, new IlluminationAgent(serverPlayer, pos.above(), illuminationConfig(serverPlayer), commonConfig));
                 return InteractionResult.SUCCESS;
             }
 
             if (isShovelTool(stack) && RegistryPredicates.isDirtLike(state)) {
                 LogUtils.logDebug("Use block trigger feature=Pathanation player={} item={} block={} pos={}", serverPlayer.getScoreboardName(), itemId, targetBlockId, pos);
-                AgentManager.get().addAgent(serverPlayer, new PathanationAgent(serverPlayer, pos, 8));
+                AgentManager.get().addAgent(serverPlayer, new PathanationAgent(serverPlayer, pos, pathanationConfig(serverPlayer), commonConfig(serverPlayer)));
                 return InteractionResult.SUCCESS;
             }
 
@@ -196,7 +288,7 @@ public final class ModEntry implements ModInitializer {
 
             if (isPickaxeTool(stack) && RegistryPredicates.isStoneLike(state) && !player.isShiftKeyDown()) {
                 LogUtils.logDebug("Use block trigger feature=Ventilation player={} item={} block={} pos={}", serverPlayer.getScoreboardName(), itemId, targetBlockId, pos);
-                AgentManager.get().addAgent(serverPlayer, new VentilationAgent(serverPlayer, pos, 8));
+                AgentManager.get().addAgent(serverPlayer, new VentilationAgent(serverPlayer, pos, ventilationConfig(serverPlayer), commonConfig(serverPlayer)));
                 return InteractionResult.SUCCESS;
             }
 
@@ -206,7 +298,7 @@ public final class ModEntry implements ModInitializer {
                     return InteractionResult.SUCCESS;
                 }
                 LogUtils.logDebug("Use block trigger feature=Substitution player={} item={} pos={}", serverPlayer.getScoreboardName(), itemId, pos);
-                AgentManager.get().addAgent(serverPlayer, new SubstitutionAgent(serverPlayer, state, SubstitutionAction.INTERACT, hand, substitutionConfig()));
+                AgentManager.get().addAgent(serverPlayer, new SubstitutionAgent(serverPlayer, state, SubstitutionAction.INTERACT, hand, substitutionConfig(serverPlayer)));
                 return InteractionResult.SUCCESS;
             }
 
@@ -222,7 +314,7 @@ public final class ModEntry implements ModInitializer {
                         SubstitutionAgent.processSwitchBack(serverPlayer);
                         if (!AgentManager.get().hasAgentType(serverPlayer, CaptivationAgent.class)) {
                             LogUtils.logDebug("Server tick trigger feature=Captivation player={} intervalTicks={}", serverPlayer.getScoreboardName(), tickCount);
-                            AgentManager.get().addAgent(serverPlayer, new CaptivationAgent(serverPlayer, 6.0));
+                            AgentManager.get().addAgent(serverPlayer, new CaptivationAgent(serverPlayer, captivationConfig(serverPlayer)));
                         }
                     }
                 } else {
@@ -358,21 +450,23 @@ public final class ModEntry implements ModInitializer {
                 LogUtils.logDebug("Observed item entity load player={} item={} count={}", serverPlayer.getScoreboardName(), dropItemId, itemEntity.getItem().getCount());
                 veinationRuntime.handleItemEntityJoin(level, entity, serverPlayer, veinationConfig(serverPlayer));
                 toolEvents.onItemPickup(dropItemId, false);
+                boolean gatherDrops = commonConfig(serverPlayer).gatherDrops();
                 core.workerRuntimeService().interceptLiveDropForPlayer(
                     playerId(serverPlayer),
                     "item:" + dropItemId,
                     itemEntity.getItem().getCount(),
-                    true
+                    gatherDrops
                 );
             }
         } else if (entity instanceof ExperienceOrb orb) {
             if (level.getNearestPlayer(entity, 8.0) instanceof ServerPlayer serverPlayer) {
                 LogUtils.logDebug("Observed xp orb load player={} value={}", serverPlayer.getScoreboardName(), orb.getValue());
+                boolean gatherDrops = commonConfig(serverPlayer).gatherDrops();
                 core.workerRuntimeService().interceptLiveDropForPlayer(
                     playerId(serverPlayer),
                     "xp_orb",
                     orb.getValue(),
-                    true
+                    gatherDrops
                 );
             }
         }
@@ -431,6 +525,236 @@ public final class ModEntry implements ModInitializer {
         return SyncedClientConfig.defaults().substitution();
     }
 
+    private SubstitutionConfig substitutionConfig(ServerPlayer player) {
+        if (player == null) {
+            return substitutionConfig();
+        }
+
+        var synced = core.syncCoreService().getPlayerState(playerId(player));
+        if (synced != null && synced.effectiveConfig() != null && synced.effectiveConfig().substitution() != null) {
+            return synced.effectiveConfig().substitution();
+        }
+        return substitutionConfig();
+    }
+
+    private CaptivationConfig captivationConfig() {
+        var component = core.components().get(FeatureId.CAPTIVATION);
+        if (component instanceof CaptivationComponent captivationComponent) {
+            return captivationComponent.config();
+        }
+        return MAConfig_Base.getGlobalConfig().captivation();
+    }
+
+    private CaptivationConfig captivationConfig(ServerPlayer player) {
+        if (player == null) {
+            return captivationConfig();
+        }
+
+        var synced = core.syncCoreService().getPlayerState(playerId(player));
+        if (synced != null && synced.effectiveConfig() != null && synced.effectiveConfig().captivation() != null) {
+            return synced.effectiveConfig().captivation();
+        }
+        return captivationConfig();
+    }
+
+    private CropinationConfig cropinationConfig() {
+        var component = core.components().get(FeatureId.CROPINATION);
+        if (component instanceof CropinationComponent cropinationComponent) {
+            return cropinationComponent.config();
+        }
+        return MAConfig_Base.getGlobalConfig().cropination();
+    }
+
+    private CropinationConfig cropinationConfig(ServerPlayer player) {
+        if (player == null) {
+            return cropinationConfig();
+        }
+
+        var synced = core.syncCoreService().getPlayerState(playerId(player));
+        if (synced != null && synced.effectiveConfig() != null && synced.effectiveConfig().cropination() != null) {
+            return synced.effectiveConfig().cropination();
+        }
+        return cropinationConfig();
+    }
+
+    private CultivationConfig cultivationConfig() {
+        var component = core.components().get(FeatureId.CULTIVATION);
+        if (component instanceof CultivationComponent cultivationComponent) {
+            return cultivationComponent.config();
+        }
+        return MAConfig_Base.getGlobalConfig().cultivation();
+    }
+
+    private CultivationConfig cultivationConfig(ServerPlayer player) {
+        if (player == null) {
+            return cultivationConfig();
+        }
+
+        var synced = core.syncCoreService().getPlayerState(playerId(player));
+        if (synced != null && synced.effectiveConfig() != null && synced.effectiveConfig().cultivation() != null) {
+            return synced.effectiveConfig().cultivation();
+        }
+        return cultivationConfig();
+    }
+
+    private ExcavationConfig excavationConfig() {
+        var component = core.components().get(FeatureId.EXCAVATION);
+        if (component instanceof ExcavationComponent excavationComponent) {
+            return excavationComponent.config();
+        }
+        return MAConfig_Base.getGlobalConfig().excavation();
+    }
+
+    private ExcavationConfig excavationConfig(ServerPlayer player) {
+        if (player == null) {
+            return excavationConfig();
+        }
+
+        var synced = core.syncCoreService().getPlayerState(playerId(player));
+        if (synced != null && synced.effectiveConfig() != null && synced.effectiveConfig().excavation() != null) {
+            return synced.effectiveConfig().excavation();
+        }
+        return excavationConfig();
+    }
+
+    private CommonConfig commonConfig() {
+        return MAConfig_Base.getGlobalConfig().common();
+    }
+
+    private CommonConfig commonConfig(ServerPlayer player) {
+        if (player == null) {
+            return commonConfig();
+        }
+
+        var synced = core.syncCoreService().getPlayerState(playerId(player));
+        if (synced != null && synced.effectiveConfig() != null && synced.effectiveConfig().common() != null) {
+            return synced.effectiveConfig().common();
+        }
+        return commonConfig();
+    }
+
+    private LumbinationConfig lumbinationConfig() {
+        var component = core.components().get(FeatureId.LUMBINATION);
+        if (component instanceof LumbinationComponent lumbinationComponent) {
+            return lumbinationComponent.config();
+        }
+        return MAConfig_Base.getGlobalConfig().lumbination();
+    }
+
+    private LumbinationConfig lumbinationConfig(ServerPlayer player) {
+        if (player == null) {
+            return lumbinationConfig();
+        }
+
+        var synced = core.syncCoreService().getPlayerState(playerId(player));
+        if (synced != null && synced.effectiveConfig() != null && synced.effectiveConfig().lumbination() != null) {
+            return synced.effectiveConfig().lumbination();
+        }
+        return lumbinationConfig();
+    }
+
+    private static boolean isConfiguredAxe(ItemStack stack, LumbinationConfig config) {
+        if (!isAxeTool(stack)) {
+            return false;
+        }
+        if (config == null || config.axes().isEmpty()) {
+            return true;
+        }
+        String heldItemId = itemId(stack);
+        return config.axes().contains(heldItemId);
+    }
+
+    private static boolean isConfiguredLog(BlockState state, LumbinationConfig config) {
+        if (state == null || config == null) {
+            return false;
+        }
+        if (config.logs().isEmpty()) {
+            return state.is(BlockTags.LOGS);
+        }
+        String targetBlockId = blockId(state);
+        return config.logs().contains(targetBlockId);
+    }
+
+    private PathanationConfig pathanationConfig() {
+        var component = core.components().get(FeatureId.PATHANATION);
+        if (component instanceof PathanationComponent pathanationComponent) {
+            return pathanationComponent.config();
+        }
+        return MAConfig_Base.getGlobalConfig().pathanation();
+    }
+
+    private PathanationConfig pathanationConfig(ServerPlayer player) {
+        if (player == null) {
+            return pathanationConfig();
+        }
+
+        var synced = core.syncCoreService().getPlayerState(playerId(player));
+        if (synced != null && synced.effectiveConfig() != null && synced.effectiveConfig().pathanation() != null) {
+            return synced.effectiveConfig().pathanation();
+        }
+        return pathanationConfig();
+    }
+
+    private IlluminationConfig illuminationConfig() {
+        var component = core.components().get(FeatureId.ILLUMINATION);
+        if (component instanceof IlluminationComponent illuminationComponent) {
+            return illuminationComponent.config();
+        }
+        return MAConfig_Base.getGlobalConfig().illumination();
+    }
+
+    private IlluminationConfig illuminationConfig(ServerPlayer player) {
+        if (player == null) {
+            return illuminationConfig();
+        }
+
+        var synced = core.syncCoreService().getPlayerState(playerId(player));
+        if (synced != null && synced.effectiveConfig() != null && synced.effectiveConfig().illumination() != null) {
+            return synced.effectiveConfig().illumination();
+        }
+        return illuminationConfig();
+    }
+
+    private ShaftanationConfig shaftanationConfig() {
+        var component = core.components().get(FeatureId.SHAFTANATION);
+        if (component instanceof ShaftanationComponent shaftanationComponent) {
+            return shaftanationComponent.config();
+        }
+        return MAConfig_Base.getGlobalConfig().shaftanation();
+    }
+
+    private ShaftanationConfig shaftanationConfig(ServerPlayer player) {
+        if (player == null) {
+            return shaftanationConfig();
+        }
+
+        var synced = core.syncCoreService().getPlayerState(playerId(player));
+        if (synced != null && synced.effectiveConfig() != null && synced.effectiveConfig().shaftanation() != null) {
+            return synced.effectiveConfig().shaftanation();
+        }
+        return shaftanationConfig();
+    }
+
+    private VentilationConfig ventilationConfig() {
+        var component = core.components().get(FeatureId.VENTILATION);
+        if (component instanceof VentilationComponent ventilationComponent) {
+            return ventilationComponent.config();
+        }
+        return MAConfig_Base.getGlobalConfig().ventilation();
+    }
+
+    private VentilationConfig ventilationConfig(ServerPlayer player) {
+        if (player == null) {
+            return ventilationConfig();
+        }
+
+        var synced = core.syncCoreService().getPlayerState(playerId(player));
+        if (synced != null && synced.effectiveConfig() != null && synced.effectiveConfig().ventilation() != null) {
+            return synced.effectiveConfig().ventilation();
+        }
+        return ventilationConfig();
+    }
+
     private VeinationConfig veinationConfig() {
         return MAConfig_Base.getGlobalConfig().veination();
     }
@@ -485,6 +809,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
@@ -511,6 +836,7 @@ public final class ModEntry {
             );
         }
         NeoForge.EVENT_BUS.addListener(this::onRightClickBlock);
+        NeoForge.EVENT_BUS.addListener(this::onRightClickItem);
         NeoForge.EVENT_BUS.addListener(this::onLeftClickBlock);
         NeoForge.EVENT_BUS.addListener(this::onBreakSpeed);
         NeoForge.EVENT_BUS.addListener(this::onServerTick);
@@ -518,6 +844,7 @@ public final class ModEntry {
         NeoForge.EVENT_BUS.addListener(this::onPlayerLogout);
         NeoForge.EVENT_BUS.addListener(this::onLevelUnload);
         NeoForge.EVENT_BUS.addListener(this::onEntityJoinLevel);
+        NeoForge.EVENT_BUS.addListener(this::onAttackEntity);
         NeoForge.EVENT_BUS.addListener(this::onToolModification);
     }
 
@@ -563,22 +890,24 @@ public final class ModEntry {
         if (entity instanceof ItemEntity itemEntity) {
             if (level.getNearestPlayer(entity, 8.0) instanceof ServerPlayer serverPlayer) {
                 String itemId = itemId(itemEntity.getItem());
-                veinationRuntime.handleItemEntityJoin(level, entity, serverPlayer, veinationConfig());
+                veinationRuntime.handleItemEntityJoin(level, entity, serverPlayer, veinationConfig(serverPlayer));
                 toolEvents.onItemPickup(itemId, false);
+                boolean gatherDrops = commonConfig(serverPlayer).gatherDrops();
                 core.workerRuntimeService().interceptLiveDropForPlayer(
                     playerId(serverPlayer),
                     "item:" + itemId,
                     itemEntity.getItem().getCount(),
-                    true
+                    gatherDrops
                 );
             }
         } else if (entity instanceof ExperienceOrb orb) {
             if (level.getNearestPlayer(entity, 8.0) instanceof ServerPlayer serverPlayer) {
+                boolean gatherDrops = commonConfig(serverPlayer).gatherDrops();
                 core.workerRuntimeService().interceptLiveDropForPlayer(
                     playerId(serverPlayer),
                     "xp_orb",
                     orb.getValue(),
-                    true
+                    gatherDrops
                 );
             }
         }
@@ -604,19 +933,117 @@ public final class ModEntry {
         if (!(event.getEntity() instanceof ServerPlayer serverPlayer)) {
             return;
         }
+
+        BlockPos pos = event.getPos();
+        BlockState state = event.getLevel().getBlockState(pos);
+        ItemStack stack = event.getItemStack();
+        String itemId = itemId(stack);
+
+        if (isHoeTool(stack)) {
+            if (RegistryPredicates.isCropBlock(state)) {
+                CommonConfig playerCommonConfig = commonConfig(serverPlayer);
+                AgentManager.get().addAgent(serverPlayer, new CropinationAgent(serverPlayer, pos, playerCommonConfig.blockRadius(), cropinationConfig(serverPlayer), playerCommonConfig));
+                return;
+            }
+            if (RegistryPredicates.isDirtLike(state)) {
+                CommonConfig playerCommonConfig = commonConfig(serverPlayer);
+                AgentManager.get().addAgent(serverPlayer, new CultivationAgent(serverPlayer, pos, playerCommonConfig.blockRadius(), cultivationConfig(serverPlayer), playerCommonConfig));
+                return;
+            }
+        }
+
+        if (itemId.endsWith("_torch") || itemId.endsWith(":torch")) {
+            CommonConfig playerCommonConfig = commonConfig(serverPlayer);
+            if (!playerCommonConfig.autoIlluminate()) {
+                return;
+            }
+            AgentManager.get().addAgent(serverPlayer, new IlluminationAgent(serverPlayer, pos.above(), illuminationConfig(serverPlayer), playerCommonConfig));
+            return;
+        }
+
+        if (isShovelTool(stack) && RegistryPredicates.isDirtLike(state)) {
+            AgentManager.get().addAgent(serverPlayer, new PathanationAgent(serverPlayer, pos, pathanationConfig(serverPlayer), commonConfig(serverPlayer)));
+            return;
+        }
+
+        if (isPickaxeTool(stack) && RegistryPredicates.isStoneLike(state) && !event.getEntity().isShiftKeyDown()) {
+            AgentManager.get().addAgent(serverPlayer, new VentilationAgent(serverPlayer, pos, ventilationConfig(serverPlayer), commonConfig(serverPlayer)));
+            return;
+        }
+
         if (!isFeatureEnabled(FeatureId.SUBSTITUTION)) {
             return;
         }
 
-        ItemStack stack = event.getItemStack();
         if (event.getEntity().isShiftKeyDown()) {
-            BlockState state = event.getLevel().getBlockState(event.getPos());
-            if (!SubstitutionAgent.shouldQueueStartSubstitution(serverPlayer, event.getHand(), SubstitutionAction.INTERACT, event.getPos())) {
-                SubstitutionAgent.markSubstitutionActivity(serverPlayer, event.getHand(), SubstitutionAction.INTERACT, event.getPos());
+            if (!SubstitutionAgent.shouldQueueStartSubstitution(serverPlayer, event.getHand(), SubstitutionAction.INTERACT, pos)) {
+                SubstitutionAgent.markSubstitutionActivity(serverPlayer, event.getHand(), SubstitutionAction.INTERACT, pos);
                 return;
             }
-            AgentManager.get().addAgent(serverPlayer, new SubstitutionAgent(serverPlayer, state, SubstitutionAction.INTERACT, event.getHand(), substitutionConfig()));
+            AgentManager.get().addAgent(serverPlayer, new SubstitutionAgent(serverPlayer, state, SubstitutionAction.INTERACT, event.getHand(), substitutionConfig(serverPlayer)));
         }
+    }
+
+    private void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
+        if (event.getEntity() == null || event.getLevel().isClientSide()) {
+            return;
+        }
+
+        if (!(event.getEntity() instanceof ServerPlayer serverPlayer)) {
+            return;
+        }
+
+        if (!isFeatureEnabled(FeatureId.CAPTIVATION)) {
+            return;
+        }
+
+        if (event.getEntity().isShiftKeyDown()) {
+            AgentManager.get().addAgent(serverPlayer, new CaptivationAgent(serverPlayer, captivationConfig(serverPlayer)));
+        }
+    }
+
+    private void onAttackEntity(AttackEntityEvent event) {
+        if (event.getEntity() == null || event.getEntity().level().isClientSide()) {
+            return;
+        }
+
+        if (!(event.getEntity() instanceof ServerPlayer serverPlayer)) {
+            return;
+        }
+
+        if (!isFeatureEnabled(FeatureId.SUBSTITUTION)) {
+            return;
+        }
+
+        Entity target = event.getTarget();
+        if (target == null) {
+            return;
+        }
+
+        SubstitutionConfig config = substitutionConfig(serverPlayer);
+        if (config.ignorePassiveMobs() && target.getType().getCategory().isFriendly()) {
+            return;
+        }
+
+        BlockPos targetPos = target.blockPosition();
+        if (!SubstitutionAgent.shouldQueueStartSubstitution(serverPlayer, InteractionHand.MAIN_HAND, SubstitutionAction.ATTACK, targetPos)) {
+            SubstitutionAgent.markSubstitutionActivity(serverPlayer, InteractionHand.MAIN_HAND, SubstitutionAction.ATTACK, targetPos);
+            return;
+        }
+
+        BlockState contextState = target.level().getBlockState(targetPos);
+        if (contextState.isAir()) {
+            contextState = target.level().getBlockState(targetPos.below());
+        }
+        if (contextState.isAir()) {
+            contextState = target.level().getBlockState(serverPlayer.blockPosition());
+        }
+
+        String targetEntityTypeId = BuiltInRegistries.ENTITY_TYPE.getKey(target.getType()).toString();
+        AgentManager.get().addAgent(
+            serverPlayer,
+            new SubstitutionAgent(serverPlayer, contextState, SubstitutionAction.ATTACK, InteractionHand.MAIN_HAND, config, targetEntityTypeId)
+        );
     }
 
     private void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
@@ -625,17 +1052,48 @@ public final class ModEntry {
         }
 
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
-            ItemStack stack = event.getItemStack();
+            ItemStack stack = SubstitutionAgent.effectiveBreakHandStack(serverPlayer, InteractionHand.MAIN_HAND);
             BlockState state = event.getLevel().getBlockState(event.getPos());
-            VeinationConfig config = veinationConfig();
+            long id = playerId(serverPlayer);
+            var playerState = core.playerStateService().getPlayerState(id);
+            boolean shaftModeActive = isFeatureEnabled(FeatureId.SHAFTANATION) && playerState.shaftVentToggled();
+            boolean excavationActive = isFeatureEnabled(FeatureId.EXCAVATION) && playerState.isExcavationActive();
+            CommonConfig playerCommonConfig = commonConfig(serverPlayer);
+            VeinationConfig config = veinationConfig(serverPlayer);
             boolean veinationGesture = config.oreHarvestWithoutSneak() ? !event.getEntity().isShiftKeyDown() : event.getEntity().isShiftKeyDown();
             boolean allowedPickaxe = veinationRuntime.isPickaxeAllowed((Level) event.getLevel(), config, stack);
+            boolean allowedOre = veinationRuntime.isOreAllowed(config, state);
 
-            if (isFeatureEnabled(FeatureId.VEINATION) && veinationGesture && isPickaxeTool(stack) && allowedPickaxe && RegistryPredicates.isOreLike(state)) {
+            if (isFeatureEnabled(FeatureId.VEINATION) && playerCommonConfig.mineVeins() && veinationGesture && isPickaxeTool(stack) && allowedPickaxe && allowedOre) {
                 veinationRuntime.registerDropAnchor(serverPlayer, event.getPos(), config);
                 AgentManager agentManager = AgentManager.get();
                 if (!agentManager.hasAgentType(serverPlayer, VeinationAgent.class)) {
                     agentManager.addAgent(serverPlayer, new VeinationAgent(serverPlayer, event.getPos(), veinationRuntime, config));
+                }
+            } else if (shaftModeActive && isPickaxeTool(stack) && RegistryPredicates.isStoneLike(state)) {
+                AgentManager agentManager = AgentManager.get();
+                if (!agentManager.hasAgentType(serverPlayer, ShaftanationAgent.class)) {
+                    agentManager.addAgent(serverPlayer, new ShaftanationAgent(serverPlayer, event.getPos(), shaftanationConfig(serverPlayer), commonConfig(serverPlayer)));
+                }
+            } else if (!shaftModeActive && excavationActive && isExcavationTool(stack) && isExcavationBlock(state, stack)) {
+                ExcavationConfig excavationConfig = excavationConfig(serverPlayer);
+                int verticalRadius = isShovelTool(stack) ? 0 : excavationConfig.radiusVertical();
+                AgentManager.get().addAgent(
+                    serverPlayer,
+                    new ExcavationAgent(
+                        serverPlayer,
+                        event.getPos(),
+                        state,
+                        excavationConfig,
+                        playerCommonConfig,
+                        excavationConfig.radiusHorizontal(),
+                        verticalRadius
+                    )
+                );
+            } else if (isFeatureEnabled(FeatureId.LUMBINATION)) {
+                LumbinationConfig lumbinationConfig = lumbinationConfig(serverPlayer);
+                if (isConfiguredAxe(stack, lumbinationConfig) && isConfiguredLog(state, lumbinationConfig)) {
+                    AgentManager.get().addAgent(serverPlayer, new LumbinationAgent(serverPlayer, event.getPos(), state, lumbinationConfig, commonConfig(serverPlayer)));
                 }
             }
         }
@@ -646,16 +1104,17 @@ public final class ModEntry {
             if (!SubstitutionAgent.shouldQueueStartSubstitution(serverPlayer, event.getHand(), SubstitutionAction.BREAK, event.getPos())) {
                 SubstitutionAgent.markSubstitutionActivity(serverPlayer, event.getHand(), SubstitutionAction.BREAK, event.getPos());
             } else {
-                AgentManager.get().addAgent(serverPlayer, new SubstitutionAgent(serverPlayer, state, SubstitutionAction.BREAK, event.getHand(), substitutionConfig()));
+                AgentManager.get().addAgent(serverPlayer, new SubstitutionAgent(serverPlayer, state, SubstitutionAction.BREAK, event.getHand(), substitutionConfig(serverPlayer)));
             }
         }
 
         String blockId = BuiltInRegistries.BLOCK.getKey(event.getLevel().getBlockState(event.getPos()).getBlock()).toString();
+        boolean gatherDrops = event.getEntity() instanceof ServerPlayer serverPlayer ? commonConfig(serverPlayer).gatherDrops() : true;
         core.workerRuntimeService().interceptLiveDropForPlayer(
             event.getEntity().getUUID().getLeastSignificantBits(),
             "item:" + blockId,
             1,
-            true
+            gatherDrops
         );
     }
 
@@ -664,12 +1123,14 @@ public final class ModEntry {
             return;
         }
 
+        VeinationConfig activeConfig = event.getEntity() instanceof ServerPlayer serverPlayer ? veinationConfig(serverPlayer) : veinationConfig();
+
         float adjusted = veinationRuntime.adjustedDigSpeed(
             event.getEntity().level(),
             event.getEntity(),
             event.getOriginalSpeed(),
             event.getState(),
-            veinationConfig()
+            activeConfig
         );
         if (adjusted != event.getOriginalSpeed()) {
             event.setNewSpeed(adjusted);
@@ -678,9 +1139,20 @@ public final class ModEntry {
 
     private void onServerTick(ServerTickEvent.Post event) {
         if (event.getServer() != null) {
+            int tickCount = event.getServer().getTickCount();
             for (ServerLevel level : event.getServer().getAllLevels()) {
-                for (ServerPlayer serverPlayer : level.players()) {
-                    SubstitutionAgent.processSwitchBack(serverPlayer);
+                AgentManager.get().tick(level);
+                if (tickCount % 20 == 0) {
+                    for (ServerPlayer serverPlayer : level.players()) {
+                        SubstitutionAgent.processSwitchBack(serverPlayer);
+                        if (isFeatureEnabled(FeatureId.CAPTIVATION) && !AgentManager.get().hasAgentType(serverPlayer, CaptivationAgent.class)) {
+                            AgentManager.get().addAgent(serverPlayer, new CaptivationAgent(serverPlayer, captivationConfig(serverPlayer)));
+                        }
+                    }
+                } else {
+                    for (ServerPlayer serverPlayer : level.players()) {
+                        SubstitutionAgent.processSwitchBack(serverPlayer);
+                    }
                 }
             }
         }
@@ -718,6 +1190,200 @@ public final class ModEntry {
             || stack.getItem() instanceof HoeItem;
     }
 
+    private static boolean isExcavationTool(ItemStack stack) {
+        return isPickaxeTool(stack) || isShovelTool(stack);
+    }
+
+    private static boolean isExcavationBlock(BlockState state, ItemStack stack) {
+        if (isPickaxeTool(stack)) {
+            return state.is(BlockTags.MINEABLE_WITH_PICKAXE) || RegistryPredicates.isStoneLike(state) || RegistryPredicates.isOreLike(state);
+        }
+        if (isShovelTool(stack)) {
+            return state.is(BlockTags.MINEABLE_WITH_SHOVEL) || RegistryPredicates.isDirtLike(state);
+        }
+        return false;
+    }
+
+    private static boolean isConfiguredAxe(ItemStack stack, LumbinationConfig config) {
+        if (!isAxeTool(stack)) {
+            return false;
+        }
+        if (config == null || config.axes().isEmpty()) {
+            return true;
+        }
+        return config.axes().contains(itemId(stack));
+    }
+
+    private static boolean isConfiguredLog(BlockState state, LumbinationConfig config) {
+        if (state == null || config == null) {
+            return false;
+        }
+        if (config.logs().isEmpty()) {
+            return state.is(BlockTags.LOGS);
+        }
+        return config.logs().contains(blockId(state));
+    }
+
+    private ExcavationConfig excavationConfig() {
+        var component = core.components().get(FeatureId.EXCAVATION);
+        if (component instanceof ExcavationComponent excavationComponent) {
+            return excavationComponent.config();
+        }
+        return MAConfig_Base.getGlobalConfig().excavation();
+    }
+
+    private ExcavationConfig excavationConfig(ServerPlayer player) {
+        if (player == null) {
+            return excavationConfig();
+        }
+
+        var synced = core.syncCoreService().getPlayerState(playerId(player));
+        if (synced != null && synced.effectiveConfig() != null && synced.effectiveConfig().excavation() != null) {
+            return synced.effectiveConfig().excavation();
+        }
+        return excavationConfig();
+    }
+
+    private LumbinationConfig lumbinationConfig() {
+        var component = core.components().get(FeatureId.LUMBINATION);
+        if (component instanceof LumbinationComponent lumbinationComponent) {
+            return lumbinationComponent.config();
+        }
+        return MAConfig_Base.getGlobalConfig().lumbination();
+    }
+
+    private LumbinationConfig lumbinationConfig(ServerPlayer player) {
+        if (player == null) {
+            return lumbinationConfig();
+        }
+
+        var synced = core.syncCoreService().getPlayerState(playerId(player));
+        if (synced != null && synced.effectiveConfig() != null && synced.effectiveConfig().lumbination() != null) {
+            return synced.effectiveConfig().lumbination();
+        }
+        return lumbinationConfig();
+    }
+
+    private CropinationConfig cropinationConfig() {
+        var component = core.components().get(FeatureId.CROPINATION);
+        if (component instanceof CropinationComponent cropinationComponent) {
+            return cropinationComponent.config();
+        }
+        return MAConfig_Base.getGlobalConfig().cropination();
+    }
+
+    private CropinationConfig cropinationConfig(ServerPlayer player) {
+        if (player == null) {
+            return cropinationConfig();
+        }
+
+        var synced = core.syncCoreService().getPlayerState(playerId(player));
+        if (synced != null && synced.effectiveConfig() != null && synced.effectiveConfig().cropination() != null) {
+            return synced.effectiveConfig().cropination();
+        }
+        return cropinationConfig();
+    }
+
+    private CultivationConfig cultivationConfig() {
+        var component = core.components().get(FeatureId.CULTIVATION);
+        if (component instanceof CultivationComponent cultivationComponent) {
+            return cultivationComponent.config();
+        }
+        return MAConfig_Base.getGlobalConfig().cultivation();
+    }
+
+    private CultivationConfig cultivationConfig(ServerPlayer player) {
+        if (player == null) {
+            return cultivationConfig();
+        }
+
+        var synced = core.syncCoreService().getPlayerState(playerId(player));
+        if (synced != null && synced.effectiveConfig() != null && synced.effectiveConfig().cultivation() != null) {
+            return synced.effectiveConfig().cultivation();
+        }
+        return cultivationConfig();
+    }
+
+    private PathanationConfig pathanationConfig() {
+        var component = core.components().get(FeatureId.PATHANATION);
+        if (component instanceof PathanationComponent pathanationComponent) {
+            return pathanationComponent.config();
+        }
+        return MAConfig_Base.getGlobalConfig().pathanation();
+    }
+
+    private PathanationConfig pathanationConfig(ServerPlayer player) {
+        if (player == null) {
+            return pathanationConfig();
+        }
+
+        var synced = core.syncCoreService().getPlayerState(playerId(player));
+        if (synced != null && synced.effectiveConfig() != null && synced.effectiveConfig().pathanation() != null) {
+            return synced.effectiveConfig().pathanation();
+        }
+        return pathanationConfig();
+    }
+
+    private IlluminationConfig illuminationConfig() {
+        var component = core.components().get(FeatureId.ILLUMINATION);
+        if (component instanceof IlluminationComponent illuminationComponent) {
+            return illuminationComponent.config();
+        }
+        return MAConfig_Base.getGlobalConfig().illumination();
+    }
+
+    private IlluminationConfig illuminationConfig(ServerPlayer player) {
+        if (player == null) {
+            return illuminationConfig();
+        }
+
+        var synced = core.syncCoreService().getPlayerState(playerId(player));
+        if (synced != null && synced.effectiveConfig() != null && synced.effectiveConfig().illumination() != null) {
+            return synced.effectiveConfig().illumination();
+        }
+        return illuminationConfig();
+    }
+
+    private ShaftanationConfig shaftanationConfig() {
+        var component = core.components().get(FeatureId.SHAFTANATION);
+        if (component instanceof ShaftanationComponent shaftanationComponent) {
+            return shaftanationComponent.config();
+        }
+        return MAConfig_Base.getGlobalConfig().shaftanation();
+    }
+
+    private ShaftanationConfig shaftanationConfig(ServerPlayer player) {
+        if (player == null) {
+            return shaftanationConfig();
+        }
+
+        var synced = core.syncCoreService().getPlayerState(playerId(player));
+        if (synced != null && synced.effectiveConfig() != null && synced.effectiveConfig().shaftanation() != null) {
+            return synced.effectiveConfig().shaftanation();
+        }
+        return shaftanationConfig();
+    }
+
+    private VentilationConfig ventilationConfig() {
+        var component = core.components().get(FeatureId.VENTILATION);
+        if (component instanceof VentilationComponent ventilationComponent) {
+            return ventilationComponent.config();
+        }
+        return MAConfig_Base.getGlobalConfig().ventilation();
+    }
+
+    private VentilationConfig ventilationConfig(ServerPlayer player) {
+        if (player == null) {
+            return ventilationConfig();
+        }
+
+        var synced = core.syncCoreService().getPlayerState(playerId(player));
+        if (synced != null && synced.effectiveConfig() != null && synced.effectiveConfig().ventilation() != null) {
+            return synced.effectiveConfig().ventilation();
+        }
+        return ventilationConfig();
+    }
+
     private SubstitutionConfig substitutionConfig() {
         var component = core.components().get(FeatureId.SUBSTITUTION);
         if (component instanceof SubstitutionComponent substitutionComponent) {
@@ -726,12 +1392,72 @@ public final class ModEntry {
         return SyncedClientConfig.defaults().substitution();
     }
 
+    private CaptivationConfig captivationConfig() {
+        var component = core.components().get(FeatureId.CAPTIVATION);
+        if (component instanceof CaptivationComponent captivationComponent) {
+            return captivationComponent.config();
+        }
+        return MAConfig_Base.getGlobalConfig().captivation();
+    }
+
+    private CaptivationConfig captivationConfig(ServerPlayer player) {
+        if (player == null) {
+            return captivationConfig();
+        }
+
+        var synced = core.syncCoreService().getPlayerState(playerId(player));
+        if (synced != null && synced.effectiveConfig() != null && synced.effectiveConfig().captivation() != null) {
+            return synced.effectiveConfig().captivation();
+        }
+        return captivationConfig();
+    }
+
+    private SubstitutionConfig substitutionConfig(ServerPlayer player) {
+        if (player == null) {
+            return substitutionConfig();
+        }
+
+        var synced = core.syncCoreService().getPlayerState(playerId(player));
+        if (synced != null && synced.effectiveConfig() != null && synced.effectiveConfig().substitution() != null) {
+            return synced.effectiveConfig().substitution();
+        }
+        return substitutionConfig();
+    }
+
+    private CommonConfig commonConfig() {
+        return MAConfig_Base.getGlobalConfig().common();
+    }
+
+    private CommonConfig commonConfig(ServerPlayer player) {
+        if (player == null) {
+            return commonConfig();
+        }
+
+        var synced = core.syncCoreService().getPlayerState(playerId(player));
+        if (synced != null && synced.effectiveConfig() != null && synced.effectiveConfig().common() != null) {
+            return synced.effectiveConfig().common();
+        }
+        return commonConfig();
+    }
+
     private VeinationConfig veinationConfig() {
         var component = core.components().get(FeatureId.VEINATION);
         if (component instanceof uk.co.duelmonster.minersadvantage.common.feature.utility.VeinationComponent veinationComponent) {
             return veinationComponent.config();
         }
         return SyncedClientConfig.defaults().veination();
+    }
+
+    private VeinationConfig veinationConfig(ServerPlayer player) {
+        if (player == null) {
+            return veinationConfig();
+        }
+
+        var synced = core.syncCoreService().getPlayerState(playerId(player));
+        if (synced != null && synced.effectiveConfig() != null && synced.effectiveConfig().veination() != null) {
+            return synced.effectiveConfig().veination();
+        }
+        return veinationConfig();
     }
 
     private boolean isFeatureEnabled(FeatureId featureId) {

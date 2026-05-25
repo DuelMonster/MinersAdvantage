@@ -146,6 +146,9 @@ public final class MinersAdvantageConfigScreen {
         addGameplayBoolean(generalCategory, entryBuilder, "Auto Illuminate", "Permit automatic torch placement behavior.", mutable.autoIlluminate, currentServerConfig.common().autoIlluminate(), gameplayEditable, value -> mutable.autoIlluminate = value);
         addGameplayBoolean(generalCategory, entryBuilder, "Mine Veins", "Permit connected ore mining logic.", mutable.mineVeins, currentServerConfig.common().mineVeins(), gameplayEditable, value -> mutable.mineVeins = value);
         addGameplayInt(generalCategory, entryBuilder, "Blocks Per Tick", "Maximum blocks processed each server tick.", mutable.blocksPerTick, currentServerConfig.common().blocksPerTick(), 1, 8, gameplayEditable, value -> mutable.blocksPerTick = value);
+        addGameplayBoolean(generalCategory, entryBuilder, "Enable Tick Delay", "Enable an additional delay between processing steps.", mutable.enableTickDelay, currentServerConfig.common().enableTickDelay(), gameplayEditable, value -> mutable.enableTickDelay = value);
+        addGameplayInt(generalCategory, entryBuilder, "Tick Delay", "Delay in ticks used when tick delay is enabled.", mutable.tickDelay, currentServerConfig.common().tickDelay(), 0, 40, gameplayEditable, value -> mutable.tickDelay = value);
+        addGameplayInt(generalCategory, entryBuilder, "Block Radius", "Configured radius used by radius-limited operations.", mutable.blockRadius, currentServerConfig.common().blockRadius(), 1, 16, gameplayEditable, value -> mutable.blockRadius = value);
         addGameplayInt(generalCategory, entryBuilder, "Block Limit", "Hard cap for an operation size.", mutable.blockLimit, currentServerConfig.common().blockLimit(), 1, 256, gameplayEditable, value -> mutable.blockLimit = value);
 
         builder.setSavingRunnable(() -> saveMutableConfig(mutable, gameplayEditable));
@@ -345,6 +348,9 @@ public final class MinersAdvantageConfigScreen {
         addGameplayBoolean(generalCategory, entryBuilder, "Auto Illuminate", "Permit automatic torch placement behavior.", mutable.autoIlluminate, currentServerConfig.common().autoIlluminate(), gameplayEditable, value -> mutable.autoIlluminate = value);
         addGameplayBoolean(generalCategory, entryBuilder, "Mine Veins", "Permit connected ore mining logic.", mutable.mineVeins, currentServerConfig.common().mineVeins(), gameplayEditable, value -> mutable.mineVeins = value);
         addGameplayInt(generalCategory, entryBuilder, "Blocks Per Tick", "Maximum blocks processed each server tick.", mutable.blocksPerTick, currentServerConfig.common().blocksPerTick(), 1, 8, gameplayEditable, value -> mutable.blocksPerTick = value);
+        addGameplayBoolean(generalCategory, entryBuilder, "Enable Tick Delay", "Enable an additional delay between processing steps.", mutable.enableTickDelay, currentServerConfig.common().enableTickDelay(), gameplayEditable, value -> mutable.enableTickDelay = value);
+        addGameplayInt(generalCategory, entryBuilder, "Tick Delay", "Delay in ticks used when tick delay is enabled.", mutable.tickDelay, currentServerConfig.common().tickDelay(), 0, 40, gameplayEditable, value -> mutable.tickDelay = value);
+        addGameplayInt(generalCategory, entryBuilder, "Block Radius", "Configured radius used by radius-limited operations.", mutable.blockRadius, currentServerConfig.common().blockRadius(), 1, 16, gameplayEditable, value -> mutable.blockRadius = value);
         addGameplayInt(generalCategory, entryBuilder, "Block Limit", "Hard cap for an operation size.", mutable.blockLimit, currentServerConfig.common().blockLimit(), 1, 256, gameplayEditable, value -> mutable.blockLimit = value);
 
         builder.setSavingRunnable(() -> saveMutableConfig(mutable, gameplayEditable));
@@ -991,6 +997,9 @@ public final class MinersAdvantageConfigScreen {
         private boolean autoIlluminate;
         private boolean mineVeins;
         private int blocksPerTick;
+        private boolean enableTickDelay;
+        private int tickDelay;
+        private int blockRadius;
         private int blockLimit;
 
         private boolean captivationEnabled;
@@ -1083,6 +1092,9 @@ public final class MinersAdvantageConfigScreen {
             this.autoIlluminate = config.common().autoIlluminate();
             this.mineVeins = config.common().mineVeins();
             this.blocksPerTick = config.common().blocksPerTick();
+            this.enableTickDelay = config.common().enableTickDelay();
+            this.tickDelay = config.common().tickDelay();
+            this.blockRadius = config.common().blockRadius();
             this.blockLimit = config.common().blockLimit();
 
             this.captivationEnabled = config.captivation().enabled();
@@ -1400,9 +1412,9 @@ public final class MinersAdvantageConfigScreen {
                 autoIlluminate,
                 mineVeins,
                 blocksPerTick,
-                baseline.common().enableTickDelay(),
-                baseline.common().tickDelay(),
-                baseline.common().blockRadius(),
+                enableTickDelay,
+                tickDelay,
+                blockRadius,
                 blockLimit
             );
 

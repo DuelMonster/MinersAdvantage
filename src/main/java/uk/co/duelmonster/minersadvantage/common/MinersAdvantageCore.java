@@ -81,6 +81,8 @@ public final class MinersAdvantageCore {
      */
     public void bootstrap() {
         LogUtils.logInfo("Bootstrapping core components");
+        tickOrchestrator.setTpsGuardActive(defaultConfig.common().tpsGuard());
+        tickOrchestrator.setProcessingDelay(defaultConfig.common().enableTickDelay(), defaultConfig.common().tickDelay());
         registerFeature(FeatureId.CAPTIVATION, "captivation", defaultConfig::captivation, CaptivationComponent::new);
         registerFeature(FeatureId.CROPINATION, "cropination", defaultConfig::cropination, CropinationComponent::new);
         registerFeature(FeatureId.CULTIVATION, "cultivation", defaultConfig::cultivation, CultivationComponent::new);
@@ -210,6 +212,8 @@ public final class MinersAdvantageCore {
         );
         MAConfig_Base.setClientRootConfig(state.clientConfig());
         MAConfig_Base.setServerRootConfig(state.serverConfig());
+        tickOrchestrator.setTpsGuardActive(state.serverConfig().common().tpsGuard());
+        tickOrchestrator.setProcessingDelay(state.serverConfig().common().enableTickDelay(), state.serverConfig().common().tickDelay());
         return state;
     }
 

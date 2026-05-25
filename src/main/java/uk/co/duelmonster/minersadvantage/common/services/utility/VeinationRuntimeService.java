@@ -18,6 +18,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -64,6 +65,26 @@ public final class VeinationRuntimeService {
         return allowedPickaxes.contains(stack.getItem());
     }
 
+    public boolean isOreAllowed(VeinationConfig config, BlockState state) {
+        if (config == null || state == null || state.isAir()) {
+            return false;
+        }
+        if (!RegistryPredicates.isOreLike(state)) {
+            return false;
+        }
+
+        if (config.ores().isEmpty()) {
+            return true;
+        }
+
+        Block block = state.getBlock();
+        String blockId = BuiltInRegistries.BLOCK.getKey(block).toString().toLowerCase(Locale.ROOT);
+        return config.ores().stream()
+            .filter(value -> value != null && !value.isBlank())
+            .map(value -> value.toLowerCase(Locale.ROOT))
+            .anyMatch(blockId::equals);
+    }
+
     public void registerDropAnchor(Player player, BlockPos pos, VeinationConfig config) {
         if (!config.dropOresAtFirstBrokenBlock()) {
             return;
@@ -103,7 +124,7 @@ public final class VeinationRuntimeService {
         if (!config.increaseHarvestingTimePerOre()) {
             return digSpeed;
         }
-        if (!RegistryPredicates.isOreLike(state)) {
+        if (!isOreAllowed(config, state)) {
             return digSpeed;
         }
         if (config.oreHarvestWithoutSneak() ? player.isCrouching() : !player.isCrouching()) {
@@ -148,10 +169,21 @@ public final class VeinationRuntimeService {
     }
 
     public List<BlockPos> discoverVein(Level level, BlockPos origin, VeinationConfig config, int maxBlocks) {
+        BlockState originState = level == null || origin == null ? null : level.getBlockState(origin);
+        if (!isOreAllowed(config, originState)) {
+            return List.of();
+        }
         return new ArrayList<>(coreService.discoverConnectedVein(level, origin, config.maxVeinDistance(), maxBlocks));
     }
 
     public List<BlockPos> discoverVein(Level level, BlockPos origin, BlockState originStateHint, VeinationConfig config, int maxBlocks) {
+        BlockState candidateState = originStateHint;
+        if (candidateState == null && level != null && origin != null) {
+            candidateState = level.getBlockState(origin);
+        }
+        if (!isOreAllowed(config, candidateState)) {
+            return List.of();
+        }
         return new ArrayList<>(coreService.discoverConnectedVein(level, origin, originStateHint, config.maxVeinDistance(), maxBlocks));
     }
 

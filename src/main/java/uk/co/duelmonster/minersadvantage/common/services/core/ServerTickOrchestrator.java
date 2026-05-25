@@ -10,6 +10,8 @@ public final class ServerTickOrchestrator {
     private final PlayerStateService playerStateService;
     private final WorkerRuntimeService workerRuntimeService;
     private boolean tpsGuardActive;
+    private boolean enableTickDelay;
+    private int tickDelay;
     private long tickCounter = 0;
 
     /**
@@ -36,7 +38,17 @@ public final class ServerTickOrchestrator {
     public void onServerTick() {
         tickCounter++;
         playerStateService.tick();
-        workerRuntimeService.tick(tpsGuardActive);
+        if (shouldProcessWorkersThisTick()) {
+            workerRuntimeService.tick(tpsGuardActive);
+        }
+    }
+
+    private boolean shouldProcessWorkersThisTick() {
+        if (!enableTickDelay || tickDelay <= 0) {
+            return true;
+        }
+        int interval = tickDelay + 1;
+        return tickCounter % interval == 0;
     }
 
     /**
@@ -61,5 +73,10 @@ public final class ServerTickOrchestrator {
      */
     public void setTpsGuardActive(boolean tpsGuardActive) {
         this.tpsGuardActive = tpsGuardActive;
+    }
+
+    public void setProcessingDelay(boolean enableTickDelay, int tickDelay) {
+        this.enableTickDelay = enableTickDelay;
+        this.tickDelay = Math.max(0, tickDelay);
     }
 }

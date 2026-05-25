@@ -216,6 +216,7 @@ public class SubstitutionAgent extends Agent {
     private final InteractionHand hand;
     private final SubstitutionConfig config;
     private final Set<String> blacklist;
+    private final String targetEntityTypeId;
 
     public SubstitutionAgent(ServerPlayer player) {
         this(player, player.level().getBlockState(player.blockPosition()), SubstitutionAction.BREAK, InteractionHand.MAIN_HAND, new SubstitutionConfig());
@@ -236,12 +237,24 @@ public class SubstitutionAgent extends Agent {
         InteractionHand hand,
         SubstitutionConfig config
     ) {
+        this(player, targetState, action, hand, config, null);
+    }
+
+    public SubstitutionAgent(
+        ServerPlayer player,
+        BlockState targetState,
+        SubstitutionAction action,
+        InteractionHand hand,
+        SubstitutionConfig config,
+        String targetEntityTypeId
+    ) {
         super(player);
         this.targetState = targetState;
         this.action = action == null ? SubstitutionAction.BREAK : action;
         this.hand = hand;
         this.config = config == null ? new SubstitutionConfig() : config;
         this.blacklist = Set.copyOf(this.config.blacklist());
+        this.targetEntityTypeId = targetEntityTypeId == null ? "" : targetEntityTypeId.toLowerCase(Locale.ROOT);
     }
 
     @Override
@@ -493,7 +506,7 @@ public class SubstitutionAgent extends Agent {
     private boolean targetMatches(SelectionRule rule) {
         boolean structuralMatch = switch (rule.targetKind()) {
             case ANY -> true;
-            case ENTITY_TYPE -> false;
+            case ENTITY_TYPE -> !targetEntityTypeId.isBlank() && targetEntityTypeId.equalsIgnoreCase(rule.targetId());
             case BLOCK_TAG -> matchesKnownBlockTag(rule.targetId());
         };
         if (!structuralMatch) {
@@ -541,6 +554,9 @@ public class SubstitutionAgent extends Agent {
         if (normalized.startsWith("target_block:")) {
             String blockId = BuiltInRegistries.BLOCK.getKey(targetState.getBlock()).toString();
             return blockId.equalsIgnoreCase(normalized.substring("target_block:".length()).trim());
+        }
+        if (normalized.startsWith("entity_type:")) {
+            return !targetEntityTypeId.isBlank() && targetEntityTypeId.equalsIgnoreCase(normalized.substring("entity_type:".length()).trim());
         }
         return switch (normalized) {
             case "requires_correct_tool" -> targetState.requiresCorrectToolForDrops();

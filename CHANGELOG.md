@@ -1,3 +1,11 @@
+## Unreleased
+
+- Complete runtime config-option parity wiring across Fabric and NeoForge event routes, including right/left click dispatch and server tick orchestration gates.
+- Enforce synchronized common-feature behavior for veination, captivation, substitution, cultivation, illumination, pathanation, shaftanation, ventilation, excavation, and lumbination agents.
+- Add veination ore allowlist runtime checks and substitution ATTACK context support with entity-type-aware rule targeting.
+- Improve cropination replant/seed behavior and lumbination leaves/shears/durability/replant handling for closer legacy behavior alignment.
+- Update TECHNICAL documentation with the 2026-05-25 runtime parity sweep and cross-node compatibility caveat notes.
+
 ## 0.6.0
 
 - Rework the Features tab into dedicated per-feature launcher rows with live status coloring, per-feature reset confirmation, and stable save/back behavior.
