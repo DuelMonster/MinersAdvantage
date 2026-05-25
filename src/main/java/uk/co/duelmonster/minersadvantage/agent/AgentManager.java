@@ -29,7 +29,7 @@ public class AgentManager {
         for (Map.Entry<UUID, List<Agent>> entry : agents.entrySet()) {
             List<Agent> agentList = entry.getValue();
             int before = agentList.size();
-            agentList.removeIf(Agent::tick);
+            agentList.removeIf(agent -> world.dimension().equals(agent.world.dimension()) && agent.tick());
             int removed = before - agentList.size();
             if (removed > 0) {
                 LogUtils.logDebug("Processed {} completed agents in dimension={} remaining={}", removed, world.dimension(), agentList.size());
