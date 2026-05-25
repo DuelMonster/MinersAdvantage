@@ -7,6 +7,7 @@
 - Refresh README and TECHNICAL documentation for split-root config categories and multiplayer authority semantics.
 - Remove remaining legacy config compatibility paths (`MAConfig` facade, JSON cleanup branch, and `SyncType.ClientConfig` sync handling).
 - Migrate config UI dependency and screen implementation to Cloth Config for FMC parity.
+- Add workspace VS Code Java configuration sync setting for consistent local project import behavior.
 
 ## 0.5.0
 
