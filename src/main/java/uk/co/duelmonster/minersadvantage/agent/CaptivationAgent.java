@@ -6,6 +6,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.entity.ExperienceOrb;
 import uk.co.duelmonster.minersadvantage.common.config.CaptivationConfig;
 import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 import uk.co.duelmonster.minersadvantage.common.services.captivation.CaptivationCoreService;
@@ -77,7 +78,7 @@ public class CaptivationAgent extends Agent {
 
         Level world = player.level();
         AABB box = player.getBoundingBox().inflate(radiusHorizontal, radiusVertical, radiusHorizontal);
-        List<Entity> entities = world.getEntities(player, box, e -> e instanceof ItemEntity);
+        List<Entity> entities = world.getEntities(player, box, e -> e instanceof ItemEntity || e instanceof ExperienceOrb);
         for (Entity e : entities) {
             if (e instanceof ItemEntity item) {
                 String itemId = BuiltInRegistries.ITEM.getKey(item.getItem().getItem()).toString();
@@ -96,7 +97,20 @@ public class CaptivationAgent extends Agent {
                 double dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
                 if (dist > 0.1) {
                     double speed = 0.3;
-                    item.setDeltaMovement(dx/dist * speed, dy/dist * speed, dz/dist * speed);
+                    pullTowardPlayer(item, dx, dy, dz, dist, speed);
+                }
+            } else if (e instanceof ExperienceOrb orb) {
+                if (orb.position().distanceToSqr(player.position()) <= NO_PULL_RADIUS_SQUARED) {
+                    orb.playerTouch(player);
+                    continue;
+                }
+                double dx = player.getX() - orb.getX();
+                double dy = player.getY() + 1.0 - orb.getY();
+                double dz = player.getZ() - orb.getZ();
+                double dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
+                if (dist > 0.1) {
+                    double speed = 0.3;
+                    pullTowardPlayer(orb, dx, dy, dz, dist, speed);
                 }
             }
         }
@@ -256,6 +270,10 @@ public class CaptivationAgent extends Agent {
 
         pickupDelayFieldResolved = true;
         return null;
+    }
+
+    private void pullTowardPlayer(Entity entity, double dx, double dy, double dz, double dist, double speed) {
+        entity.setDeltaMovement(dx / dist * speed, dy / dist * speed, dz / dist * speed);
     }
 
     private static boolean canContainDropperUuid(Class<?> type) {
