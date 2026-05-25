@@ -202,7 +202,7 @@ public final class ModEntry implements ModInitializer {
                 if (!agentManager.hasAgentType(serverPlayer, VeinationAgent.class)) {
                     agentManager.addAgent(serverPlayer, new VeinationAgent(serverPlayer, pos, state, veinationRuntime, veinationConfig));
                 }
-            } else if (shaftModeActive && isPickaxeTool(stack) && RegistryPredicates.isStoneLike(state)) {
+            } else if (shaftModeActive) {
                 Direction breakFace = consumeBreakFace(serverPlayer, pos);
                 boolean verticalFace = breakFace == Direction.UP || breakFace == Direction.DOWN;
                 AgentManager agentManager = AgentManager.get();
@@ -215,7 +215,7 @@ public final class ModEntry implements ModInitializer {
                         agentManager.addAgent(serverPlayer, new ShaftanationAgent(serverPlayer, pos, serverPlayer.getDirection(), shaftanationConfig(serverPlayer), commonConfig(serverPlayer), illuminationConfig(serverPlayer).lowestLightLevel()));
                     }
                 }
-            } else if (!shaftModeActive && excavationActive && isExcavationTool(stack) && isExcavationBlock(state, stack)) {
+            } else if (!shaftModeActive && excavationActive) {
                 LogUtils.logDebug("Block break trigger feature=Excavation player={} item={} block={} pos={}", serverPlayer.getScoreboardName(), itemId, brokenBlockId, pos);
                 ExcavationConfig excavationConfig = excavationConfig(serverPlayer);
                 CommonConfig commonConfig = commonConfig(serverPlayer);
@@ -296,7 +296,7 @@ public final class ModEntry implements ModInitializer {
             }
 
             var playerState = core.playerStateService().getPlayerState(playerId(serverPlayer));
-            if (playerState.shaftVentToggled() && isPickaxeTool(stack) && RegistryPredicates.isStoneLike(state) && !player.isShiftKeyDown()) {
+            if (playerState.shaftVentToggled() && !player.isShiftKeyDown()) {
                 Direction face = hitResult.getDirection();
                 boolean verticalFace = face == Direction.UP || face == Direction.DOWN;
                 if (verticalFace) {
@@ -541,17 +541,11 @@ public final class ModEntry implements ModInitializer {
     }
 
     private static boolean isExcavationTool(ItemStack stack) {
-        return isPickaxeTool(stack) || isShovelTool(stack);
+        return true;
     }
 
-    private static boolean isExcavationBlock(BlockState state, ItemStack stack) {
-        if (isPickaxeTool(stack)) {
-            return state.is(BlockTags.MINEABLE_WITH_PICKAXE) || RegistryPredicates.isStoneLike(state) || RegistryPredicates.isOreLike(state);
-        }
-        if (isShovelTool(stack)) {
-            return state.is(BlockTags.MINEABLE_WITH_SHOVEL) || RegistryPredicates.isDirtLike(state);
-        }
-        return false;
+    private static boolean isShaftTool(ItemStack stack) {
+        return true;
     }
 
     private static boolean isSubstitutionTool(ItemStack stack) {
@@ -1003,7 +997,7 @@ public final class ModEntry {
         }
 
         var playerState = core.playerStateService().getPlayerState(playerId(serverPlayer));
-        if (playerState.shaftVentToggled() && isPickaxeTool(stack) && RegistryPredicates.isStoneLike(state) && !event.getEntity().isShiftKeyDown()) {
+        if (playerState.shaftVentToggled() && !event.getEntity().isShiftKeyDown()) {
             Direction face = event.getFace();
             boolean verticalFace = face == Direction.UP || face == Direction.DOWN;
             if (verticalFace) {
@@ -1120,7 +1114,7 @@ public final class ModEntry {
                 if (!agentManager.hasAgentType(serverPlayer, VeinationAgent.class)) {
                     agentManager.addAgent(serverPlayer, new VeinationAgent(serverPlayer, event.getPos(), veinationRuntime, config));
                 }
-            } else if (shaftModeActive && isPickaxeTool(stack) && RegistryPredicates.isStoneLike(state)) {
+            } else if (shaftModeActive) {
                 Direction breakFace = event.getFace();
                 boolean verticalFace = breakFace == Direction.UP || breakFace == Direction.DOWN;
                 AgentManager agentManager = AgentManager.get();
@@ -1129,7 +1123,7 @@ public final class ModEntry {
                 } else if (!agentManager.hasAgentType(serverPlayer, ShaftanationAgent.class)) {
                     agentManager.addAgent(serverPlayer, new ShaftanationAgent(serverPlayer, event.getPos(), serverPlayer.getDirection(), shaftanationConfig(serverPlayer), commonConfig(serverPlayer), illuminationConfig(serverPlayer).lowestLightLevel()));
                 }
-            } else if (!shaftModeActive && excavationActive && isExcavationTool(stack) && isExcavationBlock(state, stack)) {
+            } else if (!shaftModeActive && excavationActive) {
                 ExcavationConfig excavationConfig = excavationConfig(serverPlayer);
                 int verticalRadius = isShovelTool(stack) || playerState.singleLayerToggled() ? 0 : excavationConfig.radiusVertical();
                 AgentManager.get().addAgent(
@@ -1269,17 +1263,11 @@ public final class ModEntry {
     }
 
     private static boolean isExcavationTool(ItemStack stack) {
-        return isPickaxeTool(stack) || isShovelTool(stack);
+        return true;
     }
 
-    private static boolean isExcavationBlock(BlockState state, ItemStack stack) {
-        if (isPickaxeTool(stack)) {
-            return state.is(BlockTags.MINEABLE_WITH_PICKAXE) || RegistryPredicates.isStoneLike(state) || RegistryPredicates.isOreLike(state);
-        }
-        if (isShovelTool(stack)) {
-            return state.is(BlockTags.MINEABLE_WITH_SHOVEL) || RegistryPredicates.isDirtLike(state);
-        }
-        return false;
+    private static boolean isShaftTool(ItemStack stack) {
+        return true;
     }
 
     private static boolean isConfiguredAxe(ItemStack stack, LumbinationConfig config) {

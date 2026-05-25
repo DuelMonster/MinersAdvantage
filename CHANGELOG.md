@@ -1,5 +1,6 @@
 ## 0.6.0
 
+- Remove excavation, shaftanation, and ventilation trigger block/tool restrictions so activation can start from arbitrary targets and held items.
 - Rework Lumbination into a logs-first then leaves-second harvest flow to stop interleaved trunk/canopy breaking.
 - Replace leaf flood-fill traversal with a bounded canopy candidate pass derived from trunk bounds to reduce neighboring-tree bleed.
 - Remove Lumbination's common block-limit cutoff so large trees do not stop mid-harvest and leave floating canopies.
