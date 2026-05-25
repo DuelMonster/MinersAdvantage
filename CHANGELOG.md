@@ -1,5 +1,9 @@
 ## 0.6.0
 
+- Stop captivation from immediately re-pulling freshly dropped player items by honoring recent-drop ownership and pickup-delay signals.
+- Restrict agent ticking to the active world dimension so cross-dimension agents do not progress on the wrong server tick.
+- Route manual illumination placement through the clicked face, add a dedicated placement agent, and require a solid supporting face before consuming torches.
+- Tighten shaft auto-illumination to respect the configured light threshold, wait for carve light updates, and reject invalid torch supports.
 - Complete runtime config-option parity wiring across Fabric and NeoForge event routes, including right/left click dispatch and server tick orchestration gates.
 - Make substitution switch tools on the initiating click instead of the following tick.
 - Stop manual torch placement from auto-triggering illumination placement bursts.
