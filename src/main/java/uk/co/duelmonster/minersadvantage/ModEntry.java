@@ -270,16 +270,6 @@ public final class ModEntry implements ModInitializer {
                 }
             }
 
-            if (itemId.endsWith("_torch") || itemId.endsWith(":torch")) {
-                LogUtils.logDebug("Use block trigger feature=Illumination player={} item={} pos={}", serverPlayer.getScoreboardName(), itemId, pos);
-                CommonConfig commonConfig = commonConfig(serverPlayer);
-                if (!commonConfig.autoIlluminate()) {
-                    return InteractionResult.PASS;
-                }
-                AgentManager.get().addAgent(serverPlayer, new IlluminationAgent(serverPlayer, pos.above(), illuminationConfig(serverPlayer), commonConfig));
-                return InteractionResult.SUCCESS;
-            }
-
             if (isShovelTool(stack) && RegistryPredicates.isDirtLike(state)) {
                 LogUtils.logDebug("Use block trigger feature=Pathanation player={} item={} block={} pos={}", serverPlayer.getScoreboardName(), itemId, targetBlockId, pos);
                 AgentManager.get().addAgent(serverPlayer, new PathanationAgent(serverPlayer, pos, pathanationConfig(serverPlayer), commonConfig(serverPlayer)));
@@ -959,15 +949,6 @@ public final class ModEntry {
                 AgentManager.get().addAgent(serverPlayer, new CultivationAgent(serverPlayer, pos, playerCommonConfig.blockRadius(), cultivationConfig(serverPlayer), playerCommonConfig));
                 return;
             }
-        }
-
-        if (itemId.endsWith("_torch") || itemId.endsWith(":torch")) {
-            CommonConfig playerCommonConfig = commonConfig(serverPlayer);
-            if (!playerCommonConfig.autoIlluminate()) {
-                return;
-            }
-            AgentManager.get().addAgent(serverPlayer, new IlluminationAgent(serverPlayer, pos.above(), illuminationConfig(serverPlayer), playerCommonConfig));
-            return;
         }
 
         if (isShovelTool(stack) && RegistryPredicates.isDirtLike(state)) {
