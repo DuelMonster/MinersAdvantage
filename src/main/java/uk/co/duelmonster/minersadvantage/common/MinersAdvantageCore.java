@@ -8,6 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import uk.co.duelmonster.minersadvantage.agent.AgentManager;
 import uk.co.duelmonster.minersadvantage.agent.IlluminationAgent;
+import uk.co.duelmonster.minersadvantage.agent.IlluminationPlaceAgent;
 import uk.co.duelmonster.minersadvantage.common.component.ComponentDescriptor;
 import uk.co.duelmonster.minersadvantage.common.component.ComponentLifecycle;
 import uk.co.duelmonster.minersadvantage.common.component.ComponentRegistry;
@@ -266,14 +267,20 @@ public final class MinersAdvantageCore {
             return false;
         }
 
-        BlockPos origin = new BlockPos(packet.blockX(), packet.blockY(), packet.blockZ()).above();
+        BlockPos targetPos = new BlockPos(packet.blockX(), packet.blockY(), packet.blockZ());
         LogUtils.logDebug(
-            "Handling illumination action player={} area={} origin={}",
+            "Handling illumination action player={} area={} target={}",
             player.getScoreboardName(),
             packet.area(),
-            origin
+            targetPos
         );
-        AgentManager.get().addAgent(player, new IlluminationAgent(player, origin, illuminationConfig, commonConfig));
+
+        if (!packet.area()) {
+            AgentManager.get().addAgent(player, new IlluminationPlaceAgent(player, targetPos, packet.faceDirection(), illuminationConfig, commonConfig));
+        } else {
+            BlockPos origin = targetPos.above();
+            AgentManager.get().addAgent(player, new IlluminationAgent(player, origin, illuminationConfig, commonConfig));
+        }
         return true;
     }
 

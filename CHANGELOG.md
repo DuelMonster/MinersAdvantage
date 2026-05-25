@@ -6,6 +6,8 @@
 - Keep agent queues dimension-scoped so server ticks do not advance agents from unloaded or different worlds.
 - Route manual illumination placement through the clicked face, add a dedicated placement agent, and require a solid supporting face before consuming torches.
 - Tighten shaft auto-illumination to respect the configured light threshold, wait for carve light updates, and reject invalid torch supports.
+- Make manual illumination place torches at the clicked face target instead of offsetting blindly above the selected block.
+- Share torch survival validation between illumination and shaft agents so invalid supports do not consume inventory.
 - Complete runtime config-option parity wiring across Fabric and NeoForge event routes, including right/left click dispatch and server tick orchestration gates.
 - Make substitution switch tools on the initiating click instead of the following tick.
 - Stop manual torch placement from auto-triggering illumination placement bursts.

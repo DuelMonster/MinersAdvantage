@@ -2,7 +2,6 @@ package uk.co.duelmonster.minersadvantage.agent;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import uk.co.duelmonster.minersadvantage.common.config.CommonConfig;
 import uk.co.duelmonster.minersadvantage.common.config.IlluminationConfig;
@@ -52,12 +51,16 @@ public class IlluminationAgent extends Agent {
     public boolean tick() {
         int count = 0;
         while (!queue.isEmpty() && count < blocksPerTick && placed < blockLimit) {
+            if (!playerHasTorches()) {
+                return finish("illumination area stopped: no torches in inventory");
+            }
             BlockPos pos = queue.poll();
             BlockState state = world.getBlockState(pos);
             if (state.isAir() && shouldPlaceAt(pos)) {
-                world.setBlockAndUpdate(pos, Blocks.TORCH.defaultBlockState());
-                placed++;
-                count++;
+                if (placeTorchWithInventory(pos, null)) {
+                    placed++;
+                    count++;
+                }
             }
         }
 
@@ -74,10 +77,6 @@ public class IlluminationAgent extends Agent {
             return false;
         }
 
-        return !world.isEmptyBlock(pos.below())
-            || !world.isEmptyBlock(pos.north())
-            || !world.isEmptyBlock(pos.south())
-            || !world.isEmptyBlock(pos.east())
-            || !world.isEmptyBlock(pos.west());
+        return canPlaceTorchAt(pos, null);
     }
 }

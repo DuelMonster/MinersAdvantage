@@ -4,13 +4,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.LightLayer;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.WallTorchBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import uk.co.duelmonster.minersadvantage.common.config.CommonConfig;
 import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 import uk.co.duelmonster.minersadvantage.common.config.ShaftanationConfig;
+import uk.co.duelmonster.minersadvantage.common.log.LogUtils;
 
+import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -18,6 +18,8 @@ import java.util.Queue;
  * ShaftanationAgent: digs a horizontal shaft in the player's facing direction.
  */
 public class ShaftanationAgent extends Agent {
+    private static final int MAX_TORCH_LIGHT_WAIT_TICKS = 40;
+
     private final BlockPos origin;
     private final Direction direction;
     private final ShaftanationConfig config;
@@ -28,21 +30,39 @@ public class ShaftanationAgent extends Agent {
     private final int blocksPerTick;
     private final int blockLimit;
     private final boolean autoIlluminate;
+    private final int torchLowestLightLevel;
     private int dug = 0;
     private int torchPlacements = 0;
+    private int torchLightWaitTicks = 0;
 
     private record TorchJob(BlockPos pos, Direction facing) {}
-    private final Queue<TorchJob> torchQueue = new LinkedList<>();
+    private enum TorchPlacementDecision {
+        PLACE,
+        WAIT_FOR_LIGHT,
+        DISCARD
+    }
+    private final Deque<TorchJob> torchQueue = new LinkedList<>();
 
     public ShaftanationAgent(ServerPlayer player, BlockPos origin, int depth) {
-        this(player, origin, player.getDirection(), new ShaftanationConfig(true, Math.max(1, depth), 8), new CommonConfig());
+        this(
+            player,
+            origin,
+            player.getDirection(),
+            new ShaftanationConfig(true, Math.max(1, depth), 8),
+            new CommonConfig(),
+            MAServerRootConfig.defaults().illumination().lowestLightLevel()
+        );
     }
 
     public ShaftanationAgent(ServerPlayer player, BlockPos origin, ShaftanationConfig config, CommonConfig commonConfig) {
-        this(player, origin, player.getDirection(), config, commonConfig);
+        this(player, origin, player.getDirection(), config, commonConfig, MAServerRootConfig.defaults().illumination().lowestLightLevel());
     }
 
     public ShaftanationAgent(ServerPlayer player, BlockPos origin, Direction direction, ShaftanationConfig config, CommonConfig commonConfig) {
+        this(player, origin, direction, config, commonConfig, MAServerRootConfig.defaults().illumination().lowestLightLevel());
+    }
+
+    public ShaftanationAgent(ServerPlayer player, BlockPos origin, Direction direction, ShaftanationConfig config, CommonConfig commonConfig, int torchLowestLightLevel) {
         super(player);
         this.origin = origin;
         this.direction = direction != null && direction.getAxis().isHorizontal() ? direction : player.getDirection();
@@ -55,18 +75,19 @@ public class ShaftanationAgent extends Agent {
         this.blocksPerTick = Math.max(1, Math.min(globalBlocksPerTick, this.config.processesPerTick()));
         this.blockLimit = commonConfig == null ? 64 : Math.max(1, commonConfig.blockLimit());
         this.autoIlluminate = commonConfig == null || commonConfig.autoIlluminate();
+        this.torchLowestLightLevel = Math.max(0, torchLowestLightLevel);
 
         int halfWidth = shaftWidth / 2;
         boolean alongZ = this.direction.getAxis() == Direction.Axis.Z;
         BlockPos floorOrigin = new BlockPos(origin.getX(), player.blockPosition().getY(), origin.getZ());
-        for (int depth = targetDepth - 1; depth >= 0; depth--) {
+        for (int depth = 0; depth < targetDepth; depth++) {
             BlockPos base = floorOrigin.relative(this.direction, depth);
             for (int w = -halfWidth; w <= halfWidth; w++) {
                 for (int h = 0; h < shaftHeight; h++) {
                     queue.add((alongZ ? base.offset(w, h, 0) : base.offset(0, h, w)).immutable());
                 }
             }
-            if (autoIlluminate && depth > 0 && depth % 5 == 0) {
+            if (autoIlluminate && depth > 0) {
                 addTorchTargets(base, halfWidth, alongZ);
             }
         }
@@ -86,13 +107,52 @@ public class ShaftanationAgent extends Agent {
         }
 
         if (queue.isEmpty()) {
-            TorchJob torchJob;
-            while ((torchJob = torchQueue.peek()) != null) {
-                if (!canPlaceTorch(torchJob)) {
+            boolean madeProgress = false;
+            int scanBudget = torchQueue.size();
+            while (scanBudget-- > 0 && !torchQueue.isEmpty()) {
+                TorchJob torchJob = torchQueue.peekFirst();
+                TorchPlacementDecision decision = evaluateTorchPlacement(torchJob);
+                if (decision == TorchPlacementDecision.PLACE) {
+                    torchQueue.pollFirst();
+                    if (playerHasTorches()) {
+                        placeTorch(torchJob);
+                        madeProgress = true;
+                    } else {
+                        LogUtils.logDebug("Shaft torch skipped: no torches in inventory player={} pos={}", player.getScoreboardName(), torchJob.pos());
+                        torchQueue.clear();
+                    }
                     break;
                 }
-                torchQueue.poll();
-                placeTorch(torchJob);
+                if (decision == TorchPlacementDecision.DISCARD) {
+                    torchQueue.pollFirst();
+                    LogUtils.logDebug("Discarded shaft torch job player={} pos={} facing={} reason=unplaceable", player.getScoreboardName(), torchJob.pos(), torchJob.facing());
+                    madeProgress = true;
+                    continue;
+                }
+
+                // Defer bright candidates so darker ones deeper in the queue can be considered this tick.
+                torchQueue.addLast(torchQueue.pollFirst());
+            }
+
+            if (madeProgress) {
+                torchLightWaitTicks = 0;
+            } else if (!torchQueue.isEmpty()) {
+                torchLightWaitTicks++;
+                if (torchLightWaitTicks > MAX_TORCH_LIGHT_WAIT_TICKS) {
+                    int dropped = torchQueue.size();
+                    TorchJob head = torchQueue.peekFirst();
+                    torchQueue.clear();
+                    LogUtils.logDebug(
+                        "Discarded stalled shaft torch queue player={} headPos={} headFacing={} reason=light_wait_timeout waitedTicks={} threshold={} droppedJobs={}",
+                        player.getScoreboardName(),
+                        head == null ? null : head.pos(),
+                        head == null ? null : head.facing(),
+                        torchLightWaitTicks,
+                        torchLowestLightLevel,
+                        dropped
+                    );
+                    torchLightWaitTicks = 0;
+                }
             }
         }
 
@@ -104,21 +164,21 @@ public class ShaftanationAgent extends Agent {
 
     private void addTorchTargets(BlockPos base, int halfWidth, boolean alongZ) {
         switch (config.torchPlacement()) {
-            case FLOOR -> torchQueue.add(new TorchJob(base.immutable(), null));
-            case LEFT_WALL -> torchQueue.add(new TorchJob(
+            case FLOOR -> enqueueTorchJob(new TorchJob(base.immutable(), null));
+            case LEFT_WALL -> enqueueTorchJob(new TorchJob(
                 (alongZ ? base.offset(-halfWidth, 1, 0) : base.offset(0, 1, -halfWidth)).immutable(),
                 alongZ ? Direction.EAST : Direction.SOUTH
             ));
-            case RIGHT_WALL -> torchQueue.add(new TorchJob(
+            case RIGHT_WALL -> enqueueTorchJob(new TorchJob(
                 (alongZ ? base.offset(halfWidth, 1, 0) : base.offset(0, 1, halfWidth)).immutable(),
                 alongZ ? Direction.WEST : Direction.NORTH
             ));
             case BOTH_WALLS -> {
-                torchQueue.add(new TorchJob(
+                enqueueTorchJob(new TorchJob(
                     (alongZ ? base.offset(-halfWidth, 1, 0) : base.offset(0, 1, -halfWidth)).immutable(),
                     alongZ ? Direction.EAST : Direction.SOUTH
                 ));
-                torchQueue.add(new TorchJob(
+                enqueueTorchJob(new TorchJob(
                     (alongZ ? base.offset(halfWidth, 1, 0) : base.offset(0, 1, halfWidth)).immutable(),
                     alongZ ? Direction.WEST : Direction.NORTH
                 ));
@@ -128,34 +188,47 @@ public class ShaftanationAgent extends Agent {
         }
     }
 
-    private boolean canPlaceTorch(TorchJob torchJob) {
+    private void enqueueTorchJob(TorchJob job) {
+        // Torch jobs are prepended so placement runs from far-to-near after carving completes.
+        torchQueue.addFirst(job);
+    }
+
+    private TorchPlacementDecision evaluateTorchPlacement(TorchJob torchJob) {
         if (!autoIlluminate) {
-            return false;
+            return TorchPlacementDecision.DISCARD;
         }
         if (config.torchPlacement() == null) {
-            return false;
+            return TorchPlacementDecision.DISCARD;
         }
 
         BlockPos pos = torchJob.pos();
-        int lightLevel = world.getBrightness(LightLayer.BLOCK, pos);
-        if (lightLevel >= 8 || !world.isEmptyBlock(pos)) {
-            return false;
+        if (!world.isEmptyBlock(pos)) {
+            return TorchPlacementDecision.DISCARD;
+        }
+
+        int lightLevel = effectiveTorchLight(pos);
+        if (lightLevel > torchLowestLightLevel) {
+            return TorchPlacementDecision.WAIT_FOR_LIGHT;
         }
 
         if (torchJob.facing() == null) {
-            return !world.isEmptyBlock(pos.below());
+            return world.isEmptyBlock(pos.below()) ? TorchPlacementDecision.DISCARD : TorchPlacementDecision.PLACE;
         }
 
-        return !world.isEmptyBlock(pos.relative(torchJob.facing().getOpposite()));
+        return world.isEmptyBlock(pos.relative(torchJob.facing().getOpposite()))
+            ? TorchPlacementDecision.DISCARD
+            : TorchPlacementDecision.PLACE;
     }
 
     private void placeTorch(TorchJob torchJob) {
-        if (torchJob.facing() == null) {
-            world.setBlockAndUpdate(torchJob.pos(), Blocks.TORCH.defaultBlockState());
-        } else {
-            world.setBlockAndUpdate(torchJob.pos(), Blocks.WALL_TORCH.defaultBlockState()
-                .setValue(WallTorchBlock.FACING, torchJob.facing()));
+        if (placeTorchWithInventory(torchJob.pos(), torchJob.facing())) {
+            torchPlacements++;
         }
-        torchPlacements++;
+    }
+
+    private int effectiveTorchLight(BlockPos pos) {
+        int atTorch = world.getBrightness(LightLayer.BLOCK, pos);
+        int aboveTorch = world.getBrightness(LightLayer.BLOCK, pos.above());
+        return Math.min(atTorch, aboveTorch);
     }
 }

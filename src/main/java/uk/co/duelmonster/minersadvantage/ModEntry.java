@@ -212,7 +212,7 @@ public final class ModEntry implements ModInitializer {
                 } else {
                     LogUtils.logDebug("Block break trigger feature=Shaftanation player={} item={} block={} pos={} face={}", serverPlayer.getScoreboardName(), itemId, brokenBlockId, pos, breakFace == null ? "unknown" : breakFace);
                     if (!agentManager.hasAgentType(serverPlayer, ShaftanationAgent.class)) {
-                        agentManager.addAgent(serverPlayer, new ShaftanationAgent(serverPlayer, pos, serverPlayer.getDirection(), shaftanationConfig(serverPlayer), commonConfig(serverPlayer)));
+                        agentManager.addAgent(serverPlayer, new ShaftanationAgent(serverPlayer, pos, serverPlayer.getDirection(), shaftanationConfig(serverPlayer), commonConfig(serverPlayer), illuminationConfig(serverPlayer).lowestLightLevel()));
                     }
                 }
             } else if (!shaftModeActive && excavationActive && isExcavationTool(stack) && isExcavationBlock(state, stack)) {
@@ -306,7 +306,7 @@ public final class ModEntry implements ModInitializer {
                     LogUtils.logDebug("Use block trigger feature=Shaftanation player={} item={} block={} pos={} face={}", serverPlayer.getScoreboardName(), itemId, targetBlockId, pos, face);
                     AgentManager agentManager = AgentManager.get();
                     if (!agentManager.hasAgentType(serverPlayer, ShaftanationAgent.class)) {
-                        agentManager.addAgent(serverPlayer, new ShaftanationAgent(serverPlayer, pos, serverPlayer.getDirection(), shaftanationConfig(serverPlayer), commonConfig(serverPlayer)));
+                        agentManager.addAgent(serverPlayer, new ShaftanationAgent(serverPlayer, pos, serverPlayer.getDirection(), shaftanationConfig(serverPlayer), commonConfig(serverPlayer), illuminationConfig(serverPlayer).lowestLightLevel()));
                     }
                 }
                 return InteractionResult.SUCCESS;
@@ -1011,7 +1011,7 @@ public final class ModEntry {
             } else {
                 AgentManager agentManager = AgentManager.get();
                 if (!agentManager.hasAgentType(serverPlayer, ShaftanationAgent.class)) {
-                    agentManager.addAgent(serverPlayer, new ShaftanationAgent(serverPlayer, pos, serverPlayer.getDirection(), shaftanationConfig(serverPlayer), commonConfig(serverPlayer)));
+                    agentManager.addAgent(serverPlayer, new ShaftanationAgent(serverPlayer, pos, serverPlayer.getDirection(), shaftanationConfig(serverPlayer), commonConfig(serverPlayer), illuminationConfig(serverPlayer).lowestLightLevel()));
                 }
             }
             return;
@@ -1127,7 +1127,7 @@ public final class ModEntry {
                 if (verticalFace) {
                     agentManager.addAgent(serverPlayer, new VentilationAgent(serverPlayer, event.getPos(), breakFace.getOpposite(), ventilationConfig(serverPlayer), commonConfig(serverPlayer)));
                 } else if (!agentManager.hasAgentType(serverPlayer, ShaftanationAgent.class)) {
-                    agentManager.addAgent(serverPlayer, new ShaftanationAgent(serverPlayer, event.getPos(), serverPlayer.getDirection(), shaftanationConfig(serverPlayer), commonConfig(serverPlayer)));
+                    agentManager.addAgent(serverPlayer, new ShaftanationAgent(serverPlayer, event.getPos(), serverPlayer.getDirection(), shaftanationConfig(serverPlayer), commonConfig(serverPlayer), illuminationConfig(serverPlayer).lowestLightLevel()));
                 }
             } else if (!shaftModeActive && excavationActive && isExcavationTool(stack) && isExcavationBlock(state, stack)) {
                 ExcavationConfig excavationConfig = excavationConfig(serverPlayer);

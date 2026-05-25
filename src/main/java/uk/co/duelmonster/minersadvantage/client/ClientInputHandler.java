@@ -231,8 +231,9 @@ public final class ClientInputHandler {
             return;
         }
 
-        var pos = blockHit.getBlockPos();
-        ClientPlayNetworking.send(new IlluminationActionPacket(pos.getX(), pos.getY(), pos.getZ(), area));
+        var hitFace = blockHit.getDirection();
+        var pos = area ? blockHit.getBlockPos() : blockHit.getBlockPos().relative(hitFace);
+        ClientPlayNetworking.send(new IlluminationActionPacket(pos.getX(), pos.getY(), pos.getZ(), area, hitFace));
     }
     //?} else {
     /*

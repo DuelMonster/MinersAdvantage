@@ -1,5 +1,6 @@
 package uk.co.duelmonster.minersadvantage.common.network;
 
+import net.minecraft.core.Direction;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -12,7 +13,8 @@ public record IlluminationActionPacket(
     int blockX,
     int blockY,
     int blockZ,
-    boolean area
+    boolean area,
+    Direction faceDirection
 ) implements CustomPacketPayload {
     public static final Type<IlluminationActionPacket> TYPE = createType();
     public static final StreamCodec<RegistryFriendlyByteBuf, IlluminationActionPacket> STREAM_CODEC = createStreamCodec();
@@ -41,6 +43,8 @@ public record IlluminationActionPacket(
                 IlluminationActionPacket::blockZ,
                 ByteBufCodecs.BOOL,
                 IlluminationActionPacket::area,
+                ByteBufCodecs.VAR_INT.map(i -> Direction.values()[i], Direction::ordinal),
+                IlluminationActionPacket::faceDirection,
                 IlluminationActionPacket::new
             );
         } catch (Throwable throwable) {

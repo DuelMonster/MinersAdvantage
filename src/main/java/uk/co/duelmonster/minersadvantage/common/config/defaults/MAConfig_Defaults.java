@@ -106,7 +106,7 @@ public final class MAConfig_Defaults {
      */
     public static final class Illumination {
         public static final boolean enabled = true;
-        public static final int lowestLightLevel = 0;
+        public static final int lowestLightLevel = 1;
         public static final boolean useBlockLight = true;
     }
 
