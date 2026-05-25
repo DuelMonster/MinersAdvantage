@@ -6,6 +6,7 @@
 - Remove veination queue caps so connected ore discovery and processing are no longer limited by a fixed block ceiling.
 - Capture the triggering tool stack for agent-driven veination fan-out so substitution-driven hand changes do not suppress ore chaining.
 - Fix `AgentManager` tick-time concurrent modification by deferring agent additions during iteration and flushing queued agents after the tick pass.
+- Cap veination distance settings to a maximum of 12 and treat deepslate/stone ore variants as a shared ore family during vein discovery.
 
 ## 0.6.0
 
@@ -17,7 +18,6 @@
 - Restore Lumbination log/leaf parity guards: require a valid origin leaf, restrict fallback log matching to origin log type, and enforce origin leaf block matching.
 - Improve Lumbination sapling replanting to use detected trunk base targets, support all-or-nothing 2x2 planting, and delay planting until full tree harvest completion.
 - Change Lumbination sapling consumption order to inventory-first with shears-mode inventory-only consumption.
-
 - Fix captivation recent-drop detection to keep player-thrown items exempt for the full 160-tick cooldown window.
 - Restore captivation XP orb attraction so the magnet path now targets experience orbs again instead of item entities only.
 - Stop captivation from immediately re-pulling freshly dropped player items by honoring recent-drop ownership and pickup-delay signals.

@@ -5,11 +5,12 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import uk.co.duelmonster.minersadvantage.common.registry.RegistryPredicates;
 
@@ -29,7 +30,7 @@ public final class VeinationCoreService {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public boolean sameVein(String blockId1, String blockId2) {
-        return blockId1 != null && blockId1.equals(blockId2);
+        return normalizeOreFamily(blockId1).equals(normalizeOreFamily(blockId2));
     }
 
     /**
@@ -61,12 +62,12 @@ public final class VeinationCoreService {
             return vein;
         }
 
-        Block originBlock = effectiveOriginState.getBlock();
+        String originFamily = normalizeOreFamily(blockId(effectiveOriginState));
         Deque<BlockPos> queue = new ArrayDeque<>();
         Set<BlockPos> visited = new HashSet<>();
         visited.add(origin);
 
-        if (RegistryPredicates.isOreLike(originState) && originState.getBlock().equals(originBlock)) {
+        if (RegistryPredicates.isOreLike(originState) && originFamily.equals(normalizeOreFamily(blockId(originState)))) {
             queue.add(origin);
         } else {
             for (int dx = -1; dx <= 1; dx++) {
@@ -75,7 +76,7 @@ public final class VeinationCoreService {
                         BlockPos neighbor = origin.offset(dx, dy, dz);
                         if (visited.add(neighbor)) {
                             BlockState neighborState = world.getBlockState(neighbor);
-                            if (RegistryPredicates.isOreLike(neighborState) && neighborState.getBlock().equals(originBlock)) {
+                            if (RegistryPredicates.isOreLike(neighborState) && originFamily.equals(normalizeOreFamily(blockId(neighborState)))) {
                                 queue.addLast(neighbor);
                             }
                         }
@@ -92,7 +93,7 @@ public final class VeinationCoreService {
             }
 
             BlockState currentState = world.getBlockState(current);
-            if (!currentState.getBlock().equals(originBlock) || !RegistryPredicates.isOreLike(currentState)) {
+            if (!RegistryPredicates.isOreLike(currentState) || !originFamily.equals(normalizeOreFamily(blockId(currentState)))) {
                 continue;
             }
 
@@ -114,6 +115,25 @@ public final class VeinationCoreService {
         }
 
         return vein;
+    }
+
+    private static String blockId(BlockState state) {
+        return state == null ? "" : BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString();
+    }
+
+    private static String normalizeOreFamily(String blockId) {
+        if (blockId == null || blockId.isBlank()) {
+            return "";
+        }
+
+        String[] split = blockId.split(":", 2);
+        String namespace = split.length > 1 ? split[0] : "minecraft";
+        String path = split.length > 1 ? split[1] : split[0];
+        String normalizedPath = path.toLowerCase(Locale.ROOT);
+        if (normalizedPath.startsWith("deepslate_") && normalizedPath.endsWith("_ore")) {
+            normalizedPath = normalizedPath.substring("deepslate_".length());
+        }
+        return namespace.toLowerCase(Locale.ROOT) + ":" + normalizedPath;
     }
 
     /**

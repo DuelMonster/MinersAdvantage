@@ -29,6 +29,7 @@ public record VeinationConfig(
     }
 
     public VeinationConfig {
+        maxVeinDistance = Math.max(1, Math.min(12, maxVeinDistance));
         ores = ores == null ? List.of() : List.copyOf(ores);
         pickaxeBlacklist = pickaxeBlacklist == null ? List.of() : List.copyOf(pickaxeBlacklist);
         increasedHarvestingTimePerOreModifier = Math.max(0.01D, Math.min(10.0D, increasedHarvestingTimePerOreModifier));
