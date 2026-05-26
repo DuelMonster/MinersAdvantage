@@ -1,3 +1,9 @@
+## 0.8.0
+
+- Bump mod version to `0.8.0` and advance the tracked daily bump date.
+- Fix shaft wall auto-illumination to check shaft-floor light levels instead of wall-target light levels.
+- Fix shaft wall auto-illumination left/right placement so wall modes follow the shaft-facing direction correctly.
+
 ## 0.7.0
 
 - Bump mod version to `0.7.0` and advance the tracked daily bump date.

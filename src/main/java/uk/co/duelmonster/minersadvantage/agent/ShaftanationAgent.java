@@ -43,7 +43,8 @@ public class ShaftanationAgent extends Agent {
     private int torchPlacements = 0;
     private int torchLightWaitTicks = 0;
 
-    private record TorchJob(BlockPos pos, Direction facing) {}
+    record TorchJob(BlockPos pos, Direction facing, BlockPos lightCheckPos) {}
+    record TorchGeometry(int offsetX, int offsetY, int offsetZ, int lightCheckOffsetY) {}
     private enum TorchPlacementDecision {
         PLACE,
         WAIT_FOR_LIGHT,
@@ -127,7 +128,7 @@ public class ShaftanationAgent extends Agent {
                 }
             }
             if (autoIlluminate && depth > 0) {
-                addTorchTargets(base, halfWidth, alongZ);
+                addTorchTargets(base, halfWidth);
             }
         }
     }
@@ -202,30 +203,44 @@ public class ShaftanationAgent extends Agent {
         return false;
     }
 
-    private void addTorchTargets(BlockPos base, int halfWidth, boolean alongZ) {
+    private void addTorchTargets(BlockPos base, int halfWidth) {
         switch (config.torchPlacement()) {
-            case FLOOR -> enqueueTorchJob(new TorchJob(base.immutable(), null));
-            case LEFT_WALL -> enqueueTorchJob(new TorchJob(
-                (alongZ ? base.offset(-halfWidth, 1, 0) : base.offset(0, 1, -halfWidth)).immutable(),
-                alongZ ? Direction.EAST : Direction.SOUTH
-            ));
-            case RIGHT_WALL -> enqueueTorchJob(new TorchJob(
-                (alongZ ? base.offset(halfWidth, 1, 0) : base.offset(0, 1, halfWidth)).immutable(),
-                alongZ ? Direction.WEST : Direction.NORTH
-            ));
+            case FLOOR -> enqueueTorchJob(floorTorchJob(base));
+            case LEFT_WALL -> enqueueTorchJob(wallTorchJob(base, direction, halfWidth, true));
+            case RIGHT_WALL -> enqueueTorchJob(wallTorchJob(base, direction, halfWidth, false));
             case BOTH_WALLS -> {
-                enqueueTorchJob(new TorchJob(
-                    (alongZ ? base.offset(-halfWidth, 1, 0) : base.offset(0, 1, -halfWidth)).immutable(),
-                    alongZ ? Direction.EAST : Direction.SOUTH
-                ));
-                enqueueTorchJob(new TorchJob(
-                    (alongZ ? base.offset(halfWidth, 1, 0) : base.offset(0, 1, halfWidth)).immutable(),
-                    alongZ ? Direction.WEST : Direction.NORTH
-                ));
+                enqueueTorchJob(wallTorchJob(base, direction, halfWidth, true));
+                enqueueTorchJob(wallTorchJob(base, direction, halfWidth, false));
             }
             default -> {
             }
         }
+    }
+
+    static TorchJob floorTorchJob(BlockPos base) {
+        TorchGeometry geometry = floorTorchGeometry();
+        BlockPos floorPos = base.offset(geometry.offsetX(), geometry.offsetY(), geometry.offsetZ()).immutable();
+        return new TorchJob(floorPos, null, base.above(geometry.lightCheckOffsetY()).immutable());
+    }
+
+    static TorchJob wallTorchJob(BlockPos base, Direction shaftDirection, int halfWidth, boolean leftWall) {
+        TorchGeometry geometry = wallTorchGeometry(shaftDirection.getStepX(), shaftDirection.getStepZ(), halfWidth, leftWall);
+        Direction wallDirection = leftWall ? shaftDirection.getCounterClockWise() : shaftDirection.getClockWise();
+        return new TorchJob(
+            base.offset(geometry.offsetX(), geometry.offsetY(), geometry.offsetZ()).immutable(),
+            wallDirection.getOpposite(),
+            base.above(geometry.lightCheckOffsetY()).immutable()
+        );
+    }
+
+    static TorchGeometry floorTorchGeometry() {
+        return new TorchGeometry(0, 0, 0, 0);
+    }
+
+    static TorchGeometry wallTorchGeometry(int shaftStepX, int shaftStepZ, int halfWidth, boolean leftWall) {
+        int wallStepX = leftWall ? shaftStepZ : -shaftStepZ;
+        int wallStepZ = leftWall ? -shaftStepX : shaftStepX;
+        return new TorchGeometry(wallStepX * halfWidth, 1, wallStepZ * halfWidth, 0);
     }
 
     private void enqueueTorchJob(TorchJob job) {
@@ -246,7 +261,7 @@ public class ShaftanationAgent extends Agent {
             return TorchPlacementDecision.DISCARD;
         }
 
-        int lightLevel = effectiveTorchLight(pos);
+        int lightLevel = effectiveTorchLight(torchJob.lightCheckPos());
         if (lightLevel > torchLowestLightLevel) {
             return TorchPlacementDecision.WAIT_FOR_LIGHT;
         }
