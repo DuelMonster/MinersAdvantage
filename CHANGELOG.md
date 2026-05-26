@@ -1,6 +1,10 @@
 ## 0.8.0
 
 - Bump mod version to `0.8.0` and advance the tracked daily bump date.
+- Center `ILLUMINATION_AREA` execution on the player's position instead of the targeted block while keeping area mode floor-placement behavior.
+- Centralize synced default construction through `MAConfig_Defaults` so `SyncedClientConfig.defaults()` no longer hard-codes per-feature values.
+- Canonicalize `MAConfig_Defaults` feature field names and expand missing entries (cultivation, excavation, pathanation, lumbination, shaftanation, substitution, ventilation).
+- Align illumination synced defaults to `MAConfig_Defaults` values, including `lowestLightLevel = 1` and radius defaults `(8, 4)`.
 - Fix shaft wall auto-illumination to check shaft-floor light levels instead of wall-target light levels.
 - Fix shaft wall auto-illumination left/right placement so wall modes follow the shaft-facing direction correctly.
 - Add focused regression coverage for shaft wall torch geometry and floor-light sampling.

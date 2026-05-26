@@ -278,7 +278,8 @@ public final class MinersAdvantageCore {
         if (!packet.area()) {
             AgentManager.get().addAgent(player, new IlluminationPlaceAgent(player, targetPos, packet.faceDirection(), illuminationConfig, commonConfig));
         } else {
-            BlockPos origin = targetPos.above();
+            // Area mode intentionally centers on the player so targeting misses do not offset coverage.
+            BlockPos origin = player.blockPosition().above();
             AgentManager.get().addAgent(player, new IlluminationAgent(player, origin, illuminationConfig, commonConfig));
         }
         return true;

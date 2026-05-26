@@ -2,7 +2,7 @@ package uk.co.duelmonster.minersadvantage.common.config.defaults;
 
 import java.util.List;
 import uk.co.duelmonster.minersadvantage.common.Constants;
-import uk.co.duelmonster.minersadvantage.common.TorchPlacement;
+import uk.co.duelmonster.minersadvantage.common.services.utility.TorchPlacement;
 import uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig.SelectionRule;
 
 /**
@@ -62,8 +62,8 @@ public final class MAConfig_Defaults {
     public static final class Captivation {
         public static final boolean enabled = true;
         public static final boolean allowInGUI = false;
-        public static final double radiusHorizontal = 16;
-        public static final double radiusVertical = 16;
+        public static final int radiusHorizontal = 16;
+        public static final int radiusVertical = 16;
         public static final boolean isWhitelist = false;
         public static final boolean unconditionalBlacklist = false;
         public static final List<String> blacklist = List.of("minecraft:rotten_flesh", "minecraft:egg");
@@ -79,11 +79,23 @@ public final class MAConfig_Defaults {
     }
 
     /**
+     * Cultivation is the teammate that keeps this part of the mod understandable and stable.
+     * It exists so behavior stays explicit instead of becoming mystery spaghetti at 2 AM.
+     */
+    public static final class Cultivation {
+        public static final boolean enabled = true;
+        public static final int hydrationDistance = 4;
+    }
+
+    /**
      * Excavation is the teammate that keeps this part of the mod understandable and stable.
      * It exists so behavior stays explicit instead of becoming mystery spaghetti at 2 AM.
      */
     public static final class Excavation {
         public static final boolean enabled = true;
+        public static final int radiusHorizontal = 3;
+        public static final int radiusVertical = 2;
+        public static final int processesPerTick = 10;
         public static final boolean toggleMode = false;
         public static final boolean ignoreBlockVariants = false;
         public static final boolean isBlockWhitelist = false;
@@ -96,8 +108,8 @@ public final class MAConfig_Defaults {
      */
     public static final class Pathanation {
         public static final boolean enabled = true;
+        public static final int targetBlockRange = 6;
         public static final int pathWidth = 3;
-        public static final int pathLength = 6;
     }
 
     /**
@@ -106,6 +118,8 @@ public final class MAConfig_Defaults {
      */
     public static final class Illumination {
         public static final boolean enabled = true;
+        public static final int radiusHorizontal = 8;
+        public static final int radiusVertical = 4;
         public static final int lowestLightLevel = 1;
         public static final boolean useBlockLight = true;
     }
@@ -116,14 +130,15 @@ public final class MAConfig_Defaults {
      */
     public static final class Lumbination {
         public static final boolean enabled = true;
+        public static final int maxTrunkRange = 32;
+        public static final int maxLeafRange = 6;
+        public static final int processesPerTick = 8;
         public static final boolean chopTreeBelow = true;
         public static final boolean destroyLeaves = true;
         public static final boolean leavesAffectDurability = false;
         public static final boolean replantSaplings = true;
         public static final boolean useCanopyTool = true;
         public static final boolean ignorePlayerPlacedLeaves = true;
-        public static final int leafRange = 6;
-        public static final int trunkRange = 32;
         public static final List<String> logs = List.of();
         public static final List<String> leaves = List.of();
         public static final List<String> axes = List.of();
@@ -135,9 +150,10 @@ public final class MAConfig_Defaults {
      */
     public static final class Shaftanation {
         public static final boolean enabled = true;
-        public static final int shaftLength = 16;
-        public static final int shaftHeight = 2;
+        public static final int maxDepth = 16;
+        public static final int processesPerTick = 10;
         public static final int shaftWidth = 1;
+        public static final int shaftHeight = 2;
         public static final TorchPlacement torchPlacement = TorchPlacement.FLOOR;
     }
 
@@ -147,8 +163,9 @@ public final class MAConfig_Defaults {
      */
     public static final class Substitution {
         public static final boolean enabled = true;
+        public static final boolean allowMending = false;
+        public static final boolean prioritizeSilkTouch = false;
         public static final boolean switchBack = true;
-        public static final boolean favourSilkTouch = false;
         public static final boolean favourFortune = true;
         public static final boolean ignoreIfValidTool = true;
         public static final boolean ignorePassiveMobs = true;
@@ -177,8 +194,9 @@ public final class MAConfig_Defaults {
      */
     public static final class Ventilation {
         public static final boolean enabled = true;
-        public static final int ventDiameter = 1;
-        public static final int ventDepth = 16;
+        public static final int radiusHorizontal = 1;
+        public static final int radiusVertical = 16;
+        public static final int processesPerTick = 8;
         public static final boolean placeLadders = true;
     }
 }

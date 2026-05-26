@@ -1,7 +1,6 @@
 package uk.co.duelmonster.minersadvantage.common.config;
 
-import java.util.List;
-import uk.co.duelmonster.minersadvantage.common.services.utility.TorchPlacement;
+import uk.co.duelmonster.minersadvantage.common.config.defaults.MAConfig_Defaults;
 
 /**
  * SyncedClientConfig keeps this part of Miners Advantage running without turning server ticks into confetti.
@@ -28,19 +27,108 @@ public record SyncedClientConfig(
      */
     public static SyncedClientConfig defaults() {
         return new SyncedClientConfig(
-            new ClientConfig(false),
-            new CommonConfig(true, false, true, true, 1, true, 5, 3, 64),
-            new CaptivationConfig(true, false, 16, 16, false, false, List.of("minecraft:rotten_flesh", "minecraft:egg")),
-            new CropinationConfig(true, true),
-            new CultivationConfig(true, 4),
-            new ExcavationConfig(true, 3, 2, 10, false, false, false, List.of()),
-            new PathanationConfig(true, 6, 3),
-            new IlluminationConfig(true, 2, 1, 7, true),
-            new LumbinationConfig(true, 32, 6, 8, true, true, false, true, true, true, List.of(), List.of(), List.of()),
-            new ShaftanationConfig(true, 16, 10, 1, 2, TorchPlacement.FLOOR),
-            new SubstitutionConfig(true, false, false, true, true, true, true, List.of()),
-            new VeinationConfig(true, 4, List.of(), true, true, true, 0.2D, List.of()),
-            new VentilationConfig(true, 1, 16, 8, true)
+            new ClientConfig(MAConfig_Defaults.Client.disableParticleEffects),
+            new CommonConfig(
+                MAConfig_Defaults.Common.tpsGuard,
+                MAConfig_Defaults.Common.gatherDrops,
+                MAConfig_Defaults.Common.autoIlluminate,
+                MAConfig_Defaults.Common.mineVeins,
+                MAConfig_Defaults.Common.blocksPerTick,
+                MAConfig_Defaults.Common.enableTickDelay,
+                MAConfig_Defaults.Common.tickDelay,
+                MAConfig_Defaults.Common.blockRadius,
+                MAConfig_Defaults.Common.blockLimit
+            ),
+            new CaptivationConfig(
+                MAConfig_Defaults.Captivation.enabled,
+                MAConfig_Defaults.Captivation.allowInGUI,
+                MAConfig_Defaults.Captivation.radiusHorizontal,
+                MAConfig_Defaults.Captivation.radiusVertical,
+                MAConfig_Defaults.Captivation.isWhitelist,
+                MAConfig_Defaults.Captivation.unconditionalBlacklist,
+                MAConfig_Defaults.Captivation.blacklist
+            ),
+            new CropinationConfig(
+                MAConfig_Defaults.Cropination.enabled,
+                MAConfig_Defaults.Cropination.harvestSeeds
+            ),
+            new CultivationConfig(
+                MAConfig_Defaults.Cultivation.enabled,
+                MAConfig_Defaults.Cultivation.hydrationDistance
+            ),
+            new ExcavationConfig(
+                MAConfig_Defaults.Excavation.enabled,
+                MAConfig_Defaults.Excavation.radiusHorizontal,
+                MAConfig_Defaults.Excavation.radiusVertical,
+                MAConfig_Defaults.Excavation.processesPerTick,
+                MAConfig_Defaults.Excavation.toggleMode,
+                MAConfig_Defaults.Excavation.ignoreBlockVariants,
+                MAConfig_Defaults.Excavation.isBlockWhitelist,
+                MAConfig_Defaults.Excavation.blockBlacklist
+            ),
+            new PathanationConfig(
+                MAConfig_Defaults.Pathanation.enabled,
+                MAConfig_Defaults.Pathanation.targetBlockRange,
+                MAConfig_Defaults.Pathanation.pathWidth
+            ),
+            new IlluminationConfig(
+                MAConfig_Defaults.Illumination.enabled,
+                MAConfig_Defaults.Illumination.radiusHorizontal,
+                MAConfig_Defaults.Illumination.radiusVertical,
+                MAConfig_Defaults.Illumination.lowestLightLevel,
+                MAConfig_Defaults.Illumination.useBlockLight
+            ),
+            new LumbinationConfig(
+                MAConfig_Defaults.Lumbination.enabled,
+                MAConfig_Defaults.Lumbination.maxTrunkRange,
+                MAConfig_Defaults.Lumbination.maxLeafRange,
+                MAConfig_Defaults.Lumbination.processesPerTick,
+                MAConfig_Defaults.Lumbination.chopTreeBelow,
+                MAConfig_Defaults.Lumbination.destroyLeaves,
+                MAConfig_Defaults.Lumbination.leavesAffectDurability,
+                MAConfig_Defaults.Lumbination.replantSaplings,
+                MAConfig_Defaults.Lumbination.useCanopyTool,
+                MAConfig_Defaults.Lumbination.ignorePlayerPlacedLeaves,
+                MAConfig_Defaults.Lumbination.logs,
+                MAConfig_Defaults.Lumbination.leaves,
+                MAConfig_Defaults.Lumbination.axes
+            ),
+            new ShaftanationConfig(
+                MAConfig_Defaults.Shaftanation.enabled,
+                MAConfig_Defaults.Shaftanation.maxDepth,
+                MAConfig_Defaults.Shaftanation.processesPerTick,
+                MAConfig_Defaults.Shaftanation.shaftWidth,
+                MAConfig_Defaults.Shaftanation.shaftHeight,
+                MAConfig_Defaults.Shaftanation.torchPlacement
+            ),
+            new SubstitutionConfig(
+                MAConfig_Defaults.Substitution.enabled,
+                MAConfig_Defaults.Substitution.allowMending,
+                MAConfig_Defaults.Substitution.prioritizeSilkTouch,
+                MAConfig_Defaults.Substitution.switchBack,
+                MAConfig_Defaults.Substitution.favourFortune,
+                MAConfig_Defaults.Substitution.ignoreIfValidTool,
+                MAConfig_Defaults.Substitution.ignorePassiveMobs,
+                MAConfig_Defaults.Substitution.blacklist,
+                MAConfig_Defaults.Substitution.selectionRules
+            ),
+            new VeinationConfig(
+                MAConfig_Defaults.Veination.enabled,
+                MAConfig_Defaults.Veination.maxVeinDistance,
+                MAConfig_Defaults.Veination.ores,
+                MAConfig_Defaults.Veination.oreHarvestWithoutSneak,
+                MAConfig_Defaults.Veination.dropOresAtFirstBrokenBlock,
+                MAConfig_Defaults.Veination.increaseHarvestingTimePerOre,
+                MAConfig_Defaults.Veination.increasedHarvestingTimePerOreModifier,
+                MAConfig_Defaults.Veination.pickaxeBlacklist
+            ),
+            new VentilationConfig(
+                MAConfig_Defaults.Ventilation.enabled,
+                MAConfig_Defaults.Ventilation.radiusHorizontal,
+                MAConfig_Defaults.Ventilation.radiusVertical,
+                MAConfig_Defaults.Ventilation.processesPerTick,
+                MAConfig_Defaults.Ventilation.placeLadders
+            )
         );
     }
 }

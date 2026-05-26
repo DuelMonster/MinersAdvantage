@@ -16,6 +16,6 @@ public record IlluminationConfig(
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public IlluminationConfig(boolean enabled, int radiusHorizontal, int radiusVertical) {
-        this(enabled, radiusHorizontal, radiusVertical, 7, true);
+        this(enabled, radiusHorizontal, radiusVertical, 1, true);
     }
 }

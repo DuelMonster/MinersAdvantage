@@ -183,6 +183,8 @@ dependencies {
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testRuntimeOnly("org.slf4j:slf4j-api:2.0.16")
+    testRuntimeOnly("com.google.code.gson:gson:2.11.0")
     if (isNeoForge) {
         testRuntimeOnly("net.neoforged:neoforge:${property("deps.neoforge")}")
     }

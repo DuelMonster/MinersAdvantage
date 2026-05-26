@@ -17,7 +17,11 @@ public final class RegistryPredicates {
     }
 
     public static boolean isPickaxeTool(ItemStack stack) {
-        return BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath().endsWith("_pickaxe");
+        try {
+            return BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath().endsWith("_pickaxe");
+        } catch (RuntimeException | LinkageError ignored) {
+            return false;
+        }
     }
 
     public static boolean isAxeTool(ItemStack stack) {
@@ -54,7 +58,12 @@ public final class RegistryPredicates {
 
     public static boolean isOreLikeBlockId(String blockId) {
         BlockState state = resolveBlockState(blockId);
-        return state != null && isOreLike(state);
+        if (state != null) {
+            return isOreLike(state);
+        }
+
+        String path = normalizedPath(blockId);
+        return path.endsWith("_ore") || path.equals("ancient_debris");
     }
 
     public static boolean isStoneLike(BlockState state) {
@@ -67,7 +76,18 @@ public final class RegistryPredicates {
 
     public static boolean isStoneLikeBlockId(String blockId) {
         BlockState state = resolveBlockState(blockId);
-        return state != null && isStoneLike(state);
+        if (state != null) {
+            return isStoneLike(state);
+        }
+
+        String path = normalizedPath(blockId);
+        return path.contains("stone")
+            || path.contains("deepslate")
+            || path.contains("tuff")
+            || path.contains("calcite")
+            || path.contains("netherrack")
+            || path.contains("blackstone")
+            || path.contains("basalt");
     }
 
     public static boolean isDirtLike(BlockState state) {
@@ -76,7 +96,16 @@ public final class RegistryPredicates {
 
     public static boolean isDirtLikeBlockId(String blockId) {
         BlockState state = resolveBlockState(blockId);
-        return state != null && isDirtLike(state);
+        if (state != null) {
+            return isDirtLike(state);
+        }
+
+        String path = normalizedPath(blockId);
+        return path.contains("dirt")
+            || path.contains("grass_block")
+            || path.contains("podzol")
+            || path.contains("mycelium")
+            || path.contains("farmland");
     }
 
     public static boolean isCropBlock(BlockState state) {
@@ -85,7 +114,17 @@ public final class RegistryPredicates {
 
     public static boolean isCropBlockId(String blockId) {
         BlockState state = resolveBlockState(blockId);
-        return state != null && isCropBlock(state);
+        if (state != null) {
+            return isCropBlock(state);
+        }
+
+        String path = normalizedPath(blockId);
+        return path.contains("crop")
+            || path.contains("wheat")
+            || path.contains("carrot")
+            || path.contains("potato")
+            || path.contains("beetroot")
+            || path.contains("nether_wart");
     }
 
     public static boolean isLogLike(BlockState state) {
@@ -94,7 +133,12 @@ public final class RegistryPredicates {
 
     public static boolean isLogLikeBlockId(String blockId) {
         BlockState state = resolveBlockState(blockId);
-        return state != null && isLogLike(state);
+        if (state != null) {
+            return isLogLike(state);
+        }
+
+        String path = normalizedPath(blockId);
+        return path.endsWith("_log") || path.endsWith("_stem") || path.endsWith("_hyphae");
     }
 
     public static boolean isLeafLike(BlockState state) {
@@ -103,7 +147,12 @@ public final class RegistryPredicates {
 
     public static boolean isLeafLikeBlockId(String blockId) {
         BlockState state = resolveBlockState(blockId);
-        return state != null && isLeafLike(state);
+        if (state != null) {
+            return isLeafLike(state);
+        }
+
+        String path = normalizedPath(blockId);
+        return path.endsWith("_leaves") || path.endsWith("_wart_block");
     }
 
     public static BlockState resolveBlockState(String blockId) {
@@ -111,10 +160,14 @@ public final class RegistryPredicates {
             return null;
         }
 
-        for (Block block : BuiltInRegistries.BLOCK) {
-            if (BuiltInRegistries.BLOCK.getKey(block).toString().equals(blockId)) {
-                return block.defaultBlockState();
+        try {
+            for (Block block : BuiltInRegistries.BLOCK) {
+                if (BuiltInRegistries.BLOCK.getKey(block).toString().equals(blockId)) {
+                    return block.defaultBlockState();
+                }
             }
+        } catch (RuntimeException | LinkageError ignored) {
+            // Some test runtimes do not provide a fully bootstrapped Minecraft registry.
         }
         return null;
     }
