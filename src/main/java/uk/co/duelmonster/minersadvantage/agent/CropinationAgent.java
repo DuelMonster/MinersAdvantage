@@ -10,29 +10,33 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.NetherWartBlock;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
 import uk.co.duelmonster.minersadvantage.common.config.CommonConfig;
 import uk.co.duelmonster.minersadvantage.common.config.CropinationConfig;
 import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.Set;
 
 /**
  * CropinationAgent: harvests all mature crops in a radius.
  */
 public class CropinationAgent extends Agent {
+    private static final int FARM_PLOT_RADIUS = 4;
+
     private final BlockPos origin;
-    private final int radius;
+    private final int minX;
+    private final int maxX;
+    private final int minZ;
+    private final int maxZ;
+    private final boolean hasWaterSource;
+    private final boolean allowNoWaterFallback;
     private final Queue<BlockPos> queue = new LinkedList<>();
-    private final Set<BlockPos> visited = new HashSet<>();
     private final int blocksPerTick;
-    private final int blockLimit;
     private final boolean harvestSeeds;
-    private int processed = 0;
 
     public CropinationAgent(ServerPlayer player, BlockPos origin, int radius) {
         this(player, origin, radius, MAServerRootConfig.defaults().cropination(), new CommonConfig());
@@ -42,20 +46,45 @@ public class CropinationAgent extends Agent {
         super(player);
         CropinationConfig effectiveConfig = config == null ? MAServerRootConfig.defaults().cropination() : config;
         this.origin = origin;
-        this.radius = Math.max(1, radius);
+        BlockState originState = world.getBlockState(origin);
+        this.allowNoWaterFallback = isWaterIndependentCrop(originState);
+
+        BlockPos waterSource = findClosestWaterSource(origin.below(), FARM_PLOT_RADIUS);
+        this.hasWaterSource = waterSource != null;
+        if (hasWaterSource) {
+            this.minX = waterSource.getX() - FARM_PLOT_RADIUS;
+            this.maxX = waterSource.getX() + FARM_PLOT_RADIUS;
+            this.minZ = waterSource.getZ() - FARM_PLOT_RADIUS;
+            this.maxZ = waterSource.getZ() + FARM_PLOT_RADIUS;
+            seedQueueForPatch();
+        } else if (allowNoWaterFallback) {
+            this.minX = origin.getX() - FARM_PLOT_RADIUS;
+            this.maxX = origin.getX() + FARM_PLOT_RADIUS;
+            this.minZ = origin.getZ() - FARM_PLOT_RADIUS;
+            this.maxZ = origin.getZ() + FARM_PLOT_RADIUS;
+            seedQueueForPatch();
+        } else {
+            this.minX = origin.getX();
+            this.maxX = origin.getX();
+            this.minZ = origin.getZ();
+            this.maxZ = origin.getZ();
+        }
+
         int globalBlocksPerTick = commonConfig == null ? 1 : Math.max(1, commonConfig.blocksPerTick());
         this.blocksPerTick = globalBlocksPerTick;
-        this.blockLimit = commonConfig == null ? 64 : Math.max(1, commonConfig.blockLimit());
         this.harvestSeeds = effectiveConfig.harvestSeeds();
-        queue.add(origin);
     }
 
     @Override
     public boolean tick() {
+        if (!hasWaterSource && !allowNoWaterFallback) {
+            return finish("no nearby water source");
+        }
+
         int count = 0;
-        while (!queue.isEmpty() && count < blocksPerTick && processed < blockLimit) {
+        while (!queue.isEmpty() && count < blocksPerTick) {
             BlockPos pos = queue.poll();
-            if (pos == null || !visited.add(pos) || !withinRadius(pos)) {
+            if (pos == null || !withinFarmPatch(pos)) {
                 continue;
             }
 
@@ -65,27 +94,32 @@ public class CropinationAgent extends Agent {
             }
 
             count++;
-            // Scan contiguous crop patches even when the clicked crop is immature.
-            for (int dx = -1; dx <= 1; dx++)
-                for (int dz = -1; dz <= 1; dz++)
-                    queue.add(pos.offset(dx, 0, dz));
 
             Block block = state.getBlock();
             if (isMatureCrop(state)) {
                 harvestAndReplant(pos, state, block);
-                processed++;
             }
         }
-        if (queue.isEmpty() || processed >= blockLimit) {
-            return finish(queue.isEmpty() ? "crop queue exhausted" : "crop block limit reached");
+        if (queue.isEmpty()) {
+            return finish("crop queue exhausted");
         }
         return false;
     }
 
-    private boolean withinRadius(BlockPos pos) {
-        int dx = Math.abs(pos.getX() - origin.getX());
-        int dz = Math.abs(pos.getZ() - origin.getZ());
-        return dx <= radius && dz <= radius;
+    private boolean withinFarmPatch(BlockPos pos) {
+        return pos.getY() == origin.getY()
+            && pos.getX() >= minX
+            && pos.getX() <= maxX
+            && pos.getZ() >= minZ
+            && pos.getZ() <= maxZ;
+    }
+
+    private void seedQueueForPatch() {
+        for (int x = minX; x <= maxX; x++) {
+            for (int z = minZ; z <= maxZ; z++) {
+                queue.add(new BlockPos(x, origin.getY(), z));
+            }
+        }
     }
 
     private void harvestAndReplant(BlockPos pos, BlockState state, Block block) {
@@ -141,6 +175,10 @@ public class CropinationAgent extends Agent {
         return false;
     }
 
+    private boolean isWaterIndependentCrop(BlockState state) {
+        return state.getBlock() instanceof NetherWartBlock;
+    }
+
     private Item resolveSeedItem(Block block) {
         if (block instanceof NetherWartBlock) {
             return Items.NETHER_WART;
@@ -160,5 +198,21 @@ public class CropinationAgent extends Agent {
                 entity.discard();
             }
         }
+    }
+
+    private BlockPos findClosestWaterSource(BlockPos start, int maxDistance) {
+        for (int offset = 1; offset <= maxDistance; offset++) {
+            for (int x = start.getX() - offset; x <= start.getX() + offset; x++) {
+                for (int z = start.getZ() - offset; z <= start.getZ() + offset; z++) {
+                    BlockPos candidate = new BlockPos(x, start.getY(), z);
+                    BlockState state = world.getBlockState(candidate);
+                    if (state.getFluidState().is(Fluids.WATER)
+                        || (state.hasProperty(BlockStateProperties.WATERLOGGED) && state.getValue(BlockStateProperties.WATERLOGGED))) {
+                        return candidate;
+                    }
+                }
+            }
+        }
+        return null;
     }
 }

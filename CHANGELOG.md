@@ -3,6 +3,7 @@
 - Bump mod version to `0.7.0` and advance the tracked daily bump date.
 - Fix Cropination harvest execution to use vanilla block-break flow before replanting mature crops.
 - Keep Cropination scan expansion active from immature crop targets while harvesting only mature crop states.
+- Allow Cropination to run without nearby water for water-independent crops such as nether wart while keeping water-required crops gated.
 - Remove Cultivation block-limit cutoff so hydrated patch processing no longer stops at a fixed block ceiling.
 - Improve Cultivation floating-plant cleanup by combining replaceable-above break handling with delayed follow-up block updates.
 - Rename Lumbination `use_shears_on_leaves` mode to `use_canopy_tool` across runtime, config storage, and UI labels.
