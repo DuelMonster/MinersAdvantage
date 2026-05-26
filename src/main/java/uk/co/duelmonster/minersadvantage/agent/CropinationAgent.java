@@ -2,20 +2,22 @@ package uk.co.duelmonster.minersadvantage.agent;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.NetherWartBlock;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.phys.AABB;
 import uk.co.duelmonster.minersadvantage.common.config.CommonConfig;
 import uk.co.duelmonster.minersadvantage.common.config.CropinationConfig;
 import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
@@ -58,15 +60,20 @@ public class CropinationAgent extends Agent {
             }
 
             BlockState state = world.getBlockState(pos);
+            if (!isCropLike(state)) {
+                continue;
+            }
+
+            count++;
+            // Scan contiguous crop patches even when the clicked crop is immature.
+            for (int dx = -1; dx <= 1; dx++)
+                for (int dz = -1; dz <= 1; dz++)
+                    queue.add(pos.offset(dx, 0, dz));
+
             Block block = state.getBlock();
             if (isMatureCrop(state)) {
                 harvestAndReplant(pos, state, block);
                 processed++;
-                count++;
-                // Add neighbors in a 3x3 area
-                for (int dx = -1; dx <= 1; dx++)
-                    for (int dz = -1; dz <= 1; dz++)
-                        queue.add(pos.offset(dx, 0, dz));
             }
         }
         if (queue.isEmpty() || processed >= blockLimit) {
@@ -82,32 +89,16 @@ public class CropinationAgent extends Agent {
     }
 
     private void harvestAndReplant(BlockPos pos, BlockState state, Block block) {
-        List<ItemStack> drops = Block.getDrops(state, (net.minecraft.server.level.ServerLevel) world, pos, null, player, player.getMainHandItem());
-        boolean consumedSeedForReplant = false;
-
-        for (ItemStack drop : drops) {
-            if (drop == null || drop.isEmpty()) {
-                continue;
-            }
-
-            ItemStack output = drop.copy();
-            boolean isSeedItem = output.getItem() instanceof net.minecraft.world.item.BlockItem;
-
-            if (isSeedItem && !consumedSeedForReplant) {
-                output.shrink(1);
-                consumedSeedForReplant = true;
-            }
-
-            if (output.isEmpty()) {
-                continue;
-            }
-
-            if (harvestSeeds || !isSeedItem) {
-                Block.popResource(world, pos, output);
-            }
+        boolean broken = player.gameMode.destroyBlock(pos);
+        if (!broken) {
+            return;
         }
 
-        world.setBlockAndUpdate(pos, replantedState(state, block));
+        if (!harvestSeeds) {
+            removeSeedDropsNear(pos, resolveSeedItem(block));
+        }
+
+        world.setBlock(pos, replantedState(state, block), 3);
     }
 
     private BlockState replantedState(BlockState state, Block block) {
@@ -135,5 +126,39 @@ public class CropinationAgent extends Agent {
             }
         }
         return false;
+    }
+
+    private boolean isCropLike(BlockState state) {
+        Block block = state.getBlock();
+        if (block instanceof CropBlock || block instanceof NetherWartBlock) {
+            return true;
+        }
+        for (var property : state.getProperties()) {
+            if (property instanceof IntegerProperty integerProperty && "age".equals(integerProperty.getName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private Item resolveSeedItem(Block block) {
+        if (block instanceof NetherWartBlock) {
+            return Items.NETHER_WART;
+        }
+        Item blockItem = block.asItem();
+        return blockItem == null ? Items.AIR : blockItem;
+    }
+
+    private void removeSeedDropsNear(BlockPos pos, Item seedItem) {
+        if (seedItem == null || seedItem == Items.AIR) {
+            return;
+        }
+        AABB box = new AABB(pos).inflate(0.9D);
+        for (ItemEntity entity : world.getEntitiesOfClass(ItemEntity.class, box)) {
+            ItemStack stack = entity.getItem();
+            if (!stack.isEmpty() && stack.getItem() == seedItem) {
+                entity.discard();
+            }
+        }
     }
 }

@@ -5,9 +5,12 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.material.Fluids;
 import uk.co.duelmonster.minersadvantage.common.config.CommonConfig;
 import uk.co.duelmonster.minersadvantage.common.config.CultivationConfig;
 import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
+import uk.co.duelmonster.minersadvantage.common.registry.RegistryPredicates;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -18,13 +21,18 @@ import java.util.Set;
  * CultivationAgent: tills and plants farmland in a radius.
  */
 public class CultivationAgent extends Agent {
+    private static final int FLOATING_UPDATE_DELAY_TICKS = 2;
+
     private final BlockPos origin;
-    private final int radius;
+    private final int hydrationDistance;
+    private final int minX;
+    private final int maxX;
+    private final int minZ;
+    private final int maxZ;
     private final Queue<BlockPos> queue = new LinkedList<>();
+    private final Queue<DelayedUpdate> delayedUpdates = new LinkedList<>();
     private final Set<BlockPos> visited = new HashSet<>();
     private final int blocksPerTick;
-    private final int blockLimit;
-    private int processed = 0;
 
     public CultivationAgent(ServerPlayer player, BlockPos origin, int radius) {
         this(player, origin, radius, MAServerRootConfig.defaults().cultivation(), new CommonConfig());
@@ -33,28 +41,36 @@ public class CultivationAgent extends Agent {
     public CultivationAgent(ServerPlayer player, BlockPos origin, int radius, CultivationConfig config, CommonConfig commonConfig) {
         super(player);
         this.origin = origin;
-        int configuredRadius = config == null ? Math.max(1, radius) : Math.max(1, config.hydrationDistance());
-        this.radius = configuredRadius;
+        int configuredHydrationDistance = config == null ? Math.max(1, radius) : Math.max(1, config.hydrationDistance());
+        this.hydrationDistance = Math.min(4, configuredHydrationDistance);
+        BlockPos waterSource = findClosestWaterSource(origin, this.hydrationDistance);
+        BlockPos patchCenter = waterSource == null ? origin : waterSource;
+        int patchRadius = waterSource == null ? 0 : this.hydrationDistance;
+        this.minX = patchCenter.getX() - patchRadius;
+        this.maxX = patchCenter.getX() + patchRadius;
+        this.minZ = patchCenter.getZ() - patchRadius;
+        this.maxZ = patchCenter.getZ() + patchRadius;
         int globalBlocksPerTick = commonConfig == null ? 1 : Math.max(1, commonConfig.blocksPerTick());
         this.blocksPerTick = globalBlocksPerTick;
-        this.blockLimit = commonConfig == null ? 64 : Math.max(1, commonConfig.blockLimit());
         queue.add(origin);
     }
 
     @Override
     public boolean tick() {
         int count = 0;
-        while (!queue.isEmpty() && count < blocksPerTick && processed < blockLimit) {
+        while (!queue.isEmpty() && count < blocksPerTick) {
             BlockPos pos = queue.poll();
-            if (pos == null || !visited.add(pos) || !withinRadius(pos)) {
+            if (pos == null || !visited.add(pos) || !withinFarmPatch(pos)) {
                 continue;
             }
 
             BlockState state = world.getBlockState(pos);
-            Block block = state.getBlock();
-            if (block == Blocks.DIRT || block == Blocks.GRASS_BLOCK) {
-                world.setBlockAndUpdate(pos, Blocks.FARMLAND.defaultBlockState());
-                processed++;
+            if (RegistryPredicates.isDirtLike(state)) {
+                if (canTillAt(pos)) {
+                    clearReplaceableBlockAbove(pos);
+                    world.setBlockAndUpdate(pos, Blocks.FARMLAND.defaultBlockState());
+                    scheduleFloatingUpdate(pos.above());
+                }
                 count++;
                 // Add neighbors in a 3x3 area
                 for (int dx = -1; dx <= 1; dx++)
@@ -62,15 +78,84 @@ public class CultivationAgent extends Agent {
                         queue.add(pos.offset(dx, 0, dz));
             }
         }
-        if (queue.isEmpty() || processed >= blockLimit) {
-            return finish(queue.isEmpty() ? "cultivation queue exhausted" : "cultivation block limit reached");
+
+        processDelayedUpdates();
+
+        if (queue.isEmpty() && delayedUpdates.isEmpty()) {
+            return finish("cultivation queue exhausted");
         }
         return false;
     }
 
-    private boolean withinRadius(BlockPos pos) {
-        int dx = Math.abs(pos.getX() - origin.getX());
-        int dz = Math.abs(pos.getZ() - origin.getZ());
-        return dx <= radius && dz <= radius;
+    private void scheduleFloatingUpdate(BlockPos pos) {
+        delayedUpdates.add(new DelayedUpdate(pos.immutable(), FLOATING_UPDATE_DELAY_TICKS));
+    }
+
+    private void processDelayedUpdates() {
+        int pending = delayedUpdates.size();
+        for (int i = 0; i < pending; i++) {
+            DelayedUpdate update = delayedUpdates.poll();
+            if (update == null) {
+                continue;
+            }
+            if (update.ticksRemaining() > 0) {
+                delayedUpdates.add(new DelayedUpdate(update.pos(), update.ticksRemaining() - 1));
+                continue;
+            }
+
+            BlockPos pos = update.pos();
+            BlockState state = world.getBlockState(pos);
+            world.sendBlockUpdated(pos, state, state, 3);
+            world.updateNeighborsAt(pos, state.getBlock());
+
+            BlockPos belowPos = pos.below();
+            BlockState belowState = world.getBlockState(belowPos);
+            world.sendBlockUpdated(belowPos, belowState, belowState, 3);
+            world.updateNeighborsAt(belowPos, belowState.getBlock());
+
+            if (!state.isAir()) {
+                world.scheduleTick(pos, state.getBlock(), 1);
+            }
+        }
+    }
+
+    private boolean withinFarmPatch(BlockPos pos) {
+        return pos.getY() == origin.getY()
+            && pos.getX() >= minX
+            && pos.getX() <= maxX
+            && pos.getZ() >= minZ
+            && pos.getZ() <= maxZ;
+    }
+
+    private boolean canTillAt(BlockPos pos) {
+        BlockState above = world.getBlockState(pos.above());
+        return above.isAir() || above.canBeReplaced();
+    }
+
+    private void clearReplaceableBlockAbove(BlockPos pos) {
+        BlockPos abovePos = pos.above();
+        BlockState above = world.getBlockState(abovePos);
+        if (!above.isAir() && above.canBeReplaced()) {
+            world.destroyBlock(abovePos, true, player);
+        }
+    }
+
+    private BlockPos findClosestWaterSource(BlockPos start, int maxDistance) {
+        for (int offset = 1; offset <= maxDistance; offset++) {
+            for (int x = start.getX() - offset; x <= start.getX() + offset; x++) {
+                for (int z = start.getZ() - offset; z <= start.getZ() + offset; z++) {
+                    BlockPos candidate = new BlockPos(x, start.getY(), z);
+                    BlockState state = world.getBlockState(candidate);
+                    if (state.getFluidState().is(Fluids.WATER)
+                        || (state.hasProperty(BlockStateProperties.WATERLOGGED) && state.getValue(BlockStateProperties.WATERLOGGED))) {
+                        return candidate;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private record DelayedUpdate(BlockPos pos, int ticksRemaining) {
     }
 }
