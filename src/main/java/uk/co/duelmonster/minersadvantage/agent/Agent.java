@@ -3,12 +3,23 @@ package uk.co.duelmonster.minersadvantage.agent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.WallTorchBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import uk.co.duelmonster.minersadvantage.common.log.LogUtils;
+
+import java.lang.reflect.Method;
 
 /**
  * Base class for all feature agents. Modernized for production wiring.
@@ -52,10 +63,9 @@ public abstract class Agent {
         if (!canPlaceTorchAt(pos, facing)) {
             return false;
         }
-        BlockState torchState = torchStateForFacing(facing);
-        world.setBlockAndUpdate(pos, torchState);
-        player.getInventory().removeItem(slot, 1);
-        return true;
+        Direction placementDirection = normalizeTorchFacing(facing);
+        BlockPos supportPos = placementDirection == Direction.UP ? pos.below() : pos.relative(placementDirection.getOpposite());
+        return placeItemFromInventoryByUse(slot, supportPos, placementDirection);
     }
 
     protected boolean canPlaceTorchAt(BlockPos pos, Direction facing) {
@@ -90,12 +100,105 @@ public abstract class Agent {
      * Returns the first inventory slot containing torches, or -1 if none.
      */
     protected int findTorchSlot() {
-        for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
-            if (player.getInventory().getItem(i).is(Items.TORCH)) {
+        return findFirstInventorySlot(Items.TORCH);
+    }
+
+    protected int findFirstInventorySlot(Item item) {
+        Inventory inventory = player.getInventory();
+        for (int i = 0; i < inventory.getContainerSize(); i++) {
+            if (inventory.getItem(i).is(item)) {
                 return i;
             }
         }
         return -1;
+    }
+
+    protected boolean placeItemFromInventoryByUse(int slot, BlockPos supportPos, Direction clickedFace) {
+        if (player.gameMode == null) {
+            return false;
+        }
+
+        Inventory inventory = player.getInventory();
+        if (slot < 0 || slot >= inventory.getContainerSize()) {
+            return false;
+        }
+
+        ItemStack sourceStack = inventory.getItem(slot).copy();
+        if (sourceStack.isEmpty()) {
+            return false;
+        }
+
+        BlockPos placementPos = supportPos.relative(clickedFace);
+        BlockState beforeState = world.getBlockState(placementPos);
+        ItemStack previousOffhand = player.getOffhandItem().copy();
+
+        inventory.setItem(slot, ItemStack.EMPTY);
+        player.setItemInHand(InteractionHand.OFF_HAND, sourceStack);
+
+        try {
+            Vec3 hitVec = Vec3.atCenterOf(supportPos).add(
+                clickedFace.getStepX() * 0.5D,
+                clickedFace.getStepY() * 0.5D,
+                clickedFace.getStepZ() * 0.5D
+            );
+            BlockHitResult hitResult = new BlockHitResult(hitVec, clickedFace, supportPos, false);
+            InteractionResult result = useItemOnAsPlayer(InteractionHand.OFF_HAND, hitResult);
+            BlockState afterState = world.getBlockState(placementPos);
+            boolean placed = !afterState.equals(beforeState);
+            if (placed) {
+                SoundType soundType = afterState.getSoundType();
+                world.playSound(
+                    null,
+                    placementPos,
+                    soundType.getPlaceSound(),
+                    SoundSource.BLOCKS,
+                    (soundType.getVolume() + 1.0F) / 2.0F,
+                    soundType.getPitch() * 0.8F
+                );
+            }
+            return result.consumesAction() || placed;
+        } finally {
+            ItemStack updatedOffhand = player.getOffhandItem().copy();
+            inventory.setItem(slot, updatedOffhand);
+            player.setItemInHand(InteractionHand.OFF_HAND, previousOffhand);
+        }
+    }
+
+    private InteractionResult useItemOnAsPlayer(InteractionHand hand, BlockHitResult hitResult) {
+        try {
+            Method method = player.gameMode.getClass().getMethod(
+                "useItemOn",
+                ServerPlayer.class,
+                Level.class,
+                InteractionHand.class,
+                BlockHitResult.class
+            );
+            Object result = method.invoke(player.gameMode, player, world, hand, hitResult);
+            if (result instanceof InteractionResult interactionResult) {
+                return interactionResult;
+            }
+        } catch (ReflectiveOperationException ignored) {
+            // Why this exists: mixed mappings expose different useItemOn overloads.
+        }
+
+        try {
+            Method method = player.gameMode.getClass().getMethod(
+                "useItemOn",
+                ServerPlayer.class,
+                Level.class,
+                ItemStack.class,
+                InteractionHand.class,
+                BlockHitResult.class
+            );
+            Object result = method.invoke(player.gameMode, player, world, player.getItemInHand(hand), hand, hitResult);
+            if (result instanceof InteractionResult interactionResult) {
+                return interactionResult;
+            }
+        } catch (ReflectiveOperationException ignored) {
+            // Why this exists: mixed mappings expose different useItemOn overloads.
+        }
+
+        return InteractionResult.PASS;
     }
 
     /** Returns true if the player has at least one torch in their inventory. */

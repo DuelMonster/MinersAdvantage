@@ -16,6 +16,7 @@ import uk.co.duelmonster.minersadvantage.common.config.VentilationConfig;
 import uk.co.duelmonster.minersadvantage.common.registry.RegistryPredicates;
 import uk.co.duelmonster.minersadvantage.common.services.utility.VeinationRuntimeService;
 
+import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -27,6 +28,7 @@ public class VentilationAgent extends Agent {
     private final Direction direction;
     private final VentilationConfig config;
     private final Queue<BlockPos> queue = new LinkedList<>();
+    private final Deque<BlockPos> ladderQueue = new LinkedList<>();
     private int dug = 0;
     private final int blocksPerTick;
     private final int blockLimit;
@@ -35,6 +37,8 @@ public class VentilationAgent extends Agent {
     private final VeinationConfig veinationConfig;
     private final ItemStack veinationTriggerTool;
     private int ladderPlacements = 0;
+    private BlockPos lowestDugPos;
+    private boolean bottomTorchProcessed = false;
 
     public VentilationAgent(ServerPlayer player, BlockPos origin, int length) {
         this(player, origin, Direction.DOWN, new VentilationConfig(true, Math.max(1, length), 1, 8), new CommonConfig());
@@ -87,6 +91,10 @@ public class VentilationAgent extends Agent {
         for (int depth = 1; depth <= ventDepth; depth++) {
             queue.add(origin.relative(this.direction, depth).immutable());
         }
+
+        if (this.direction == Direction.DOWN && this.config.placeLadders()) {
+            ladderQueue.addLast(origin.immutable());
+        }
     }
 
     @Override
@@ -100,31 +108,57 @@ public class VentilationAgent extends Agent {
                 maybeFanOutVeination(pos, state);
                 dug++;
                 count++;
-                if (direction == Direction.DOWN && config.placeLadders()) {
-                    tryPlaceLadder(pos);
+
+                if (direction == Direction.DOWN) {
+                    lowestDugPos = pos.immutable();
+                    if (config.placeLadders()) {
+                        // Prepended so ladder placement runs from far-to-near once digging completes.
+                        ladderQueue.addFirst(pos.immutable());
+                    }
                 }
             }
         }
 
-        if (queue.isEmpty() || dug >= blockLimit) {
+        boolean diggingComplete = queue.isEmpty() || dug >= blockLimit;
+        if (diggingComplete) {
+            if (direction == Direction.DOWN && !bottomTorchProcessed && count < blocksPerTick) {
+                bottomTorchProcessed = true;
+                if (lowestDugPos != null) {
+                    ladderQueue.remove(lowestDugPos);
+                    placeTorchWithInventory(lowestDugPos, Direction.UP);
+                }
+                count++;
+            }
+
+            while (count < blocksPerTick && !ladderQueue.isEmpty()) {
+                BlockPos ladderPos = ladderQueue.pollFirst();
+                tryPlaceLadder(ladderPos);
+                count++;
+            }
+        }
+
+        boolean placementComplete = ladderQueue.isEmpty() && (direction != Direction.DOWN || bottomTorchProcessed);
+        if (diggingComplete && placementComplete) {
             return finish(queue.isEmpty() ? "ventilation queue exhausted" : "ventilation target reached");
         }
         return false;
     }
 
     private void tryPlaceLadder(BlockPos pos) {
-        ItemStack ladderStack = findLadderInInventory();
-        if (ladderStack == null) {
+        int ladderSlot = findLadderInInventory();
+        if (ladderSlot < 0) {
             return;
         }
+        if (!world.getBlockState(pos).canBeReplaced()) {
+            return;
+        }
+
         Direction[] sides = {Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST};
         for (Direction wallDir : sides) {
-            if (!world.isEmptyBlock(pos.relative(wallDir))) {
-                BlockState ladderState = Blocks.LADDER.defaultBlockState()
-                    .setValue(LadderBlock.FACING, wallDir.getOpposite());
-                if (world.isEmptyBlock(pos)) {
-                    world.setBlockAndUpdate(pos, ladderState);
-                    ladderStack.shrink(1);
+            BlockPos supportPos = pos.relative(wallDir);
+            BlockState supportState = world.getBlockState(supportPos);
+            if (supportState.isFaceSturdy(world, supportPos, wallDir.getOpposite())) {
+                if (placeItemFromInventoryByUse(ladderSlot, supportPos, wallDir.getOpposite())) {
                     ladderPlacements++;
                 }
                 return;
@@ -132,15 +166,8 @@ public class VentilationAgent extends Agent {
         }
     }
 
-    private ItemStack findLadderInInventory() {
-        Inventory inv = player.getInventory();
-        for (int i = 0; i < inv.getContainerSize(); i++) {
-            ItemStack stack = inv.getItem(i);
-            if (!stack.isEmpty() && stack.is(Items.LADDER)) {
-                return stack;
-            }
-        }
-        return null;
+    private int findLadderInInventory() {
+        return findFirstInventorySlot(Items.LADDER);
     }
 
     private void maybeFanOutVeination(BlockPos pos, BlockState brokenState) {

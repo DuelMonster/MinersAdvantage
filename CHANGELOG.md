@@ -14,6 +14,7 @@
 - Cap veination distance settings to a maximum of 12 and treat deepslate/stone ore variants as a shared ore family during vein discovery.
 - Fix Pathanation to start from the clicked origin, follow player-facing horizontal direction, and only trigger/place on `BlockTags.DIRT` blocks.
 - Prevent Pathanation and Cultivation from processing under blocked headspace by sharing an `Agent` helper that requires air-or-replaceable blocks above the target.
+- Rework ventilation ladder/torch placement sequencing to carve first, place in reverse order, respect per-tick budgets, include origin ladders, and emit reliable placement sounds.
 
 ## 0.6.0
 
