@@ -12,6 +12,8 @@
 - Capture the triggering tool stack for agent-driven veination fan-out so substitution-driven hand changes do not suppress ore chaining.
 - Fix `AgentManager` tick-time concurrent modification by deferring agent additions during iteration and flushing queued agents after the tick pass.
 - Cap veination distance settings to a maximum of 12 and treat deepslate/stone ore variants as a shared ore family during vein discovery.
+- Fix Pathanation to start from the clicked origin, follow player-facing horizontal direction, and only trigger/place on `BlockTags.DIRT` blocks.
+- Prevent Pathanation and Cultivation from processing under blocked headspace by sharing an `Agent` helper that requires air-or-replaceable blocks above the target.
 
 ## 0.6.0
 

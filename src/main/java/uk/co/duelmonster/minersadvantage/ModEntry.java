@@ -286,9 +286,9 @@ public final class ModEntry implements ModInitializer {
                 }
             }
 
-            if (isShovelTool(stack) && RegistryPredicates.isDirtLike(state)) {
+            if (isShovelTool(stack) && state.is(BlockTags.DIRT)) {
                 LogUtils.logDebug("Use block trigger feature=Pathanation player={} item={} block={} pos={}", serverPlayer.getScoreboardName(), itemId, targetBlockId, pos);
-                AgentManager.get().addAgent(serverPlayer, new PathanationAgent(serverPlayer, pos, pathanationConfig(serverPlayer), commonConfig(serverPlayer)));
+                AgentManager.get().addAgent(serverPlayer, new PathanationAgent(serverPlayer, pos, serverPlayer.getDirection(), pathanationConfig(serverPlayer), commonConfig(serverPlayer)));
                 return InteractionResult.SUCCESS;
             }
 
@@ -996,8 +996,8 @@ public final class ModEntry {
             }
         }
 
-        if (isShovelTool(stack) && RegistryPredicates.isDirtLike(state)) {
-            AgentManager.get().addAgent(serverPlayer, new PathanationAgent(serverPlayer, pos, pathanationConfig(serverPlayer), commonConfig(serverPlayer)));
+        if (isShovelTool(stack) && state.is(BlockTags.DIRT)) {
+            AgentManager.get().addAgent(serverPlayer, new PathanationAgent(serverPlayer, pos, serverPlayer.getDirection(), pathanationConfig(serverPlayer), commonConfig(serverPlayer)));
             return;
         }
 

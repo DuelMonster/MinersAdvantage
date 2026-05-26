@@ -70,6 +70,11 @@ public abstract class Agent {
             && torchStateForFacing(placementDirection).canSurvive(world, pos);
     }
 
+    protected boolean isAirOrReplaceableAbove(BlockPos pos) {
+        BlockState above = world.getBlockState(pos.above());
+        return above.isAir() || above.canBeReplaced();
+    }
+
     private BlockState torchStateForFacing(Direction facing) {
         Direction placementDirection = normalizeTorchFacing(facing);
         return placementDirection == Direction.UP

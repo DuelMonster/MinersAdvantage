@@ -2,7 +2,6 @@ package uk.co.duelmonster.minersadvantage.agent;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -66,7 +65,7 @@ public class CultivationAgent extends Agent {
 
             BlockState state = world.getBlockState(pos);
             if (RegistryPredicates.isDirtLike(state)) {
-                if (canTillAt(pos)) {
+                if (isAirOrReplaceableAbove(pos)) {
                     clearReplaceableBlockAbove(pos);
                     world.setBlockAndUpdate(pos, Blocks.FARMLAND.defaultBlockState());
                     scheduleFloatingUpdate(pos.above());
@@ -125,11 +124,6 @@ public class CultivationAgent extends Agent {
             && pos.getX() <= maxX
             && pos.getZ() >= minZ
             && pos.getZ() <= maxZ;
-    }
-
-    private boolean canTillAt(BlockPos pos) {
-        BlockState above = world.getBlockState(pos.above());
-        return above.isAir() || above.canBeReplaced();
     }
 
     private void clearReplaceableBlockAbove(BlockPos pos) {

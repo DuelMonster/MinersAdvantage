@@ -1,7 +1,9 @@
 package uk.co.duelmonster.minersadvantage.agent;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import uk.co.duelmonster.minersadvantage.common.config.CommonConfig;
@@ -16,6 +18,7 @@ import java.util.Queue;
  */
 public class PathanationAgent extends Agent {
     private final BlockPos origin;
+    private final Direction direction;
     private final int length;
     private final int pathWidth;
     private final Queue<BlockPos> queue = new LinkedList<>();
@@ -24,12 +27,13 @@ public class PathanationAgent extends Agent {
     private final int blockLimit;
 
     public PathanationAgent(ServerPlayer player, BlockPos origin, int length) {
-        this(player, origin, new PathanationConfig(true, Math.max(1, length), 3), new CommonConfig());
+        this(player, origin, player.getDirection(), new PathanationConfig(true, Math.max(1, length), 3), new CommonConfig());
     }
 
-    public PathanationAgent(ServerPlayer player, BlockPos origin, PathanationConfig config, CommonConfig commonConfig) {
+    public PathanationAgent(ServerPlayer player, BlockPos origin, Direction direction, PathanationConfig config, CommonConfig commonConfig) {
         super(player);
         this.origin = origin;
+        this.direction = direction != null && direction.getAxis().isHorizontal() ? direction : player.getDirection();
         PathanationConfig effectiveConfig = config == null ? MAServerRootConfig.defaults().pathanation() : config;
         this.length = Math.max(1, effectiveConfig.targetBlockRange());
         this.pathWidth = Math.max(1, effectiveConfig.pathWidth());
@@ -37,11 +41,17 @@ public class PathanationAgent extends Agent {
         this.blockLimit = commonConfig == null ? 64 : Math.max(1, commonConfig.blockLimit());
 
         int halfWidth = pathWidth / 2;
-        for (int i = 1; i <= this.length; i++) {
+        boolean alongZ = this.direction.getAxis() == Direction.Axis.Z;
+        for (int i = 0; i < this.length; i++) {
+            BlockPos base = origin.relative(this.direction, i);
             for (int offset = -halfWidth; offset <= halfWidth; offset++) {
-                queue.add(origin.offset(offset, 0, i).immutable());
+                queue.add((alongZ ? base.offset(offset, 0, 0) : base.offset(0, 0, offset)).immutable());
             }
         }
+    }
+
+    public PathanationAgent(ServerPlayer player, BlockPos origin, PathanationConfig config, CommonConfig commonConfig) {
+        this(player, origin, player.getDirection(), config, commonConfig);
     }
 
     @Override
@@ -50,7 +60,7 @@ public class PathanationAgent extends Agent {
         while (!queue.isEmpty() && count < blocksPerTick && placed < blockLimit) {
             BlockPos pos = queue.poll();
             BlockState state = world.getBlockState(pos);
-            if (state.getBlock() == Blocks.DIRT || state.getBlock() == Blocks.GRASS_BLOCK) {
+            if (state.is(BlockTags.DIRT) && isAirOrReplaceableAbove(pos)) {
                 world.setBlockAndUpdate(pos, Blocks.DIRT_PATH.defaultBlockState());
                 placed++;
                 count++;
