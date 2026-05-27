@@ -92,8 +92,8 @@ public final class VeinationRuntimeService {
         dropAnchors.put(player.getUUID(), new DropAnchor(pos.immutable(), new Date()));
     }
 
-    public void handleItemEntityJoin(Level level, Entity entity, Player nearestPlayer, VeinationConfig config) {
-        if (!config.dropOresAtFirstBrokenBlock() || level.isClientSide() || !(entity instanceof ItemEntity) || nearestPlayer == null) {
+    public void handleItemEntityJoin(Level level, Entity entity, Player nearestPlayer, VeinationConfig config, boolean gatherDrops) {
+        if (!gatherDrops || !config.dropOresAtFirstBrokenBlock() || level.isClientSide() || !(entity instanceof ItemEntity) || nearestPlayer == null) {
             return;
         }
 

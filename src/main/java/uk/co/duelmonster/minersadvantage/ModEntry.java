@@ -478,9 +478,9 @@ public final class ModEntry implements ModInitializer {
             if (level.getNearestPlayer(entity, 8.0) instanceof ServerPlayer serverPlayer) {
                 String dropItemId = itemId(itemEntity.getItem());
                 LogUtils.logDebug("Observed item entity load player={} item={} count={}", serverPlayer.getScoreboardName(), dropItemId, itemEntity.getItem().getCount());
-                veinationRuntime.handleItemEntityJoin(level, entity, serverPlayer, veinationConfig(serverPlayer));
-                toolEvents.onItemPickup(dropItemId, false);
                 boolean gatherDrops = commonConfig(serverPlayer).gatherDrops();
+                veinationRuntime.handleItemEntityJoin(level, entity, serverPlayer, veinationConfig(serverPlayer), gatherDrops);
+                toolEvents.onItemPickup(dropItemId, false);
                 core.workerRuntimeService().interceptLiveDropForPlayer(
                     playerId(serverPlayer),
                     "item:" + dropItemId,
@@ -936,9 +936,9 @@ public final class ModEntry {
         if (entity instanceof ItemEntity itemEntity) {
             if (level.getNearestPlayer(entity, 8.0) instanceof ServerPlayer serverPlayer) {
                 String itemId = itemId(itemEntity.getItem());
-                veinationRuntime.handleItemEntityJoin(level, entity, serverPlayer, veinationConfig(serverPlayer));
-                toolEvents.onItemPickup(itemId, false);
                 boolean gatherDrops = commonConfig(serverPlayer).gatherDrops();
+                veinationRuntime.handleItemEntityJoin(level, entity, serverPlayer, veinationConfig(serverPlayer), gatherDrops);
+                toolEvents.onItemPickup(itemId, false);
                 core.workerRuntimeService().interceptLiveDropForPlayer(
                     playerId(serverPlayer),
                     "item:" + itemId,

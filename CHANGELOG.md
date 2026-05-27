@@ -1,5 +1,6 @@
 ## 0.8.0
 
+- Respect `gather_drops` when relocating veination item drops so disabling drop gathering keeps items at their original block positions.
 - Make excavation veination fan-out trigger from connected exposed ore discovery instead of requiring the broken origin-matching block itself to be ore.
 - Consolidate veination fan-out logic into a shared agent helper and wire shaft/vent flows through the common path.
 - Make post-excavation auto-illumination target the carved excavation gap instead of a player-centered area.
