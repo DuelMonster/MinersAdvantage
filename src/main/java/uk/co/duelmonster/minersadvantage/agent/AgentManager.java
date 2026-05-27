@@ -51,9 +51,37 @@ public class AgentManager {
     }
 
     public void clearAgents(ServerPlayer player) {
-        agents.remove(player.getUUID());
-        pendingAdds.remove(player.getUUID());
-        LogUtils.logDebug("Cleared all agents for player={}", player.getScoreboardName());
+        clearAgents(player.getUUID(), player.getScoreboardName());
+    }
+
+    public void clearAgents(long playerId) {
+        UUID playerUuid = findPlayerUuid(playerId);
+        if (playerUuid == null) {
+            return;
+        }
+        clearAgents(playerUuid, Long.toString(playerId));
+    }
+
+    private void clearAgents(UUID playerUuid, String playerLabel) {
+        agents.remove(playerUuid);
+        pendingAdds.remove(playerUuid);
+        LogUtils.logDebug("Cleared all agents for player={}", playerLabel);
+    }
+
+    private UUID findPlayerUuid(long playerId) {
+        for (UUID playerUuid : agents.keySet()) {
+            if (playerUuid.getLeastSignificantBits() == playerId) {
+                return playerUuid;
+            }
+        }
+
+        for (UUID playerUuid : pendingAdds.keySet()) {
+            if (playerUuid.getLeastSignificantBits() == playerId) {
+                return playerUuid;
+            }
+        }
+
+        return null;
     }
 
     public boolean hasAgentType(ServerPlayer player, Class<? extends Agent> agentType) {

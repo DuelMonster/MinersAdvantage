@@ -167,6 +167,7 @@ public final class MinersAdvantageCore {
      */
     public WorkerRuntimeService.AbortResult handleAbortPacket(AbortWorkersPacket packet) {
         LogUtils.logDebug("Handling abort packet playerId={}", packet.playerId());
+        AgentManager.get().clearAgents(packet.playerId());
         return workerRuntimeService().abortAllForPlayerWithStats(packet.playerId());
     }
 
