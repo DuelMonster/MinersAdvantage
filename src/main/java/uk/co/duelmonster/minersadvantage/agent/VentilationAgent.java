@@ -13,7 +13,6 @@ import uk.co.duelmonster.minersadvantage.common.config.CommonConfig;
 import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 import uk.co.duelmonster.minersadvantage.common.config.VeinationConfig;
 import uk.co.duelmonster.minersadvantage.common.config.VentilationConfig;
-import uk.co.duelmonster.minersadvantage.common.registry.RegistryPredicates;
 import uk.co.duelmonster.minersadvantage.common.services.utility.VeinationRuntimeService;
 
 import java.util.Deque;
@@ -105,7 +104,7 @@ public class VentilationAgent extends Agent {
             BlockState state = world.getBlockState(pos);
             if (!state.isAir()) {
                 world.destroyBlock(pos, true, player);
-                maybeFanOutVeination(pos, state);
+                maybeFanOutVeination(pos, state, mineVeins, veinationRuntime, veinationConfig, veinationTriggerTool);
                 dug++;
                 count++;
 
@@ -170,29 +169,4 @@ public class VentilationAgent extends Agent {
         return findFirstInventorySlot(Items.LADDER);
     }
 
-    private void maybeFanOutVeination(BlockPos pos, BlockState brokenState) {
-        if (!mineVeins || veinationRuntime == null || veinationConfig == null || !veinationConfig.enabled()) {
-            return;
-        }
-
-        ItemStack toolStack = veinationTriggerTool.isEmpty() ? player.getMainHandItem() : veinationTriggerTool;
-
-        if (!RegistryPredicates.isPickaxeTool(toolStack)) {
-            return;
-        }
-
-        if (!veinationRuntime.isPickaxeAllowed(world, veinationConfig, toolStack)) {
-            return;
-        }
-
-        if (!veinationRuntime.isOreAllowed(veinationConfig, brokenState)) {
-            return;
-        }
-
-        AgentManager agentManager = AgentManager.get();
-        veinationRuntime.registerDropAnchor(player, pos, veinationConfig);
-        if (!agentManager.hasAgentType(player, VeinationAgent.class)) {
-            agentManager.addAgent(player, new VeinationAgent(player, pos, brokenState, veinationRuntime, veinationConfig));
-        }
-    }
 }

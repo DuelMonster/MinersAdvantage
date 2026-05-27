@@ -17,7 +17,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import uk.co.duelmonster.minersadvantage.common.config.VeinationConfig;
 import uk.co.duelmonster.minersadvantage.common.log.LogUtils;
+import uk.co.duelmonster.minersadvantage.common.services.utility.VeinationRuntimeService;
 
 import java.lang.reflect.Method;
 
@@ -204,5 +206,46 @@ public abstract class Agent {
     /** Returns true if the player has at least one torch in their inventory. */
     protected boolean playerHasTorches() {
         return findTorchSlot() >= 0;
+    }
+
+    /**
+     * maybeFanOutVeination keeps veination fan-out checks consistent across agents.
+     */
+    protected boolean maybeFanOutVeination(
+        BlockPos pos,
+        BlockState candidateState,
+        boolean mineVeins,
+        VeinationRuntimeService veinationRuntime,
+        VeinationConfig veinationConfig,
+        ItemStack veinationTriggerTool
+    ) {
+        if (!mineVeins || veinationRuntime == null || veinationConfig == null || !veinationConfig.enabled()) {
+            return false;
+        }
+
+        AgentManager agentManager = AgentManager.get();
+        if (agentManager.hasAgentType(player, VeinationAgent.class)) {
+            return true;
+        }
+
+        ItemStack toolStack = veinationTriggerTool == null || veinationTriggerTool.isEmpty()
+            ? player.getMainHandItem()
+            : veinationTriggerTool;
+
+        boolean toolAllowedByAllowlist = veinationRuntime.isPickaxeAllowed(world, veinationConfig, toolStack);
+        boolean toolMinesCandidate = candidateState != null
+            && (!candidateState.requiresCorrectToolForDrops() || toolStack.isCorrectToolForDrops(candidateState));
+
+        if (!toolAllowedByAllowlist && !toolMinesCandidate) {
+            return false;
+        }
+
+        if (!veinationRuntime.isOreAllowed(veinationConfig, candidateState)) {
+            return false;
+        }
+
+        veinationRuntime.registerDropAnchor(player, pos, veinationConfig);
+        agentManager.addAgent(player, new VeinationAgent(player, pos, candidateState, veinationRuntime, veinationConfig));
+        return true;
     }
 }
