@@ -9,8 +9,10 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import uk.co.duelmonster.minersadvantage.common.config.CommonConfig;
 import uk.co.duelmonster.minersadvantage.common.config.ExcavationConfig;
+import uk.co.duelmonster.minersadvantage.common.config.IlluminationConfig;
 import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 import uk.co.duelmonster.minersadvantage.common.config.VeinationConfig;
+import uk.co.duelmonster.minersadvantage.common.Functions;
 import uk.co.duelmonster.minersadvantage.common.registry.RegistryPredicates;
 import uk.co.duelmonster.minersadvantage.common.services.utility.VeinationRuntimeService;
 
@@ -32,6 +34,8 @@ public class ExcavationAgent extends Agent {
     private final Set<BlockPos> visited = new HashSet<>();
     private final int blocksPerTick;
     private final int blockLimit;
+    private final CommonConfig commonConfig;
+    private final IlluminationConfig illuminationConfig;
     private final boolean mineVeins;
     private final VeinationRuntimeService veinationRuntime;
     private final VeinationConfig veinationConfig;
@@ -100,16 +104,34 @@ public class ExcavationAgent extends Agent {
         VeinationConfig veinationConfig,
         ItemStack veinationTriggerTool
     ) {
+        this(player, origin, originState, config, commonConfig, horizontalRadius, verticalRadius, veinationRuntime, veinationConfig, veinationTriggerTool, null);
+    }
+
+    public ExcavationAgent(
+        ServerPlayer player,
+        BlockPos origin,
+        BlockState originState,
+        ExcavationConfig config,
+        CommonConfig commonConfig,
+        int horizontalRadius,
+        int verticalRadius,
+        VeinationRuntimeService veinationRuntime,
+        VeinationConfig veinationConfig,
+        ItemStack veinationTriggerTool,
+        IlluminationConfig illuminationConfig
+    ) {
         super(player);
         this.origin = origin;
         this.originState = originState == null ? Blocks.AIR.defaultBlockState() : originState;
         this.config = config == null ? MAServerRootConfig.defaults().excavation() : config;
+        this.commonConfig = commonConfig == null ? new CommonConfig() : commonConfig;
+        this.illuminationConfig = illuminationConfig;
         this.horizontalRadius = Math.max(0, horizontalRadius);
         this.verticalRadius = Math.max(0, verticalRadius);
-        int globalBlocksPerTick = commonConfig == null ? 1 : Math.max(1, commonConfig.blocksPerTick());
+        int globalBlocksPerTick = Math.max(1, this.commonConfig.blocksPerTick());
         this.blocksPerTick = Math.max(1, Math.min(globalBlocksPerTick, this.config.processesPerTick()));
-        this.blockLimit = commonConfig == null ? 64 : Math.max(1, commonConfig.blockLimit());
-        this.mineVeins = commonConfig == null || commonConfig.mineVeins();
+        this.blockLimit = Math.max(1, this.commonConfig.blockLimit());
+        this.mineVeins = this.commonConfig.mineVeins();
         this.veinationRuntime = veinationRuntime;
         this.veinationConfig = veinationConfig;
         this.veinationTriggerTool = veinationTriggerTool == null ? ItemStack.EMPTY : veinationTriggerTool.copy();
@@ -151,18 +173,25 @@ public class ExcavationAgent extends Agent {
         }
 
         if (queue.isEmpty() || processed >= blockLimit) {
+            maybeQueueIllumination();
             return finish(queue.isEmpty() ? "excavation queue exhausted" : "excavation block limit reached");
         }
         return false;
     }
 
+    private void maybeQueueIllumination() {
+        if (!commonConfig.autoIlluminate() || illuminationConfig == null || !illuminationConfig.enabled()) {
+            return;
+        }
+
+        AgentManager manager = AgentManager.get();
+        if (!manager.hasAgentType(player, IlluminationAgent.class)) {
+            manager.addAgent(player, new IlluminationAgent(player, origin, illuminationConfig, commonConfig));
+        }
+    }
+
     private void enqueueNeighbors(BlockPos pos) {
-        queue.add(pos.above().immutable());
-        queue.add(pos.below().immutable());
-        queue.add(pos.north().immutable());
-        queue.add(pos.south().immutable());
-        queue.add(pos.east().immutable());
-        queue.add(pos.west().immutable());
+        queue.addAll(Functions.connectedNeighbors(pos));
     }
 
     private boolean isWithinConfiguredRadius(BlockPos pos) {

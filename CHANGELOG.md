@@ -1,5 +1,6 @@
 ## 0.8.0
 
+- Fix excavation to keep single-layer mode tied only to the single-layer toggle and trigger auto-illumination after completion for any exit reason.
 - Bump mod version to `0.8.0` and advance the tracked daily bump date.
 - Center `ILLUMINATION_AREA` execution on the player's position instead of the targeted block while keeping area mode floor-placement behavior.
 - Centralize synced default construction through `MAConfig_Defaults` so `SyncedClientConfig.defaults()` no longer hard-codes per-feature values.

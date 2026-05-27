@@ -13,6 +13,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import uk.co.duelmonster.minersadvantage.common.Functions;
 import uk.co.duelmonster.minersadvantage.common.config.CommonConfig;
 import uk.co.duelmonster.minersadvantage.common.config.LumbinationConfig;
 import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
@@ -228,21 +229,13 @@ public class LumbinationAgent extends Agent {
     }
 
     private void enqueueNeighbors(BlockPos pos, boolean toLeafQueue) {
-        for (int dx = -1; dx <= 1; dx++) {
-            for (int dy = -1; dy <= 1; dy++) {
-                for (int dz = -1; dz <= 1; dz++) {
-                    if (dx == 0 && dy == 0 && dz == 0) {
-                        continue;
-                    }
-                    if (toLeafQueue) {
-                        BlockPos candidate = pos.offset(dx, dy, dz).immutable();
-                        if (withinLeafCanopyBounds(candidate)) {
-                            leafQueue.add(candidate);
-                        }
-                    } else {
-                        queue.add(pos.offset(dx, dy, dz).immutable());
-                    }
+        for (BlockPos candidate : Functions.connectedNeighbors(pos)) {
+            if (toLeafQueue) {
+                if (withinLeafCanopyBounds(candidate)) {
+                    leafQueue.add(candidate);
                 }
+            } else {
+                queue.add(candidate);
             }
         }
     }

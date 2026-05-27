@@ -12,6 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import uk.co.duelmonster.minersadvantage.common.Functions;
 import uk.co.duelmonster.minersadvantage.common.registry.RegistryPredicates;
 
 /**
@@ -70,16 +71,11 @@ public final class VeinationCoreService {
         if (RegistryPredicates.isOreLike(originState) && originFamily.equals(normalizeOreFamily(blockId(originState)))) {
             queue.add(origin);
         } else {
-            for (int dx = -1; dx <= 1; dx++) {
-                for (int dy = -1; dy <= 1; dy++) {
-                    for (int dz = -1; dz <= 1; dz++) {
-                        BlockPos neighbor = origin.offset(dx, dy, dz);
-                        if (visited.add(neighbor)) {
-                            BlockState neighborState = world.getBlockState(neighbor);
-                            if (RegistryPredicates.isOreLike(neighborState) && originFamily.equals(normalizeOreFamily(blockId(neighborState)))) {
-                                queue.addLast(neighbor);
-                            }
-                        }
+            for (BlockPos neighbor : Functions.connectedNeighbors(origin)) {
+                if (visited.add(neighbor)) {
+                    BlockState neighborState = world.getBlockState(neighbor);
+                    if (RegistryPredicates.isOreLike(neighborState) && originFamily.equals(normalizeOreFamily(blockId(neighborState)))) {
+                        queue.addLast(neighbor);
                     }
                 }
             }
@@ -98,18 +94,9 @@ public final class VeinationCoreService {
             }
 
             vein.add(current.immutable());
-            for (int dx = -1; dx <= 1; dx++) {
-                for (int dy = -1; dy <= 1; dy++) {
-                    for (int dz = -1; dz <= 1; dz++) {
-                        if (dx == 0 && dy == 0 && dz == 0) {
-                            continue;
-                        }
-
-                        BlockPos neighbor = current.offset(dx, dy, dz);
-                        if (visited.add(neighbor)) {
-                            queue.addLast(neighbor);
-                        }
-                    }
+            for (BlockPos neighbor : Functions.connectedNeighbors(current)) {
+                if (visited.add(neighbor)) {
+                    queue.addLast(neighbor);
                 }
             }
         }

@@ -247,16 +247,37 @@ public class Functions {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public static boolean isPosConnected(List<BlockPos> posList, BlockPos checkPos) {
+        for (BlockPos neighbor : connectedNeighbors(checkPos)) {
+            if (posList.contains(neighbor)) {
+                return true;
+            }
+        }
+
+        if (posList.contains(checkPos)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * connectedNeighbors exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
+    public static List<BlockPos> connectedNeighbors(BlockPos origin) {
+        List<BlockPos> neighbors = new ArrayList<>(26);
         for (int yOffset = -1; yOffset <= 1; yOffset++) {
             for (int xOffset = -1; xOffset <= 1; xOffset++) {
                 for (int zOffset = -1; zOffset <= 1; zOffset++) {
-                    if (posList.contains(checkPos.offset(xOffset, yOffset, zOffset))) {
-                        return true;
+                    if (xOffset == 0 && yOffset == 0 && zOffset == 0) {
+                        continue;
                     }
+
+                    neighbors.add(origin.offset(xOffset, yOffset, zOffset).immutable());
                 }
             }
         }
-        return false;
+        return neighbors;
     }
 
     /**

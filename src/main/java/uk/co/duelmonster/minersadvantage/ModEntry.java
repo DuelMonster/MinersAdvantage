@@ -219,7 +219,8 @@ public final class ModEntry implements ModInitializer {
                 LogUtils.logDebug("Block break trigger feature=Excavation player={} item={} block={} pos={}", serverPlayer.getScoreboardName(), itemId, brokenBlockId, pos);
                 ExcavationConfig excavationConfig = excavationConfig(serverPlayer);
                 CommonConfig commonConfig = commonConfig(serverPlayer);
-                int verticalRadius = isShovelTool(stack) || playerState.singleLayerToggled() ? 0 : excavationConfig.radiusVertical();
+                IlluminationConfig excavationIlluminationConfig = isFeatureEnabled(FeatureId.ILLUMINATION) ? illuminationConfig(serverPlayer) : null;
+                int verticalRadius = playerState.singleLayerToggled() ? 0 : excavationConfig.radiusVertical();
                 AgentManager.get().addAgent(
                     serverPlayer,
                     new ExcavationAgent(
@@ -232,7 +233,8 @@ public final class ModEntry implements ModInitializer {
                         verticalRadius,
                         veinationRuntime,
                         veinationConfig,
-                        stack
+                        stack,
+                        excavationIlluminationConfig
                     )
                 );
             } else if (isFeatureEnabled(FeatureId.LUMBINATION)) {
@@ -1131,7 +1133,8 @@ public final class ModEntry {
                 }
             } else if (!shaftModeActive && excavationActive) {
                 ExcavationConfig excavationConfig = excavationConfig(serverPlayer);
-                int verticalRadius = isShovelTool(stack) || playerState.singleLayerToggled() ? 0 : excavationConfig.radiusVertical();
+                IlluminationConfig excavationIlluminationConfig = isFeatureEnabled(FeatureId.ILLUMINATION) ? illuminationConfig(serverPlayer) : null;
+                int verticalRadius = playerState.singleLayerToggled() ? 0 : excavationConfig.radiusVertical();
                 AgentManager.get().addAgent(
                     serverPlayer,
                     new ExcavationAgent(
@@ -1144,7 +1147,8 @@ public final class ModEntry {
                         verticalRadius,
                         veinationRuntime,
                         config,
-                        stack
+                        stack,
+                        excavationIlluminationConfig
                     )
                 );
             } else if (isFeatureEnabled(FeatureId.LUMBINATION)) {
