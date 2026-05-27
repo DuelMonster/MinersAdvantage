@@ -1,5 +1,6 @@
 ## 0.8.0
 
+- Make veination respect the shared `blocks_per_tick` limit instead of using a hardcoded per-agent cap.
 - Make `ABORT_WORKERS` clear active and queued agents immediately, not just worker-runtime state.
 - Respect `gather_drops` when relocating veination item drops so disabling drop gathering keeps items at their original block positions.
 - Make excavation veination fan-out trigger from connected exposed ore discovery instead of requiring the broken origin-matching block itself to be ore.

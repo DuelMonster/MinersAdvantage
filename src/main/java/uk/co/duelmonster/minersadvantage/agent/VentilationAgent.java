@@ -32,6 +32,7 @@ public class VentilationAgent extends Agent {
     private final int blocksPerTick;
     private final int blockLimit;
     private final boolean mineVeins;
+    private final CommonConfig commonConfig;
     private final VeinationRuntimeService veinationRuntime;
     private final VeinationConfig veinationConfig;
     private final ItemStack veinationTriggerTool;
@@ -83,6 +84,7 @@ public class VentilationAgent extends Agent {
         this.blocksPerTick = Math.max(1, Math.min(globalBlocksPerTick, this.config.processesPerTick()));
         this.blockLimit = commonConfig == null ? 64 : Math.max(1, commonConfig.blockLimit());
         this.mineVeins = commonConfig == null || commonConfig.mineVeins();
+        this.commonConfig = commonConfig;
         this.veinationRuntime = veinationRuntime;
         this.veinationConfig = veinationConfig;
         this.veinationTriggerTool = veinationTriggerTool == null ? ItemStack.EMPTY : veinationTriggerTool.copy();
@@ -104,7 +106,7 @@ public class VentilationAgent extends Agent {
             BlockState state = world.getBlockState(pos);
             if (!state.isAir()) {
                 world.destroyBlock(pos, true, player);
-                maybeFanOutVeination(pos, state, mineVeins, veinationRuntime, veinationConfig, veinationTriggerTool);
+                maybeFanOutVeination(pos, state, mineVeins, this.commonConfig, veinationRuntime, veinationConfig, veinationTriggerTool);
                 dug++;
                 count++;
 

@@ -252,7 +252,7 @@ public class ExcavationAgent extends Agent {
     }
 
     private void maybeFanOutVeinationFromConnectedOre(BlockPos brokenPos, BlockState brokenState) {
-        if (maybeFanOutVeination(brokenPos, brokenState, mineVeins, veinationRuntime, veinationConfig, veinationTriggerTool)) {
+        if (maybeFanOutVeination(brokenPos, brokenState, mineVeins, commonConfig, veinationRuntime, veinationConfig, veinationTriggerTool)) {
             return;
         }
 
@@ -262,7 +262,7 @@ public class ExcavationAgent extends Agent {
                 continue;
             }
 
-            if (maybeFanOutVeination(neighbor, neighborState, mineVeins, veinationRuntime, veinationConfig, veinationTriggerTool)) {
+            if (maybeFanOutVeination(neighbor, neighborState, mineVeins, commonConfig, veinationRuntime, veinationConfig, veinationTriggerTool)) {
                 return;
             }
         }

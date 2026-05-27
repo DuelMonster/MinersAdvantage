@@ -17,6 +17,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import uk.co.duelmonster.minersadvantage.common.config.CommonConfig;
 import uk.co.duelmonster.minersadvantage.common.config.VeinationConfig;
 import uk.co.duelmonster.minersadvantage.common.log.LogUtils;
 import uk.co.duelmonster.minersadvantage.common.services.utility.VeinationRuntimeService;
@@ -215,6 +216,7 @@ public abstract class Agent {
         BlockPos pos,
         BlockState candidateState,
         boolean mineVeins,
+        CommonConfig commonConfig,
         VeinationRuntimeService veinationRuntime,
         VeinationConfig veinationConfig,
         ItemStack veinationTriggerTool
@@ -245,7 +247,7 @@ public abstract class Agent {
         }
 
         veinationRuntime.registerDropAnchor(player, pos, veinationConfig);
-        agentManager.addAgent(player, new VeinationAgent(player, pos, candidateState, veinationRuntime, veinationConfig));
+        agentManager.addAgent(player, new VeinationAgent(player, pos, candidateState, commonConfig, veinationRuntime, veinationConfig));
         return true;
     }
 }

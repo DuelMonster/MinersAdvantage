@@ -35,6 +35,7 @@ public class ShaftanationAgent extends Agent {
     private final boolean autoIlluminate;
     private final int torchLowestLightLevel;
     private final boolean mineVeins;
+    private final CommonConfig commonConfig;
     private final VeinationRuntimeService veinationRuntime;
     private final VeinationConfig veinationConfig;
     private final ItemStack veinationTriggerTool;
@@ -112,6 +113,7 @@ public class ShaftanationAgent extends Agent {
         this.autoIlluminate = commonConfig == null || commonConfig.autoIlluminate();
         this.torchLowestLightLevel = Math.max(0, torchLowestLightLevel);
         this.mineVeins = commonConfig == null || commonConfig.mineVeins();
+        this.commonConfig = commonConfig;
         this.veinationRuntime = veinationRuntime;
         this.veinationConfig = veinationConfig;
         this.veinationTriggerTool = veinationTriggerTool == null ? ItemStack.EMPTY : veinationTriggerTool.copy();
@@ -140,7 +142,7 @@ public class ShaftanationAgent extends Agent {
             BlockState state = world.getBlockState(pos);
             if (!state.isAir()) {
                 world.destroyBlock(pos, true, player);
-                maybeFanOutVeination(pos, state, mineVeins, veinationRuntime, veinationConfig, veinationTriggerTool);
+                maybeFanOutVeination(pos, state, mineVeins, this.commonConfig, veinationRuntime, veinationConfig, veinationTriggerTool);
                 dug++;
                 count++;
             }

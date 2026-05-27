@@ -200,7 +200,7 @@ public final class ModEntry implements ModInitializer {
                 veinationRuntime.registerDropAnchor(serverPlayer, pos, veinationConfig);
                 AgentManager agentManager = AgentManager.get();
                 if (!agentManager.hasAgentType(serverPlayer, VeinationAgent.class)) {
-                    agentManager.addAgent(serverPlayer, new VeinationAgent(serverPlayer, pos, state, veinationRuntime, veinationConfig));
+                    agentManager.addAgent(serverPlayer, new VeinationAgent(serverPlayer, pos, state, playerCommonConfig, veinationRuntime, veinationConfig));
                 }
             } else if (shaftModeActive) {
                 Direction breakFace = consumeBreakFace(serverPlayer, pos);
@@ -1120,7 +1120,7 @@ public final class ModEntry {
                 veinationRuntime.registerDropAnchor(serverPlayer, event.getPos(), config);
                 AgentManager agentManager = AgentManager.get();
                 if (!agentManager.hasAgentType(serverPlayer, VeinationAgent.class)) {
-                    agentManager.addAgent(serverPlayer, new VeinationAgent(serverPlayer, event.getPos(), veinationRuntime, config));
+                    agentManager.addAgent(serverPlayer, new VeinationAgent(serverPlayer, event.getPos(), playerCommonConfig, veinationRuntime, config));
                 }
             } else if (shaftModeActive) {
                 Direction breakFace = event.getFace();
