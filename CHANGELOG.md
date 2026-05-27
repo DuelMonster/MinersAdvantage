@@ -1,5 +1,6 @@
 ## 0.8.0
 
+- Make post-excavation auto-illumination target the carved excavation gap instead of a player-centered area.
 - Share connected-neighbor traversal helpers so excavation, lumbination, and veination all use the same 3x3 connectivity rule.
 - Fix excavation to keep single-layer mode tied only to the single-layer toggle and trigger auto-illumination after completion for any exit reason.
 - Bump mod version to `0.8.0` and advance the tracked daily bump date.

@@ -7,6 +7,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import uk.co.duelmonster.minersadvantage.common.config.CommonConfig;
 import uk.co.duelmonster.minersadvantage.common.config.ExcavationConfig;
 import uk.co.duelmonster.minersadvantage.common.config.IlluminationConfig;
@@ -40,6 +41,13 @@ public class ExcavationAgent extends Agent {
     private final VeinationRuntimeService veinationRuntime;
     private final VeinationConfig veinationConfig;
     private final ItemStack veinationTriggerTool;
+    private boolean carvedAnyBlock = false;
+    private int carvedMinX;
+    private int carvedMinY;
+    private int carvedMinZ;
+    private int carvedMaxX;
+    private int carvedMaxY;
+    private int carvedMaxZ;
     private int processed = 0;
 
     public ExcavationAgent(ServerPlayer player, BlockPos origin, int radius) {
@@ -141,6 +149,8 @@ public class ExcavationAgent extends Agent {
             return;
         }
 
+        resetCarvedBounds();
+
         queue.add(origin);
     }
 
@@ -165,6 +175,7 @@ public class ExcavationAgent extends Agent {
 
             if (state.getBlock() != Blocks.AIR && isTargetState(state)) {
                 world.destroyBlock(pos, true, player);
+                recordCarvedBlock(pos);
                 maybeFanOutVeination(pos, state);
                 processed++;
                 count++;
@@ -184,10 +195,38 @@ public class ExcavationAgent extends Agent {
             return;
         }
 
+        if (!carvedAnyBlock) {
+            return;
+        }
+
         AgentManager manager = AgentManager.get();
         if (!manager.hasAgentType(player, IlluminationAgent.class)) {
-            manager.addAgent(player, new IlluminationAgent(player, origin, illuminationConfig, commonConfig));
+            manager.addAgent(player, new IlluminationAgent(player, carvedArea(), illuminationConfig, commonConfig));
         }
+    }
+
+    private void resetCarvedBounds() {
+        carvedAnyBlock = false;
+        carvedMinX = Integer.MAX_VALUE;
+        carvedMinY = Integer.MAX_VALUE;
+        carvedMinZ = Integer.MAX_VALUE;
+        carvedMaxX = Integer.MIN_VALUE;
+        carvedMaxY = Integer.MIN_VALUE;
+        carvedMaxZ = Integer.MIN_VALUE;
+    }
+
+    private void recordCarvedBlock(BlockPos pos) {
+        carvedAnyBlock = true;
+        carvedMinX = Math.min(carvedMinX, pos.getX());
+        carvedMinY = Math.min(carvedMinY, pos.getY());
+        carvedMinZ = Math.min(carvedMinZ, pos.getZ());
+        carvedMaxX = Math.max(carvedMaxX, pos.getX());
+        carvedMaxY = Math.max(carvedMaxY, pos.getY());
+        carvedMaxZ = Math.max(carvedMaxZ, pos.getZ());
+    }
+
+    private AABB carvedArea() {
+        return new AABB(carvedMinX, carvedMinY, carvedMinZ, carvedMaxX, carvedMaxY, carvedMaxZ);
     }
 
     private void enqueueNeighbors(BlockPos pos) {

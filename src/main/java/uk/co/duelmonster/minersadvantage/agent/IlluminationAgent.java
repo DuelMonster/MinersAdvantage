@@ -3,9 +3,11 @@ package uk.co.duelmonster.minersadvantage.agent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import uk.co.duelmonster.minersadvantage.common.config.CommonConfig;
 import uk.co.duelmonster.minersadvantage.common.config.IlluminationConfig;
 import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
+import uk.co.duelmonster.minersadvantage.common.Functions;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -23,6 +25,19 @@ public class IlluminationAgent extends Agent {
 
     public IlluminationAgent(ServerPlayer player, BlockPos origin, int length) {
         this(player, origin, MAServerRootConfig.defaults().illumination(), new CommonConfig());
+    }
+
+    public IlluminationAgent(ServerPlayer player, AABB area, IlluminationConfig config, CommonConfig commonConfig) {
+        super(player);
+        this.origin = new BlockPos((int) area.minX, (int) area.minY, (int) area.minZ);
+        this.config = config == null ? MAServerRootConfig.defaults().illumination() : config;
+        int globalBlocksPerTick = commonConfig == null ? 1 : Math.max(1, commonConfig.blocksPerTick());
+        this.blocksPerTick = globalBlocksPerTick;
+        this.blockLimit = commonConfig == null ? 64 : Math.max(1, commonConfig.blockLimit());
+
+        for (BlockPos pos : Functions.getAllPositionsInArea(area)) {
+            queue.add(pos.immutable());
+        }
     }
 
     public IlluminationAgent(ServerPlayer player, BlockPos origin, IlluminationConfig config, CommonConfig commonConfig) {
