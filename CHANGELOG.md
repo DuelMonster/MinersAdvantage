@@ -1,5 +1,6 @@
 ## 0.8.0
 
+- Make excavation veination fan-out trigger from connected exposed ore discovery instead of requiring the broken origin-matching block itself to be ore.
 - Consolidate veination fan-out logic into a shared agent helper and wire shaft/vent flows through the common path.
 - Make post-excavation auto-illumination target the carved excavation gap instead of a player-centered area.
 - Share connected-neighbor traversal helpers so excavation, lumbination, and veination all use the same 3x3 connectivity rule.

@@ -14,7 +14,6 @@ import uk.co.duelmonster.minersadvantage.common.config.IlluminationConfig;
 import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 import uk.co.duelmonster.minersadvantage.common.config.VeinationConfig;
 import uk.co.duelmonster.minersadvantage.common.Functions;
-import uk.co.duelmonster.minersadvantage.common.registry.RegistryPredicates;
 import uk.co.duelmonster.minersadvantage.common.services.utility.VeinationRuntimeService;
 
 import java.util.HashSet;
@@ -176,7 +175,7 @@ public class ExcavationAgent extends Agent {
             if (state.getBlock() != Blocks.AIR && isTargetState(state)) {
                 world.destroyBlock(pos, true, player);
                 recordCarvedBlock(pos);
-                maybeFanOutVeination(pos, state);
+                maybeFanOutVeinationFromConnectedOre(pos, state);
                 processed++;
                 count++;
                 enqueueNeighbors(pos);
@@ -252,29 +251,20 @@ public class ExcavationAgent extends Agent {
         return state.equals(originState);
     }
 
-    private void maybeFanOutVeination(BlockPos pos, BlockState brokenState) {
-        if (!mineVeins || veinationRuntime == null || veinationConfig == null || !veinationConfig.enabled()) {
+    private void maybeFanOutVeinationFromConnectedOre(BlockPos brokenPos, BlockState brokenState) {
+        if (maybeFanOutVeination(brokenPos, brokenState, mineVeins, veinationRuntime, veinationConfig, veinationTriggerTool)) {
             return;
         }
 
-        ItemStack toolStack = veinationTriggerTool.isEmpty() ? player.getMainHandItem() : veinationTriggerTool;
+        for (BlockPos neighbor : Functions.connectedNeighbors(brokenPos)) {
+            BlockState neighborState = world.getBlockState(neighbor);
+            if (neighborState.isAir()) {
+                continue;
+            }
 
-        if (!RegistryPredicates.isPickaxeTool(toolStack)) {
-            return;
-        }
-
-        if (!veinationRuntime.isPickaxeAllowed(world, veinationConfig, toolStack)) {
-            return;
-        }
-
-        if (!veinationRuntime.isOreAllowed(veinationConfig, brokenState)) {
-            return;
-        }
-
-        AgentManager agentManager = AgentManager.get();
-        veinationRuntime.registerDropAnchor(player, pos, veinationConfig);
-        if (!agentManager.hasAgentType(player, VeinationAgent.class)) {
-            agentManager.addAgent(player, new VeinationAgent(player, pos, brokenState, veinationRuntime, veinationConfig));
+            if (maybeFanOutVeination(neighbor, neighborState, mineVeins, veinationRuntime, veinationConfig, veinationTriggerTool)) {
+                return;
+            }
         }
     }
 }
