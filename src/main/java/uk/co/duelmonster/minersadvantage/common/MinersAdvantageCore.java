@@ -52,6 +52,7 @@ import uk.co.duelmonster.minersadvantage.common.services.core.ServerTickOrchestr
 import uk.co.duelmonster.minersadvantage.common.services.policy.PolicyCoreService;
 import uk.co.duelmonster.minersadvantage.common.services.processing.WorkerRuntimeService;
 import uk.co.duelmonster.minersadvantage.common.services.sync.SyncCoreService;
+import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeBootstrap;
 import uk.co.duelmonster.minersadvantage.common.services.utility.SupremeVantageService;
 
 /**
@@ -87,6 +88,7 @@ public final class MinersAdvantageCore {
      */
     public void bootstrap() {
         LogUtils.logInfo("Bootstrapping core components");
+        MAShapeBootstrap.ensureInitialized();
         tickOrchestrator.setTpsGuardActive(defaultConfig.common().tpsGuard());
         tickOrchestrator.setProcessingDelay(defaultConfig.common().enableTickDelay(), defaultConfig.common().tickDelay());
         registerFeature(FeatureId.CAPTIVATION, "captivation", defaultConfig::captivation, CaptivationComponent::new);
