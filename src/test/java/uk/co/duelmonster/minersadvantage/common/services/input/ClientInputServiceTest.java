@@ -35,34 +35,31 @@ class ClientInputServiceTest {
         ClientInputService service = new ClientInputService();
         ClientInputService.ClientInputResult result = service.process(
             ClientInputService.ClientInputState.defaults(),
-            Set.of(ClientAction.EXCAVATION_MODE_TOGGLE, ClientAction.EXCAVATION_SINGLE_LAYER_TOGGLE),
+            Set.of(ClientAction.EXCAVATION_MODE_TOGGLE),
             false
         );
 
         assertTrue(result.state().excavationToggled());
-        assertTrue(result.state().singleLayerToggled());
     }
 
     @Test
-    void togglesExclusiveExcavationModesWhenToggleModeEnabled() {
+    void togglesExcavationModeWhenToggleModeEnabled() {
         ClientInputService service = new ClientInputService();
         ClientInputService.ClientInputState initial = ClientInputService.ClientInputState.defaults();
 
-        ClientInputService.ClientInputResult excavationResult = service.process(
+        ClientInputService.ClientInputResult firstToggleResult = service.process(
             initial,
             Set.of(ClientAction.EXCAVATION_MODE_TOGGLE),
             true
         );
-        assertTrue(excavationResult.state().excavationToggled());
-        assertFalse(excavationResult.state().singleLayerToggled());
+        assertTrue(firstToggleResult.state().excavationToggled());
 
-        ClientInputService.ClientInputResult layerResult = service.process(
-            excavationResult.state(),
-            Set.of(ClientAction.EXCAVATION_SINGLE_LAYER_TOGGLE),
+        ClientInputService.ClientInputResult secondToggleResult = service.process(
+            firstToggleResult.state(),
+            Set.of(ClientAction.EXCAVATION_MODE_TOGGLE),
             true
         );
-        assertFalse(layerResult.state().excavationToggled());
-        assertTrue(layerResult.state().singleLayerToggled());
+        assertFalse(secondToggleResult.state().excavationToggled());
     }
 
     @Test
@@ -70,7 +67,6 @@ class ClientInputServiceTest {
         ClientInputService service = new ClientInputService();
         ClientInputService.ClientInputState disabled = new ClientInputService.ClientInputState(
             java.util.Map.of(FeatureId.ILLUMINATION, false),
-            false,
             false,
             false
         );

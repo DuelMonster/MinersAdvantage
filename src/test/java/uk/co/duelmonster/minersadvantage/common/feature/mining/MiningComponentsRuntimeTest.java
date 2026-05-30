@@ -24,7 +24,7 @@ class MiningComponentsRuntimeTest {
     }
 
     @Test
-    void excavationUsesSingleLayerForShovelEvents() {
+    void excavationUsesConfiguredVerticalRadius() {
         ExcavationComponent component = new ExcavationComponent(new ExcavationConfig(true, 1, 2, 5));
         component.register();
         component.enable();
@@ -33,7 +33,7 @@ class MiningComponentsRuntimeTest {
         component.tick();
 
         assertEquals(5, component.lastPlan().size());
-        assertTrue(component.lastPlan().stream().allMatch(target -> target.y() == 64));
+        assertTrue(component.lastPlan().stream().anyMatch(target -> target.y() < 64));
     }
 
     @Test

@@ -17,7 +17,6 @@ public record PlayerStateSyncPacket(
     MAClientRootConfig clientConfig,
     MAServerRootConfig serverConfig,
     boolean excavationToggled,
-    boolean singleLayerToggled,
     boolean shaftVentToggled
 ) implements CustomPacketPayload {
     private static final Gson GSON = new Gson();
@@ -30,7 +29,7 @@ public record PlayerStateSyncPacket(
         MAClientRootConfig clientConfig,
         MAServerRootConfig serverConfig
     ) {
-        this(playerId, clientConfig, serverConfig, false, false, false);
+        this(playerId, clientConfig, serverConfig, false, false);
     }
 
     @Override
@@ -70,15 +69,12 @@ public record PlayerStateSyncPacket(
                 ByteBufCodecs.BOOL,
                 PlayerStateSyncPacket::excavationToggled,
                 ByteBufCodecs.BOOL,
-                PlayerStateSyncPacket::singleLayerToggled,
-                ByteBufCodecs.BOOL,
                 PlayerStateSyncPacket::shaftVentToggled,
-                (playerId, clientJson, serverJson, excavationToggled, singleLayerToggled, shaftVentToggled) -> new PlayerStateSyncPacket(
+                (playerId, clientJson, serverJson, excavationToggled, shaftVentToggled) -> new PlayerStateSyncPacket(
                     playerId,
                     GSON.fromJson(clientJson, MAClientRootConfig.class),
                     GSON.fromJson(serverJson, MAServerRootConfig.class),
                     excavationToggled,
-                    singleLayerToggled,
                     shaftVentToggled
                 )
             );

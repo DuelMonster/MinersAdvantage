@@ -220,7 +220,6 @@ public final class ModEntry implements ModInitializer {
                 ExcavationConfig excavationConfig = excavationConfig(serverPlayer);
                 CommonConfig commonConfig = commonConfig(serverPlayer);
                 IlluminationConfig excavationIlluminationConfig = isFeatureEnabled(FeatureId.ILLUMINATION) ? illuminationConfig(serverPlayer) : null;
-                int verticalRadius = playerState.singleLayerToggled() ? 0 : excavationConfig.radiusVertical();
                 AgentManager.get().addAgent(
                     serverPlayer,
                     new ExcavationAgent(
@@ -230,7 +229,7 @@ public final class ModEntry implements ModInitializer {
                         excavationConfig,
                         commonConfig,
                         excavationConfig.radiusHorizontal(),
-                        verticalRadius,
+                        excavationConfig.radiusVertical(),
                         veinationRuntime,
                         veinationConfig,
                         stack,
@@ -1134,7 +1133,6 @@ public final class ModEntry {
             } else if (!shaftModeActive && excavationActive) {
                 ExcavationConfig excavationConfig = excavationConfig(serverPlayer);
                 IlluminationConfig excavationIlluminationConfig = isFeatureEnabled(FeatureId.ILLUMINATION) ? illuminationConfig(serverPlayer) : null;
-                int verticalRadius = playerState.singleLayerToggled() ? 0 : excavationConfig.radiusVertical();
                 AgentManager.get().addAgent(
                     serverPlayer,
                     new ExcavationAgent(
@@ -1144,7 +1142,7 @@ public final class ModEntry {
                         excavationConfig,
                         playerCommonConfig,
                         excavationConfig.radiusHorizontal(),
-                        verticalRadius,
+                        excavationConfig.radiusVertical(),
                         veinationRuntime,
                         config,
                         stack,

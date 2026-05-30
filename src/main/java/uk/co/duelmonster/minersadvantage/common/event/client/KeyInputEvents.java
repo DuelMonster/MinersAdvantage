@@ -10,10 +10,9 @@ public final class KeyInputEvents {
      * onExcavationToggleChanged exists to keep this step focused, predictable, and debuggable.
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
-    public void onExcavationToggleChanged(boolean excavationToggled, boolean singleLayerToggled) {
+    public void onExcavationToggleChanged(boolean excavationToggled) {
         Variables vars = Variables.get();
         vars.IsExcavationToggled = excavationToggled;
-        vars.IsSingleLayerToggled = singleLayerToggled;
         Variables.syncToServer();
     }
 

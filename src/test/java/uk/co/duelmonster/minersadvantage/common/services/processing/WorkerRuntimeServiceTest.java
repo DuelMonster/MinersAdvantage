@@ -40,7 +40,7 @@ class WorkerRuntimeServiceTest {
     @Test
     void pausesWorkerWhenHungerGuardIsActive() {
         PlayerStateService playerStates = new PlayerStateService();
-        playerStates.updatePlayerState(7L, new PlayerStateService.PlayerState(7L, true, 0L, 0, false, false, false));
+        playerStates.updatePlayerState(7L, new PlayerStateService.PlayerState(7L, true, 0L, 0, false, false));
         WorkerRuntimeService service = new WorkerRuntimeService(playerStates);
 
         WorkerRuntimeService.WorkerHandle worker = service.startWorker(7L, FeatureId.SHAFTANATION, 3, 8);

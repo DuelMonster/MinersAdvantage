@@ -150,7 +150,7 @@ public final class ClientInputHandler {
         List<KeyBindings.ClientAction> pressed = new java.util.ArrayList<>();
         for (java.util.Map.Entry<KeyBindings.ClientAction, KeyMapping> entry : keyMappings.entrySet()) {
             boolean active = switch (entry.getKey()) {
-                case EXCAVATION_MODE_TOGGLE, EXCAVATION_SINGLE_LAYER_TOGGLE, SHAFT_VENT_TOGGLE -> entry.getValue().isDown();
+                case EXCAVATION_MODE_TOGGLE, SHAFT_VENT_TOGGLE -> entry.getValue().isDown();
                 default -> entry.getValue().consumeClick();
             };
             if (active) {
@@ -204,7 +204,6 @@ public final class ClientInputHandler {
 
         boolean activationStateChanged =
             lastSyncedState.excavationToggled() != result.state().excavationToggled()
-                || lastSyncedState.singleLayerToggled() != result.state().singleLayerToggled()
                 || lastSyncedState.shaftVentToggled() != result.state().shaftVentToggled();
 
         if (activationStateChanged && (result.shouldSyncConfig() || result.shouldSyncVariables())) {
@@ -218,7 +217,6 @@ public final class ClientInputHandler {
                 MAClientRootConfig.defaults(),
                 MAServerRootConfig.defaults(),
                 result.state().excavationToggled(),
-                result.state().singleLayerToggled(),
                 result.state().shaftVentToggled()
             ));
             lastSyncedState = result.state();

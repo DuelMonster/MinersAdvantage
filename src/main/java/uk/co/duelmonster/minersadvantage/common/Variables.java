@@ -88,7 +88,6 @@ public class Variables {
 
     // Why this exists: Feature toggles (future-you will thank present-you).
     public boolean IsExcavationToggled = false;
-    public boolean IsSingleLayerToggled = false;
     public boolean IsShaftanationToggled = false;
     public boolean IsPlayerAttacking = false;
     public boolean IsCropinating = false;
@@ -113,7 +112,7 @@ public class Variables {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public boolean IsInToggleMode() {
-        return this.IsExcavationToggled || this.IsSingleLayerToggled;
+        return this.IsExcavationToggled;
     }
 
     private transient String history = null;

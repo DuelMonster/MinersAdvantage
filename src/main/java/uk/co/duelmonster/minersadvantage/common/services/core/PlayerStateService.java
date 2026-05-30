@@ -20,11 +20,10 @@ public final class PlayerStateService {
         long lastHarvestTick,
         int recentHarvests,
         boolean excavationToggled,
-        boolean singleLayerToggled,
         boolean shaftVentToggled
     ) {
         public boolean isExcavationActive() {
-            return excavationToggled || singleLayerToggled;
+            return excavationToggled;
         }
     }
 
@@ -41,7 +40,7 @@ public final class PlayerStateService {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public PlayerState getPlayerState(long playerId) {
-        return states.getOrDefault(playerId, new PlayerState(playerId, false, 0L, 0, false, false, false));
+        return states.getOrDefault(playerId, new PlayerState(playerId, false, 0L, 0, false, false));
     }
 
     /**

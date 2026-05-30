@@ -207,7 +207,6 @@ public final class MinersAdvantageCore {
                 current.lastHarvestTick(),
                 current.recentHarvests(),
                 packet.excavationToggled(),
-                packet.singleLayerToggled(),
                 packet.shaftVentToggled()
             )
         );
