@@ -120,6 +120,7 @@ Miners Advantage is designed to remain compatible with FastItemFrames and other 
 ## Technical Documentation
 
 See [TECHNICAL.md](TECHNICAL.md) for implementation details, architecture, and build internals.
+See [SHAPE_API.md](SHAPE_API.md) for addon shape registration and processor guidance.
 
 ## Modernization Status
 

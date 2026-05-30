@@ -228,6 +228,10 @@ Invalid expressions are rejected for that rule match path and logged via `LogUti
 - Milestone 6 closure includes explicit cross-feature policy assertions in [PolicyCoreServiceTest.java](src/test/java/uk/co/duelmonster/minersadvantage/common/services/PolicyCoreServiceTest.java).
 - Full matrix validation is confirmed by `./gradlew chiseledBuild` during final signoff.
 
+## Shape Addon API
+
+Addon shape registration and processor authoring guidance is documented in [SHAPE_API.md](SHAPE_API.md).
+
 ## Feature descriptors
 
 The core bootstrap registers these components:
