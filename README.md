@@ -121,6 +121,7 @@ Miners Advantage is designed to remain compatible with FastItemFrames and other 
 
 See [TECHNICAL.md](TECHNICAL.md) for implementation details, architecture, and build internals.
 See [SHAPE_API.md](SHAPE_API.md) for addon shape registration and processor guidance.
+Shape selection now supports dedicated Excavation/Shaftanation cycle keybinds and a held-key preview path that reuses runtime shape context math.
 
 ## Modernization Status
 

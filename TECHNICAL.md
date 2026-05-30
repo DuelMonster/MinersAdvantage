@@ -231,6 +231,7 @@ Invalid expressions are rejected for that rule match path and logged via `LogUti
 ## Shape Addon API
 
 Addon shape registration and processor authoring guidance is documented in [SHAPE_API.md](SHAPE_API.md).
+Runtime agent dispatch and held-key preview now share `MAShapeDimensions` context sizing helpers so client previews match server execution geometry.
 
 ## Feature descriptors
 
