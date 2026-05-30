@@ -233,6 +233,19 @@ Invalid expressions are rejected for that rule match path and logged via `LogUti
 Addon shape registration and processor authoring guidance is documented in [SHAPE_API.md](SHAPE_API.md).
 Runtime agent dispatch and held-key preview now share `MAShapeDimensions` context sizing helpers so client previews match server execution geometry.
 
+## Shape Manual Verification Checklist
+
+Use this checklist when validating gameplay parity in a debug client.
+
+- Enable Excavation and Shaftanation, then confirm shape cycle keybinds change the selected shape for each feature independently.
+- Hold the Excavation mode key and verify preview particles move to the newly selected Excavation shape without requiring a reconnect.
+- Hold the Shaft/Vent key and verify preview particles move to the newly selected Shaftanation shape.
+- Trigger Excavation on a horizontal block face and confirm broken blocks match the held-key preview footprint.
+- Trigger Shaftanation on a horizontal face and confirm carved blocks follow the selected shape (shaft/stair up/stair down).
+- Trigger Shaft/Vent on a vertical face and confirm ventilation behavior still wins where expected and does not desync selected Shaftanation shape state.
+- Recycle shape indexes past the last shape in each feature and confirm wrap-around behavior returns to index `0`.
+- Restart client, rejoin world, and confirm selected shape indexes resync from client state updates after first key interaction.
+
 ## Feature descriptors
 
 The core bootstrap registers these components:
