@@ -35,6 +35,7 @@ import uk.co.duelmonster.minersadvantage.common.services.input.ClientInputServic
 public final class NeoForgeClientEvents {
     private static final Map<KeyBindings.ClientAction, KeyMapping> KEY_MAPPINGS = new EnumMap<>(KeyBindings.ClientAction.class);
     private static ClientInputService.ClientInputState inputState = ClientInputService.ClientInputState.defaults();
+    private static ClientInputService.ClientInputState lastSyncedState = ClientInputService.ClientInputState.defaults();
 
     /**
      * NeoForgeClientEvents exists so this code path does one job clearly instead of spreading chaos across callers.
@@ -71,17 +72,25 @@ public final class NeoForgeClientEvents {
     public static void onClientTick(ClientTickEvent.Post event) {
         List<KeyBindings.ClientAction> pressed = new ArrayList<>();
         for (Map.Entry<KeyBindings.ClientAction, KeyMapping> entry : KEY_MAPPINGS.entrySet()) {
-            if (entry.getValue().consumeClick()) {
+            boolean active = switch (entry.getKey()) {
+                case EXCAVATION_MODE_TOGGLE, SHAFT_VENT_TOGGLE -> entry.getValue().isDown();
+                default -> entry.getValue().consumeClick();
+            };
+            if (active) {
                 pressed.add(entry.getKey());
             }
         }
 
+        Set<KeyBindings.ClientAction> pressedSet = new HashSet<>(pressed);
+
         ClientInputService.ClientInputResult result = new ClientInputService().process(
             inputState,
-            new HashSet<>(pressed),
+            pressedSet,
             false
         );
         inputState = result.state();
+
+        ShapePreviewRenderer.renderHeldPreview(result.state(), pressedSet);
 
         for (ComponentTogglePacket packet : result.togglePackets()) {
             ClientPacketDistributor.sendToServer(packet);
@@ -96,7 +105,13 @@ public final class NeoForgeClientEvents {
             ClientPacketDistributor.sendToServer(new AbortWorkersPacket(playerId, "client:keybind"));
         }
 
-        if (!pressed.isEmpty() && (result.shouldSyncConfig() || result.shouldSyncVariables())) {
+        boolean activationStateChanged =
+            lastSyncedState.excavationToggled() != result.state().excavationToggled()
+                || lastSyncedState.shaftVentToggled() != result.state().shaftVentToggled()
+                || lastSyncedState.selectedExcavationShapeIndex() != result.state().selectedExcavationShapeIndex()
+                || lastSyncedState.selectedShaftanationShapeIndex() != result.state().selectedShaftanationShapeIndex();
+
+        if (activationStateChanged && (result.shouldSyncConfig() || result.shouldSyncVariables())) {
             long playerId = 0L;
             Minecraft minecraft = Minecraft.getInstance();
             if (minecraft.player != null) {
@@ -105,8 +120,13 @@ public final class NeoForgeClientEvents {
             ClientPacketDistributor.sendToServer(new PlayerStateSyncPacket(
                 playerId,
                 MAClientRootConfig.defaults(),
-                MAServerRootConfig.defaults()
+                MAServerRootConfig.defaults(),
+                result.state().excavationToggled(),
+                result.state().shaftVentToggled(),
+                result.state().selectedExcavationShapeIndex(),
+                result.state().selectedShaftanationShapeIndex()
             ));
+            lastSyncedState = result.state();
         }
     }
 
@@ -124,11 +144,14 @@ public final class NeoForgeClientEvents {
             case "KP_6" -> "key.keyboard.keypad.6";
             case "KP_7" -> "key.keyboard.keypad.7";
             case "KP_8" -> "key.keyboard.keypad.8";
+            case "KP_9" -> "key.keyboard.keypad.9";
+            case "KP_0" -> "key.keyboard.keypad.0";
             case "DELETE" -> "key.keyboard.delete";
             case "GRAVE" -> "key.keyboard.grave.accent";
             case "TAB" -> "key.keyboard.tab";
             case "LEFT_ALT" -> "key.keyboard.left.alt";
             case "V" -> "key.keyboard.v";
+            case "F11" -> "key.keyboard.f11";
             case "F12" -> "key.keyboard.f12";
             default -> throw new IllegalArgumentException("Unknown key token: " + token);
         };

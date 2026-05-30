@@ -184,6 +184,8 @@ public final class ClientInputHandler {
         // Why this exists: Update state (future-you will thank present-you).
         inputState = result.state();
 
+        ShapePreviewRenderer.renderHeldPreview(result.state(), pressedSet);
+
         // Why this exists: Send component toggle packets to the server. (future-you will thank present-you).
         for (ComponentTogglePacket packet : result.togglePackets()) {
             ClientPlayNetworking.send(packet);
