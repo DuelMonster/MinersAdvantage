@@ -1,5 +1,6 @@
 package uk.co.duelmonster.minersadvantage.client;
 
+import java.util.Objects;
 import java.util.Set;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -8,8 +9,11 @@ import net.minecraft.client.renderer.ShapeRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 import uk.co.duelmonster.minersadvantage.common.services.input.ClientInputService.ClientInputState;
@@ -22,9 +26,45 @@ import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeRegistry;
  * ShapePreviewRenderer renders lightweight held-key shape previews on the client.
  */
 public final class ShapePreviewRenderer {
-    private static final int MAX_PREVIEW_OUTLINES = 96;
-    private static final int OUTLINE_COLOR = 0xF240D9C0;
-    private static final float OUTLINE_WIDTH = 1.0f;
+    private static final int MAX_PREVIEW_BLOCKS = 256;
+    private static final int OUTLINE_FOREGROUND_COLOR = 0xFF40D9C0;
+    private static final int OUTLINE_SEE_THROUGH_COLOR = 0x4B40D9C0;
+    private static final double OUTLINE_INFLATE = 0.005d;
+
+    private static final OutlineCache CACHE = new OutlineCache();
+
+    private static final class OutlineCache {
+        FeatureId feature;
+        BlockPos origin;
+        int shapeIndex;
+        int width;
+        int height;
+        int depth;
+        VoxelShape combinedShape;
+        long updatedAt;
+
+        boolean isValid(FeatureId feature, BlockPos origin, int shapeIndex, int width, int height, int depth) {
+            return this.feature == feature
+                && Objects.equals(this.origin, origin)
+                && this.shapeIndex == shapeIndex
+                && this.width == width
+                && this.height == height
+                && this.depth == depth
+                && this.combinedShape != null
+                && (System.currentTimeMillis() - this.updatedAt) < 250L;
+        }
+
+        void store(FeatureId feature, BlockPos origin, int shapeIndex, int width, int height, int depth, VoxelShape combinedShape) {
+            this.feature = feature;
+            this.origin = origin;
+            this.shapeIndex = shapeIndex;
+            this.width = width;
+            this.height = height;
+            this.depth = depth;
+            this.combinedShape = combinedShape;
+            this.updatedAt = System.currentTimeMillis();
+        }
+    }
 
     private ShapePreviewRenderer() {
     }
@@ -66,10 +106,21 @@ public final class ShapePreviewRenderer {
                 dimensions.width(),
                 dimensions.height(),
                 dimensions.depth(),
-                MAX_PREVIEW_OUTLINES
+                MAX_PREVIEW_BLOCKS
             );
             MAShapeRegistry.byIndex(FeatureId.EXCAVATION, state.selectedExcavationShapeIndex())
-                .ifPresent(shape -> renderOutline(shape.compute(context), poseStack, vertexConsumer, cameraX, cameraY, cameraZ));
+                .ifPresent(shape -> renderOutline(
+                    FeatureId.EXCAVATION,
+                    shape.compute(context),
+                    origin,
+                    state.selectedExcavationShapeIndex(),
+                    dimensions,
+                    poseStack,
+                    vertexConsumer,
+                    cameraX,
+                    cameraY,
+                    cameraZ
+                ));
         }
 
         if (shaftPreview) {
@@ -84,15 +135,30 @@ public final class ShapePreviewRenderer {
                 dimensions.width(),
                 dimensions.height(),
                 dimensions.depth(),
-                MAX_PREVIEW_OUTLINES
+                MAX_PREVIEW_BLOCKS
             );
             MAShapeRegistry.byIndex(FeatureId.SHAFTANATION, state.selectedShaftanationShapeIndex())
-                .ifPresent(shape -> renderOutline(shape.compute(context), poseStack, vertexConsumer, cameraX, cameraY, cameraZ));
+                .ifPresent(shape -> renderOutline(
+                    FeatureId.SHAFTANATION,
+                    shape.compute(context),
+                    origin,
+                    state.selectedShaftanationShapeIndex(),
+                    dimensions,
+                    poseStack,
+                    vertexConsumer,
+                    cameraX,
+                    cameraY,
+                    cameraZ
+                ));
         }
     }
 
     private static void renderOutline(
+        FeatureId feature,
         Set<BlockPos> positions,
+        BlockPos origin,
+        int shapeIndex,
+        MAShapeDimensions.Dimensions dimensions,
         PoseStack poseStack,
         VertexConsumer vertexConsumer,
         double cameraX,
@@ -103,29 +169,45 @@ public final class ShapePreviewRenderer {
             return;
         }
 
-        int stride = Math.max(1, (int) Math.ceil((double) positions.size() / (double) MAX_PREVIEW_OUTLINES));
-        int index = 0;
-        for (BlockPos pos : positions) {
-            if (index % stride == 0) {
-                ShapeRenderer.renderShape(
-                    poseStack,
-                    vertexConsumer,
-                    Shapes.box(
-                        pos.getX() - cameraX,
-                        pos.getY() - cameraY,
-                        pos.getZ() - cameraZ,
-                        pos.getX() + 1.0d - cameraX,
-                        pos.getY() + 1.0d - cameraY,
-                        pos.getZ() + 1.0d - cameraZ
-                    ),
-                    0.0d,
-                    0.0d,
-                    0.0d,
-                    OUTLINE_COLOR,
-                    OUTLINE_WIDTH
-                );
-            }
-            index++;
+        VoxelShape combinedShape;
+        if (CACHE.isValid(feature, origin, shapeIndex, dimensions.width(), dimensions.height(), dimensions.depth())) {
+            combinedShape = CACHE.combinedShape;
+        } else {
+            combinedShape = combineToVoxelShape(positions, origin);
+            CACHE.store(feature, origin.immutable(), shapeIndex, dimensions.width(), dimensions.height(), dimensions.depth(), combinedShape);
         }
+
+        if (combinedShape.isEmpty()) {
+            return;
+        }
+
+        float lineWidth = Minecraft.getInstance().getWindow().getAppropriateLineWidth();
+        poseStack.pushPose();
+        poseStack.translate(origin.getX() - cameraX, origin.getY() - cameraY, origin.getZ() - cameraZ);
+
+        ShapeRenderer.renderShape(poseStack, vertexConsumer, combinedShape, 0.0d, 0.0d, 0.0d, OUTLINE_SEE_THROUGH_COLOR, lineWidth);
+        ShapeRenderer.renderShape(poseStack, vertexConsumer, combinedShape, 0.0d, 0.0d, 0.0d, OUTLINE_FOREGROUND_COLOR, lineWidth);
+
+        poseStack.popPose();
+    }
+
+    private static VoxelShape combineToVoxelShape(Set<BlockPos> positions, BlockPos origin) {
+        VoxelShape combinedShape = Shapes.empty();
+
+        for (BlockPos position : positions) {
+            BlockPos relative = position.subtract(origin);
+            AABB inflatedBox = new AABB(
+                relative.getX(),
+                relative.getY(),
+                relative.getZ(),
+                relative.getX() + 1,
+                relative.getY() + 1,
+                relative.getZ() + 1
+            ).inflate(OUTLINE_INFLATE);
+
+            combinedShape = Shapes.join(combinedShape, Shapes.create(inflatedBox), BooleanOp.OR);
+        }
+
+        return combinedShape.optimize();
     }
 }

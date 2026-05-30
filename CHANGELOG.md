@@ -1,3 +1,9 @@
+## 0.10.0
+
+- Bump mod version to `0.10.0`, update daily bump metadata, and advance `Next Version` tracking to `0.11.0`.
+- Fix Fabric outline preview startup/runtime compatibility by replacing fragile `LevelRenderer` mixin targeting with a version-tolerant Fabric render event bridge.
+- Refine shape preview outline rendering by combining selected blocks into a merged voxel outline and drawing line passes against the combined shape.
+
 ## 0.9.0
 
 - Scaffold a new common Shape API package with registerable shape definitions, context contracts, processor interfaces, and registry helpers.
@@ -12,6 +18,8 @@
 - Add held-key client shape preview rendering and align NeoForge hold/sync behavior with Fabric shape-selection input flow.
 - Replace held-key shape preview particles with true block-outline rendering through client highlight hooks.
 - Add mouse-wheel shape switching while Excavation/Shaftanation hold mode is active, with immediate state sync to the server.
+- Fix Fabric client startup crash from `LevelRenderer` mixin descriptor drift by moving outline preview hook registration to a version-tolerant Fabric render event bridge.
+- Align shape preview visuals by combining selected blocks into a merged voxel outline before drawing line passes.
 - Centralize shared shape dimension math for runtime and preview context building and add focused regression tests for that parity path.
 - Update keybinding parity tests to cover the new shape-cycling default bindings.
 - Refresh README and TECHNICAL documentation with shape-cycling and held-key preview parity notes.
