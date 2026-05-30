@@ -13,8 +13,12 @@ import uk.co.duelmonster.minersadvantage.client.KeyBindings.ClientAction;
 class KeyBindingsTest {
     @Test
     void exposesLegacyParityDefaultBindings() {
-        assertEquals(14, KeyBindings.all().size());
+        assertEquals(17, KeyBindings.all().size());
         assertTrue(KeyBindings.all().stream().anyMatch(spec -> spec.action() == ClientAction.CAPTIVATION_TOGGLE && spec.defaultKey().equals("KP_1")));
+        assertTrue(KeyBindings.all().stream().anyMatch(spec -> spec.action() == ClientAction.EXCAVATION_SHAPE_NEXT && spec.defaultKey().equals("KP_9")));
+        assertTrue(KeyBindings.all().stream().anyMatch(spec -> spec.action() == ClientAction.EXCAVATION_SHAPE_PREV && spec.defaultKey().equals("KP_0")));
+        assertTrue(KeyBindings.all().stream().anyMatch(spec -> spec.action() == ClientAction.SHAFTANATION_SHAPE_NEXT && spec.defaultKey().equals("TAB")));
+        assertTrue(KeyBindings.all().stream().anyMatch(spec -> spec.action() == ClientAction.SHAFTANATION_SHAPE_PREV && spec.defaultKey().equals("F11")));
         assertTrue(KeyBindings.all().stream().anyMatch(spec -> spec.action() == ClientAction.ABORT_WORKERS && spec.defaultKey().equals("DELETE")));
     }
 }
