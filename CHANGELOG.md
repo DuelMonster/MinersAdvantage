@@ -10,6 +10,8 @@
 - Add focused shape registry/bootstrap parity tests covering built-in counts, index wrapping, and idempotent initialization.
 - Add client keybind actions for Excavation/Shaftanation shape cycling and sync selected shape index changes to the server.
 - Add held-key client shape preview rendering and align NeoForge hold/sync behavior with Fabric shape-selection input flow.
+- Replace held-key shape preview particles with true block-outline rendering through client highlight hooks.
+- Add mouse-wheel shape switching while Excavation/Shaftanation hold mode is active, with immediate state sync to the server.
 - Centralize shared shape dimension math for runtime and preview context building and add focused regression tests for that parity path.
 - Update keybinding parity tests to cover the new shape-cycling default bindings.
 - Refresh README and TECHNICAL documentation with shape-cycling and held-key preview parity notes.

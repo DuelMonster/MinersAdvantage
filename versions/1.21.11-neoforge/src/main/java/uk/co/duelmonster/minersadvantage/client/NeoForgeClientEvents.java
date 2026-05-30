@@ -20,6 +20,7 @@ import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 import uk.co.duelmonster.minersadvantage.common.network.AbortWorkersPacket;
 import uk.co.duelmonster.minersadvantage.common.network.ComponentTogglePacket;
 import uk.co.duelmonster.minersadvantage.common.network.PlayerStateSyncPacket;
+import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 import uk.co.duelmonster.minersadvantage.common.services.input.ClientInputService;
 
 /**
@@ -90,8 +91,6 @@ public final class NeoForgeClientEvents {
         );
         inputState = result.state();
 
-        ShapePreviewRenderer.renderHeldPreview(result.state(), pressedSet);
-
         for (ComponentTogglePacket packet : result.togglePackets()) {
             ClientPacketDistributor.sendToServer(packet);
         }
@@ -112,22 +111,58 @@ public final class NeoForgeClientEvents {
                 || lastSyncedState.selectedShaftanationShapeIndex() != result.state().selectedShaftanationShapeIndex();
 
         if (activationStateChanged && (result.shouldSyncConfig() || result.shouldSyncVariables())) {
-            long playerId = 0L;
-            Minecraft minecraft = Minecraft.getInstance();
-            if (minecraft.player != null) {
-                playerId = minecraft.player.getUUID().getLeastSignificantBits();
-            }
-            ClientPacketDistributor.sendToServer(new PlayerStateSyncPacket(
-                playerId,
-                MAClientRootConfig.defaults(),
-                MAServerRootConfig.defaults(),
-                result.state().excavationToggled(),
-                result.state().shaftVentToggled(),
-                result.state().selectedExcavationShapeIndex(),
-                result.state().selectedShaftanationShapeIndex()
-            ));
-            lastSyncedState = result.state();
+            syncStateToServer(result.state());
         }
+    }
+
+    public static ClientInputService.ClientInputState getInputState() {
+        return inputState;
+    }
+
+    public static boolean onMouseScroll(double scrollY) {
+        if (scrollY == 0.0d) {
+            return false;
+        }
+
+        boolean excavationActive = inputState.excavationToggled()
+            && inputState.featureEnabled().getOrDefault(FeatureId.EXCAVATION, false);
+        boolean shaftActive = inputState.shaftVentToggled()
+            && inputState.featureEnabled().getOrDefault(FeatureId.SHAFTANATION, false);
+
+        if (!excavationActive && !shaftActive) {
+            return false;
+        }
+
+        Set<KeyBindings.ClientAction> actions = new HashSet<>();
+        if (excavationActive) {
+            actions.add(scrollY > 0.0d ? KeyBindings.ClientAction.EXCAVATION_SHAPE_PREV : KeyBindings.ClientAction.EXCAVATION_SHAPE_NEXT);
+        }
+        if (shaftActive) {
+            actions.add(scrollY > 0.0d ? KeyBindings.ClientAction.SHAFTANATION_SHAPE_PREV : KeyBindings.ClientAction.SHAFTANATION_SHAPE_NEXT);
+        }
+
+        ClientInputService.ClientInputResult scrollResult = new ClientInputService().process(inputState, actions, false);
+        inputState = scrollResult.state();
+        syncStateToServer(inputState);
+        return true;
+    }
+
+    private static void syncStateToServer(ClientInputService.ClientInputState state) {
+        long playerId = 0L;
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.player != null) {
+            playerId = minecraft.player.getUUID().getLeastSignificantBits();
+        }
+        ClientPacketDistributor.sendToServer(new PlayerStateSyncPacket(
+            playerId,
+            MAClientRootConfig.defaults(),
+            MAServerRootConfig.defaults(),
+            state.excavationToggled(),
+            state.shaftVentToggled(),
+            state.selectedExcavationShapeIndex(),
+            state.selectedShaftanationShapeIndex()
+        ));
+        lastSyncedState = state;
     }
 
     /**

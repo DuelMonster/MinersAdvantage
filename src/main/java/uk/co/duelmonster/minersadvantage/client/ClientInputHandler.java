@@ -184,8 +184,6 @@ public final class ClientInputHandler {
         // Why this exists: Update state (future-you will thank present-you).
         inputState = result.state();
 
-        ShapePreviewRenderer.renderHeldPreview(result.state(), pressedSet);
-
         // Why this exists: Send component toggle packets to the server. (future-you will thank present-you).
         for (ComponentTogglePacket packet : result.togglePackets()) {
             ClientPlayNetworking.send(packet);
@@ -214,22 +212,58 @@ public final class ClientInputHandler {
                 || lastSyncedState.selectedShaftanationShapeIndex() != result.state().selectedShaftanationShapeIndex();
 
         if (activationStateChanged && (result.shouldSyncConfig() || result.shouldSyncVariables())) {
-            long playerId = 0L;
-            Minecraft playerClient = Minecraft.getInstance();
-            if (playerClient.player != null) {
-                playerId = playerClient.player.getUUID().getLeastSignificantBits();
-            }
-            ClientPlayNetworking.send(new PlayerStateSyncPacket(
-                playerId,
-                MAClientRootConfig.defaults(),
-                MAServerRootConfig.defaults(),
-                result.state().excavationToggled(),
-                result.state().shaftVentToggled(),
-                result.state().selectedExcavationShapeIndex(),
-                result.state().selectedShaftanationShapeIndex()
-            ));
-            lastSyncedState = result.state();
+            syncStateToServer(result.state());
         }
+    }
+
+    public static ClientInputService.ClientInputState getInputState() {
+        return inputState;
+    }
+
+    public static boolean onMouseScroll(double scrollY) {
+        if (scrollY == 0.0d) {
+            return false;
+        }
+
+        boolean excavationActive = inputState.excavationToggled()
+            && inputState.featureEnabled().getOrDefault(uk.co.duelmonster.minersadvantage.common.feature.FeatureId.EXCAVATION, false);
+        boolean shaftActive = inputState.shaftVentToggled()
+            && inputState.featureEnabled().getOrDefault(uk.co.duelmonster.minersadvantage.common.feature.FeatureId.SHAFTANATION, false);
+
+        if (!excavationActive && !shaftActive) {
+            return false;
+        }
+
+        Set<KeyBindings.ClientAction> actions = new HashSet<>();
+        if (excavationActive) {
+            actions.add(scrollY > 0.0d ? KeyBindings.ClientAction.EXCAVATION_SHAPE_PREV : KeyBindings.ClientAction.EXCAVATION_SHAPE_NEXT);
+        }
+        if (shaftActive) {
+            actions.add(scrollY > 0.0d ? KeyBindings.ClientAction.SHAFTANATION_SHAPE_PREV : KeyBindings.ClientAction.SHAFTANATION_SHAPE_NEXT);
+        }
+
+        ClientInputService.ClientInputResult scrollResult = new ClientInputService().process(inputState, actions, false);
+        inputState = scrollResult.state();
+        syncStateToServer(inputState);
+        return true;
+    }
+
+    private static void syncStateToServer(ClientInputService.ClientInputState state) {
+        long playerId = 0L;
+        Minecraft playerClient = Minecraft.getInstance();
+        if (playerClient.player != null) {
+            playerId = playerClient.player.getUUID().getLeastSignificantBits();
+        }
+        ClientPlayNetworking.send(new PlayerStateSyncPacket(
+            playerId,
+            MAClientRootConfig.defaults(),
+            MAServerRootConfig.defaults(),
+            state.excavationToggled(),
+            state.shaftVentToggled(),
+            state.selectedExcavationShapeIndex(),
+            state.selectedShaftanationShapeIndex()
+        ));
+        lastSyncedState = state;
     }
 
     private static void sendIlluminationAction(boolean area) {
