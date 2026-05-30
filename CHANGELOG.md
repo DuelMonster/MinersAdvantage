@@ -1,5 +1,8 @@
 ## 0.9.0
 
+- Scaffold a new common Shape API package with registerable shape definitions, context contracts, processor interfaces, and registry helpers.
+- Extend client and server player-state sync models with selected Excavation and Shaftanation shape indexes.
+- Add initial root-level Shape API addon guide and cross-link it from README and TECHNICAL documentation.
 - Bump mod version to `0.9.0`, add `Next Version` state tracking, and advance the daily bump metadata.
 - Harden git hook version-bump enforcement to require a real version increase when advancing the daily bump date.
 - Require version bumps to match expected `Next Version` and force state `Next Version` to advance past the bumped version.

@@ -20,10 +20,16 @@ public final class PlayerStateService {
         long lastHarvestTick,
         int recentHarvests,
         boolean excavationToggled,
-        boolean shaftVentToggled
+        boolean shaftVentToggled,
+        int selectedExcavationShapeIndex,
+        int selectedShaftanationShapeIndex
     ) {
         public boolean isExcavationActive() {
             return excavationToggled;
+        }
+
+        public PlayerState(long playerId, boolean hungerGuardActive, long lastHarvestTick, int recentHarvests, boolean excavationToggled, boolean shaftVentToggled) {
+            this(playerId, hungerGuardActive, lastHarvestTick, recentHarvests, excavationToggled, shaftVentToggled, 0, 0);
         }
     }
 
@@ -40,7 +46,7 @@ public final class PlayerStateService {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public PlayerState getPlayerState(long playerId) {
-        return states.getOrDefault(playerId, new PlayerState(playerId, false, 0L, 0, false, false));
+        return states.getOrDefault(playerId, new PlayerState(playerId, false, 0L, 0, false, false, 0, 0));
     }
 
     /**

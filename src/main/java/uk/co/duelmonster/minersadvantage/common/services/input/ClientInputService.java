@@ -21,10 +21,18 @@ public final class ClientInputService {
     public record ClientInputState(
         Map<FeatureId, Boolean> featureEnabled,
         boolean excavationToggled,
-        boolean shaftVentToggled
+        boolean shaftVentToggled,
+        int selectedExcavationShapeIndex,
+        int selectedShaftanationShapeIndex
     ) {
         public ClientInputState {
             featureEnabled = Map.copyOf(featureEnabled);
+            selectedExcavationShapeIndex = Math.max(0, selectedExcavationShapeIndex);
+            selectedShaftanationShapeIndex = Math.max(0, selectedShaftanationShapeIndex);
+        }
+
+        public ClientInputState(Map<FeatureId, Boolean> featureEnabled, boolean excavationToggled, boolean shaftVentToggled) {
+            this(featureEnabled, excavationToggled, shaftVentToggled, 0, 0);
         }
 
         /**
@@ -36,7 +44,7 @@ public final class ClientInputService {
             for (FeatureId feature : FeatureId.values()) {
                 features.put(feature, true);
             }
-            return new ClientInputState(features, false, false);
+            return new ClientInputState(features, false, false, 0, 0);
         }
     }
 
@@ -87,7 +95,13 @@ public final class ClientInputService {
         boolean shaftVentToggled = shaftEnabled && pressedActions.contains(ClientAction.SHAFT_VENT_TOGGLE);
         boolean illuminationEnabled = features.getOrDefault(FeatureId.ILLUMINATION, false);
 
-        ClientInputState nextState = new ClientInputState(features, excavationToggled, shaftVentToggled);
+        ClientInputState nextState = new ClientInputState(
+            features,
+            excavationToggled,
+            shaftVentToggled,
+            state.selectedExcavationShapeIndex(),
+            state.selectedShaftanationShapeIndex()
+        );
         return new ClientInputResult(
             nextState,
             List.copyOf(packets),

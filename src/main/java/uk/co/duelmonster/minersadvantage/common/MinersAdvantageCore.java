@@ -207,7 +207,9 @@ public final class MinersAdvantageCore {
                 current.lastHarvestTick(),
                 current.recentHarvests(),
                 packet.excavationToggled(),
-                packet.shaftVentToggled()
+                packet.shaftVentToggled(),
+                packet.selectedExcavationShapeIndex(),
+                packet.selectedShaftanationShapeIndex()
             )
         );
         SyncCoreService.PlayerSyncState state = syncCoreService.synchronize(

@@ -217,7 +217,9 @@ public final class ClientInputHandler {
                 MAClientRootConfig.defaults(),
                 MAServerRootConfig.defaults(),
                 result.state().excavationToggled(),
-                result.state().shaftVentToggled()
+                result.state().shaftVentToggled(),
+                result.state().selectedExcavationShapeIndex(),
+                result.state().selectedShaftanationShapeIndex()
             ));
             lastSyncedState = result.state();
         }

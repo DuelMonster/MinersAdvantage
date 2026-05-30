@@ -17,7 +17,9 @@ public record PlayerStateSyncPacket(
     MAClientRootConfig clientConfig,
     MAServerRootConfig serverConfig,
     boolean excavationToggled,
-    boolean shaftVentToggled
+    boolean shaftVentToggled,
+    int selectedExcavationShapeIndex,
+    int selectedShaftanationShapeIndex
 ) implements CustomPacketPayload {
     private static final Gson GSON = new Gson();
 
@@ -29,7 +31,17 @@ public record PlayerStateSyncPacket(
         MAClientRootConfig clientConfig,
         MAServerRootConfig serverConfig
     ) {
-        this(playerId, clientConfig, serverConfig, false, false);
+        this(playerId, clientConfig, serverConfig, false, false, 0, 0);
+    }
+
+    public PlayerStateSyncPacket(
+        long playerId,
+        MAClientRootConfig clientConfig,
+        MAServerRootConfig serverConfig,
+        boolean excavationToggled,
+        boolean shaftVentToggled
+    ) {
+        this(playerId, clientConfig, serverConfig, excavationToggled, shaftVentToggled, 0, 0);
     }
 
     @Override
@@ -70,12 +82,18 @@ public record PlayerStateSyncPacket(
                 PlayerStateSyncPacket::excavationToggled,
                 ByteBufCodecs.BOOL,
                 PlayerStateSyncPacket::shaftVentToggled,
-                (playerId, clientJson, serverJson, excavationToggled, shaftVentToggled) -> new PlayerStateSyncPacket(
+                ByteBufCodecs.VAR_INT,
+                PlayerStateSyncPacket::selectedExcavationShapeIndex,
+                ByteBufCodecs.VAR_INT,
+                PlayerStateSyncPacket::selectedShaftanationShapeIndex,
+                (playerId, clientJson, serverJson, excavationToggled, shaftVentToggled, selectedExcavationShapeIndex, selectedShaftanationShapeIndex) -> new PlayerStateSyncPacket(
                     playerId,
                     GSON.fromJson(clientJson, MAClientRootConfig.class),
                     GSON.fromJson(serverJson, MAServerRootConfig.class),
                     excavationToggled,
-                    shaftVentToggled
+                    shaftVentToggled,
+                    selectedExcavationShapeIndex,
+                    selectedShaftanationShapeIndex
                 )
             );
         } catch (Throwable throwable) {
