@@ -11,38 +11,44 @@ This guide defines the version bump policy used in this repository.
 
 ## Tracked State
 
-The repository stores the last bump date in [.brainbox/state/version-bump-state.txt](../state/version-bump-state.txt).
+The repository stores bump metadata in [.brainbox/state/version-bump-state.txt](../state/version-bump-state.txt).
 
-The file must contain the most recent successful bump date in ISO format, for example:
+The file must contain both the most recent successful bump date and the next expected version, for example:
 
 ```text
 Last Bumped Date: 2026-05-12
+Next Version: 0.9.0
 ```
 
-The pre-commit validator checks this file whenever `gradle.properties` changes its `mod_version` value.
+The pre-commit validator checks this file for every commit.
 
 ## Enforcement Checklist
 
-Before creating a commit that changes `mod_version`:
+Before creating a commit:
 
-1. Read the staged `mod_version` value from `gradle.properties`.
-2. Read the staged last-bumped date from [.brainbox/state/version-bump-state.txt](../state/version-bump-state.txt).
-3. Confirm the staged date matches today.
-4. Confirm the previously committed date does not already match today.
-5. If an override is required, stage [.brainbox/state/version-bump-override.txt](../state/version-bump-override.txt) with today's date and a reason, then proceed only because the user explicitly requested it.
+1. Read the effective state content from [.brainbox/state/version-bump-state.txt](../state/version-bump-state.txt) (staged version if present, otherwise HEAD).
+2. Confirm `Last Bumped Date` matches today.
+3. Confirm `Next Version` exists and is valid SemVer (`X.Y.Z`).
+4. If today differs from the previously committed date, the commit must bump `mod_version` and the bumped value must match the previously committed `Next Version` (or be greater than HEAD when migrating from old state format).
+5. Whenever `mod_version` is bumped, update `Next Version` so it is greater than the bumped version.
+6. If a second bump is required on the same day, stage [.brainbox/state/version-bump-override.txt](../state/version-bump-override.txt) with today's date and a reason, and proceed only because the user explicitly requested it.
 
 After a successful bump commit:
 
 1. Keep the last-bumped date file at today's date.
-2. Do not perform another bump on the same day unless the override path is used deliberately.
+2. Advance `Next Version` so it remains ahead of the committed `mod_version`.
+3. Do not perform another bump on the same day unless the override path is used deliberately.
 
 ## Enforcement Path
 
 The pre-commit hook runs a version-bump validator before the commit is accepted. That validator blocks commits when:
 
-- `mod_version` changes without a matching update to the last-bumped date file
-- the staged last-bumped date is not today
-- the previously committed last-bumped date is already today and no override is staged
+- the effective `Last Bumped Date` is not today
+- the state file does not contain a valid `Next Version`
+- a new-day commit does not perform a real `mod_version` bump
+- a bumped `mod_version` does not match the expected `Next Version`
+- bumped `mod_version` is not accompanied by an advanced `Next Version`
+- a second same-day bump is attempted without a valid override
 
 This makes the rule machine-enforced instead of "please remember not to do that again", which is how bugs get to laugh at us.
 

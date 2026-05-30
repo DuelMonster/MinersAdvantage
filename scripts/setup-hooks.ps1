@@ -19,4 +19,4 @@ git config --local core.hooksPath .githooks
 $configured = (git config --local --get core.hooksPath).Trim()
 Write-Host "Configured repository hooks path: $configured" -ForegroundColor Green
 Write-Host '✓ commit-msg hook: validates semantic commit format' -ForegroundColor Green
-Write-Host '✓ pre-commit hook: runs docs, version-bump, changelog, optimization, and compile-matrix validators' -ForegroundColor Green
+Write-Host '✓ pre-commit hook: runs version-bump, optimization, docs, compile-matrix, and changelog validators' -ForegroundColor Green

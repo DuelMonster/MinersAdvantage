@@ -53,8 +53,8 @@ if [[ ! -x "$compile_script" ]]; then
   chmod +x "$compile_script" 2>/dev/null || true
 fi
 
-"$docs_script"
 "$version_script"
 "$opt_script"
-"$changelog_script"
+"$docs_script"
 "$compile_script"
+"$changelog_script"

@@ -19,10 +19,8 @@ $requiredReadmeSections = @(
     '## Overview',
     '## Features',
     '## How It Works',
-    '## Supported Crops',
     '## Installation',
     '## Configuration',
-    '## Compatibility',
     '## Technical Documentation',
     '## License',
     '## Credits'

@@ -1,3 +1,11 @@
+## 0.9.0
+
+- Bump mod version to `0.9.0`, add `Next Version` state tracking, and advance the daily bump metadata.
+- Harden git hook version-bump enforcement to require a real version increase when advancing the daily bump date.
+- Require version bumps to match expected `Next Version` and force state `Next Version` to advance past the bumped version.
+- Reorder pre-commit validators to run in this sequence: version-bump, optimization, docs, compile-matrix, changelog.
+- Relax README section validation by no longer requiring `## Supported Crops` and `## Compatibility` headings.
+
 ## 0.8.0
 
 - Remove excavation single-layer mode, including keybind/state/sync wiring, and always use configured vertical radius.

@@ -32,17 +32,17 @@ if (-not (Test-Path $compileScript)) {
     exit 1
 }
 
-& $docsScript
-if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
 & $versionScript
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 & $optScript
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-& $changelogScript
+& $docsScript
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 & $compileScript
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+& $changelogScript
 exit $LASTEXITCODE

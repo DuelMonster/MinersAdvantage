@@ -9,4 +9,4 @@ chmod +x .githooks/pre-commit .githooks/commit-msg scripts/validate-docs.sh scri
 
 echo "Configured repository hooks path: $(git config --local --get core.hooksPath)"
 echo "✓ commit-msg hook: validates semantic commit format"
-echo "✓ pre-commit hook: runs docs, changelog, optimization, and compile-matrix validators"
+echo "✓ pre-commit hook: runs version-bump, optimization, docs, compile-matrix, and changelog validators"
