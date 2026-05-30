@@ -1150,7 +1150,7 @@ public final class ModEntry {
                         stack,
                         excavationIlluminationConfig,
                         playerState.selectedExcavationShapeIndex(),
-                        breakFace
+                        event.getFace()
                     )
                 );
             } else if (isFeatureEnabled(FeatureId.LUMBINATION)) {
