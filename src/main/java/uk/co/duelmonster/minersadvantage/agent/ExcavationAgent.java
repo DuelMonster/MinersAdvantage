@@ -16,6 +16,7 @@ import uk.co.duelmonster.minersadvantage.common.config.VeinationConfig;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 import uk.co.duelmonster.minersadvantage.common.Functions;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeContext;
+import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeDimensions;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeRegistry;
 import uk.co.duelmonster.minersadvantage.common.services.utility.VeinationRuntimeService;
 
@@ -181,15 +182,16 @@ public class ExcavationAgent extends Agent {
 
         this.allowedShapePositions = MAShapeRegistry.byIndex(FeatureId.EXCAVATION, selectedShapeIndex)
             .map(shapeDefinition -> {
+                MAShapeDimensions.Dimensions dimensions = MAShapeDimensions.excavationFromRadii(this.horizontalRadius, this.verticalRadius);
                 MAShapeContext context = new MAShapeContext(
                     world,
                     player,
                     origin,
                     hitFace == null ? player.getDirection() : hitFace,
                     player.getDirection(),
-                    (this.horizontalRadius * 2) + 1,
-                    (this.verticalRadius * 2) + 1,
-                    Math.max(1, this.horizontalRadius),
+                    dimensions.width(),
+                    dimensions.height(),
+                    dimensions.depth(),
                     this.blockLimit
                 );
                 Set<BlockPos> computed = shapeDefinition.compute(context);

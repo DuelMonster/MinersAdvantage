@@ -10,6 +10,7 @@
 - Add focused shape registry/bootstrap parity tests covering built-in counts, index wrapping, and idempotent initialization.
 - Add client keybind actions for Excavation/Shaftanation shape cycling and sync selected shape index changes to the server.
 - Add held-key client shape preview rendering and align NeoForge hold/sync behavior with Fabric shape-selection input flow.
+- Centralize shared shape dimension math for runtime and preview context building and add focused regression tests for that parity path.
 - Bump mod version to `0.9.0`, add `Next Version` state tracking, and advance the daily bump metadata.
 - Harden git hook version-bump enforcement to require a real version increase when advancing the daily bump date.
 - Require version bumps to match expected `Next Version` and force state `Next Version` to advance past the bumped version.

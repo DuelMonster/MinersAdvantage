@@ -13,6 +13,7 @@ import uk.co.duelmonster.minersadvantage.common.config.VeinationConfig;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 import uk.co.duelmonster.minersadvantage.common.log.LogUtils;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeContext;
+import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeDimensions;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeIds;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeRegistry;
 import uk.co.duelmonster.minersadvantage.common.services.utility.VeinationRuntimeService;
@@ -152,15 +153,16 @@ public class ShaftanationAgent extends Agent {
 
         var selectedShape = MAShapeRegistry.byIndex(FeatureId.SHAFTANATION, selectedShapeIndex);
         if (selectedShape.isPresent()) {
+            MAShapeDimensions.Dimensions dimensions = MAShapeDimensions.shaftFromConfig(this.shaftWidth, this.shaftHeight, this.targetDepth);
             MAShapeContext context = new MAShapeContext(
                 world,
                 player,
                 origin,
                 hitFace == null ? this.direction.getOpposite() : hitFace,
                 this.direction,
-                this.shaftWidth,
-                this.shaftHeight,
-                this.targetDepth,
+                dimensions.width(),
+                dimensions.height(),
+                dimensions.depth(),
                 this.blockLimit
             );
             for (BlockPos shapePos : selectedShape.get().compute(context)) {

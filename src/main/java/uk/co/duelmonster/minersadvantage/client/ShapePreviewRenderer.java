@@ -13,6 +13,7 @@ import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 import uk.co.duelmonster.minersadvantage.common.services.input.ClientInputService.ClientInputState;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeBootstrap;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeContext;
+import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeDimensions;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeRegistry;
 
 /**
@@ -51,15 +52,16 @@ public final class ShapePreviewRenderer {
 
         if (excavationPreview) {
             var excavation = MAServerRootConfig.defaults().excavation();
+            MAShapeDimensions.Dimensions dimensions = MAShapeDimensions.excavationFromRadii(excavation.radiusHorizontal(), excavation.radiusVertical());
             MAShapeContext context = new MAShapeContext(
                 minecraft.level,
                 player,
                 origin,
                 hitFace,
                 player.getDirection(),
-                (excavation.radiusHorizontal() * 2) + 1,
-                (excavation.radiusVertical() * 2) + 1,
-                Math.max(1, excavation.radiusHorizontal()),
+                dimensions.width(),
+                dimensions.height(),
+                dimensions.depth(),
                 MAX_PREVIEW_PARTICLES
             );
             MAShapeRegistry.byIndex(FeatureId.EXCAVATION, state.selectedExcavationShapeIndex())
@@ -68,15 +70,16 @@ public final class ShapePreviewRenderer {
 
         if (shaftPreview) {
             var shaft = MAServerRootConfig.defaults().shaftanation();
+            MAShapeDimensions.Dimensions dimensions = MAShapeDimensions.shaftFromConfig(shaft.shaftWidth(), shaft.shaftHeight(), shaft.maxDepth());
             MAShapeContext context = new MAShapeContext(
                 minecraft.level,
                 player,
                 origin,
                 hitFace,
                 player.getDirection(),
-                shaft.shaftWidth(),
-                shaft.shaftHeight(),
-                shaft.maxDepth(),
+                dimensions.width(),
+                dimensions.height(),
+                dimensions.depth(),
                 MAX_PREVIEW_PARTICLES
             );
             MAShapeRegistry.byIndex(FeatureId.SHAFTANATION, state.selectedShaftanationShapeIndex())
