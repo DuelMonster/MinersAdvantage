@@ -8,6 +8,7 @@
 - Wire Excavation and Shaftanation runtime agent dispatch to consume per-player selected shape indexes during execution.
 - Fix NeoForge left-click Excavation shape-face propagation so all compile matrix nodes build cleanly.
 - Add focused shape registry/bootstrap parity tests covering built-in counts, index wrapping, and idempotent initialization.
+- Add client keybind actions for Excavation/Shaftanation shape cycling and sync selected shape index changes to the server.
 - Bump mod version to `0.9.0`, add `Next Version` state tracking, and advance the daily bump metadata.
 - Harden git hook version-bump enforcement to require a real version increase when advancing the daily bump date.
 - Require version bumps to match expected `Next Version` and force state `Next Version` to advance past the bumped version.

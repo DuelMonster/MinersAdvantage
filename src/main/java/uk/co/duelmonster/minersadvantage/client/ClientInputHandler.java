@@ -68,11 +68,14 @@ public final class ClientInputHandler {
             case "KP_6" -> "key.keyboard.keypad.6";
             case "KP_7" -> "key.keyboard.keypad.7";
             case "KP_8" -> "key.keyboard.keypad.8";
+            case "KP_9" -> "key.keyboard.keypad.9";
+            case "KP_0" -> "key.keyboard.keypad.0";
             case "DELETE" -> "key.keyboard.delete";
             case "GRAVE" -> "key.keyboard.grave.accent";
             case "TAB" -> "key.keyboard.tab";
             case "LEFT_ALT" -> "key.keyboard.left.alt";
             case "V" -> "key.keyboard.v";
+            case "F11" -> "key.keyboard.f11";
             case "F12" -> "key.keyboard.f12";
             default -> throw new IllegalArgumentException("Unknown key token: " + token);
         };
@@ -204,7 +207,9 @@ public final class ClientInputHandler {
 
         boolean activationStateChanged =
             lastSyncedState.excavationToggled() != result.state().excavationToggled()
-                || lastSyncedState.shaftVentToggled() != result.state().shaftVentToggled();
+                || lastSyncedState.shaftVentToggled() != result.state().shaftVentToggled()
+                || lastSyncedState.selectedExcavationShapeIndex() != result.state().selectedExcavationShapeIndex()
+                || lastSyncedState.selectedShaftanationShapeIndex() != result.state().selectedShaftanationShapeIndex();
 
         if (activationStateChanged && (result.shouldSyncConfig() || result.shouldSyncVariables())) {
             long playerId = 0L;

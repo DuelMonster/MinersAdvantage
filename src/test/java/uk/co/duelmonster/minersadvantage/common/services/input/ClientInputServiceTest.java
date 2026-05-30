@@ -5,15 +5,22 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Set;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import uk.co.duelmonster.minersadvantage.client.KeyBindings.ClientAction;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
+import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeBootstrap;
 
 /**
  * ClientInputServiceTest keeps this part of Miners Advantage running without turning server ticks into confetti.
  * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
  */
 class ClientInputServiceTest {
+    @BeforeAll
+    static void bootstrapShapes() {
+        MAShapeBootstrap.ensureInitialized();
+    }
+
     @Test
     void togglesFeaturesAndRequestsSync() {
         ClientInputService service = new ClientInputService();
@@ -98,5 +105,59 @@ class ClientInputServiceTest {
         );
 
         assertTrue(result.state().shaftVentToggled());
+    }
+
+    @Test
+    void cyclesExcavationShapeIndexWithWrapAround() {
+        ClientInputService service = new ClientInputService();
+        ClientInputService.ClientInputState initial = ClientInputService.ClientInputState.defaults();
+
+        ClientInputService.ClientInputResult nextResult = service.process(
+            initial,
+            Set.of(ClientAction.EXCAVATION_SHAPE_NEXT),
+            false
+        );
+        assertEquals(1, nextResult.state().selectedExcavationShapeIndex());
+
+        ClientInputService.ClientInputState wrapStart = new ClientInputService.ClientInputState(
+            nextResult.state().featureEnabled(),
+            false,
+            false,
+            0,
+            0
+        );
+        ClientInputService.ClientInputResult prevResult = service.process(
+            wrapStart,
+            Set.of(ClientAction.EXCAVATION_SHAPE_PREV),
+            false
+        );
+        assertEquals(5, prevResult.state().selectedExcavationShapeIndex());
+    }
+
+    @Test
+    void cyclesShaftShapeIndexWithWrapAround() {
+        ClientInputService service = new ClientInputService();
+        ClientInputService.ClientInputState initial = ClientInputService.ClientInputState.defaults();
+
+        ClientInputService.ClientInputResult nextResult = service.process(
+            initial,
+            Set.of(ClientAction.SHAFTANATION_SHAPE_NEXT),
+            false
+        );
+        assertEquals(1, nextResult.state().selectedShaftanationShapeIndex());
+
+        ClientInputService.ClientInputState wrapStart = new ClientInputService.ClientInputState(
+            nextResult.state().featureEnabled(),
+            false,
+            false,
+            0,
+            0
+        );
+        ClientInputService.ClientInputResult prevResult = service.process(
+            wrapStart,
+            Set.of(ClientAction.SHAFTANATION_SHAPE_PREV),
+            false
+        );
+        assertEquals(2, prevResult.state().selectedShaftanationShapeIndex());
     }
 }

@@ -8,6 +8,7 @@ import java.util.Set;
 import uk.co.duelmonster.minersadvantage.client.KeyBindings.ClientAction;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 import uk.co.duelmonster.minersadvantage.common.network.ComponentTogglePacket;
+import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeRegistry;
 
 /**
  * ClientInputService keeps this part of Miners Advantage running without turning server ticks into confetti.
@@ -95,12 +96,32 @@ public final class ClientInputService {
         boolean shaftVentToggled = shaftEnabled && pressedActions.contains(ClientAction.SHAFT_VENT_TOGGLE);
         boolean illuminationEnabled = features.getOrDefault(FeatureId.ILLUMINATION, false);
 
+        int selectedExcavationShapeIndex = state.selectedExcavationShapeIndex();
+        if (excavationEnabled) {
+            selectedExcavationShapeIndex = cycleIndex(
+                selectedExcavationShapeIndex,
+                MAShapeRegistry.forFeature(FeatureId.EXCAVATION).size(),
+                pressedActions.contains(ClientAction.EXCAVATION_SHAPE_NEXT),
+                pressedActions.contains(ClientAction.EXCAVATION_SHAPE_PREV)
+            );
+        }
+
+        int selectedShaftanationShapeIndex = state.selectedShaftanationShapeIndex();
+        if (shaftEnabled) {
+            selectedShaftanationShapeIndex = cycleIndex(
+                selectedShaftanationShapeIndex,
+                MAShapeRegistry.forFeature(FeatureId.SHAFTANATION).size(),
+                pressedActions.contains(ClientAction.SHAFTANATION_SHAPE_NEXT),
+                pressedActions.contains(ClientAction.SHAFTANATION_SHAPE_PREV)
+            );
+        }
+
         ClientInputState nextState = new ClientInputState(
             features,
             excavationToggled,
             shaftVentToggled,
-            state.selectedExcavationShapeIndex(),
-            state.selectedShaftanationShapeIndex()
+            selectedExcavationShapeIndex,
+            selectedShaftanationShapeIndex
         );
         return new ClientInputResult(
             nextState,
@@ -126,5 +147,19 @@ public final class ClientInputService {
         boolean next = !features.getOrDefault(feature, false);
         features.put(feature, next);
         packets.add(new ComponentTogglePacket(feature, next));
+    }
+
+    private int cycleIndex(int currentIndex, int size, boolean nextPressed, boolean prevPressed) {
+        if (size <= 0) {
+            return 0;
+        }
+        int result = currentIndex;
+        if (nextPressed) {
+            result = Math.floorMod(result + 1, size);
+        }
+        if (prevPressed) {
+            result = Math.floorMod(result - 1, size);
+        }
+        return result;
     }
 }
