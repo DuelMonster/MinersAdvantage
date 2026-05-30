@@ -5,6 +5,7 @@
 - Add initial root-level Shape API addon guide and cross-link it from README and TECHNICAL documentation.
 - Publish the standalone `SHAPE_API.md` addon-authoring reference with quickstart and troubleshooting guidance.
 - Add built-in Excavation and Shaftanation shape processor implementations and bootstrap registration at core startup.
+- Wire Excavation and Shaftanation runtime agent dispatch to consume per-player selected shape indexes during execution.
 - Bump mod version to `0.9.0`, add `Next Version` state tracking, and advance the daily bump metadata.
 - Harden git hook version-bump enforcement to require a real version increase when advancing the daily bump date.
 - Require version bumps to match expected `Next Version` and force state `Next Version` to advance past the bumped version.

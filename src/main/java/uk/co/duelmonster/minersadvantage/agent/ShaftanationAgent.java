@@ -10,7 +10,11 @@ import uk.co.duelmonster.minersadvantage.common.config.CommonConfig;
 import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 import uk.co.duelmonster.minersadvantage.common.config.ShaftanationConfig;
 import uk.co.duelmonster.minersadvantage.common.config.VeinationConfig;
+import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 import uk.co.duelmonster.minersadvantage.common.log.LogUtils;
+import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeContext;
+import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeIds;
+import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeRegistry;
 import uk.co.duelmonster.minersadvantage.common.services.utility.VeinationRuntimeService;
 
 import java.util.Deque;
@@ -99,6 +103,34 @@ public class ShaftanationAgent extends Agent {
         VeinationConfig veinationConfig,
         ItemStack veinationTriggerTool
     ) {
+        this(
+            player,
+            origin,
+            direction,
+            config,
+            commonConfig,
+            torchLowestLightLevel,
+            veinationRuntime,
+            veinationConfig,
+            veinationTriggerTool,
+            0,
+            direction == null ? player.getDirection().getOpposite() : direction.getOpposite()
+        );
+    }
+
+    public ShaftanationAgent(
+        ServerPlayer player,
+        BlockPos origin,
+        Direction direction,
+        ShaftanationConfig config,
+        CommonConfig commonConfig,
+        int torchLowestLightLevel,
+        VeinationRuntimeService veinationRuntime,
+        VeinationConfig veinationConfig,
+        ItemStack veinationTriggerTool,
+        int selectedShapeIndex,
+        Direction hitFace
+    ) {
         super(player);
         this.origin = origin;
         this.direction = direction != null && direction.getAxis().isHorizontal() ? direction : player.getDirection();
@@ -117,6 +149,33 @@ public class ShaftanationAgent extends Agent {
         this.veinationRuntime = veinationRuntime;
         this.veinationConfig = veinationConfig;
         this.veinationTriggerTool = veinationTriggerTool == null ? ItemStack.EMPTY : veinationTriggerTool.copy();
+
+        var selectedShape = MAShapeRegistry.byIndex(FeatureId.SHAFTANATION, selectedShapeIndex);
+        if (selectedShape.isPresent()) {
+            MAShapeContext context = new MAShapeContext(
+                world,
+                player,
+                origin,
+                hitFace == null ? this.direction.getOpposite() : hitFace,
+                this.direction,
+                this.shaftWidth,
+                this.shaftHeight,
+                this.targetDepth,
+                this.blockLimit
+            );
+            for (BlockPos shapePos : selectedShape.get().compute(context)) {
+                queue.add(shapePos.immutable());
+            }
+
+            if (autoIlluminate && MAShapeIds.SHAFTANATION_SHAFT.equals(selectedShape.get().id())) {
+                int halfWidth = shaftWidth / 2;
+                BlockPos floorOrigin = new BlockPos(origin.getX(), player.blockPosition().getY(), origin.getZ());
+                for (int depth = 1; depth < targetDepth; depth++) {
+                    addTorchTargets(floorOrigin.relative(this.direction, depth), halfWidth);
+                }
+            }
+            return;
+        }
 
         int halfWidth = shaftWidth / 2;
         boolean alongZ = this.direction.getAxis() == Direction.Axis.Z;

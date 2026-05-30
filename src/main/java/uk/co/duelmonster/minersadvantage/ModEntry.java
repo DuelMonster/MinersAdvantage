@@ -212,7 +212,7 @@ public final class ModEntry implements ModInitializer {
                 } else {
                     LogUtils.logDebug("Block break trigger feature=Shaftanation player={} item={} block={} pos={} face={}", serverPlayer.getScoreboardName(), itemId, brokenBlockId, pos, breakFace == null ? "unknown" : breakFace);
                     if (!agentManager.hasAgentType(serverPlayer, ShaftanationAgent.class)) {
-                        agentManager.addAgent(serverPlayer, new ShaftanationAgent(serverPlayer, pos, serverPlayer.getDirection(), shaftanationConfig(serverPlayer), commonConfig(serverPlayer), illuminationConfig(serverPlayer).lowestLightLevel(), veinationRuntime, veinationConfig, stack));
+                        agentManager.addAgent(serverPlayer, new ShaftanationAgent(serverPlayer, pos, serverPlayer.getDirection(), shaftanationConfig(serverPlayer), commonConfig(serverPlayer), illuminationConfig(serverPlayer).lowestLightLevel(), veinationRuntime, veinationConfig, stack, playerState.selectedShaftanationShapeIndex(), breakFace));
                     }
                 }
             } else if (!shaftModeActive && excavationActive) {
@@ -233,7 +233,9 @@ public final class ModEntry implements ModInitializer {
                         veinationRuntime,
                         veinationConfig,
                         stack,
-                        excavationIlluminationConfig
+                        excavationIlluminationConfig,
+                        playerState.selectedExcavationShapeIndex(),
+                        consumeBreakFace(serverPlayer, pos)
                     )
                 );
             } else if (isFeatureEnabled(FeatureId.LUMBINATION)) {
@@ -312,7 +314,7 @@ public final class ModEntry implements ModInitializer {
                     AgentManager agentManager = AgentManager.get();
                     if (!agentManager.hasAgentType(serverPlayer, ShaftanationAgent.class)) {
                         VeinationConfig veinationConfig = veinationConfig(serverPlayer);
-                        agentManager.addAgent(serverPlayer, new ShaftanationAgent(serverPlayer, pos, serverPlayer.getDirection(), shaftanationConfig(serverPlayer), commonConfig(serverPlayer), illuminationConfig(serverPlayer).lowestLightLevel(), veinationRuntime, veinationConfig, stack));
+                        agentManager.addAgent(serverPlayer, new ShaftanationAgent(serverPlayer, pos, serverPlayer.getDirection(), shaftanationConfig(serverPlayer), commonConfig(serverPlayer), illuminationConfig(serverPlayer).lowestLightLevel(), veinationRuntime, veinationConfig, stack, playerState.selectedShaftanationShapeIndex(), face));
                     }
                 }
                 return InteractionResult.SUCCESS;
@@ -1012,7 +1014,7 @@ public final class ModEntry {
             } else {
                 AgentManager agentManager = AgentManager.get();
                 if (!agentManager.hasAgentType(serverPlayer, ShaftanationAgent.class)) {
-                    agentManager.addAgent(serverPlayer, new ShaftanationAgent(serverPlayer, pos, serverPlayer.getDirection(), shaftanationConfig(serverPlayer), commonConfig(serverPlayer), illuminationConfig(serverPlayer).lowestLightLevel(), veinationRuntime, veinationConfig, stack));
+                    agentManager.addAgent(serverPlayer, new ShaftanationAgent(serverPlayer, pos, serverPlayer.getDirection(), shaftanationConfig(serverPlayer), commonConfig(serverPlayer), illuminationConfig(serverPlayer).lowestLightLevel(), veinationRuntime, veinationConfig, stack, playerState.selectedShaftanationShapeIndex(), face));
                 }
             }
             return;
@@ -1128,7 +1130,7 @@ public final class ModEntry {
                 if (verticalFace) {
                     agentManager.addAgent(serverPlayer, new VentilationAgent(serverPlayer, event.getPos(), breakFace.getOpposite(), ventilationConfig(serverPlayer), commonConfig(serverPlayer), veinationRuntime, config, stack));
                 } else if (!agentManager.hasAgentType(serverPlayer, ShaftanationAgent.class)) {
-                    agentManager.addAgent(serverPlayer, new ShaftanationAgent(serverPlayer, event.getPos(), serverPlayer.getDirection(), shaftanationConfig(serverPlayer), commonConfig(serverPlayer), illuminationConfig(serverPlayer).lowestLightLevel(), veinationRuntime, config, stack));
+                    agentManager.addAgent(serverPlayer, new ShaftanationAgent(serverPlayer, event.getPos(), serverPlayer.getDirection(), shaftanationConfig(serverPlayer), commonConfig(serverPlayer), illuminationConfig(serverPlayer).lowestLightLevel(), veinationRuntime, config, stack, playerState.selectedShaftanationShapeIndex(), breakFace));
                 }
             } else if (!shaftModeActive && excavationActive) {
                 ExcavationConfig excavationConfig = excavationConfig(serverPlayer);
@@ -1146,7 +1148,9 @@ public final class ModEntry {
                         veinationRuntime,
                         config,
                         stack,
-                        excavationIlluminationConfig
+                        excavationIlluminationConfig,
+                        playerState.selectedExcavationShapeIndex(),
+                        breakFace
                     )
                 );
             } else if (isFeatureEnabled(FeatureId.LUMBINATION)) {

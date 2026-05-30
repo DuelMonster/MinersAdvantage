@@ -13,7 +13,10 @@ import uk.co.duelmonster.minersadvantage.common.config.ExcavationConfig;
 import uk.co.duelmonster.minersadvantage.common.config.IlluminationConfig;
 import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 import uk.co.duelmonster.minersadvantage.common.config.VeinationConfig;
+import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 import uk.co.duelmonster.minersadvantage.common.Functions;
+import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeContext;
+import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeRegistry;
 import uk.co.duelmonster.minersadvantage.common.services.utility.VeinationRuntimeService;
 
 import java.util.HashSet;
@@ -47,6 +50,7 @@ public class ExcavationAgent extends Agent {
     private int carvedMaxX;
     private int carvedMaxY;
     private int carvedMaxZ;
+    private final Set<BlockPos> allowedShapePositions;
     private int processed = 0;
 
     public ExcavationAgent(ServerPlayer player, BlockPos origin, int radius) {
@@ -127,6 +131,38 @@ public class ExcavationAgent extends Agent {
         ItemStack veinationTriggerTool,
         IlluminationConfig illuminationConfig
     ) {
+        this(
+            player,
+            origin,
+            originState,
+            config,
+            commonConfig,
+            horizontalRadius,
+            verticalRadius,
+            veinationRuntime,
+            veinationConfig,
+            veinationTriggerTool,
+            illuminationConfig,
+            0,
+            player == null ? null : player.getDirection()
+        );
+    }
+
+    public ExcavationAgent(
+        ServerPlayer player,
+        BlockPos origin,
+        BlockState originState,
+        ExcavationConfig config,
+        CommonConfig commonConfig,
+        int horizontalRadius,
+        int verticalRadius,
+        VeinationRuntimeService veinationRuntime,
+        VeinationConfig veinationConfig,
+        ItemStack veinationTriggerTool,
+        IlluminationConfig illuminationConfig,
+        int selectedShapeIndex,
+        net.minecraft.core.Direction hitFace
+    ) {
         super(player);
         this.origin = origin;
         this.originState = originState == null ? Blocks.AIR.defaultBlockState() : originState;
@@ -142,6 +178,28 @@ public class ExcavationAgent extends Agent {
         this.veinationRuntime = veinationRuntime;
         this.veinationConfig = veinationConfig;
         this.veinationTriggerTool = veinationTriggerTool == null ? ItemStack.EMPTY : veinationTriggerTool.copy();
+
+        this.allowedShapePositions = MAShapeRegistry.byIndex(FeatureId.EXCAVATION, selectedShapeIndex)
+            .map(shapeDefinition -> {
+                MAShapeContext context = new MAShapeContext(
+                    world,
+                    player,
+                    origin,
+                    hitFace == null ? player.getDirection() : hitFace,
+                    player.getDirection(),
+                    (this.horizontalRadius * 2) + 1,
+                    (this.verticalRadius * 2) + 1,
+                    Math.max(1, this.horizontalRadius),
+                    this.blockLimit
+                );
+                Set<BlockPos> computed = shapeDefinition.compute(context);
+                if (!computed.contains(origin)) {
+                    computed = new java.util.LinkedHashSet<>(computed);
+                    computed.add(origin.immutable());
+                }
+                return computed;
+            })
+            .orElse(null);
 
         String originBlockId = BuiltInRegistries.BLOCK.getKey(this.originState.getBlock()).toString();
         if (this.config.isBlacklisted(originBlockId)) {
@@ -233,6 +291,9 @@ public class ExcavationAgent extends Agent {
     }
 
     private boolean isWithinConfiguredRadius(BlockPos pos) {
+        if (allowedShapePositions != null) {
+            return allowedShapePositions.contains(pos);
+        }
         int dx = Math.abs(pos.getX() - origin.getX());
         int dy = Math.abs(pos.getY() - origin.getY());
         int dz = Math.abs(pos.getZ() - origin.getZ());
