@@ -5,7 +5,7 @@
 
 The original collection of components are still here however, they have just had minor name changes. All components have been re-developed from scratch, with the intention of greatly improving your Minecraft experience and to continue to make life easier...
 
-*My original inspiration was fueled by several well known mods; namely - VeinMiner, TreeCapitator, AutoSwitch & NEI's Magent Mode. My thanks and admiration still go out to their respective developers and I shall be forever grateful to them for inspiring me to develop my own mods.*
+*My original inspiration was fueled by several well known mods; namely - VeinMiner, TreeCapitator, AutoSwitch & NEI's Magent Mode. My thanks and admiration still go out to their respective developers and I shall be forever gratefulï¿½to them for inspiringï¿½me to develop my own mods.*
 
 Although the components and features list are, near enough, identical to SuperMiner, I felt that rather than releasing a new version, it warranted a complete name change due to the fact that only around 5% of the original code remains.
 
@@ -20,7 +20,7 @@ or
 
 ***
 ## Details
-**MAJOR** improvements in the way that blocks are harvested have been made in order to cure a very **nasty** bug that exists in SuperMiner which causes the client and/or server to crash. Due to the way SuperMiner was developed, it wasn't possible to solve the issue without a complete rewriting of the base code. There were also other areas that had become stagnant and difficult to improve upon.
+**MAJOR** improvements in the way that blocks are harvested have been made in order to cure a veryï¿½**nasty** bug that exists in SuperMiner which causes the client and/or server to crash. Due to the way SuperMiner was developed, it wasn't possible to solve the issue without a complete rewriting of the base code. There were also other areas that had become stagnant and difficult to improve upon.
 
 During this re-development I took the opportunity to add some additional features that were either on my personal todo list or had been suggested by some of SuperMiners users.
 
@@ -31,7 +31,7 @@ Some of these additions are as follows:
 - Huge multiplayer related improvements have been made to ensure that MinersAdvantage is much more server friendly than SuperMiner ever was.
 - Multi Threaded worker processes:
   - This means that you can use all of MinerAdvantages components without waiting for Minecraft to recover from the dreadful lag spikes that were present with SuperMiner.
-  - It also means that all MinerAdvantages components can be used simultaneously and executed multiple times without having to wait for one process to finish first.  If you want to dig a series of 2x1x64 sized strip mine with Shaftanation in the quickest time possible, MinerAdvantages will allow you to do it.
+  - It also means that all MinerAdvantages components can be used simultaneouslyï¿½and executed multipleï¿½times without having to wait for one process to finish first.ï¿½ If you want to dig a series of 2x1x64 sized strip mine with Shaftanation in the quickest time possible,ï¿½MinerAdvantages will allow you to do it.
   - These worker processes have been designed to respect which player initiated which component, ensuring a server will never get one area confused with another.
 - A players settings are synchronized with the server to ensure that custom options are respected per player and not confused with another players settings.
 - Servers are now able to ( *optionally* ) override what components can be used by the players:
@@ -64,7 +64,7 @@ Features:
 **Auto Hoe:** It is now really easy to till your land ready for crop growing. Just right click the dirt/grass with your Hoe as normal and Cropination will automagically till the ground for you. Only the areas that are in range of a water source are tilled. If no water source is found, the Hoe will just act as normal.
 
 **Auto Harvest:** When right clicking any plant-able crop with a Hoe, all mature crops will be harvested and replanted.
-An optional "Harvest Seeds" option is avaliable to allow you to gather seeds along with the mature crop.  This is turned off by default, meaning that only the crop will be dropped.
+An optional "Harvest Seeds" option is avaliable to allow you to gather seeds along with the mature crop.ï¿½ This is turned off by default, meaning that only the crop will be dropped.
 
 Features:
 - Automatically till an area of dirt that has a valid water source.
@@ -82,9 +82,6 @@ If you have Illumination enabled and the 'Auto Illuminate' option is switched on
 
 If you have Veination enabled and the 'Mine Ore Veins' option is switched on (default is off), then Excavation will tell Veination to mine the ore veins that are contained within the area being excavated.
 
-**Single Layer Excavation:** This feature allows you to excavate an area 1 level at a time.
-It uses the same block limit and radius to determine the area to excavate but will only dig at the height of the block initially destroyed. You are required to hold down a key while mining in order for it to work. Default button is the Backslash key - '**/**'
-
 **Pathanation:** This feature allows you to automatically path an area using the Path block.
 
 When holding the Excavation toggle key (default Grave ' ` ') and right clicking Grass ( or Dirt ) using a shovel, a path will be produced in the direction you are facing. Unlike the vanilla mechanic MinersAdvantage allows you to turn Dirt into Path blocks as well as Grass.
@@ -94,7 +91,7 @@ Length has a minimum of 3 blocks and maximum of 64 blocks.
 The path will be laid up/down hill, depending on the terrain, as long as the next block isn't more than 1 block higher or lower.
 
 Excavation also recognizes the different variations of Stone types (smooth, andesite, diorite, and granite).
-This makes it easier to go around your world collecting a particular stone type for you latest, awesome build.  An option is available to disable the variation detection, causing Excavation to harvest all stone types.
+This makes it easier to go around your world collecting a particular stone type for you latest, awesome build.ï¿½ An option is available to disable the variation detection, causing Excavation to harvest all stone types.
 
 _**Small Warning**: Keep an eye on your inventory space, as excavating will fill your inventory quickly..._
 
@@ -105,7 +102,7 @@ Features:
 - Customizable block radius.
 - Customizable Path width.
 - Customizable Path length.
-- Optional Stone variation detection.  Default is True.
+- Optional Stone variation detection.ï¿½ Default is True.
 - Works with Illumination to light the shaft.
 - Works with Veination to mine the ore veins that intersect the shaft.
 
@@ -121,12 +118,12 @@ A default keybinding of 'V' is available which allows Torches to be placed witho
 Features:
 
 - Customizable Lowest Light Level.
-- Torch placement keybind.  Default button is 'V'.
+- Torch placement keybind.ï¿½ Default button is 'V'.
 
 
 **Lumbination** - Chop down entire trees.**
 
-Lumbination allows you to chop down an entire tree just like you would in real life.  It intelligently tries to identify the whole tree based on the size of the trunk and it's branches.
+Lumbination allows you to chop down an entire tree just like you would in real life.ï¿½ It intelligently tries to identify the whole tree based on the size of the trunk and it's branches.
 You can define whether or not the whole tree will be chopped down when chopping it higher than the bottom block. The default is no, which will leave any blocks below the chopping point.
 
 Features:
