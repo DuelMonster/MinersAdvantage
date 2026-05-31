@@ -1,6 +1,7 @@
 package uk.co.duelmonster.minersadvantage.client;
 
 import java.util.Objects;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -81,11 +82,13 @@ public final class ShapePreviewRenderer {
         boolean excavationPreview =
             state.excavationToggled()
                 && state.featureEnabled().getOrDefault(FeatureId.EXCAVATION, false);
-        boolean shaftPreview =
+        boolean shaftVentPreview =
             state.shaftVentToggled()
                 && state.featureEnabled().getOrDefault(FeatureId.SHAFTANATION, false);
+        boolean shaftPreview = shaftVentPreview && blockHit.getDirection().getAxis().isHorizontal();
+        boolean ventilationPreview = shaftVentPreview && blockHit.getDirection().getAxis().isVertical();
 
-        if (!excavationPreview && !shaftPreview) {
+        if (!excavationPreview && !shaftPreview && !ventilationPreview) {
             return;
         }
 
@@ -154,6 +157,29 @@ public final class ShapePreviewRenderer {
                     cameraY,
                     cameraZ
                 ));
+        }
+
+        if (ventilationPreview) {
+            var ventilation = MAServerRootConfig.defaults().ventilation();
+            int ventDepth = Math.max(1, ventilation.height());
+            Direction ventDirection = hitFace == Direction.UP ? Direction.DOWN : Direction.UP;
+            Set<BlockPos> positions = new LinkedHashSet<>();
+            for (int depth = 0; depth < ventDepth && positions.size() < MAX_PREVIEW_BLOCKS; depth++) {
+                positions.add(origin.relative(ventDirection, depth).immutable());
+            }
+
+            renderOutline(
+                FeatureId.VENTILATION,
+                positions,
+                origin,
+                0,
+                new MAShapeDimensions.Dimensions(1, ventDepth, 1),
+                poseStack,
+                vertexConsumer,
+                cameraX,
+                cameraY,
+                cameraZ
+            );
         }
     }
 
