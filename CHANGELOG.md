@@ -3,6 +3,8 @@
 - Bump mod version to `0.10.0`, update daily bump metadata, and advance `Next Version` tracking to `0.11.0`.
 - Fix Fabric outline preview startup/runtime compatibility by replacing fragile `LevelRenderer` mixin targeting with a version-tolerant Fabric render event bridge.
 - Refine shape preview outline rendering by combining selected blocks into a merged voxel outline and drawing line passes against the combined shape.
+- Correct Excavation 3x3 targeting to use a strict one-layer plane oriented by the clicked face axis.
+- Add focused 3x3 orientation regression coverage for north/top/side face geometry expectations.
 
 ## 0.9.0
 
