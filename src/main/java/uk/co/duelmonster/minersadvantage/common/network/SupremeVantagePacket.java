@@ -6,7 +6,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
 /**
- * SupremeVantagePacket keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * SupremeVantagePacket keeps this part of MinersAdvantage running without turning server ticks into confetti.
  * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
  */
 public record SupremeVantagePacket(

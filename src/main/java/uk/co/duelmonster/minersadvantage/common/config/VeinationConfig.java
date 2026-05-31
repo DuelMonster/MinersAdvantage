@@ -3,7 +3,7 @@ package uk.co.duelmonster.minersadvantage.common.config;
 import java.util.List;
 
 /**
- * VeinationConfig keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * VeinationConfig keeps this part of MinersAdvantage running without turning server ticks into confetti.
  * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
  */
 public record VeinationConfig(

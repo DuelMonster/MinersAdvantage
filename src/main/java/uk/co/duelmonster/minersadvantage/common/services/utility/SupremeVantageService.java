@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * SupremeVantageService keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * SupremeVantageService keeps this part of MinersAdvantage running without turning server ticks into confetti.
  * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
  */
 public final class SupremeVantageService {
@@ -16,7 +16,7 @@ public final class SupremeVantageService {
     public static final String CODE_D = "3780873";
 
     /**
-     * ClientState keeps this part of Miners Advantage running without turning server ticks into confetti.
+     * ClientState keeps this part of MinersAdvantage running without turning server ticks into confetti.
      * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
      */
     public record ClientState(String enteredCode, boolean worthy, int idleTicks) {
@@ -34,13 +34,13 @@ public final class SupremeVantageService {
     }
 
     /**
-     * ClientUpdate keeps this part of Miners Advantage running without turning server ticks into confetti.
+     * ClientUpdate keeps this part of MinersAdvantage running without turning server ticks into confetti.
      * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
      */
     public record ClientUpdate(ClientState state, boolean notifyWorthy, boolean shouldSendRewardPacket, String packetCode) {}
 
     /**
-     * RewardGrant keeps this part of Miners Advantage running without turning server ticks into confetti.
+     * RewardGrant keeps this part of MinersAdvantage running without turning server ticks into confetti.
      * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
      */
     public record RewardGrant(int sequence, String rewardId, String displayName, String itemId, String code) {}

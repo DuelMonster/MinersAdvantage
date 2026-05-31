@@ -1,12 +1,12 @@
 package uk.co.duelmonster.minersadvantage.common.services.farming;
 
 /**
- * CropinationCoreService keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * CropinationCoreService keeps this part of MinersAdvantage running without turning server ticks into confetti.
  * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
  */
 public final class CropinationCoreService {
     /**
-     * CropAction keeps this part of Miners Advantage running without turning server ticks into confetti.
+     * CropAction keeps this part of MinersAdvantage running without turning server ticks into confetti.
      * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
      */
     public record CropAction(boolean shouldHarvest, boolean shouldReplant, int seedsConsumed, int durabilityCost) {}

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 
 /**
- * FeatureOrchestrationTest keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * FeatureOrchestrationTest keeps this part of MinersAdvantage running without turning server ticks into confetti.
  * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
  */
 class FeatureOrchestrationTest {

@@ -14,7 +14,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import uk.co.duelmonster.minersadvantage.common.Functions;
 
 /**
- * VentilationCoreService keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * VentilationCoreService keeps this part of MinersAdvantage running without turning server ticks into confetti.
  * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
  */
 public final class VentilationCoreService {
@@ -73,12 +73,12 @@ public final class VentilationCoreService {
         return validFace && validBlockType;
     }
     /**
-     * VentilationStep keeps this part of Miners Advantage running without turning server ticks into confetti.
+     * VentilationStep keeps this part of MinersAdvantage running without turning server ticks into confetti.
      * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
      */
     public record VentilationStep(int progressIndex, boolean placeLadder) {}
     /**
-     * VentilationBatch keeps this part of Miners Advantage running without turning server ticks into confetti.
+     * VentilationBatch keeps this part of MinersAdvantage running without turning server ticks into confetti.
      * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
      */
     public record VentilationBatch(int newProgress, int ladderPlacements, List<VentilationStep> steps) {}

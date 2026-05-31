@@ -5,12 +5,12 @@ import java.util.List;
 import uk.co.duelmonster.minersadvantage.common.registry.RegistryPredicates;
 
 /**
- * ExcavationCoreService keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * ExcavationCoreService keeps this part of MinersAdvantage running without turning server ticks into confetti.
  * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
  */
 public final class ExcavationCoreService {
     /**
-     * ExcavationTarget keeps this part of Miners Advantage running without turning server ticks into confetti.
+     * ExcavationTarget keeps this part of MinersAdvantage running without turning server ticks into confetti.
      * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
      */
     public record ExcavationTarget(int x, int y, int z, String operation) {}

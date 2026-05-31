@@ -29,7 +29,7 @@ import uk.co.duelmonster.minersadvantage.common.network.PlayerStateSyncPacket;
 import uk.co.duelmonster.minersadvantage.common.services.utility.TorchPlacement;
 
 /**
- * MinersAdvantageConfigScreen keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * MinersAdvantageConfigScreen keeps this part of MinersAdvantage running without turning server ticks into confetti.
  * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
  */
 public final class MinersAdvantageConfigScreen {
@@ -52,7 +52,7 @@ public final class MinersAdvantageConfigScreen {
         boolean gameplayEditable = isGameplayEditable();
         ConfigBuilder builder = ConfigBuilder.create()
             .setParentScreen(parent)
-            .setTitle(Component.literal("Miners Advantage"));
+            .setTitle(Component.literal("MinersAdvantage"));
         ConfigEntryBuilder entryBuilder = builder.entryBuilder();
 
         ConfigCategory generalCategory = builder.getOrCreateCategory(Component.literal("General"));
@@ -64,7 +64,7 @@ public final class MinersAdvantageConfigScreen {
                 mutable.disableParticleEffects
             )
             .setDefaultValue(currentClientConfig.client().disableParticleEffects())
-            .setTooltip(Component.literal("Disable Miners Advantage particle effects on this client only."))
+            .setTooltip(Component.literal("Disable MinersAdvantage particle effects on this client only."))
             .setSaveConsumer(value -> mutable.disableParticleEffects = value)
             .build());
 
@@ -371,7 +371,7 @@ public final class MinersAdvantageConfigScreen {
     private static Screen createClientConfigScreen(Screen parent, MutableConfig mutable, boolean gameplayEditable) {
         ConfigBuilder builder = ConfigBuilder.create()
             .setParentScreen(parent)
-            .setTitle(Component.literal("Miners Advantage - Client"));
+            .setTitle(Component.literal("MinersAdvantage - Client"));
         ConfigEntryBuilder entryBuilder = builder.entryBuilder();
         ConfigCategory clientCategory = builder.getOrCreateCategory(Component.literal("Client"));
 
@@ -380,7 +380,7 @@ public final class MinersAdvantageConfigScreen {
                 mutable.disableParticleEffects
             )
             .setDefaultValue(currentClientConfig.client().disableParticleEffects())
-            .setTooltip(Component.literal("Disable Miners Advantage particle effects on this client only."))
+            .setTooltip(Component.literal("Disable MinersAdvantage particle effects on this client only."))
             .setSaveConsumer(value -> mutable.disableParticleEffects = value)
             .build());
 
@@ -412,7 +412,7 @@ public final class MinersAdvantageConfigScreen {
     private static Screen createGeneralConfigScreen(Screen parent, MutableConfig mutable, boolean gameplayEditable) {
         ConfigBuilder builder = ConfigBuilder.create()
             .setParentScreen(parent)
-            .setTitle(Component.literal("Miners Advantage - General"));
+            .setTitle(Component.literal("MinersAdvantage - General"));
         ConfigEntryBuilder entryBuilder = builder.entryBuilder();
         ConfigCategory generalCategory = builder.getOrCreateCategory(Component.literal("General"));
 
@@ -441,7 +441,7 @@ public final class MinersAdvantageConfigScreen {
     private static Screen createFeatureConfigScreen(Screen parent, MutableConfig mutable, boolean gameplayEditable, String featureName, Consumer<List<AbstractConfigListEntry<?>>> featureEntries) {
         ConfigBuilder builder = ConfigBuilder.create()
             .setParentScreen(parent)
-            .setTitle(Component.literal("Miners Advantage - " + featureName));
+            .setTitle(Component.literal("MinersAdvantage - " + featureName));
         ConfigEntryBuilder entryBuilder = builder.entryBuilder();
         ConfigCategory category = builder.getOrCreateCategory(Component.literal(featureName));
 
@@ -1175,7 +1175,7 @@ public final class MinersAdvantageConfigScreen {
     }
 
     /**
-     * MutableConfig keeps this part of Miners Advantage running without turning server ticks into confetti.
+     * MutableConfig keeps this part of MinersAdvantage running without turning server ticks into confetti.
      * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
      */
     private static final class MutableConfig {

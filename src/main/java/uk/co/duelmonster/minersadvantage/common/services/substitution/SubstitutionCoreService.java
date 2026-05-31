@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * SubstitutionCoreService keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * SubstitutionCoreService keeps this part of MinersAdvantage running without turning server ticks into confetti.
  * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
  */
 public final class SubstitutionCoreService {
@@ -23,7 +23,7 @@ public final class SubstitutionCoreService {
     }
 
     /**
-     * ToolCandidate keeps this part of Miners Advantage running without turning server ticks into confetti.
+     * ToolCandidate keeps this part of MinersAdvantage running without turning server ticks into confetti.
      * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
      */
     public record ToolCandidate(
@@ -37,7 +37,7 @@ public final class SubstitutionCoreService {
     ) {}
 
     /**
-     * SubstitutionDecision keeps this part of Miners Advantage running without turning server ticks into confetti.
+     * SubstitutionDecision keeps this part of MinersAdvantage running without turning server ticks into confetti.
      * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
      */
     public record SubstitutionDecision(String selectedToolId, boolean switched, boolean switchBackToPrimary, String mode) {}

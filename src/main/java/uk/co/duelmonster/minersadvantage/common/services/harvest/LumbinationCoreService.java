@@ -13,7 +13,7 @@ import uk.co.duelmonster.minersadvantage.common.config.LumbinationConfig;
 import uk.co.duelmonster.minersadvantage.common.registry.RegistryPredicates;
 
 /**
- * LumbinationCoreService keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * LumbinationCoreService keeps this part of MinersAdvantage running without turning server ticks into confetti.
  * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
  */
 public final class LumbinationCoreService {
@@ -76,12 +76,12 @@ public final class LumbinationCoreService {
                 && config.axes().contains(Functions.getName(heldItem)));
     }
     /**
-     * LumbinationStep keeps this part of Miners Advantage running without turning server ticks into confetti.
+     * LumbinationStep keeps this part of MinersAdvantage running without turning server ticks into confetti.
      * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
      */
     public record LumbinationStep(String phase, int index) {}
     /**
-     * LumbinationPlan keeps this part of Miners Advantage running without turning server ticks into confetti.
+     * LumbinationPlan keeps this part of MinersAdvantage running without turning server ticks into confetti.
      * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
      */
     public record LumbinationPlan(int logsToHarvest, int leavesToClear, boolean replantSapling, List<LumbinationStep> steps) {}

@@ -12,7 +12,7 @@ import uk.co.duelmonster.minersadvantage.common.log.LogUtils;
  * Central facade for per-player and global config snapshots.
  */
 public class MAConfig_Base {
-    private static final Path CONFIG_DIR = Path.of(System.getProperty("user.dir"), "config", "minersadvantage");
+    private static final Path CONFIG_DIR = Path.of(System.getProperty("user.dir"), "config");
     private static final Map<UUID, SyncedClientConfig> PLAYER_CONFIGS = new ConcurrentHashMap<>();
     private static volatile MAClientRootConfig clientRootConfig = MAClientRootConfig.defaults();
     private static volatile MAServerRootConfig serverRootConfig = MAServerRootConfig.defaults();

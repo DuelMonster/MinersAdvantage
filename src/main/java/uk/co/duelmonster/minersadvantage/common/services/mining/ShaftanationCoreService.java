@@ -5,17 +5,17 @@ import java.util.List;
 import uk.co.duelmonster.minersadvantage.common.registry.RegistryPredicates;
 
 /**
- * ShaftanationCoreService keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * ShaftanationCoreService keeps this part of MinersAdvantage running without turning server ticks into confetti.
  * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
  */
 public final class ShaftanationCoreService {
     /**
-     * ShaftStep keeps this part of Miners Advantage running without turning server ticks into confetti.
+     * ShaftStep keeps this part of MinersAdvantage running without turning server ticks into confetti.
      * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
      */
     public record ShaftStep(int depth, boolean placeTorch) {}
     /**
-     * ShaftBatch keeps this part of Miners Advantage running without turning server ticks into confetti.
+     * ShaftBatch keeps this part of MinersAdvantage running without turning server ticks into confetti.
      * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
      */
     public record ShaftBatch(int newDepth, int torchPlacements, List<ShaftStep> steps) {}

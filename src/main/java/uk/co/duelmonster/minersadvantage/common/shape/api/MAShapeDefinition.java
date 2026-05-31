@@ -6,7 +6,7 @@ import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 import java.util.Set;
 
 /**
- * MAShapeDefinition describes one registerable shape exposed by Miners Advantage.
+ * MAShapeDefinition describes one registerable shape exposed by MinersAdvantage.
  */
 public record MAShapeDefinition(
     String id,

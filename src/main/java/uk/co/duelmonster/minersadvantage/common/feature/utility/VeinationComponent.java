@@ -9,7 +9,7 @@ import uk.co.duelmonster.minersadvantage.common.registry.RegistryPredicates;
 import uk.co.duelmonster.minersadvantage.common.services.utility.VeinationCoreService;
 
 /**
- * VeinationComponent keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * VeinationComponent keeps this part of MinersAdvantage running without turning server ticks into confetti.
  * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
  */
 public final class VeinationComponent implements ComponentLifecycle {

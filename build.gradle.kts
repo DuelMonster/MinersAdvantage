@@ -27,15 +27,15 @@ modstitch {
 
     metadata {
         modId = "minersadvantage"
-        modName = "Miners Advantage"
+        modName = "MinersAdvantage"
         modVersion = property("mod_version") as String
         modGroup = "uk.co.duelmonster"
         modAuthor = "DuelMonster"
         replacementProperties.putAll(
             mapOf(
                 "mod_id" to "minersadvantage",
-                "mod_name" to "Miners Advantage",
-                "mod_description" to "Modernized rewrite of Miners Advantage for Fabric and NeoForge.",
+                "mod_name" to "MinersAdvantage",
+                "mod_description" to "Modernized rewrite of MinersAdvantage for Fabric and NeoForge.",
                 "mod_license" to "MIT",
                 "mod_author" to "DuelMonster",
                 "mod_homepage" to "https://github.com/duelmonster/MinersAdvantage",

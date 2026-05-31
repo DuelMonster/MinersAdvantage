@@ -64,7 +64,7 @@ class MATomlConfigStoreTest {
     @Test
     void loadClampsOrFallsBackForInvalidValues() throws Exception {
         Files.writeString(
-            tempDir.resolve("server-config.toml"),
+            tempDir.resolve("minersadvantage-server-config.toml"),
             """
             veination.max_vein_distance = -100
             veination.harvest_time_modifier = 999
@@ -73,7 +73,7 @@ class MATomlConfigStoreTest {
             StandardCharsets.UTF_8
         );
         Files.writeString(
-            tempDir.resolve("client-config.toml"),
+            tempDir.resolve("minersadvantage-client-config.toml"),
             "disable_particle_effects = maybe",
             StandardCharsets.UTF_8
         );
@@ -86,8 +86,8 @@ class MATomlConfigStoreTest {
         assertFalse(loaded.client().disableParticleEffects());
 
         MATomlConfigStore.save(tempDir, loaded);
-        String writtenServer = Files.readString(tempDir.resolve("server-config.toml"), StandardCharsets.UTF_8);
-        String writtenClient = Files.readString(tempDir.resolve("client-config.toml"), StandardCharsets.UTF_8);
+        String writtenServer = Files.readString(tempDir.resolve("minersadvantage-server-config.toml"), StandardCharsets.UTF_8);
+        String writtenClient = Files.readString(tempDir.resolve("minersadvantage-client-config.toml"), StandardCharsets.UTF_8);
         // After clamping, we expect persisted values to reflect the corrected state, not the original nonsense input.
         assertTrue(writtenServer.contains("veination.max_vein_distance = 1"));
         assertTrue(writtenServer.contains("veination.harvest_time_modifier = 10.0"));

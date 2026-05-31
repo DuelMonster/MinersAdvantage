@@ -8,7 +8,7 @@ import uk.co.duelmonster.minersadvantage.common.config.PathanationConfig;
 import uk.co.duelmonster.minersadvantage.common.services.utility.PathanationCoreService;
 
 /**
- * PathanationComponent keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * PathanationComponent keeps this part of MinersAdvantage running without turning server ticks into confetti.
  * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
  */
 public final class PathanationComponent implements ComponentLifecycle {

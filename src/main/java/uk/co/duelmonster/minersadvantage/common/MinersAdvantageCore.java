@@ -56,7 +56,7 @@ import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeBootstrap;
 import uk.co.duelmonster.minersadvantage.common.services.utility.SupremeVantageService;
 
 /**
- * MinersAdvantageCore keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * MinersAdvantageCore keeps this part of MinersAdvantage running without turning server ticks into confetti.
  * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
  */
 public final class MinersAdvantageCore {

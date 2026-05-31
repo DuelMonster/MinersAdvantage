@@ -8,12 +8,12 @@ import uk.co.duelmonster.minersadvantage.common.config.SyncedClientConfig;
 import uk.co.duelmonster.minersadvantage.common.services.policy.PolicyCoreService;
 
 /**
- * SyncCoreService keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * SyncCoreService keeps this part of MinersAdvantage running without turning server ticks into confetti.
  * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
  */
 public final class SyncCoreService {
     /**
-     * PlayerSyncState keeps this part of Miners Advantage running without turning server ticks into confetti.
+     * PlayerSyncState keeps this part of MinersAdvantage running without turning server ticks into confetti.
      * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
      */
     public record PlayerSyncState(

@@ -5,7 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * ComponentRegistry keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * ComponentRegistry keeps this part of MinersAdvantage running without turning server ticks into confetti.
  * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
  */
 public final class ComponentRegistry {

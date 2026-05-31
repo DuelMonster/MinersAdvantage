@@ -16,7 +16,7 @@ import uk.co.duelmonster.minersadvantage.common.Functions;
 import uk.co.duelmonster.minersadvantage.common.registry.RegistryPredicates;
 
 /**
- * IlluminationCoreService keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * IlluminationCoreService keeps this part of MinersAdvantage running without turning server ticks into confetti.
  * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
  */
 public final class IlluminationCoreService {
@@ -106,7 +106,7 @@ public final class IlluminationCoreService {
         return validFace && validBlockType;
     }
     /**
-     * IlluminationDecision keeps this part of Miners Advantage running without turning server ticks into confetti.
+     * IlluminationDecision keeps this part of MinersAdvantage running without turning server ticks into confetti.
      * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
      */
     public record IlluminationDecision(

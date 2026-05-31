@@ -58,7 +58,7 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: "Miners Advantage v${{ steps.mod_version.outputs.mod_version }}"
+          name: "MinersAdvantage v${{ steps.mod_version.outputs.mod_version }}"
           files: releases/*.jar
           generate_release_notes: true
         env:

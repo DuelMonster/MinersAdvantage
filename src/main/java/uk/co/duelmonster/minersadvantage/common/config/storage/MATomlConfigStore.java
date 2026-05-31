@@ -28,8 +28,8 @@ import uk.co.duelmonster.minersadvantage.common.services.utility.TorchPlacement;
  * Stores MinersAdvantage config in split TOML files.
  */
 public final class MATomlConfigStore {
-    private static final String CLIENT_FILE_NAME = "client-config.toml";
-    private static final String SERVER_FILE_NAME = "server-config.toml";
+    private static final String CLIENT_FILE_NAME = "minersadvantage-client-config.toml";
+    private static final String SERVER_FILE_NAME = "minersadvantage-server-config.toml";
 
     /**
      * Utility class only.

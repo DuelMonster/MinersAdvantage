@@ -10,39 +10,39 @@ import uk.co.duelmonster.minersadvantage.common.services.core.PlayerStateService
 import uk.co.duelmonster.minersadvantage.common.services.drop.DropCoreService;
 
 /**
- * WorkerRuntimeService keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * WorkerRuntimeService keeps this part of MinersAdvantage running without turning server ticks into confetti.
  * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
  */
 public final class WorkerRuntimeService {
     /**
-     * WorkerHandle keeps this part of Miners Advantage running without turning server ticks into confetti.
+     * WorkerHandle keeps this part of MinersAdvantage running without turning server ticks into confetti.
      * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
      */
     public record WorkerHandle(UUID workerId, long playerId, FeatureId feature) {}
     /**
-     * AbortResult keeps this part of Miners Advantage running without turning server ticks into confetti.
+     * AbortResult keeps this part of MinersAdvantage running without turning server ticks into confetti.
      * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
      */
     public record AbortResult(int cancelledWorkers, int flushedDrops) {}
     /**
-     * DropSpawn keeps this part of Miners Advantage running without turning server ticks into confetti.
+     * DropSpawn keeps this part of MinersAdvantage running without turning server ticks into confetti.
      * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
      */
     public record DropSpawn(long playerId, String type, int amount) {}
     /**
-     * DropInterceptionResult keeps this part of Miners Advantage running without turning server ticks into confetti.
+     * DropInterceptionResult keeps this part of MinersAdvantage running without turning server ticks into confetti.
      * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
      */
     public record DropInterceptionResult(boolean capturedForGather, boolean spawnNow) {}
 
     /**
-     * WorkerTickResult keeps this part of Miners Advantage running without turning server ticks into confetti.
+     * WorkerTickResult keeps this part of MinersAdvantage running without turning server ticks into confetti.
      * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
      */
     public record WorkerTickResult(int processedActions, int completedWorkers, int pausedWorkers, int flushedDrops) {}
 
     /**
-     * ActiveWorker keeps this part of Miners Advantage running without turning server ticks into confetti.
+     * ActiveWorker keeps this part of MinersAdvantage running without turning server ticks into confetti.
      * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
      */
     private static final class ActiveWorker {

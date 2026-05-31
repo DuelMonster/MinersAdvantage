@@ -2,7 +2,7 @@
 
 ## Status
 
-This document defines the upcoming Miners Advantage Shape API contract for addon developers.
+This document defines the upcoming MinersAdvantage Shape API contract for addon developers.
 It describes the runtime registration model and geometry processing rules that addon shapes must follow.
 
 ## Scope
@@ -16,7 +16,7 @@ Ventilation behavior remains unchanged and is not currently extension-driven.
 
 ## Quickstart
 
-1. Add Miners Advantage as a compile dependency in your addon project.
+1. Add MinersAdvantage as a compile dependency in your addon project.
 2. Register your shapes during common mod initialization.
 3. Provide one definition and one processor for each shape.
 4. Use globally unique shape ids in `namespace:path` format.
@@ -106,7 +106,7 @@ public final class ExampleShapes {
 ### Id Rules
 
 - Use your addon mod id as namespace.
-- Never reuse built-in Miners Advantage ids.
+- Never reuse built-in MinersAdvantage ids.
 - Keep ids stable across releases once published.
 
 ### Geometry Rules
@@ -167,5 +167,5 @@ Check:
 
 ## Compatibility Notes
 
-This API is under active rollout while shape migration lands in Miners Advantage.
+This API is under active rollout while shape migration lands in MinersAdvantage.
 If method signatures evolve during rollout, this document will be updated with finalized interfaces and migration notes.

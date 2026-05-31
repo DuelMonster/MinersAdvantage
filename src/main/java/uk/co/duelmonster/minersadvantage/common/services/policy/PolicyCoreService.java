@@ -15,7 +15,7 @@ import uk.co.duelmonster.minersadvantage.common.config.VeinationConfig;
 import uk.co.duelmonster.minersadvantage.common.config.VentilationConfig;
 
 /**
- * PolicyCoreService keeps this part of Miners Advantage running without turning server ticks into confetti.
+ * PolicyCoreService keeps this part of MinersAdvantage running without turning server ticks into confetti.
  * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
  */
 public final class PolicyCoreService {
