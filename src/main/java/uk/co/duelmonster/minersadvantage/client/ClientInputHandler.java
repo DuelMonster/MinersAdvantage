@@ -18,7 +18,11 @@ import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.BlockHitResult;
+import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
+import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeBootstrap;
+import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeRegistry;
 //?} else {
 /*
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
@@ -179,10 +183,12 @@ public final class ClientInputHandler {
         // Why this exists: Process input state machine (future-you will thank present-you).
         // Why this exists: Hold-mode remains the default here until a dedicated local toggle setting is introduced. (future-you will thank present-you).
         boolean excavationToggleMode = false;
+        ClientInputService.ClientInputState previousState = inputState;
         ClientInputService.ClientInputResult result = new ClientInputService().process(inputState, pressedSet, excavationToggleMode);
 
         // Why this exists: Update state (future-you will thank present-you).
         inputState = result.state();
+        showShapeHudIfChangedOrActivated(previousState, inputState);
 
         // Why this exists: Send component toggle packets to the server. (future-you will thank present-you).
         for (ComponentTogglePacket packet : result.togglePackets()) {
@@ -243,9 +249,44 @@ public final class ClientInputHandler {
         }
 
         ClientInputService.ClientInputResult scrollResult = new ClientInputService().process(inputState, actions, false);
+        ClientInputService.ClientInputState previousState = inputState;
         inputState = scrollResult.state();
+        showShapeHudIfChangedOrActivated(previousState, inputState);
         syncStateToServer(inputState);
         return true;
+    }
+
+    private static void showShapeHudIfChangedOrActivated(ClientInputService.ClientInputState previous, ClientInputService.ClientInputState current) {
+        boolean excavationChanged = previous.selectedExcavationShapeIndex() != current.selectedExcavationShapeIndex();
+        boolean shaftChanged = previous.selectedShaftanationShapeIndex() != current.selectedShaftanationShapeIndex();
+        boolean excavationActivated = !previous.excavationToggled() && current.excavationToggled();
+        boolean shaftActivated = !previous.shaftVentToggled() && current.shaftVentToggled();
+        if (!excavationChanged && !shaftChanged && !excavationActivated && !shaftActivated) {
+            return;
+        }
+
+        MAShapeBootstrap.ensureInitialized();
+        StringBuilder message = new StringBuilder();
+        if (excavationChanged || excavationActivated) {
+            String excavationName = MAShapeRegistry.byIndex(FeatureId.EXCAVATION, current.selectedExcavationShapeIndex())
+                .map(shape -> shape.displayName())
+                .orElse("#" + current.selectedExcavationShapeIndex());
+            message.append("Excavation Shape: ").append(excavationName);
+        }
+        if (shaftChanged || shaftActivated) {
+            String shaftName = MAShapeRegistry.byIndex(FeatureId.SHAFTANATION, current.selectedShaftanationShapeIndex())
+                .map(shape -> shape.displayName())
+                .orElse("#" + current.selectedShaftanationShapeIndex());
+            if (!message.isEmpty()) {
+                message.append(" | ");
+            }
+            message.append("Shaft Shape: ").append(shaftName);
+        }
+
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.gui != null) {
+            minecraft.gui.setOverlayMessage(Component.literal(message.toString()), false);
+        }
     }
 
     private static void syncStateToServer(ClientInputService.ClientInputState state) {
