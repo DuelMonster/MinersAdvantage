@@ -28,3 +28,8 @@ CurseForge.md
 related_mods/
 releases/
 versions/
+!versions/
+versions/*
+!versions/*/
+versions/*/**
+!versions/*/gradle.properties
