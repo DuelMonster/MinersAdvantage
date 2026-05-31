@@ -136,9 +136,9 @@ public class ShaftanationAgent extends Agent {
         this.origin = origin;
         this.direction = direction != null && direction.getAxis().isHorizontal() ? direction : player.getDirection();
         this.config = config == null ? MAServerRootConfig.defaults().shaftanation() : config;
-        this.targetDepth = Math.max(1, this.config.maxDepth());
-        this.shaftWidth = Math.max(1, this.config.shaftWidth());
-        this.shaftHeight = Math.max(1, this.config.shaftHeight());
+        this.targetDepth = Math.max(1, this.config.depth());
+        this.shaftWidth = Math.max(1, this.config.width());
+        this.shaftHeight = Math.max(1, this.config.height());
 
         int globalBlocksPerTick = commonConfig == null ? 1 : Math.max(1, commonConfig.blocksPerTick());
         this.blocksPerTick = Math.max(1, Math.min(globalBlocksPerTick, this.config.processesPerTick()));

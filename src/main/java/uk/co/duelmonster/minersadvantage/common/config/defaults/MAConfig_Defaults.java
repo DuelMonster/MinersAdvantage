@@ -93,8 +93,9 @@ public final class MAConfig_Defaults {
      */
     public static final class Excavation {
         public static final boolean enabled = true;
-        public static final int radiusHorizontal = 3;
-        public static final int radiusVertical = 2;
+        public static final int width = 3;
+        public static final int height = 3;
+        public static final int depth = 3;
         public static final int processesPerTick = 10;
         public static final boolean toggleMode = false;
         public static final boolean ignoreBlockVariants = false;
@@ -150,10 +151,10 @@ public final class MAConfig_Defaults {
      */
     public static final class Shaftanation {
         public static final boolean enabled = true;
-        public static final int maxDepth = 16;
         public static final int processesPerTick = 10;
-        public static final int shaftWidth = 1;
-        public static final int shaftHeight = 2;
+        public static final int width = 1;
+        public static final int height = 2;
+        public static final int depth = 16;
         public static final TorchPlacement torchPlacement = TorchPlacement.FLOOR;
     }
 
@@ -194,8 +195,9 @@ public final class MAConfig_Defaults {
      */
     public static final class Ventilation {
         public static final boolean enabled = true;
-        public static final int radiusHorizontal = 1;
-        public static final int radiusVertical = 16;
+        public static final int width = 1;
+        public static final int height = 16;
+        public static final int depth = 1;
         public static final int processesPerTick = 8;
         public static final boolean placeLadders = true;
     }

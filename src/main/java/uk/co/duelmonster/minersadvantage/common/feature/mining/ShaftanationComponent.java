@@ -107,7 +107,7 @@ public final class ShaftanationComponent implements ComponentLifecycle {
 
         var context = ComponentTickHelper.getContext();
         if (service.isStone(context.blockId())) {
-            lastBatch = service.buildBatch(progressDepth, config.maxDepth(), config.processesPerTick());
+            lastBatch = service.buildBatch(progressDepth, config.depth(), config.processesPerTick());
             progressDepth = lastBatch.newDepth();
         }
     }

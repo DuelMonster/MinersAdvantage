@@ -107,7 +107,7 @@ public final class VentilationComponent implements ComponentLifecycle {
 
         var context = ComponentTickHelper.getContext();
         if (service.isCave(64, context.blockY())) {
-            lastBatch = service.buildBatch(progress, config.radiusHorizontal(), config.radiusVertical(), config.processesPerTick());
+            lastBatch = service.buildBatch(progress, config.width(), config.height(), config.depth(), config.processesPerTick());
             progress = lastBatch.newProgress();
         }
     }

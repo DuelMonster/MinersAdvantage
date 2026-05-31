@@ -93,22 +93,23 @@ public final class VentilationCoreService {
      * estimatedTurnsToVentilate exists so this code path does one job clearly instead of spreading chaos across callers.
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
-    public int estimatedTurnsToVentilate(int radiusHorizontal, int radiusVertical) {
-        int volume = (2 * radiusHorizontal + 1) * (2 * radiusHorizontal + 1) * (2 * radiusVertical + 1);
+    public int estimatedTurnsToVentilate(int width, int height, int depth) {
+        int volume = Math.max(1, width) * Math.max(1, height) * Math.max(1, depth);
         return volume / 2;
     }
 
     public VentilationBatch buildBatch(
         int currentProgress,
-        int radiusHorizontal,
-        int radiusVertical,
+        int width,
+        int height,
+        int depth,
         int processesPerTick
     ) {
         if (processesPerTick <= 0) {
             return new VentilationBatch(currentProgress, 0, List.of());
         }
 
-        int targetTurns = estimatedTurnsToVentilate(radiusHorizontal, radiusVertical);
+        int targetTurns = estimatedTurnsToVentilate(width, height, depth);
         int newProgress = Math.min(targetTurns, currentProgress + processesPerTick);
         int ladderPlacements = 0;
         List<VentilationStep> steps = new ArrayList<>();

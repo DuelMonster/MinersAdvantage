@@ -75,8 +75,9 @@ public final class MATomlConfigStore {
             ),
             new ExcavationConfig(
                 boolValue(serverValues, "excavation.enabled", fallback.excavation().enabled()),
-                intValue(serverValues, "excavation.radius_horizontal", fallback.excavation().radiusHorizontal(), 1, 64),
-                intValue(serverValues, "excavation.radius_vertical", fallback.excavation().radiusVertical(), 1, 64),
+                intValue(serverValues, "excavation.width", fallback.excavation().width(), 1, 127),
+                intValue(serverValues, "excavation.height", fallback.excavation().height(), 1, 127),
+                intValue(serverValues, "excavation.depth", fallback.excavation().depth(), 1, 64),
                 intValue(serverValues, "excavation.processes_per_tick", fallback.excavation().processesPerTick(), 1, 512),
                 boolValue(serverValues, "excavation.toggle_mode", fallback.excavation().toggleMode()),
                 boolValue(serverValues, "excavation.ignore_block_variants", fallback.excavation().ignoreBlockVariants()),
@@ -112,10 +113,10 @@ public final class MATomlConfigStore {
             ),
             new ShaftanationConfig(
                 boolValue(serverValues, "shaftanation.enabled", fallback.shaftanation().enabled()),
-                intValue(serverValues, "shaftanation.max_depth", fallback.shaftanation().maxDepth(), 1, 256),
+                intValue(serverValues, "shaftanation.depth", fallback.shaftanation().depth(), 1, 256),
                 intValue(serverValues, "shaftanation.processes_per_tick", fallback.shaftanation().processesPerTick(), 1, 512),
-                intValue(serverValues, "shaftanation.shaft_width", fallback.shaftanation().shaftWidth(), 1, 7),
-                intValue(serverValues, "shaftanation.shaft_height", fallback.shaftanation().shaftHeight(), 1, 5),
+                intValue(serverValues, "shaftanation.width", fallback.shaftanation().width(), 1, 7),
+                intValue(serverValues, "shaftanation.height", fallback.shaftanation().height(), 1, 5),
                 torchPlacementValue(serverValues, "shaftanation.torch_placement", fallback.shaftanation().torchPlacement())
             ),
             new SubstitutionConfig(
@@ -141,8 +142,9 @@ public final class MATomlConfigStore {
             ),
             new VentilationConfig(
                 boolValue(serverValues, "ventilation.enabled", fallback.ventilation().enabled()),
-                intValue(serverValues, "ventilation.radius_horizontal", fallback.ventilation().radiusHorizontal(), 1, 32),
-                intValue(serverValues, "ventilation.radius_vertical", fallback.ventilation().radiusVertical(), 1, 64),
+                intValue(serverValues, "ventilation.width", fallback.ventilation().width(), 1, 32),
+                intValue(serverValues, "ventilation.height", fallback.ventilation().height(), 1, 64),
+                intValue(serverValues, "ventilation.depth", fallback.ventilation().depth(), 1, 64),
                 intValue(serverValues, "ventilation.processes_per_tick", fallback.ventilation().processesPerTick(), 1, 512),
                 boolValue(serverValues, "ventilation.place_ladders", fallback.ventilation().placeLadders())
             )
@@ -183,8 +185,9 @@ public final class MATomlConfigStore {
         serverValues.put("cultivation.hydration_distance", formatTomlValue(value.cultivation().hydrationDistance()));
 
         serverValues.put("excavation.enabled", formatTomlValue(value.excavation().enabled()));
-        serverValues.put("excavation.radius_horizontal", formatTomlValue(value.excavation().radiusHorizontal()));
-        serverValues.put("excavation.radius_vertical", formatTomlValue(value.excavation().radiusVertical()));
+        serverValues.put("excavation.width", formatTomlValue(value.excavation().width()));
+        serverValues.put("excavation.height", formatTomlValue(value.excavation().height()));
+        serverValues.put("excavation.depth", formatTomlValue(value.excavation().depth()));
         serverValues.put("excavation.processes_per_tick", formatTomlValue(value.excavation().processesPerTick()));
         serverValues.put("excavation.toggle_mode", formatTomlValue(value.excavation().toggleMode()));
         serverValues.put("excavation.ignore_block_variants", formatTomlValue(value.excavation().ignoreBlockVariants()));
@@ -216,10 +219,10 @@ public final class MATomlConfigStore {
         serverValues.put("lumbination.axes", formatTomlValue(value.lumbination().axes()));
 
         serverValues.put("shaftanation.enabled", formatTomlValue(value.shaftanation().enabled()));
-        serverValues.put("shaftanation.max_depth", formatTomlValue(value.shaftanation().maxDepth()));
+        serverValues.put("shaftanation.depth", formatTomlValue(value.shaftanation().depth()));
         serverValues.put("shaftanation.processes_per_tick", formatTomlValue(value.shaftanation().processesPerTick()));
-        serverValues.put("shaftanation.shaft_width", formatTomlValue(value.shaftanation().shaftWidth()));
-        serverValues.put("shaftanation.shaft_height", formatTomlValue(value.shaftanation().shaftHeight()));
+        serverValues.put("shaftanation.width", formatTomlValue(value.shaftanation().width()));
+        serverValues.put("shaftanation.height", formatTomlValue(value.shaftanation().height()));
         serverValues.put("shaftanation.torch_placement", formatTomlValue(value.shaftanation().torchPlacement().name()));
 
         serverValues.put("substitution.enabled", formatTomlValue(value.substitution().enabled()));
@@ -241,8 +244,9 @@ public final class MATomlConfigStore {
         serverValues.put("veination.pickaxe_blacklist", formatTomlValue(value.veination().pickaxeBlacklist()));
 
         serverValues.put("ventilation.enabled", formatTomlValue(value.ventilation().enabled()));
-        serverValues.put("ventilation.radius_horizontal", formatTomlValue(value.ventilation().radiusHorizontal()));
-        serverValues.put("ventilation.radius_vertical", formatTomlValue(value.ventilation().radiusVertical()));
+        serverValues.put("ventilation.width", formatTomlValue(value.ventilation().width()));
+        serverValues.put("ventilation.height", formatTomlValue(value.ventilation().height()));
+        serverValues.put("ventilation.depth", formatTomlValue(value.ventilation().depth()));
         serverValues.put("ventilation.processes_per_tick", formatTomlValue(value.ventilation().processesPerTick()));
         serverValues.put("ventilation.place_ladders", formatTomlValue(value.ventilation().placeLadders()));
 

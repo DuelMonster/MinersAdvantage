@@ -108,8 +108,9 @@ public final class PolicyCoreService {
     private ExcavationConfig sanitizeExcavation(ExcavationConfig selected) {
         return new ExcavationConfig(
             selected.enabled(),
-            clampRange(selected.radiusHorizontal(), 1, 8),
-            clampRange(selected.radiusVertical(), 0, 8),
+            clampRange(selected.width(), 1, 17),
+            clampRange(selected.height(), 1, 17),
+            clampRange(selected.depth(), 1, 8),
             clampRange(selected.processesPerTick(), 1, 64),
             selected.toggleMode(),
             selected.ignoreBlockVariants(),
@@ -173,10 +174,10 @@ public final class PolicyCoreService {
     private ShaftanationConfig sanitizeShaftanation(ShaftanationConfig selected) {
         return new ShaftanationConfig(
             selected.enabled(),
-            clampRange(selected.maxDepth(), 1, 128),
+            clampRange(selected.depth(), 1, 128),
             clampRange(selected.processesPerTick(), 1, 64),
-            clampRange(selected.shaftWidth(), 1, 5),
-            clampRange(selected.shaftHeight(), 1, 5),
+            clampRange(selected.width(), 1, 5),
+            clampRange(selected.height(), 1, 5),
             selected.torchPlacement()
         );
     }
@@ -223,8 +224,9 @@ public final class PolicyCoreService {
     private VentilationConfig sanitizeVentilation(VentilationConfig selected) {
         return new VentilationConfig(
             selected.enabled(),
-            clampRange(selected.radiusHorizontal(), 1, 8),
-            clampRange(selected.radiusVertical(), 1, 64),
+            clampRange(selected.width(), 1, 8),
+            clampRange(selected.height(), 1, 64),
+            clampRange(selected.depth(), 1, 8),
             clampRange(selected.processesPerTick(), 1, 64),
             selected.placeLadders()
         );

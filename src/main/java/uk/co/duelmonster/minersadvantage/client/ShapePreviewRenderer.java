@@ -96,7 +96,11 @@ public final class ShapePreviewRenderer {
 
         if (excavationPreview) {
             var excavation = MAServerRootConfig.defaults().excavation();
-            MAShapeDimensions.Dimensions dimensions = MAShapeDimensions.excavationFromRadii(excavation.radiusHorizontal(), excavation.radiusVertical());
+            MAShapeDimensions.Dimensions dimensions = MAShapeDimensions.excavationFromConfig(
+                excavation.width(),
+                excavation.height(),
+                excavation.depth()
+            );
             MAShapeContext context = new MAShapeContext(
                 minecraft.level,
                 player,
@@ -125,7 +129,7 @@ public final class ShapePreviewRenderer {
 
         if (shaftPreview) {
             var shaft = MAServerRootConfig.defaults().shaftanation();
-            MAShapeDimensions.Dimensions dimensions = MAShapeDimensions.shaftFromConfig(shaft.shaftWidth(), shaft.shaftHeight(), shaft.maxDepth());
+            MAShapeDimensions.Dimensions dimensions = MAShapeDimensions.shaftFromConfig(shaft.width(), shaft.height(), shaft.depth());
             MAShapeContext context = new MAShapeContext(
                 minecraft.level,
                 player,

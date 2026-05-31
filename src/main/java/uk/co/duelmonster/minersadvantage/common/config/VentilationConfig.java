@@ -6,8 +6,9 @@ package uk.co.duelmonster.minersadvantage.common.config;
  */
 public record VentilationConfig(
     boolean enabled,
-    int radiusHorizontal,
-    int radiusVertical,
+    int width,
+    int height,
+    int depth,
     int processesPerTick,
     boolean placeLadders
 ) {
@@ -15,7 +16,7 @@ public record VentilationConfig(
      * VentilationConfig exists so this code path does one job clearly instead of spreading chaos across callers.
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
-    public VentilationConfig(boolean enabled, int radiusHorizontal, int radiusVertical, int processesPerTick) {
-        this(enabled, radiusHorizontal, radiusVertical, processesPerTick, true);
+    public VentilationConfig(boolean enabled, int width, int height, int depth, int processesPerTick) {
+        this(enabled, width, height, depth, processesPerTick, true);
     }
 }

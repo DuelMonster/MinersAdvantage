@@ -35,8 +35,8 @@ public final class ExcavationCoreService {
      * estimatedTurnsToExcavate exists so this code path does one job clearly instead of spreading chaos across callers.
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
-    public int estimatedTurnsToExcavate(int radiusHorizontal, int radiusVertical) {
-        int volume = (2 * radiusHorizontal + 1) * (2 * radiusHorizontal + 1) * (2 * radiusVertical + 1);
+    public int estimatedTurnsToExcavate(int width, int height, int depth) {
+        int volume = Math.max(1, width) * Math.max(1, height) * Math.max(1, depth);
         return volume;
     }
 
@@ -45,8 +45,9 @@ public final class ExcavationCoreService {
         int originY,
         int originZ,
         String blockId,
-        int radiusHorizontal,
-        int radiusVertical,
+        int width,
+        int height,
+        int depth,
         int maxTargets
     ) {
         if (!isBlock(blockId) || maxTargets <= 0) {
@@ -57,7 +58,7 @@ public final class ExcavationCoreService {
             return buildVeinPlan(originX, originY, originZ, maxTargets);
         }
 
-        return buildAreaPlan(originX, originY, originZ, radiusHorizontal, radiusVertical, maxTargets);
+        return buildAreaPlan(originX, originY, originZ, width, height, depth, maxTargets);
     }
 
     /**
@@ -88,14 +89,18 @@ public final class ExcavationCoreService {
         int originX,
         int originY,
         int originZ,
-        int radiusHorizontal,
-        int radiusVertical,
+        int width,
+        int height,
+        int depth,
         int maxTargets
     ) {
+        int halfWidth = Math.max(0, width / 2);
+        int halfHeight = Math.max(0, height / 2);
+        int halfDepth = Math.max(0, depth / 2);
         List<ExcavationTarget> targets = new ArrayList<>();
-        for (int y = -radiusVertical; y <= radiusVertical && targets.size() < maxTargets; y++) {
-            for (int x = -radiusHorizontal; x <= radiusHorizontal && targets.size() < maxTargets; x++) {
-                for (int z = -radiusHorizontal; z <= radiusHorizontal && targets.size() < maxTargets; z++) {
+        for (int y = -halfHeight; y <= halfHeight && targets.size() < maxTargets; y++) {
+            for (int x = -halfWidth; x <= halfWidth && targets.size() < maxTargets; x++) {
+                for (int z = -halfDepth; z <= halfDepth && targets.size() < maxTargets; z++) {
                     targets.add(new ExcavationTarget(originX + x, originY + y, originZ + z, "excavate"));
                 }
             }

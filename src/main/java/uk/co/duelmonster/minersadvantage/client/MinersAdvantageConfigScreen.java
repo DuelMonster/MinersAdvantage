@@ -573,9 +573,10 @@ public final class MinersAdvantageConfigScreen {
             addGameplayBoolean(entries, entryBuilder, "Enabled", "Enable or disable Excavation.", mutable.excavationEnabled, currentServerConfig.excavation().enabled(), gameplayEditable, value -> mutable.excavationEnabled = value);
             addGameplayBoolean(entries, entryBuilder, "Toggle Mode", "Use Excavation as a toggle instead of hold behavior.", mutable.excavationToggleMode, currentServerConfig.excavation().toggleMode(), gameplayEditable, value -> mutable.excavationToggleMode = value);
             addGameplayBoolean(entries, entryBuilder, "Ignore Block Variants", "Ignore state variants when matching excavation targets.", mutable.excavationIgnoreBlockVariants, currentServerConfig.excavation().ignoreBlockVariants(), gameplayEditable, value -> mutable.excavationIgnoreBlockVariants = value);
-            addSectionHeading(entries, entryBuilder, "Range");
-            addGameplayInt(entries, entryBuilder, "Horizontal Radius", "Horizontal excavation radius.", mutable.excavationRadiusHorizontal, currentServerConfig.excavation().radiusHorizontal(), 1, 64, gameplayEditable, value -> mutable.excavationRadiusHorizontal = value);
-            addGameplayInt(entries, entryBuilder, "Vertical Radius", "Vertical excavation radius.", mutable.excavationRadiusVertical, currentServerConfig.excavation().radiusVertical(), 1, 64, gameplayEditable, value -> mutable.excavationRadiusVertical = value);
+            addSectionHeading(entries, entryBuilder, "Dimensions");
+            addGameplayInt(entries, entryBuilder, "Width", "Excavation width in blocks.", mutable.excavationRadiusHorizontal, currentServerConfig.excavation().width(), 1, 127, gameplayEditable, value -> mutable.excavationRadiusHorizontal = value);
+            addGameplayInt(entries, entryBuilder, "Height", "Excavation height in blocks.", mutable.excavationRadiusVertical, currentServerConfig.excavation().height(), 1, 127, gameplayEditable, value -> mutable.excavationRadiusVertical = value);
+            addGameplayInt(entries, entryBuilder, "Depth", "Excavation depth in blocks.", mutable.excavationDepth, currentServerConfig.excavation().depth(), 1, 64, gameplayEditable, value -> mutable.excavationDepth = value);
             addGameplayInt(entries, entryBuilder, "Processes Per Tick", "Maximum excavation work units processed per tick.", mutable.excavationProcessesPerTick, currentServerConfig.excavation().processesPerTick(), 1, 512, gameplayEditable, value -> mutable.excavationProcessesPerTick = value);
             addSectionHeading(entries, entryBuilder, "Filtering");
             addGameplayBoolean(entries, entryBuilder, "Block Whitelist Mode", "Treat the block list as a whitelist when enabled.", mutable.excavationBlockWhitelist, currentServerConfig.excavation().isBlockWhitelist(), gameplayEditable, value -> mutable.excavationBlockWhitelist = value);
@@ -633,11 +634,11 @@ public final class MinersAdvantageConfigScreen {
             ConfigEntryBuilder entryBuilder = ConfigEntryBuilder.create();
             addSectionHeading(entries, entryBuilder, "General");
             addGameplayBoolean(entries, entryBuilder, "Enabled", "Enable or disable Shaftanation.", mutable.shaftanationEnabled, currentServerConfig.shaftanation().enabled(), gameplayEditable, value -> mutable.shaftanationEnabled = value);
-            addGameplayInt(entries, entryBuilder, "Max Depth", "Maximum depth for generated shafts.", mutable.shaftanationMaxDepth, currentServerConfig.shaftanation().maxDepth(), 1, 256, gameplayEditable, value -> mutable.shaftanationMaxDepth = value);
+            addGameplayInt(entries, entryBuilder, "Depth", "Maximum depth for generated shafts.", mutable.shaftanationMaxDepth, currentServerConfig.shaftanation().depth(), 1, 256, gameplayEditable, value -> mutable.shaftanationMaxDepth = value);
             addGameplayInt(entries, entryBuilder, "Processes Per Tick", "Maximum shaftanation work units processed per tick.", mutable.shaftanationProcessesPerTick, currentServerConfig.shaftanation().processesPerTick(), 1, 512, gameplayEditable, value -> mutable.shaftanationProcessesPerTick = value);
             addSectionHeading(entries, entryBuilder, "Shape");
-            addGameplayInt(entries, entryBuilder, "Shaft Width", "Configured shaft width.", mutable.shaftanationShaftWidth, currentServerConfig.shaftanation().shaftWidth(), 1, 7, gameplayEditable, value -> mutable.shaftanationShaftWidth = value);
-            addGameplayInt(entries, entryBuilder, "Shaft Height", "Configured shaft height.", mutable.shaftanationShaftHeight, currentServerConfig.shaftanation().shaftHeight(), 1, 5, gameplayEditable, value -> mutable.shaftanationShaftHeight = value);
+            addGameplayInt(entries, entryBuilder, "Width", "Configured shaft width.", mutable.shaftanationShaftWidth, currentServerConfig.shaftanation().width(), 1, 7, gameplayEditable, value -> mutable.shaftanationShaftWidth = value);
+            addGameplayInt(entries, entryBuilder, "Height", "Configured shaft height.", mutable.shaftanationShaftHeight, currentServerConfig.shaftanation().height(), 1, 5, gameplayEditable, value -> mutable.shaftanationShaftHeight = value);
             addGameplayEnum(entries, entryBuilder, "Torch Placement", "Torch placement strategy for shaft runs.", mutable.shaftanationTorchPlacement, currentServerConfig.shaftanation().torchPlacement(), TorchPlacement.class, gameplayEditable, value -> mutable.shaftanationTorchPlacement = value);
         });
     }
@@ -683,9 +684,10 @@ public final class MinersAdvantageConfigScreen {
             addSectionHeading(entries, entryBuilder, "General");
             addGameplayBoolean(entries, entryBuilder, "Enabled", "Enable or disable Ventilation.", mutable.ventilationEnabled, currentServerConfig.ventilation().enabled(), gameplayEditable, value -> mutable.ventilationEnabled = value);
             addGameplayBoolean(entries, entryBuilder, "Place Ladders", "Allow ladder placement during ventilation runs.", mutable.ventilationPlaceLadders, currentServerConfig.ventilation().placeLadders(), gameplayEditable, value -> mutable.ventilationPlaceLadders = value);
-            addSectionHeading(entries, entryBuilder, "Range");
-            addGameplayInt(entries, entryBuilder, "Horizontal Radius", "Horizontal ventilation scan radius.", mutable.ventilationRadiusHorizontal, currentServerConfig.ventilation().radiusHorizontal(), 1, 32, gameplayEditable, value -> mutable.ventilationRadiusHorizontal = value);
-            addGameplayInt(entries, entryBuilder, "Vertical Radius", "Vertical ventilation scan radius.", mutable.ventilationRadiusVertical, currentServerConfig.ventilation().radiusVertical(), 1, 64, gameplayEditable, value -> mutable.ventilationRadiusVertical = value);
+            addSectionHeading(entries, entryBuilder, "Dimensions");
+            addGameplayInt(entries, entryBuilder, "Width", "Ventilation width in blocks.", mutable.ventilationRadiusHorizontal, currentServerConfig.ventilation().width(), 1, 32, gameplayEditable, value -> mutable.ventilationRadiusHorizontal = value);
+            addGameplayInt(entries, entryBuilder, "Height", "Ventilation height in blocks.", mutable.ventilationRadiusVertical, currentServerConfig.ventilation().height(), 1, 64, gameplayEditable, value -> mutable.ventilationRadiusVertical = value);
+            addGameplayInt(entries, entryBuilder, "Depth", "Ventilation depth in blocks.", mutable.ventilationDepth, currentServerConfig.ventilation().depth(), 1, 64, gameplayEditable, value -> mutable.ventilationDepth = value);
             addGameplayInt(entries, entryBuilder, "Processes Per Tick", "Maximum ventilation work units processed per tick.", mutable.ventilationProcessesPerTick, currentServerConfig.ventilation().processesPerTick(), 1, 512, gameplayEditable, value -> mutable.ventilationProcessesPerTick = value);
         });
     }
@@ -1020,6 +1022,7 @@ public final class MinersAdvantageConfigScreen {
         private boolean excavationEnabled;
         private int excavationRadiusHorizontal;
         private int excavationRadiusVertical;
+        private int excavationDepth;
         private int excavationProcessesPerTick;
         private boolean excavationToggleMode;
         private boolean excavationIgnoreBlockVariants;
@@ -1078,6 +1081,7 @@ public final class MinersAdvantageConfigScreen {
         private boolean ventilationEnabled;
         private int ventilationRadiusHorizontal;
         private int ventilationRadiusVertical;
+        private int ventilationDepth;
         private int ventilationProcessesPerTick;
         private boolean ventilationPlaceLadders;
 
@@ -1114,8 +1118,9 @@ public final class MinersAdvantageConfigScreen {
             this.cultivationHydrationDistance = config.cultivation().hydrationDistance();
 
             this.excavationEnabled = config.excavation().enabled();
-            this.excavationRadiusHorizontal = config.excavation().radiusHorizontal();
-            this.excavationRadiusVertical = config.excavation().radiusVertical();
+            this.excavationRadiusHorizontal = config.excavation().width();
+            this.excavationRadiusVertical = config.excavation().height();
+            this.excavationDepth = config.excavation().depth();
             this.excavationProcessesPerTick = config.excavation().processesPerTick();
             this.excavationToggleMode = config.excavation().toggleMode();
             this.excavationIgnoreBlockVariants = config.excavation().ignoreBlockVariants();
@@ -1147,10 +1152,10 @@ public final class MinersAdvantageConfigScreen {
             this.lumbinationAxes = new ArrayList<>(config.lumbination().axes());
 
             this.shaftanationEnabled = config.shaftanation().enabled();
-            this.shaftanationMaxDepth = config.shaftanation().maxDepth();
+            this.shaftanationMaxDepth = config.shaftanation().depth();
             this.shaftanationProcessesPerTick = config.shaftanation().processesPerTick();
-            this.shaftanationShaftWidth = config.shaftanation().shaftWidth();
-            this.shaftanationShaftHeight = config.shaftanation().shaftHeight();
+            this.shaftanationShaftWidth = config.shaftanation().width();
+            this.shaftanationShaftHeight = config.shaftanation().height();
             this.shaftanationTorchPlacement = config.shaftanation().torchPlacement();
 
             this.substitutionEnabled = config.substitution().enabled();
@@ -1172,8 +1177,9 @@ public final class MinersAdvantageConfigScreen {
             this.veinationPickaxeBlacklist = new ArrayList<>(config.veination().pickaxeBlacklist());
 
             this.ventilationEnabled = config.ventilation().enabled();
-            this.ventilationRadiusHorizontal = config.ventilation().radiusHorizontal();
-            this.ventilationRadiusVertical = config.ventilation().radiusVertical();
+            this.ventilationRadiusHorizontal = config.ventilation().width();
+            this.ventilationRadiusVertical = config.ventilation().height();
+            this.ventilationDepth = config.ventilation().depth();
             this.ventilationProcessesPerTick = config.ventilation().processesPerTick();
             this.ventilationPlaceLadders = config.ventilation().placeLadders();
         }
@@ -1227,8 +1233,9 @@ public final class MinersAdvantageConfigScreen {
         private boolean isExcavationDifferentFromDefaults() {
             uk.co.duelmonster.minersadvantage.common.config.ExcavationConfig defaults = MAServerRootConfig.defaults().excavation();
             return excavationEnabled != defaults.enabled()
-                || excavationRadiusHorizontal != defaults.radiusHorizontal()
-                || excavationRadiusVertical != defaults.radiusVertical()
+                || excavationRadiusHorizontal != defaults.width()
+                || excavationRadiusVertical != defaults.height()
+                || excavationDepth != defaults.depth()
                 || excavationProcessesPerTick != defaults.processesPerTick()
                 || excavationToggleMode != defaults.toggleMode()
                 || excavationIgnoreBlockVariants != defaults.ignoreBlockVariants()
@@ -1239,8 +1246,9 @@ public final class MinersAdvantageConfigScreen {
         private void resetExcavationToDefaults() {
             uk.co.duelmonster.minersadvantage.common.config.ExcavationConfig defaults = MAServerRootConfig.defaults().excavation();
             excavationEnabled = defaults.enabled();
-            excavationRadiusHorizontal = defaults.radiusHorizontal();
-            excavationRadiusVertical = defaults.radiusVertical();
+            excavationRadiusHorizontal = defaults.width();
+            excavationRadiusVertical = defaults.height();
+            excavationDepth = defaults.depth();
             excavationProcessesPerTick = defaults.processesPerTick();
             excavationToggleMode = defaults.toggleMode();
             excavationIgnoreBlockVariants = defaults.ignoreBlockVariants();
@@ -1317,20 +1325,20 @@ public final class MinersAdvantageConfigScreen {
         private boolean isShaftanationDifferentFromDefaults() {
             uk.co.duelmonster.minersadvantage.common.config.ShaftanationConfig defaults = MAServerRootConfig.defaults().shaftanation();
             return shaftanationEnabled != defaults.enabled()
-                || shaftanationMaxDepth != defaults.maxDepth()
+                || shaftanationMaxDepth != defaults.depth()
                 || shaftanationProcessesPerTick != defaults.processesPerTick()
-                || shaftanationShaftWidth != defaults.shaftWidth()
-                || shaftanationShaftHeight != defaults.shaftHeight()
+                || shaftanationShaftWidth != defaults.width()
+                || shaftanationShaftHeight != defaults.height()
                 || shaftanationTorchPlacement != defaults.torchPlacement();
         }
 
         private void resetShaftanationToDefaults() {
             uk.co.duelmonster.minersadvantage.common.config.ShaftanationConfig defaults = MAServerRootConfig.defaults().shaftanation();
             shaftanationEnabled = defaults.enabled();
-            shaftanationMaxDepth = defaults.maxDepth();
+            shaftanationMaxDepth = defaults.depth();
             shaftanationProcessesPerTick = defaults.processesPerTick();
-            shaftanationShaftWidth = defaults.shaftWidth();
-            shaftanationShaftHeight = defaults.shaftHeight();
+            shaftanationShaftWidth = defaults.width();
+            shaftanationShaftHeight = defaults.height();
             shaftanationTorchPlacement = defaults.torchPlacement();
         }
 
@@ -1385,8 +1393,9 @@ public final class MinersAdvantageConfigScreen {
         private boolean isVentilationDifferentFromDefaults() {
             uk.co.duelmonster.minersadvantage.common.config.VentilationConfig defaults = MAServerRootConfig.defaults().ventilation();
             return ventilationEnabled != defaults.enabled()
-                || ventilationRadiusHorizontal != defaults.radiusHorizontal()
-                || ventilationRadiusVertical != defaults.radiusVertical()
+                || ventilationRadiusHorizontal != defaults.width()
+                || ventilationRadiusVertical != defaults.height()
+                || ventilationDepth != defaults.depth()
                 || ventilationProcessesPerTick != defaults.processesPerTick()
                 || ventilationPlaceLadders != defaults.placeLadders();
         }
@@ -1394,8 +1403,9 @@ public final class MinersAdvantageConfigScreen {
         private void resetVentilationToDefaults() {
             uk.co.duelmonster.minersadvantage.common.config.VentilationConfig defaults = MAServerRootConfig.defaults().ventilation();
             ventilationEnabled = defaults.enabled();
-            ventilationRadiusHorizontal = defaults.radiusHorizontal();
-            ventilationRadiusVertical = defaults.radiusVertical();
+            ventilationRadiusHorizontal = defaults.width();
+            ventilationRadiusVertical = defaults.height();
+            ventilationDepth = defaults.depth();
             ventilationProcessesPerTick = defaults.processesPerTick();
             ventilationPlaceLadders = defaults.placeLadders();
         }
@@ -1446,6 +1456,7 @@ public final class MinersAdvantageConfigScreen {
                     excavationEnabled,
                     excavationRadiusHorizontal,
                     excavationRadiusVertical,
+                    excavationDepth,
                     excavationProcessesPerTick,
                     excavationToggleMode,
                     excavationIgnoreBlockVariants,
@@ -1512,6 +1523,7 @@ public final class MinersAdvantageConfigScreen {
                     ventilationEnabled,
                     ventilationRadiusHorizontal,
                     ventilationRadiusVertical,
+                    ventilationDepth,
                     ventilationProcessesPerTick,
                     ventilationPlaceLadders
                 )

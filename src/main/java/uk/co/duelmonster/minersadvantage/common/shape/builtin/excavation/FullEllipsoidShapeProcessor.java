@@ -1,7 +1,6 @@
 package uk.co.duelmonster.minersadvantage.common.shape.builtin.excavation;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeContext;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeProcessor;
 import uk.co.duelmonster.minersadvantage.common.shape.builtin.ShapeGeometryUtils;
@@ -14,8 +13,7 @@ public final class FullEllipsoidShapeProcessor implements MAShapeProcessor {
     public Set<BlockPos> compute(MAShapeContext context) {
         LinkedHashSet<BlockPos> out = new LinkedHashSet<>();
         BlockPos origin = context.origin();
-        Direction forward = ShapeGeometryUtils.forwardFromContext(context);
-        Direction right = ShapeGeometryUtils.rightFromForward(forward);
+        ExcavationFaceGeometry.FaceDirection faceDirection = ExcavationFaceGeometry.fromMinecraftDirection(context.hitFace());
 
         double rx = Math.max(0.5d, context.width() / 2.0d);
         double ry = Math.max(0.5d, context.height() / 2.0d);
@@ -37,7 +35,8 @@ public final class FullEllipsoidShapeProcessor implements MAShapeProcessor {
                     }
                     double nx = w / rx;
                     if ((nx * nx) + (ny * ny) + (dz * dz) <= 1.0d) {
-                        BlockPos pos = origin.relative(forward, d).relative(right, w).offset(0, y, 0).immutable();
+                        int[] offset = ExcavationFaceGeometry.offsetFor(faceDirection, d, w, y);
+                        BlockPos pos = origin.offset(offset[0], offset[1], offset[2]).immutable();
                         out.add(pos);
                     }
                 }

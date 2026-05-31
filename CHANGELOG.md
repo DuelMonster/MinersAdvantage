@@ -6,6 +6,10 @@
 - Correct Excavation 3x3 targeting to use a strict one-layer plane oriented by the clicked face axis.
 - Add focused 3x3 orientation regression coverage for north/top/side face geometry expectations.
 - Expand shape parity test assertions to lock 3x3 face-axis offset membership and single-layer depth behavior.
+- Reorient remaining Excavation shapes to use hit-face driven depth with rotated tangent axes for north/south, top/bottom, and east/west interactions.
+- Migrate Excavation and Ventilation config models, runtime paths, and TOML keys from radius-based fields to explicit `width`/`height`/`depth` dimensions.
+- Rename Shaftanation config dimensions to `width`/`height`/`depth` for naming consistency and align defaults and UI bindings with the new field names.
+- Correct default Excavation dimensions to `3x3x3`.
 
 ## 0.9.0
 

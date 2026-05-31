@@ -41,7 +41,7 @@ public class VentilationAgent extends Agent {
     private boolean bottomTorchProcessed = false;
 
     public VentilationAgent(ServerPlayer player, BlockPos origin, int length) {
-        this(player, origin, Direction.DOWN, new VentilationConfig(true, Math.max(1, length), 1, 8), new CommonConfig());
+        this(player, origin, Direction.DOWN, new VentilationConfig(true, 1, Math.max(1, length), 1, 8), new CommonConfig());
     }
 
     public VentilationAgent(ServerPlayer player, BlockPos origin, VentilationConfig config, CommonConfig commonConfig) {
@@ -78,7 +78,7 @@ public class VentilationAgent extends Agent {
         this.origin = origin;
         this.direction = direction == Direction.UP ? Direction.UP : Direction.DOWN;
         this.config = config == null ? MAServerRootConfig.defaults().ventilation() : config;
-        int ventDepth = Math.max(1, this.config.radiusVertical());
+        int ventDepth = Math.max(1, this.config.height());
 
         int globalBlocksPerTick = commonConfig == null ? 1 : Math.max(1, commonConfig.blocksPerTick());
         this.blocksPerTick = Math.max(1, Math.min(globalBlocksPerTick, this.config.processesPerTick()));

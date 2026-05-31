@@ -102,8 +102,9 @@ public final class ExcavationComponent implements ComponentLifecycle {
                 context.blockY(),
                 context.blockZ(),
                 context.blockId(),
-                config.radiusHorizontal(),
-                config.radiusVertical(),
+                config.width(),
+                config.height(),
+                config.depth(),
                 config.processesPerTick()
             );
         }

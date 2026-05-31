@@ -58,8 +58,9 @@ public record SyncedClientConfig(
             ),
             new ExcavationConfig(
                 MAConfig_Defaults.Excavation.enabled,
-                MAConfig_Defaults.Excavation.radiusHorizontal,
-                MAConfig_Defaults.Excavation.radiusVertical,
+                MAConfig_Defaults.Excavation.width,
+                MAConfig_Defaults.Excavation.height,
+                MAConfig_Defaults.Excavation.depth,
                 MAConfig_Defaults.Excavation.processesPerTick,
                 MAConfig_Defaults.Excavation.toggleMode,
                 MAConfig_Defaults.Excavation.ignoreBlockVariants,
@@ -95,10 +96,10 @@ public record SyncedClientConfig(
             ),
             new ShaftanationConfig(
                 MAConfig_Defaults.Shaftanation.enabled,
-                MAConfig_Defaults.Shaftanation.maxDepth,
+                MAConfig_Defaults.Shaftanation.depth,
                 MAConfig_Defaults.Shaftanation.processesPerTick,
-                MAConfig_Defaults.Shaftanation.shaftWidth,
-                MAConfig_Defaults.Shaftanation.shaftHeight,
+                MAConfig_Defaults.Shaftanation.width,
+                MAConfig_Defaults.Shaftanation.height,
                 MAConfig_Defaults.Shaftanation.torchPlacement
             ),
             new SubstitutionConfig(
@@ -124,8 +125,9 @@ public record SyncedClientConfig(
             ),
             new VentilationConfig(
                 MAConfig_Defaults.Ventilation.enabled,
-                MAConfig_Defaults.Ventilation.radiusHorizontal,
-                MAConfig_Defaults.Ventilation.radiusVertical,
+                MAConfig_Defaults.Ventilation.width,
+                MAConfig_Defaults.Ventilation.height,
+                MAConfig_Defaults.Ventilation.depth,
                 MAConfig_Defaults.Ventilation.processesPerTick,
                 MAConfig_Defaults.Ventilation.placeLadders
             )

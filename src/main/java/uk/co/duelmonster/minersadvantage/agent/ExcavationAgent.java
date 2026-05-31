@@ -32,8 +32,9 @@ public class ExcavationAgent extends Agent {
     private final BlockPos origin;
     private final BlockState originState;
     private final ExcavationConfig config;
-    private final int horizontalRadius;
-    private final int verticalRadius;
+    private final int width;
+    private final int height;
+    private final int depth;
     private final Queue<BlockPos> queue = new LinkedList<>();
     private final Set<BlockPos> visited = new HashSet<>();
     private final int blocksPerTick;
@@ -61,8 +62,9 @@ public class ExcavationAgent extends Agent {
             player.level().getBlockState(origin),
             MAServerRootConfig.defaults().excavation(),
             new CommonConfig(),
-            radius,
-            radius
+            (Math.max(1, radius) * 2) + 1,
+            (Math.max(1, radius) * 2) + 1,
+            Math.max(1, radius)
         );
     }
 
@@ -73,8 +75,9 @@ public class ExcavationAgent extends Agent {
             originBlock.defaultBlockState(),
             MAServerRootConfig.defaults().excavation(),
             new CommonConfig(),
-            radius,
-            radius
+            (Math.max(1, radius) * 2) + 1,
+            (Math.max(1, radius) * 2) + 1,
+            Math.max(1, radius)
         );
     }
 
@@ -84,10 +87,11 @@ public class ExcavationAgent extends Agent {
         BlockState originState,
         ExcavationConfig config,
         CommonConfig commonConfig,
-        int horizontalRadius,
-        int verticalRadius
+        int width,
+        int height,
+        int depth
     ) {
-        this(player, origin, originState, config, commonConfig, horizontalRadius, verticalRadius, null, null);
+        this(player, origin, originState, config, commonConfig, width, height, depth, null, null);
     }
 
     public ExcavationAgent(
@@ -96,12 +100,13 @@ public class ExcavationAgent extends Agent {
         BlockState originState,
         ExcavationConfig config,
         CommonConfig commonConfig,
-        int horizontalRadius,
-        int verticalRadius,
+        int width,
+        int height,
+        int depth,
         VeinationRuntimeService veinationRuntime,
         VeinationConfig veinationConfig
     ) {
-        this(player, origin, originState, config, commonConfig, horizontalRadius, verticalRadius, veinationRuntime, veinationConfig, ItemStack.EMPTY);
+        this(player, origin, originState, config, commonConfig, width, height, depth, veinationRuntime, veinationConfig, ItemStack.EMPTY);
     }
 
     public ExcavationAgent(
@@ -110,13 +115,14 @@ public class ExcavationAgent extends Agent {
         BlockState originState,
         ExcavationConfig config,
         CommonConfig commonConfig,
-        int horizontalRadius,
-        int verticalRadius,
+        int width,
+        int height,
+        int depth,
         VeinationRuntimeService veinationRuntime,
         VeinationConfig veinationConfig,
         ItemStack veinationTriggerTool
     ) {
-        this(player, origin, originState, config, commonConfig, horizontalRadius, verticalRadius, veinationRuntime, veinationConfig, veinationTriggerTool, null);
+        this(player, origin, originState, config, commonConfig, width, height, depth, veinationRuntime, veinationConfig, veinationTriggerTool, null);
     }
 
     public ExcavationAgent(
@@ -125,8 +131,9 @@ public class ExcavationAgent extends Agent {
         BlockState originState,
         ExcavationConfig config,
         CommonConfig commonConfig,
-        int horizontalRadius,
-        int verticalRadius,
+        int width,
+        int height,
+        int depth,
         VeinationRuntimeService veinationRuntime,
         VeinationConfig veinationConfig,
         ItemStack veinationTriggerTool,
@@ -138,8 +145,9 @@ public class ExcavationAgent extends Agent {
             originState,
             config,
             commonConfig,
-            horizontalRadius,
-            verticalRadius,
+            width,
+            height,
+            depth,
             veinationRuntime,
             veinationConfig,
             veinationTriggerTool,
@@ -155,8 +163,9 @@ public class ExcavationAgent extends Agent {
         BlockState originState,
         ExcavationConfig config,
         CommonConfig commonConfig,
-        int horizontalRadius,
-        int verticalRadius,
+        int width,
+        int height,
+        int depth,
         VeinationRuntimeService veinationRuntime,
         VeinationConfig veinationConfig,
         ItemStack veinationTriggerTool,
@@ -170,8 +179,9 @@ public class ExcavationAgent extends Agent {
         this.config = config == null ? MAServerRootConfig.defaults().excavation() : config;
         this.commonConfig = commonConfig == null ? new CommonConfig() : commonConfig;
         this.illuminationConfig = illuminationConfig;
-        this.horizontalRadius = Math.max(0, horizontalRadius);
-        this.verticalRadius = Math.max(0, verticalRadius);
+        this.width = Math.max(1, width);
+        this.height = Math.max(1, height);
+        this.depth = Math.max(1, depth);
         int globalBlocksPerTick = Math.max(1, this.commonConfig.blocksPerTick());
         this.blocksPerTick = Math.max(1, Math.min(globalBlocksPerTick, this.config.processesPerTick()));
         this.blockLimit = Math.max(1, this.commonConfig.blockLimit());
@@ -182,7 +192,7 @@ public class ExcavationAgent extends Agent {
 
         this.allowedShapePositions = MAShapeRegistry.byIndex(FeatureId.EXCAVATION, selectedShapeIndex)
             .map(shapeDefinition -> {
-                MAShapeDimensions.Dimensions dimensions = MAShapeDimensions.excavationFromRadii(this.horizontalRadius, this.verticalRadius);
+                MAShapeDimensions.Dimensions dimensions = MAShapeDimensions.excavationFromConfig(this.width, this.height, this.depth);
                 MAShapeContext context = new MAShapeContext(
                     world,
                     player,
@@ -299,7 +309,10 @@ public class ExcavationAgent extends Agent {
         int dx = Math.abs(pos.getX() - origin.getX());
         int dy = Math.abs(pos.getY() - origin.getY());
         int dz = Math.abs(pos.getZ() - origin.getZ());
-        return dx <= horizontalRadius && dz <= horizontalRadius && dy <= verticalRadius;
+        int halfWidth = width / 2;
+        int halfHeight = height / 2;
+        int halfDepth = depth / 2;
+        return dx <= halfWidth && dz <= halfDepth && dy <= halfHeight;
     }
 
     private boolean isTargetState(BlockState state) {

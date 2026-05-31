@@ -8,8 +8,9 @@ import java.util.List;
  */
 public record ExcavationConfig(
     boolean enabled,
-    int radiusHorizontal,
-    int radiusVertical,
+    int width,
+    int height,
+    int depth,
     int processesPerTick,
     boolean toggleMode,
     boolean ignoreBlockVariants,
@@ -20,8 +21,8 @@ public record ExcavationConfig(
      * ExcavationConfig exists so this code path does one job clearly instead of spreading chaos across callers.
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
-    public ExcavationConfig(boolean enabled, int radiusHorizontal, int radiusVertical, int processesPerTick) {
-        this(enabled, radiusHorizontal, radiusVertical, processesPerTick, false, false, false, List.of());
+    public ExcavationConfig(boolean enabled, int width, int height, int depth, int processesPerTick) {
+        this(enabled, width, height, depth, processesPerTick, false, false, false, List.of());
     }
 
     public ExcavationConfig {
