@@ -152,7 +152,7 @@ class ClientInputServiceTest {
             Set.of(ClientAction.EXCAVATION_SHAPE_PREV),
             false
         );
-        assertEquals(5, prevResult.state().selectedExcavationShapeIndex());
+        assertEquals(6, prevResult.state().selectedExcavationShapeIndex());
     }
 
     @Test

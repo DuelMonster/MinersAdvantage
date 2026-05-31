@@ -37,8 +37,21 @@ class MAShapeProcessorParityTest {
      * Validate expected builtin shape totals.
      */
     void registersExpectedBuiltinShapeCountsPerFeature() {
-        assertEquals(6, MAShapeRegistry.forFeature(FeatureId.EXCAVATION).size());
+        assertEquals(7, MAShapeRegistry.forFeature(FeatureId.EXCAVATION).size());
         assertEquals(3, MAShapeRegistry.forFeature(FeatureId.SHAFTANATION).size());
+    }
+
+    /**
+     * New default excavation shape should be shapeless at index zero.
+     */
+    @Test
+    /**
+     * Validate default excavation shape id ordering.
+     */
+    void excavationDefaultShapeIsShapeless() {
+        var defaultShape = MAShapeRegistry.byIndex(FeatureId.EXCAVATION, 0);
+        assertTrue(defaultShape.isPresent());
+        assertEquals(MAShapeIds.EXCAVATION_SHAPELESS, defaultShape.get().id());
     }
 
     /**

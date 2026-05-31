@@ -20,6 +20,7 @@
 - Add Ventilation held-key outline preview for vertical-face targeting and include the origin block in the vent-height preview count.
 - Show selected Excavation/Shaft shape names on the HUD when shapes are cycled and when the corresponding mode keybind becomes active.
 - Add a new default Excavation `Shapeless` shape using connected 18-neighbor flood-fill ordering.
+- Add focused Shapeless helper and registry parity test coverage for default selection and traversal invariants.
 
 ## 0.9.0
 
