@@ -167,7 +167,7 @@ The repository also provides matrix validation scripts for all Stonecutter nodes
 Notes:
 
 - The build config uses Java 21 for `1.21.11` nodes and Java 25 for `26.1.2` nodes.
-- The repository currently pins `org.gradle.java.home` to a JDK 25 path in [gradle.properties](gradle.properties), which is required for the configured toolchain setup.
+- CI uses the runner `JAVA_HOME`. For local development, you can optionally uncomment `org.gradle.java.home` in [gradle.properties](gradle.properties) to pin a specific JDK path.
 
 ### Stonecutter Version Matrix
 
