@@ -1,10 +1,10 @@
-## 0.10.0
+## 2.10.0
 
 - Apply workspace-wide comment updates across Java sources and tests, and fix malformed comment syntax regressions in NeoForge/Fabric generation paths to restore full compile-matrix gate success.
 - Complete full-workspace optimization pass with shared helper extraction across client input, excavation and shaft shape placement, config-screen readonly entries, and test fixture setup; include structural cleanup and duplicate reduction across main/test/versioned source roots.
 - Add client-configurable preview outline foreground and see-through colors, persist them in `client-config.toml`, and expose both settings in the client config UI using alpha color fields.
 - Implement dual-pass shape outline rendering matching LiteMiner: translucent NO_DEPTH_TEST pass (occluded bounds visible through blocks) plus opaque depth-tested foreground pass using `mc.renderBuffers().bufferSource()` directly with Stonecutter-gated mc1/mc26 pipeline API paths.
-- Bump mod version to `0.10.0`, update daily bump metadata, and advance `Next Version` tracking to `0.11.0`.
+- Bump mod version to `2.10.0`, update daily bump metadata, and advance `Next Version` tracking to `2.11.0`.
 - Fix Fabric outline preview startup/runtime compatibility by replacing fragile `LevelRenderer` mixin targeting with a version-tolerant Fabric render event bridge.
 - Refine shape preview outline rendering by combining selected blocks into a merged voxel outline and drawing line passes against the combined shape.
 - Correct Excavation 3x3 targeting to use a strict one-layer plane oriented by the clicked face axis.
@@ -23,7 +23,7 @@
 - Add focused Shapeless helper and registry parity test coverage for default selection and traversal invariants.
 - Refresh README and TECHNICAL notes for shapeless default behavior and shape-system parity guidance.
 
-## 0.9.0
+## 2.9.0
 
 - Scaffold a new common Shape API package with registerable shape definitions, context contracts, processor interfaces, and registry helpers.
 - Extend client and server player-state sync models with selected Excavation and Shaftanation shape indexes.
@@ -43,13 +43,13 @@
 - Update keybinding parity tests to cover the new shape-cycling default bindings.
 - Refresh README and TECHNICAL documentation with shape-cycling and held-key preview parity notes.
 - Add a Technical manual in-game verification checklist for shape cycling, preview parity, and runtime execution checks.
-- Bump mod version to `0.9.0`, add `Next Version` state tracking, and advance the daily bump metadata.
+- Bump mod version to `2.9.0`, add `Next Version` state tracking, and advance the daily bump metadata.
 - Harden git hook version-bump enforcement to require a real version increase when advancing the daily bump date.
 - Require version bumps to match expected `Next Version` and force state `Next Version` to advance past the bumped version.
 - Reorder pre-commit validators to run in this sequence: version-bump, optimization, docs, compile-matrix, changelog.
 - Relax README section validation by no longer requiring `## Supported Crops` and `## Compatibility` headings.
 
-## 0.8.0
+## 2.8.0
 
 - Remove excavation single-layer mode, including keybind/state/sync wiring, and always use configured vertical radius.
 - Remove Single Layer Excavation references from CurseForge documentation.
@@ -61,7 +61,7 @@
 - Make post-excavation auto-illumination target the carved excavation gap instead of a player-centered area.
 - Share connected-neighbor traversal helpers so excavation, lumbination, and veination all use the same 3x3 connectivity rule.
 - Fix excavation to keep single-layer mode tied only to the single-layer toggle and trigger auto-illumination after completion for any exit reason.
-- Bump mod version to `0.8.0` and advance the tracked daily bump date.
+- Bump mod version to `2.8.0` and advance the tracked daily bump date.
 - Center `ILLUMINATION_AREA` execution on the player's position instead of the targeted block while keeping area mode floor-placement behavior.
 - Centralize synced default construction through `MAConfig_Defaults` so `SyncedClientConfig.defaults()` no longer hard-codes per-feature values.
 - Canonicalize `MAConfig_Defaults` feature field names and expand missing entries (cultivation, excavation, pathanation, lumbination, shaftanation, substitution, ventilation).
@@ -70,9 +70,9 @@
 - Fix shaft wall auto-illumination left/right placement so wall modes follow the shaft-facing direction correctly.
 - Add focused regression coverage for shaft wall torch geometry and floor-light sampling.
 
-## 0.7.0
+## 2.7.0
 
-- Bump mod version to `0.7.0` and advance the tracked daily bump date.
+- Bump mod version to `2.7.0` and advance the tracked daily bump date.
 - Fix Cropination harvest execution to use vanilla block-break flow before replanting mature crops.
 - Keep Cropination scan expansion active from immature crop targets while harvesting only mature crop states.
 - Allow Cropination to run without nearby water for water-independent crops such as nether wart while keeping water-required crops gated.
@@ -88,7 +88,7 @@
 - Prevent Pathanation and Cultivation from processing under blocked headspace by sharing an `Agent` helper that requires air-or-replaceable blocks above the target.
 - Rework ventilation ladder/torch placement sequencing to carve first, place in reverse order, respect per-tick budgets, include origin ladders, and emit reliable placement sounds.
 
-## 0.6.0
+## 2.6.0
 
 - Remove excavation, shaftanation, and ventilation trigger block/tool restrictions so activation can start from arbitrary targets and held items.
 - Rework Lumbination into a logs-first then leaves-second harvest flow to stop interleaved trunk/canopy breaking.
@@ -138,7 +138,7 @@
 - Add workspace VS Code Java configuration sync setting for consistent local project import behavior.
 - Change default light level to `0` for auto illumination
 
-## 0.5.0
+## 2.5.0
 
 - Rework Veination discovery/runtime wiring to support AFTER-break origins, optional origin-state hints, and connected-vein queueing through a shared runtime service.
 - Add optional reflective Fabric Collective dig-speed callback registration so missing Collective dependencies do not break startup.
@@ -153,7 +153,7 @@
 - Add start-trigger de-duplication and activity tracking to avoid repeated queueing while mining or interacting continuously.
 - Improve switch-back timing so restore waits for break-target activity to end instead of reverting mid-action.
 
-## 0.4.0
+## 2.4.0
 
 - Rework substitution selection to autoswitch-style candidate ordering with multi-level ratings and deterministic tie-breaks.
 - Add action-aware substitution rule tables for BREAK/INTERACT with per-rule target and tool priorities.
@@ -161,7 +161,7 @@
 - Wire substitution runtime with active-hand context and synchronized rule propagation across policy/default/category config paths.
 - Expand README and TECHNICAL with substitution rule expression syntax and practical rule authoring examples.
 
-## 0.3.0
+## 2.3.0
 
 - Phase 3 parity rewrite is complete across all four nodes with documentation and verification signoff.
 - Add a full documentation standards guide and enforce README/TECHNICAL coverage checks in pre-commit.
@@ -178,7 +178,7 @@
 - ✅ M8: Documentation signoff complete - traceability matrix refreshed to current milestone status
 - ✅ M9: Verification/regression gate complete - `chiseledBuild` and targeted NeoForge test gates pass
 
-## 0.2.0
+## 2.2.0
 
 - Add final strict traceability audit matrix mapping all appendix anchors (A-E) to modern implementation references.
 - Add cross-feature policy enforcement coverage for common shared flags in PolicyCoreService tests.
@@ -194,7 +194,7 @@
 - Add legacy-parity keybinding metadata and client input toggle handling for feature enablement, excavation modes, illumination actions, and abort flow.
 - Preserve SupremeVantage as a hidden code-driven reward path with modern packet and service coverage.
 
-## 0.1.0
+## 2.1.0
 
 - Reset repository into modernization workspace with legacy archive in releases/original.
 - Replace legacy build with Stonecutter and Modstitch Kotlin DSL foundation.

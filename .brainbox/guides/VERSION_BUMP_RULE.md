@@ -17,7 +17,7 @@ The file must contain both the most recent successful bump date and the next exp
 
 ```text
 Last Bumped Date: 2026-05-12
-Next Version: 0.9.0
+Next Version: 2.9.0
 ```
 
 The pre-commit validator checks this file for every commit.
