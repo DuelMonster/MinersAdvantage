@@ -5,6 +5,7 @@
 - Refine shape preview outline rendering by combining selected blocks into a merged voxel outline and drawing line passes against the combined shape.
 - Correct Excavation 3x3 targeting to use a strict one-layer plane oriented by the clicked face axis.
 - Add focused 3x3 orientation regression coverage for north/top/side face geometry expectations.
+- Expand shape parity test assertions to lock 3x3 face-axis offset membership and single-layer depth behavior.
 
 ## 0.9.0
 

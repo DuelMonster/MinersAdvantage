@@ -1,11 +1,15 @@
 package uk.co.duelmonster.minersadvantage.common.shape.api;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.HashSet;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
+import uk.co.duelmonster.minersadvantage.common.shape.builtin.excavation.ThreeByThreeGeometry;
 
 class MAShapeProcessorParityTest {
     @BeforeAll
@@ -55,5 +59,56 @@ class MAShapeProcessorParityTest {
     @Test
     void unknownShapeIdReturnsMissingIndex() {
         assertEquals(-1, MAShapeRegistry.indexOf(FeatureId.EXCAVATION, "minersadvantage:not_real"));
+    }
+
+    @Test
+    void threeByThreeNorthHitUsesEastWestAndUpDownWithSingleDepth() {
+        Set<String> offsets = toOffsetKeys(ThreeByThreeGeometry.offsetsForFaceAxis(ThreeByThreeGeometry.FaceAxis.Z));
+
+        assertEquals(9, offsets.size());
+        assertTrue(offsets.contains(key(-1, 0, 0)));
+        assertTrue(offsets.contains(key(1, 0, 0)));
+        assertTrue(offsets.contains(key(0, -1, 0)));
+        assertTrue(offsets.contains(key(0, 1, 0)));
+        assertFalse(offsets.contains(key(0, 0, -1)));
+        assertFalse(offsets.contains(key(0, 0, 1)));
+    }
+
+    @Test
+    void threeByThreeTopHitUsesEastWestAndNorthSouthWithSingleDepth() {
+        Set<String> offsets = toOffsetKeys(ThreeByThreeGeometry.offsetsForFaceAxis(ThreeByThreeGeometry.FaceAxis.Y));
+
+        assertEquals(9, offsets.size());
+        assertTrue(offsets.contains(key(-1, 0, 0)));
+        assertTrue(offsets.contains(key(1, 0, 0)));
+        assertTrue(offsets.contains(key(0, 0, -1)));
+        assertTrue(offsets.contains(key(0, 0, 1)));
+        assertFalse(offsets.contains(key(0, 1, 0)));
+        assertFalse(offsets.contains(key(0, -1, 0)));
+    }
+
+    @Test
+    void threeByThreeEastHitUsesNorthSouthAndUpDownWithSingleDepth() {
+        Set<String> offsets = toOffsetKeys(ThreeByThreeGeometry.offsetsForFaceAxis(ThreeByThreeGeometry.FaceAxis.X));
+
+        assertEquals(9, offsets.size());
+        assertTrue(offsets.contains(key(0, 0, -1)));
+        assertTrue(offsets.contains(key(0, 0, 1)));
+        assertTrue(offsets.contains(key(0, 1, 0)));
+        assertTrue(offsets.contains(key(0, -1, 0)));
+        assertFalse(offsets.contains(key(1, 0, 0)));
+        assertFalse(offsets.contains(key(-1, 0, 0)));
+    }
+
+    private static Set<String> toOffsetKeys(int[][] offsets) {
+        Set<String> keys = new HashSet<>();
+        for (int[] offset : offsets) {
+            keys.add(key(offset[0], offset[1], offset[2]));
+        }
+        return keys;
+    }
+
+    private static String key(int x, int y, int z) {
+        return x + "," + y + "," + z;
     }
 }
