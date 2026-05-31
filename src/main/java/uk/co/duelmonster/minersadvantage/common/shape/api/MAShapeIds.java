@@ -4,6 +4,7 @@ package uk.co.duelmonster.minersadvantage.common.shape.api;
  * MAShapeIds defines the built-in shape identifiers used by Miners Advantage.
  */
 public final class MAShapeIds {
+    public static final String EXCAVATION_SHAPELESS = "minersadvantage:shapeless";
     public static final String EXCAVATION_DEEP_CUBOID = "minersadvantage:deep_cuboid";
     public static final String EXCAVATION_WIDE_CUBOID = "minersadvantage:wide_cuboid";
     public static final String EXCAVATION_HALF_ELLIPSOID = "minersadvantage:half_ellipsoid";

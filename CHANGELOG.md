@@ -19,6 +19,7 @@
 - Fix Shaftanation floor anchoring to allow origins below player feet to tunnel below foot level while still anchoring origins inside the shaft-height window.
 - Add Ventilation held-key outline preview for vertical-face targeting and include the origin block in the vent-height preview count.
 - Show selected Excavation/Shaft shape names on the HUD when shapes are cycled and when the corresponding mode keybind becomes active.
+- Add a new default Excavation `Shapeless` shape using connected 18-neighbor flood-fill ordering.
 
 ## 0.9.0
 

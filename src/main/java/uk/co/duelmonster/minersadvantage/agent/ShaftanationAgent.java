@@ -194,6 +194,7 @@ public class ShaftanationAgent extends Agent {
                 world,
                 player,
                 origin,
+                world.getBlockState(origin),
                 hitFace == null ? this.direction.getOpposite() : hitFace,
                 this.direction,
                 dimensions.width(),

@@ -4,6 +4,7 @@ import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 import uk.co.duelmonster.minersadvantage.common.shape.builtin.excavation.DeepCuboidShapeProcessor;
 import uk.co.duelmonster.minersadvantage.common.shape.builtin.excavation.FullEllipsoidShapeProcessor;
 import uk.co.duelmonster.minersadvantage.common.shape.builtin.excavation.HalfEllipsoidShapeProcessor;
+import uk.co.duelmonster.minersadvantage.common.shape.builtin.excavation.ShapelessShapeProcessor;
 import uk.co.duelmonster.minersadvantage.common.shape.builtin.excavation.SingleLayerShapeProcessor;
 import uk.co.duelmonster.minersadvantage.common.shape.builtin.excavation.ThreeByThreeShapeProcessor;
 import uk.co.duelmonster.minersadvantage.common.shape.builtin.excavation.WideCuboidShapeProcessor;
@@ -32,6 +33,7 @@ public final class MAShapeBootstrap {
             return;
         }
 
+        MAShapeRegistry.register(new MAShapeDefinition(MAShapeIds.EXCAVATION_SHAPELESS, "Shapeless", FeatureId.EXCAVATION, new ShapelessShapeProcessor()));
         MAShapeRegistry.register(new MAShapeDefinition(MAShapeIds.EXCAVATION_DEEP_CUBOID, "Deep Cuboid", FeatureId.EXCAVATION, new DeepCuboidShapeProcessor()));
         MAShapeRegistry.register(new MAShapeDefinition(MAShapeIds.EXCAVATION_WIDE_CUBOID, "Wide Cuboid", FeatureId.EXCAVATION, new WideCuboidShapeProcessor()));
         MAShapeRegistry.register(new MAShapeDefinition(MAShapeIds.EXCAVATION_HALF_ELLIPSOID, "Half Ellipsoid", FeatureId.EXCAVATION, new HalfEllipsoidShapeProcessor()));

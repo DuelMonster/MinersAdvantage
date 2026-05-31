@@ -279,7 +279,7 @@ public class Functions {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public static List<BlockPos> connectedNeighbors(BlockPos origin) {
-        List<BlockPos> neighbors = new ArrayList<>(26);
+        List<BlockPos> neighbors = new ArrayList<>(18);
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (int yOffset = -1; yOffset <= 1; yOffset++) {
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.

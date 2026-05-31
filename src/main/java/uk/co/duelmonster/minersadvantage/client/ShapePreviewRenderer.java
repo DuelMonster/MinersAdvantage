@@ -1,7 +1,9 @@
 package uk.co.duelmonster.minersadvantage.client;
 
 import java.util.Objects;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 import com.mojang.blaze3d.pipeline.BlendFunction;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
@@ -37,6 +39,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import java.util.function.Supplier;
 import uk.co.duelmonster.minersadvantage.common.config.ClientConfig;
 import uk.co.duelmonster.minersadvantage.common.config.MAConfig_Base;
 import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
@@ -56,49 +59,94 @@ import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeRegistry;
  */
 public final class ShapePreviewRenderer {
     private static final int MAX_PREVIEW_BLOCKS = 256;
+    private static final int SHAPELESS_PREVIEW_MAX_BLOCKS = 96;
+    private static final int SHAPELESS_BUILD_STEPS_PER_FRAME = 24;
     private static final double OUTLINE_INFLATE = 0.005d;
+    private static final int OUTLINE_OPTIMIZE_MAX_BLOCKS = 96;
+    private static final String SHAPE_ID_SHAPELESS = "minersadvantage:shapeless";
 
     private static final RenderType LINES_NORMAL = RenderTypes.lines();
     private static final RenderType LINES_TRANSLUCENT_NO_DEPTH_TEST = createLinesTranslucentNoDepthTestRenderType();
 
     private static final OutlineCache CACHE = new OutlineCache();
 
-    private static final class OutlineCache {
-        FeatureId feature;
-        BlockPos origin;
-        int shapeIndex;
-        int width;
-        int height;
-        int depth;
+    private record OutlineKey(
+        FeatureId feature,
+        int shapeIndex,
+        int width,
+        int height,
+        int depth,
+        Direction hitFace,
+        Direction playerFacing
+    ) {
+    }
+
+    private static final class ShapelessOutlineBuild {
+        final VoxelShape[] blockShapes;
+        int nextIndex;
+
+        ShapelessOutlineBuild(VoxelShape[] blockShapes, int nextIndex) {
+            this.blockShapes = blockShapes;
+            this.nextIndex = nextIndex;
+        }
+    }
+
+    private static final class CachedOutline {
         VoxelShape combinedShape;
-        long updatedAt;
+        ShapelessOutlineBuild pendingShapelessBuild;
+
+        CachedOutline(VoxelShape combinedShape, ShapelessOutlineBuild pendingShapelessBuild) {
+            this.combinedShape = combinedShape;
+            this.pendingShapelessBuild = pendingShapelessBuild;
+        }
+    }
+
+    private static final class OutlineCache {
+        BlockPos origin;
+        private final Map<OutlineKey, CachedOutline> shapesByKey = new HashMap<>();
 
         /**
-         * Check whether cached outline still matches current preview request.
+         * Reset cached outlines when the targeted origin block changes.
          */
-        boolean isValid(FeatureId feature, BlockPos origin, int shapeIndex, int width, int height, int depth) {
-            return this.feature == feature
-                && Objects.equals(this.origin, origin)
-                && this.shapeIndex == shapeIndex
-                && this.width == width
-                && this.height == height
-                && this.depth == depth
-                && this.combinedShape != null
-                && (System.currentTimeMillis() - this.updatedAt) < 250L;
+        void prepareForOrigin(BlockPos currentOrigin) {
+            BlockPos immutableOrigin = currentOrigin.immutable();
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+            if (Objects.equals(this.origin, immutableOrigin)) {
+                return;
+            }
+            this.origin = immutableOrigin;
+            this.shapesByKey.clear();
         }
 
         /**
-         * Store freshly computed outline and cache metadata.
+         * Retrieve cached shape for a fully-qualified preview key.
          */
-        void store(FeatureId feature, BlockPos origin, int shapeIndex, int width, int height, int depth, VoxelShape combinedShape) {
-            this.feature = feature;
-            this.origin = origin;
-            this.shapeIndex = shapeIndex;
-            this.width = width;
-            this.height = height;
-            this.depth = depth;
-            this.combinedShape = combinedShape;
-            this.updatedAt = System.currentTimeMillis();
+        CachedOutline get(
+            FeatureId feature,
+            int shapeIndex,
+            int width,
+            int height,
+            int depth,
+            Direction hitFace,
+            Direction playerFacing
+        ) {
+            return shapesByKey.get(new OutlineKey(feature, shapeIndex, width, height, depth, hitFace, playerFacing));
+        }
+
+        /**
+         * Store freshly computed shape for the current origin and preview key.
+         */
+        void put(
+            FeatureId feature,
+            int shapeIndex,
+            int width,
+            int height,
+            int depth,
+            Direction hitFace,
+            Direction playerFacing,
+            CachedOutline outline
+        ) {
+            shapesByKey.put(new OutlineKey(feature, shapeIndex, width, height, depth, hitFace, playerFacing), outline);
         }
     }
 
@@ -187,6 +235,8 @@ public final class ShapePreviewRenderer {
         Player player = minecraft.player;
         BlockPos origin = blockHit.getBlockPos();
         Direction hitFace = blockHit.getDirection();
+        Direction playerFacing = player.getDirection();
+        CACHE.prepareForOrigin(origin);
 
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (excavationPreview) {
@@ -196,29 +246,36 @@ public final class ShapePreviewRenderer {
                 excavation.height(),
                 excavation.depth()
             );
-            MAShapeContext context = new MAShapeContext(
-                minecraft.level,
-                player,
-                origin,
-                hitFace,
-                player.getDirection(),
-                dimensions.width(),
-                dimensions.height(),
-                dimensions.depth(),
-                MAX_PREVIEW_BLOCKS
-            );
             MAShapeRegistry.byIndex(FeatureId.EXCAVATION, state.selectedExcavationShapeIndex())
-                .ifPresent(shape -> renderOutline(
-                    FeatureId.EXCAVATION,
-                    shape.compute(context),
-                    origin,
-                    state.selectedExcavationShapeIndex(),
-                    dimensions,
-                    poseStack,
-                    cameraX,
-                    cameraY,
-                    cameraZ
-                ));
+                .ifPresent(shape -> {
+                    int previewBlockLimit = SHAPE_ID_SHAPELESS.equals(shape.id()) ? SHAPELESS_PREVIEW_MAX_BLOCKS : MAX_PREVIEW_BLOCKS;
+                    MAShapeContext context = new MAShapeContext(
+                        minecraft.level,
+                        player,
+                        origin,
+                        minecraft.level.getBlockState(origin),
+                        hitFace,
+                        playerFacing,
+                        dimensions.width(),
+                        dimensions.height(),
+                        dimensions.depth(),
+                        previewBlockLimit
+                    );
+                    renderOutline(
+                        FeatureId.EXCAVATION,
+                        shape.id(),
+                        origin,
+                        state.selectedExcavationShapeIndex(),
+                        dimensions,
+                        hitFace,
+                        playerFacing,
+                        () -> shape.compute(context),
+                        poseStack,
+                        cameraX,
+                        cameraY,
+                        cameraZ
+                    );
+                });
         }
 
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
@@ -229,8 +286,9 @@ public final class ShapePreviewRenderer {
                 minecraft.level,
                 player,
                 origin,
+                minecraft.level.getBlockState(origin),
                 hitFace,
-                player.getDirection(),
+                playerFacing,
                 dimensions.width(),
                 dimensions.height(),
                 dimensions.depth(),
@@ -239,10 +297,13 @@ public final class ShapePreviewRenderer {
             MAShapeRegistry.byIndex(FeatureId.SHAFTANATION, state.selectedShaftanationShapeIndex())
                 .ifPresent(shape -> renderOutline(
                     FeatureId.SHAFTANATION,
-                    shape.compute(context),
+                    shape.id(),
                     origin,
                     state.selectedShaftanationShapeIndex(),
                     dimensions,
+                    hitFace,
+                    playerFacing,
+                    () -> shape.compute(context),
                     poseStack,
                     cameraX,
                     cameraY,
@@ -255,18 +316,22 @@ public final class ShapePreviewRenderer {
             var ventilation = MAServerRootConfig.defaults().ventilation();
             int ventDepth = Math.max(1, ventilation.height());
             Direction ventDirection = hitFace == Direction.UP ? Direction.DOWN : Direction.UP;
-            Set<BlockPos> positions = new LinkedHashSet<>();
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            for (int depth = 0; depth < ventDepth && positions.size() < MAX_PREVIEW_BLOCKS; depth++) {
-                positions.add(origin.relative(ventDirection, depth).immutable());
-            }
-
             renderOutline(
                 FeatureId.VENTILATION,
-                positions,
+                "minersadvantage:ventilation",
                 origin,
                 0,
                 new MAShapeDimensions.Dimensions(1, ventDepth, 1),
+                hitFace,
+                playerFacing,
+                () -> {
+                    Set<BlockPos> positions = new LinkedHashSet<>();
+                    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+                    for (int depth = 0; depth < ventDepth && positions.size() < MAX_PREVIEW_BLOCKS; depth++) {
+                        positions.add(origin.relative(ventDirection, depth).immutable());
+                    }
+                    return positions;
+                },
                 poseStack,
                 cameraX,
                 cameraY,
@@ -277,31 +342,60 @@ public final class ShapePreviewRenderer {
 
     private static void renderOutline(
         FeatureId feature,
-        Set<BlockPos> positions,
+        String shapeId,
         BlockPos origin,
         int shapeIndex,
         MAShapeDimensions.Dimensions dimensions,
+        Direction hitFace,
+        Direction playerFacing,
+        Supplier<Set<BlockPos>> positionsSupplier,
         PoseStack poseStack,
         double cameraX,
         double cameraY,
         double cameraZ
     ) {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (positions.isEmpty()) {
-            return;
-        }
-
-        VoxelShape combinedShape;
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (CACHE.isValid(feature, origin, shapeIndex, dimensions.width(), dimensions.height(), dimensions.depth())) {
-            combinedShape = CACHE.combinedShape;
-        } else {
-            combinedShape = combineToVoxelShape(positions, origin);
-            CACHE.store(feature, origin.immutable(), shapeIndex, dimensions.width(), dimensions.height(), dimensions.depth(), combinedShape);
-        }
+        CachedOutline outline = CACHE.get(
+            feature,
+            shapeIndex,
+            dimensions.width(),
+            dimensions.height(),
+            dimensions.depth(),
+            hitFace,
+            playerFacing
+        );
 
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (combinedShape.isEmpty()) {
+        if (outline == null) {
+            Set<BlockPos> positions = positionsSupplier.get();
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+            if (positions.isEmpty()) {
+                return;
+            }
+            if (SHAPE_ID_SHAPELESS.equals(shapeId)) {
+                outline = createIncrementalShapelessOutline(positions, origin);
+            } else {
+                boolean shouldOptimize = positions.size() <= OUTLINE_OPTIMIZE_MAX_BLOCKS;
+                VoxelShape combinedShape = combineToVoxelShape(positions, origin, shouldOptimize);
+                outline = new CachedOutline(combinedShape, null);
+            }
+            CACHE.put(
+                feature,
+                shapeIndex,
+                dimensions.width(),
+                dimensions.height(),
+                dimensions.depth(),
+                hitFace,
+                playerFacing,
+                outline
+            );
+        }
+
+        // Continue incremental shapeless merge on the render thread with a small per-frame budget.
+        advanceShapelessBuild(outline, SHAPELESS_BUILD_STEPS_PER_FRAME);
+
+        VoxelShape combinedShape = outline.combinedShape;
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+        if (combinedShape == null || combinedShape.isEmpty()) {
             return;
         }
 
@@ -333,24 +427,105 @@ public final class ShapePreviewRenderer {
     /**
      * Combine per-block AABBs into one optimized voxel outline shape.
      */
-    private static VoxelShape combineToVoxelShape(Set<BlockPos> positions, BlockPos origin) {
+    private static VoxelShape combineToVoxelShape(Set<BlockPos> positions, BlockPos origin, boolean optimize) {
         VoxelShape combinedShape = Shapes.empty();
+        int originX = origin.getX();
+        int originY = origin.getY();
+        int originZ = origin.getZ();
 
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (BlockPos position : positions) {
-            BlockPos relative = position.subtract(origin);
+            int relativeX = position.getX() - originX;
+            int relativeY = position.getY() - originY;
+            int relativeZ = position.getZ() - originZ;
             AABB inflatedBox = new AABB(
-                relative.getX(),
-                relative.getY(),
-                relative.getZ(),
-                relative.getX() + 1,
-                relative.getY() + 1,
-                relative.getZ() + 1
+                relativeX,
+                relativeY,
+                relativeZ,
+                relativeX + 1,
+                relativeY + 1,
+                relativeZ + 1
             ).inflate(OUTLINE_INFLATE);
 
             combinedShape = Shapes.join(combinedShape, Shapes.create(inflatedBox), BooleanOp.OR);
         }
 
+        // Large irregular previews (especially shapeless) spend disproportionate time in optimize() for little visual gain.
+        if (!optimize) {
+            return combinedShape;
+        }
+
         return combinedShape.optimize();
+    }
+
+    /**
+     * Build one voxel box per block position for incremental shapeless merging.
+     */
+    private static VoxelShape[] createVoxelBoxShapes(Set<BlockPos> positions, BlockPos origin) {
+        VoxelShape[] shapes = new VoxelShape[positions.size()];
+        int originX = origin.getX();
+        int originY = origin.getY();
+        int originZ = origin.getZ();
+        int index = 0;
+
+        for (BlockPos position : positions) {
+            int relativeX = position.getX() - originX;
+            int relativeY = position.getY() - originY;
+            int relativeZ = position.getZ() - originZ;
+            AABB inflatedBox = new AABB(
+                relativeX,
+                relativeY,
+                relativeZ,
+                relativeX + 1,
+                relativeY + 1,
+                relativeZ + 1
+            ).inflate(OUTLINE_INFLATE);
+            shapes[index++] = Shapes.create(inflatedBox);
+        }
+
+        return shapes;
+    }
+
+    /**
+     * Create a cached outline for shapeless mode using partial first-frame merge and queued incremental work.
+     */
+    private static CachedOutline createIncrementalShapelessOutline(Set<BlockPos> positions, BlockPos origin) {
+        VoxelShape[] blockShapes = createVoxelBoxShapes(positions, origin);
+        VoxelShape combined = Shapes.empty();
+        int warmupCount = Math.min(SHAPELESS_BUILD_STEPS_PER_FRAME, blockShapes.length);
+
+        for (int i = 0; i < warmupCount; i++) {
+            combined = Shapes.join(combined, blockShapes[i], BooleanOp.OR);
+        }
+
+        ShapelessOutlineBuild pending = warmupCount < blockShapes.length
+            ? new ShapelessOutlineBuild(blockShapes, warmupCount)
+            : null;
+        return new CachedOutline(combined, pending);
+    }
+
+    /**
+     * Advance queued shapeless merge work using a bounded per-frame budget.
+     */
+    private static void advanceShapelessBuild(CachedOutline outline, int budget) {
+        ShapelessOutlineBuild pending = outline.pendingShapelessBuild;
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+        if (pending == null || budget <= 0) {
+            return;
+        }
+
+        int endExclusive = Math.min(pending.blockShapes.length, pending.nextIndex + budget);
+        VoxelShape combined = outline.combinedShape;
+
+        for (int i = pending.nextIndex; i < endExclusive; i++) {
+            combined = Shapes.join(combined, pending.blockShapes[i], BooleanOp.OR);
+        }
+
+        outline.combinedShape = combined;
+        pending.nextIndex = endExclusive;
+
+        if (pending.nextIndex >= pending.blockShapes.length) {
+            outline.pendingShapelessBuild = null;
+        }
     }
 }

@@ -218,6 +218,7 @@ public class ExcavationAgent extends Agent {
                     world,
                     player,
                     origin,
+                    this.originState,
                     hitFace == null ? player.getDirection() : hitFace,
                     player.getDirection(),
                     dimensions.width(),
