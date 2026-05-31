@@ -68,6 +68,24 @@ public final class MinersAdvantageConfigScreen {
             .setSaveConsumer(value -> mutable.disableParticleEffects = value)
             .build());
 
+        clientCategory.addEntry(entryBuilder.startAlphaColorField(
+                Component.literal("Preview Outline Foreground Color"),
+                mutable.outlineForegroundColor
+            )
+            .setDefaultValue(currentClientConfig.client().outlineForegroundColor())
+            .setTooltip(Component.literal("Color picker for the depth-tested foreground outline."))
+            .setSaveConsumer(value -> mutable.outlineForegroundColor = value)
+            .build());
+
+        clientCategory.addEntry(entryBuilder.startAlphaColorField(
+                Component.literal("Preview Outline See-Through Color"),
+                mutable.outlineSeeThroughColor
+            )
+            .setDefaultValue(currentClientConfig.client().outlineSeeThroughColor())
+            .setTooltip(Component.literal("Color picker for the no-depth translucent outline."))
+            .setSaveConsumer(value -> mutable.outlineSeeThroughColor = value)
+            .build());
+
         if (!gameplayEditable) {
             generalCategory.addEntry(authorityNoticeEntry(entryBuilder));
             featuresCategory.addEntry(authorityNoticeEntry(entryBuilder));
@@ -326,6 +344,24 @@ public final class MinersAdvantageConfigScreen {
             .setDefaultValue(currentClientConfig.client().disableParticleEffects())
             .setTooltip(Component.literal("Disable Miners Advantage particle effects on this client only."))
             .setSaveConsumer(value -> mutable.disableParticleEffects = value)
+            .build());
+
+        clientCategory.addEntry(entryBuilder.startAlphaColorField(
+                Component.literal("Preview Outline Foreground Color"),
+                mutable.outlineForegroundColor
+            )
+            .setDefaultValue(currentClientConfig.client().outlineForegroundColor())
+            .setTooltip(Component.literal("Color picker for the depth-tested foreground outline."))
+            .setSaveConsumer(value -> mutable.outlineForegroundColor = value)
+            .build());
+
+        clientCategory.addEntry(entryBuilder.startAlphaColorField(
+                Component.literal("Preview Outline See-Through Color"),
+                mutable.outlineSeeThroughColor
+            )
+            .setDefaultValue(currentClientConfig.client().outlineSeeThroughColor())
+            .setTooltip(Component.literal("Color picker for the no-depth translucent outline."))
+            .setSaveConsumer(value -> mutable.outlineSeeThroughColor = value)
             .build());
 
         builder.setSavingRunnable(() -> saveMutableConfig(mutable, gameplayEditable));
@@ -994,6 +1030,8 @@ public final class MinersAdvantageConfigScreen {
      */
     private static final class MutableConfig {
         private boolean disableParticleEffects;
+        private int outlineForegroundColor;
+        private int outlineSeeThroughColor;
 
         private boolean tpsGuard;
         private boolean gatherDrops;
@@ -1091,6 +1129,8 @@ public final class MinersAdvantageConfigScreen {
          */
         private MutableConfig(MAClientRootConfig clientConfig, MAServerRootConfig serverConfig) {
             this.disableParticleEffects = clientConfig.client().disableParticleEffects();
+            this.outlineForegroundColor = clientConfig.client().outlineForegroundColor();
+            this.outlineSeeThroughColor = clientConfig.client().outlineSeeThroughColor();
 
             MAServerRootConfig config = serverConfig;
             this.tpsGuard = config.common().tpsGuard();
@@ -1412,7 +1452,11 @@ public final class MinersAdvantageConfigScreen {
 
         private MAClientRootConfig toClientRootConfig(MAClientRootConfig baseline) {
             return new MAClientRootConfig(
-                new ClientConfig(disableParticleEffects)
+                new ClientConfig(
+                    disableParticleEffects,
+                    outlineForegroundColor,
+                    outlineSeeThroughColor
+                )
             );
         }
 

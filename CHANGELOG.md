@@ -1,5 +1,6 @@
 ## 0.10.0
 
+- Add client-configurable preview outline foreground and see-through colors, persist them in `client-config.toml`, and expose both settings in the client config UI using alpha color fields.
 - Implement dual-pass shape outline rendering matching LiteMiner: translucent NO_DEPTH_TEST pass (occluded bounds visible through blocks) plus opaque depth-tested foreground pass using `mc.renderBuffers().bufferSource()` directly with Stonecutter-gated mc1/mc26 pipeline API paths.
 - Bump mod version to `0.10.0`, update daily bump metadata, and advance `Next Version` tracking to `0.11.0`.
 - Fix Fabric outline preview startup/runtime compatibility by replacing fragile `LevelRenderer` mixin targeting with a version-tolerant Fabric render event bridge.

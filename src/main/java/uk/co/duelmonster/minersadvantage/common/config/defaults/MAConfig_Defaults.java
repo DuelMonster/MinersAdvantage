@@ -18,6 +18,8 @@ public final class MAConfig_Defaults {
      */
     public static final class Client {
         public static final boolean disableParticleEffects = false;
+        public static final int outlineForegroundColorArgb = 0xFF40D9C0;
+        public static final int outlineSeeThroughColorArgb = 0x4B40D9C0;
     }
 
     /**

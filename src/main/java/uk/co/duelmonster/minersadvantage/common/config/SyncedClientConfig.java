@@ -27,7 +27,11 @@ public record SyncedClientConfig(
      */
     public static SyncedClientConfig defaults() {
         return new SyncedClientConfig(
-            new ClientConfig(MAConfig_Defaults.Client.disableParticleEffects),
+            new ClientConfig(
+                MAConfig_Defaults.Client.disableParticleEffects,
+                MAConfig_Defaults.Client.outlineForegroundColorArgb,
+                MAConfig_Defaults.Client.outlineSeeThroughColorArgb
+            ),
             new CommonConfig(
                 MAConfig_Defaults.Common.tpsGuard,
                 MAConfig_Defaults.Common.gatherDrops,

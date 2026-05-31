@@ -37,6 +37,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import uk.co.duelmonster.minersadvantage.common.config.ClientConfig;
+import uk.co.duelmonster.minersadvantage.common.config.MAConfig_Base;
 import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 import uk.co.duelmonster.minersadvantage.common.services.input.ClientInputService.ClientInputState;
@@ -54,8 +56,6 @@ import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeRegistry;
  */
 public final class ShapePreviewRenderer {
     private static final int MAX_PREVIEW_BLOCKS = 256;
-    private static final int OUTLINE_FOREGROUND_COLOR = 0xFF40D9C0;
-    private static final int OUTLINE_SEE_THROUGH_COLOR = 0x4B40D9C0;
     private static final double OUTLINE_INFLATE = 0.005d;
 
     private static final RenderType LINES_NORMAL = RenderTypes.lines();
@@ -284,17 +284,20 @@ public final class ShapePreviewRenderer {
         // The event-provided consumers cannot support custom RenderTypes with custom pipelines.
         MultiBufferSource.BufferSource buffers = Minecraft.getInstance().renderBuffers().bufferSource();
         float lineWidth = Minecraft.getInstance().getWindow().getAppropriateLineWidth();
+        ClientConfig clientConfig = MAConfig_Base.getClientRootConfig().client();
+        int outlineForegroundColor = clientConfig.outlineForegroundColor();
+        int outlineSeeThroughColor = clientConfig.outlineSeeThroughColor();
 
         poseStack.pushPose();
         poseStack.translate(origin.getX() - cameraX, origin.getY() - cameraY, origin.getZ() - cameraZ);
 
         // Pass 1: translucent, NO_DEPTH_TEST -- occluded bounds visible through blocks
         VertexConsumer translucentBuilder = buffers.getBuffer(LINES_TRANSLUCENT_NO_DEPTH_TEST);
-        ShapeRenderer.renderShape(poseStack, translucentBuilder, combinedShape, 0.0d, 0.0d, 0.0d, OUTLINE_SEE_THROUGH_COLOR, lineWidth);
+        ShapeRenderer.renderShape(poseStack, translucentBuilder, combinedShape, 0.0d, 0.0d, 0.0d, outlineSeeThroughColor, lineWidth);
 
         // Pass 2: opaque, normal depth test -- foreground edges
         VertexConsumer opaqueBuilder = buffers.getBuffer(LINES_NORMAL);
-        ShapeRenderer.renderShape(poseStack, opaqueBuilder, combinedShape, 0.0d, 0.0d, 0.0d, OUTLINE_FOREGROUND_COLOR, lineWidth);
+        ShapeRenderer.renderShape(poseStack, opaqueBuilder, combinedShape, 0.0d, 0.0d, 0.0d, outlineForegroundColor, lineWidth);
 
         buffers.endBatch(LINES_TRANSLUCENT_NO_DEPTH_TEST);
         buffers.endBatch(LINES_NORMAL);

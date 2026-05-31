@@ -43,7 +43,9 @@ public final class MATomlConfigStore {
 
         return new SyncedClientConfig(
             new ClientConfig(
-                boolValue(clientValues, "disable_particle_effects", fallback.client().disableParticleEffects())
+                boolValue(clientValues, "disable_particle_effects", fallback.client().disableParticleEffects()),
+                argbColorValue(clientValues, "outline_foreground_color_argb", fallback.client().outlineForegroundColor()),
+                argbColorValue(clientValues, "outline_see_through_color_argb", fallback.client().outlineSeeThroughColor())
             ),
             new CommonConfig(
                 boolValue(serverValues, "common.tps_guard", fallback.common().tpsGuard()),
@@ -158,6 +160,8 @@ public final class MATomlConfigStore {
 
         Map<String, String> clientValues = new LinkedHashMap<>();
         clientValues.put("disable_particle_effects", formatTomlValue(value.client().disableParticleEffects()));
+        clientValues.put("outline_foreground_color_argb", formatArgbColor(value.client().outlineForegroundColor()));
+        clientValues.put("outline_see_through_color_argb", formatArgbColor(value.client().outlineSeeThroughColor()));
 
         Map<String, String> serverValues = new LinkedHashMap<>();
         serverValues.put("common.tps_guard", formatTomlValue(value.common().tpsGuard()));
@@ -334,6 +338,29 @@ public final class MATomlConfigStore {
         }
     }
 
+    private static int argbColorValue(Map<String, String> values, String key, int fallback) {
+        String raw = values.get(key);
+        if (raw == null) {
+            return fallback;
+        }
+
+        String normalized = stripQuotes(raw).trim();
+        try {
+            if (normalized.startsWith("0x") || normalized.startsWith("0X")) {
+                long parsed = Long.parseUnsignedLong(normalized.substring(2), 16);
+                return (int) parsed;
+            }
+            if (normalized.startsWith("#")) {
+                long parsed = Long.parseUnsignedLong(normalized.substring(1), 16);
+                return (int) parsed;
+            }
+            return Integer.parseInt(normalized);
+        } catch (NumberFormatException exception) {
+            warn("Invalid ARGB color for config key " + key + ": " + raw);
+            return fallback;
+        }
+    }
+
     private static double doubleValue(Map<String, String> values, String key, double fallback, double min, double max) {
         String raw = values.get(key);
         if (raw == null) {
@@ -431,6 +458,10 @@ public final class MATomlConfigStore {
             return '[' + String.join(", ", values) + ']';
         }
         return '"' + escapeTomlString(String.valueOf(value)) + '"';
+    }
+
+    private static String formatArgbColor(int color) {
+        return String.format(Locale.ROOT, "\"0x%08X\"", color);
     }
 
     private static String escapeTomlString(String value) {
