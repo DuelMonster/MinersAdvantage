@@ -3,10 +3,32 @@ package uk.co.duelmonster.minersadvantage.client;
 import java.util.Objects;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import com.mojang.blaze3d.pipeline.BlendFunction;
+import com.mojang.blaze3d.pipeline.RenderPipeline;
+//? if mc1 {
+import com.mojang.blaze3d.platform.DepthTestFunction;
+//?} else {
+/*
+import com.mojang.blaze3d.pipeline.ColorTargetState;
+import com.mojang.blaze3d.pipeline.DepthStencilState;
+import com.mojang.blaze3d.platform.CompareOp;
+*/ //?}
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.ShapeRenderer;
+//? if mc26 {
+/*
+import net.minecraft.client.renderer.rendertype.LayeringTransform;
+import net.minecraft.client.renderer.rendertype.OutputTarget;
+*/ //?}
+import net.minecraft.client.renderer.rendertype.RenderSetup;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.player.Player;
@@ -25,12 +47,19 @@ import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeRegistry;
 
 /**
  * ShapePreviewRenderer renders lightweight held-key shape previews on the client.
+ *
+ * Uses a two-pass rendering approach matching LiteMiner:
+ *   Pass 1: translucent lines with NO_DEPTH_TEST so occluded bounds show through blocks.
+ *   Pass 2: opaque lines with normal depth testing for crisp foreground edges.
  */
 public final class ShapePreviewRenderer {
     private static final int MAX_PREVIEW_BLOCKS = 256;
     private static final int OUTLINE_FOREGROUND_COLOR = 0xFF40D9C0;
     private static final int OUTLINE_SEE_THROUGH_COLOR = 0x4B40D9C0;
     private static final double OUTLINE_INFLATE = 0.005d;
+
+    private static final RenderType LINES_NORMAL = RenderTypes.lines();
+    private static final RenderType LINES_TRANSLUCENT_NO_DEPTH_TEST = createLinesTranslucentNoDepthTestRenderType();
 
     private static final OutlineCache CACHE = new OutlineCache();
 
@@ -70,7 +99,51 @@ public final class ShapePreviewRenderer {
     private ShapePreviewRenderer() {
     }
 
-    public static void renderHeldPreview(ClientInputState state, PoseStack poseStack, VertexConsumer vertexConsumer, double cameraX, double cameraY, double cameraZ) {
+    private static RenderType createLinesTranslucentNoDepthTestRenderType() {
+        //? if mc1 {
+        RenderPipeline.Snippet snippet = RenderPipeline.builder(RenderPipelines.MATRICES_FOG_SNIPPET, RenderPipelines.GLOBALS_SNIPPET)
+            .withVertexShader("core/rendertype_lines")
+            .withFragmentShader("core/rendertype_lines")
+            .withBlend(BlendFunction.TRANSLUCENT)
+            .withCull(false)
+            .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
+            .withVertexFormat(DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH, VertexFormat.Mode.LINES)
+            .buildSnippet();
+
+        RenderPipeline pipeline = RenderPipeline.builder(snippet)
+            .withLocation("pipeline/minersadvantage_lines_translucent_no_depth")
+            .build();
+
+        RenderSetup setup = RenderSetup.builder(pipeline)
+            .useLightmap()
+            .createRenderSetup();
+
+        return RenderType.create("minersadvantage_lines_translucent_no_depth_test", setup);
+        //?} else {
+        /*
+        RenderPipeline.Snippet snippet = RenderPipeline.builder(RenderPipelines.MATRICES_FOG_SNIPPET, RenderPipelines.GLOBALS_SNIPPET)
+            .withVertexShader("core/rendertype_lines")
+            .withFragmentShader("core/rendertype_lines")
+            .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+            .withCull(false)
+            .withVertexFormat(DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH, VertexFormat.Mode.LINES)
+            .withDepthStencilState(new DepthStencilState(CompareOp.ALWAYS_PASS, false))
+            .buildSnippet();
+
+        RenderPipeline pipeline = RenderPipeline.builder(snippet)
+            .withLocation("pipeline/minersadvantage_lines_translucent_no_depth")
+            .build();
+
+        RenderSetup setup = RenderSetup.builder(pipeline)
+            .setLayeringTransform(LayeringTransform.VIEW_OFFSET_Z_LAYERING)
+            .setOutputTarget(OutputTarget.ITEM_ENTITY_TARGET)
+            .createRenderSetup();
+
+        return RenderType.create("minersadvantage_lines_translucent_no_depth_test", setup);
+        */ //?}
+    }
+
+    public static void renderHeldPreview(ClientInputState state, PoseStack poseStack, double cameraX, double cameraY, double cameraZ) {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.level == null || minecraft.player == null) {
             return;
@@ -123,7 +196,6 @@ public final class ShapePreviewRenderer {
                     state.selectedExcavationShapeIndex(),
                     dimensions,
                     poseStack,
-                    vertexConsumer,
                     cameraX,
                     cameraY,
                     cameraZ
@@ -152,7 +224,6 @@ public final class ShapePreviewRenderer {
                     state.selectedShaftanationShapeIndex(),
                     dimensions,
                     poseStack,
-                    vertexConsumer,
                     cameraX,
                     cameraY,
                     cameraZ
@@ -175,7 +246,6 @@ public final class ShapePreviewRenderer {
                 0,
                 new MAShapeDimensions.Dimensions(1, ventDepth, 1),
                 poseStack,
-                vertexConsumer,
                 cameraX,
                 cameraY,
                 cameraZ
@@ -190,7 +260,6 @@ public final class ShapePreviewRenderer {
         int shapeIndex,
         MAShapeDimensions.Dimensions dimensions,
         PoseStack poseStack,
-        VertexConsumer vertexConsumer,
         double cameraX,
         double cameraY,
         double cameraZ
@@ -211,12 +280,24 @@ public final class ShapePreviewRenderer {
             return;
         }
 
+        // Use the game's own render buffer source directly, just like LiteMiner does.
+        // The event-provided consumers cannot support custom RenderTypes with custom pipelines.
+        MultiBufferSource.BufferSource buffers = Minecraft.getInstance().renderBuffers().bufferSource();
         float lineWidth = Minecraft.getInstance().getWindow().getAppropriateLineWidth();
+
         poseStack.pushPose();
         poseStack.translate(origin.getX() - cameraX, origin.getY() - cameraY, origin.getZ() - cameraZ);
 
-        ShapeRenderer.renderShape(poseStack, vertexConsumer, combinedShape, 0.0d, 0.0d, 0.0d, OUTLINE_SEE_THROUGH_COLOR, lineWidth);
-        ShapeRenderer.renderShape(poseStack, vertexConsumer, combinedShape, 0.0d, 0.0d, 0.0d, OUTLINE_FOREGROUND_COLOR, lineWidth);
+        // Pass 1: translucent, NO_DEPTH_TEST -- occluded bounds visible through blocks
+        VertexConsumer translucentBuilder = buffers.getBuffer(LINES_TRANSLUCENT_NO_DEPTH_TEST);
+        ShapeRenderer.renderShape(poseStack, translucentBuilder, combinedShape, 0.0d, 0.0d, 0.0d, OUTLINE_SEE_THROUGH_COLOR, lineWidth);
+
+        // Pass 2: opaque, normal depth test -- foreground edges
+        VertexConsumer opaqueBuilder = buffers.getBuffer(LINES_NORMAL);
+        ShapeRenderer.renderShape(poseStack, opaqueBuilder, combinedShape, 0.0d, 0.0d, 0.0d, OUTLINE_FOREGROUND_COLOR, lineWidth);
+
+        buffers.endBatch(LINES_TRANSLUCENT_NO_DEPTH_TEST);
+        buffers.endBatch(LINES_NORMAL);
 
         poseStack.popPose();
     }

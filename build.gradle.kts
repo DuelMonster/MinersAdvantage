@@ -104,6 +104,7 @@ modstitch {
 
 stonecutter {
     constants.match(loader, "fabric", "neoforge")
+    constants.match(if (minecraft.startsWith("1.21.")) "mc1" else "mc26", "mc1", "mc26")
 }
 
 java {

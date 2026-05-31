@@ -2,10 +2,7 @@
 package uk.co.duelmonster.minersadvantage.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.Arrays;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -54,19 +51,11 @@ public final class FabricClientEntrypoint implements ClientModInitializer {
                         return true;
                     }
 
-                    Object linesRenderType = resolveLinesRenderType();
-                    Method getBufferMethod = Arrays.stream(consumers.getClass().getMethods())
-                        .filter(candidate -> candidate.getName().equals("getBuffer") && candidate.getParameterCount() == 1)
-                        .findFirst()
-                        .orElseThrow(() -> new NoSuchMethodException("Could not find getBuffer(renderType) on " + consumers.getClass().getName()));
-                    VertexConsumer vertexConsumer = (VertexConsumer) getBufferMethod.invoke(consumers, linesRenderType);
-
                     Minecraft minecraft = Minecraft.getInstance();
                     Vec3 cameraPos = minecraft.gameRenderer.getMainCamera().position();
                     ShapePreviewRenderer.renderHeldPreview(
                         ClientInputHandler.getInputState(),
                         matrices,
-                        vertexConsumer,
                         cameraPos.x,
                         cameraPos.y,
                         cameraPos.z
@@ -92,20 +81,6 @@ public final class FabricClientEntrypoint implements ClientModInitializer {
         }
     }
 
-    private static Object resolveLinesRenderType() throws ReflectiveOperationException {
-        try {
-            Class<?> renderTypeClass = Class.forName("net.minecraft.client.renderer.RenderType");
-            return renderTypeClass.getMethod("lines").invoke(null);
-        } catch (ClassNotFoundException ignored) {
-            try {
-                Class<?> renderTypesClass = Class.forName("net.minecraft.client.renderer.RenderTypes");
-                return renderTypesClass.getMethod("lines").invoke(null);
-            } catch (ClassNotFoundException ignoredAgain) {
-                Class<?> renderTypesClass = Class.forName("net.minecraft.client.renderer.rendertype.RenderTypes");
-                return renderTypesClass.getMethod("lines").invoke(null);
-            }
-        }
-    }
 }
 //?} else {
 /*
