@@ -35,6 +35,7 @@ public record FeatureDispatchPacket(
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     private static Type<FeatureDispatchPacket> createType() {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             return payloadId("feature_dispatch");
         } catch (Throwable throwable) {
@@ -48,6 +49,7 @@ public record FeatureDispatchPacket(
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     private static StreamCodec<RegistryFriendlyByteBuf, FeatureDispatchPacket> createStreamCodec() {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             StreamCodec<RegistryFriendlyByteBuf, FeatureId> featureCodec =
                 (StreamCodec<RegistryFriendlyByteBuf, FeatureId>) (StreamCodec<?, FeatureId>) ByteBufCodecs.STRING_UTF8.map(FeatureId::valueOf, FeatureId::name);

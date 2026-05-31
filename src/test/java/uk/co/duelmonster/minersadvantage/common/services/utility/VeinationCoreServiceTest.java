@@ -12,6 +12,9 @@ import org.junit.jupiter.api.Test;
  */
 class VeinationCoreServiceTest {
     @Test
+    /**
+     * b ui ld sc on ne ct ed ve in no de li st wi th in li mi ts exists so this path stays predictable and easier to debug when things get weird.
+     */
     void buildsConnectedVeinNodeListWithinLimits() {
         VeinationCoreService service = new VeinationCoreService();
         List<VeinationCoreService.VeinNode> nodes = service.buildVeinNodes(0, 40, 0, 2, 5);

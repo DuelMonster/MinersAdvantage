@@ -26,7 +26,7 @@ import java.util.Queue;
 import java.util.Set;
 
 /**
- * Modernized ExcavationAgent: actually breaks blocks in the world, production-wired.
+ * Excavation worker that carves a bounded region (or selected shape) and can fan out veination.
  */
 public class ExcavationAgent extends Agent {
     private final BlockPos origin;
@@ -55,6 +55,9 @@ public class ExcavationAgent extends Agent {
     private final Set<BlockPos> allowedShapePositions;
     private int processed = 0;
 
+    /**
+     * Convenience constructor deriving dimensions from a radius value.
+     */
     public ExcavationAgent(ServerPlayer player, BlockPos origin, int radius) {
         this(
             player,
@@ -68,6 +71,9 @@ public class ExcavationAgent extends Agent {
         );
     }
 
+    /**
+     * Convenience constructor with explicit origin block identity.
+     */
     public ExcavationAgent(ServerPlayer player, BlockPos origin, int radius, Block originBlock) {
         this(
             player,
@@ -81,6 +87,9 @@ public class ExcavationAgent extends Agent {
         );
     }
 
+    /**
+     * Constructor with explicit config and dimensions.
+     */
     public ExcavationAgent(
         ServerPlayer player,
         BlockPos origin,
@@ -94,6 +103,9 @@ public class ExcavationAgent extends Agent {
         this(player, origin, originState, config, commonConfig, width, height, depth, null, null);
     }
 
+    /**
+     * Constructor with optional veination runtime wiring.
+     */
     public ExcavationAgent(
         ServerPlayer player,
         BlockPos origin,
@@ -109,6 +121,9 @@ public class ExcavationAgent extends Agent {
         this(player, origin, originState, config, commonConfig, width, height, depth, veinationRuntime, veinationConfig, ItemStack.EMPTY);
     }
 
+    /**
+     * Constructor with explicit veination trigger tool.
+     */
     public ExcavationAgent(
         ServerPlayer player,
         BlockPos origin,
@@ -125,6 +140,9 @@ public class ExcavationAgent extends Agent {
         this(player, origin, originState, config, commonConfig, width, height, depth, veinationRuntime, veinationConfig, veinationTriggerTool, null);
     }
 
+    /**
+     * Constructor with optional illumination config and default shape context.
+     */
     public ExcavationAgent(
         ServerPlayer player,
         BlockPos origin,
@@ -157,6 +175,9 @@ public class ExcavationAgent extends Agent {
         );
     }
 
+    /**
+     * Full constructor that resolves shape-limited region and seeds traversal queue.
+     */
     public ExcavationAgent(
         ServerPlayer player,
         BlockPos origin,
@@ -205,6 +226,7 @@ public class ExcavationAgent extends Agent {
                     this.blockLimit
                 );
                 Set<BlockPos> computed = shapeDefinition.compute(context);
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (!computed.contains(origin)) {
                     computed = new java.util.LinkedHashSet<>(computed);
                     computed.add(origin.immutable());
@@ -214,6 +236,7 @@ public class ExcavationAgent extends Agent {
             .orElse(null);
 
         String originBlockId = BuiltInRegistries.BLOCK.getKey(this.originState.getBlock()).toString();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (this.config.isBlacklisted(originBlockId)) {
             return;
         }
@@ -223,25 +246,36 @@ public class ExcavationAgent extends Agent {
         queue.add(origin);
     }
 
+    /**
+     * Per-tick excavation loop with radius/shape guards and optional veination fan-out.
+     */
     @Override
+    /**
+     * t ic k exists so this path stays predictable and easier to debug when things get weird.
+     */
     public boolean tick() {
         int count = 0;
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         while (!queue.isEmpty() && count < blocksPerTick && processed < blockLimit) {
             BlockPos pos = queue.poll();
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (pos == null || !visited.add(pos)) {
                 continue;
             }
 
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (!isWithinConfiguredRadius(pos)) {
                 continue;
             }
 
             BlockState state = world.getBlockState(pos);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (pos.equals(origin) && state.getBlock() == Blocks.AIR) {
                 enqueueNeighbors(pos);
                 continue;
             }
 
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (state.getBlock() != Blocks.AIR && isTargetState(state)) {
                 world.destroyBlock(pos, true, player);
                 recordCarvedBlock(pos);
@@ -252,6 +286,7 @@ public class ExcavationAgent extends Agent {
             }
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (queue.isEmpty() || processed >= blockLimit) {
             maybeQueueIllumination();
             return finish(queue.isEmpty() ? "excavation queue exhausted" : "excavation block limit reached");
@@ -259,21 +294,30 @@ public class ExcavationAgent extends Agent {
         return false;
     }
 
+    /**
+     * Optionally enqueue illumination agent for carved area after excavation completes.
+     */
     private void maybeQueueIllumination() {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!commonConfig.autoIlluminate() || illuminationConfig == null || !illuminationConfig.enabled()) {
             return;
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!carvedAnyBlock) {
             return;
         }
 
         AgentManager manager = AgentManager.get();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!manager.hasAgentType(player, IlluminationAgent.class)) {
             manager.addAgent(player, new IlluminationAgent(player, carvedArea(), illuminationConfig, commonConfig));
         }
     }
 
+    /**
+     * Reset carved bounds accumulator.
+     */
     private void resetCarvedBounds() {
         carvedAnyBlock = false;
         carvedMinX = Integer.MAX_VALUE;
@@ -284,6 +328,9 @@ public class ExcavationAgent extends Agent {
         carvedMaxZ = Integer.MIN_VALUE;
     }
 
+    /**
+     * Expand carved bounds accumulator with one carved block.
+     */
     private void recordCarvedBlock(BlockPos pos) {
         carvedAnyBlock = true;
         carvedMinX = Math.min(carvedMinX, pos.getX());
@@ -294,15 +341,25 @@ public class ExcavationAgent extends Agent {
         carvedMaxZ = Math.max(carvedMaxZ, pos.getZ());
     }
 
+    /**
+     * Build carved-region AABB for follow-up illumination.
+     */
     private AABB carvedArea() {
         return new AABB(carvedMinX, carvedMinY, carvedMinZ, carvedMaxX, carvedMaxY, carvedMaxZ);
     }
 
+    /**
+     * Queue connected neighbor positions for traversal.
+     */
     private void enqueueNeighbors(BlockPos pos) {
         queue.addAll(Functions.connectedNeighbors(pos));
     }
 
+    /**
+     * Check whether position is within selected shape or fallback width/height/depth bounds.
+     */
     private boolean isWithinConfiguredRadius(BlockPos pos) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (allowedShapePositions != null) {
             return allowedShapePositions.contains(pos);
         }
@@ -315,29 +372,41 @@ public class ExcavationAgent extends Agent {
         return dx <= halfWidth && dz <= halfDepth && dy <= halfHeight;
     }
 
+    /**
+     * Check whether block state is a valid excavation target under current matching rules.
+     */
     private boolean isTargetState(BlockState state) {
         String blockId = BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (config.isBlacklisted(blockId)) {
             return false;
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (config.ignoreBlockVariants()) {
             return state.getBlock() == originState.getBlock();
         }
         return state.equals(originState);
     }
 
+    /**
+     * Try veination on broken block, then on immediate connected neighbors.
+     */
     private void maybeFanOutVeinationFromConnectedOre(BlockPos brokenPos, BlockState brokenState) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (maybeFanOutVeination(brokenPos, brokenState, mineVeins, commonConfig, veinationRuntime, veinationConfig, veinationTriggerTool)) {
             return;
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (BlockPos neighbor : Functions.connectedNeighbors(brokenPos)) {
             BlockState neighborState = world.getBlockState(neighbor);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (neighborState.isAir()) {
                 continue;
             }
 
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (maybeFanOutVeination(neighbor, neighborState, mineVeins, commonConfig, veinationRuntime, veinationConfig, veinationTriggerTool)) {
                 return;
             }

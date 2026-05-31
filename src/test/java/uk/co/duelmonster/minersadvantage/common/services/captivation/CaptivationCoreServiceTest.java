@@ -12,6 +12,9 @@ import org.junit.jupiter.api.Test;
  */
 class CaptivationCoreServiceTest {
     @Test
+    /**
+     * r es pe ct sw hi te li st an db la ck li st lo gi c exists so this path stays predictable and easier to debug when things get weird.
+     */
     void respectsWhitelistAndBlacklistLogic() {
         Set<String> itemSet = Set.of("apple", "diamond");
 
@@ -25,6 +28,9 @@ class CaptivationCoreServiceTest {
     }
 
     @Test
+    /**
+     * r es pe ct su nc on di ti on al bl ac kl is to nd ir ec tp ic ku p exists so this path stays predictable and easier to debug when things get weird.
+     */
     void respectsUnconditionalBlacklistOnDirectPickup() {
         Set<String> itemSet = Set.of("creeper_head");
         CaptivationCoreService service = new CaptivationCoreService(itemSet, true, true);
@@ -34,6 +40,9 @@ class CaptivationCoreServiceTest {
     }
 
     @Test
+    /**
+     * c om pu te sa ab bw it hi nr ad ii exists so this path stays predictable and easier to debug when things get weird.
+     */
     void computesAabbWithinRadii() {
         CaptivationCoreService service = new CaptivationCoreService(Set.of(), false, false);
 
@@ -42,6 +51,9 @@ class CaptivationCoreServiceTest {
     }
 
     @Test
+    /**
+     * e va lu at es ca pt ur ed ec is io nw it hg ui ga te exists so this path stays predictable and easier to debug when things get weird.
+     */
     void evaluatesCaptureDecisionWithGuiGate() {
         CaptivationCoreService service = new CaptivationCoreService(Set.of(), false, false);
 

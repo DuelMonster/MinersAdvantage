@@ -12,6 +12,9 @@ import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
  */
 class MinersAdvantageCoreTest {
     @Test
+    /**
+     * b oo ts tr ap sa ll pl an ne df ea tu re s exists so this path stays predictable and easier to debug when things get weird.
+     */
     void bootstrapsAllPlannedFeatures() {
         MinersAdvantageCore core = new MinersAdvantageCore();
         core.bootstrap();

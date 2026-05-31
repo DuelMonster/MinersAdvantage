@@ -24,6 +24,9 @@ public record VeinationConfig(
         this(enabled, maxVeinDistance, List.of(), true, true, true, 0.2D, List.of());
     }
 
+    /**
+     * v ei na ti on co nf ig exists so this path stays predictable and easier to debug when things get weird.
+     */
     public VeinationConfig(boolean enabled, int maxVeinDistance, List<String> ores) {
         this(enabled, maxVeinDistance, ores, true, true, true, 0.2D, List.of());
     }

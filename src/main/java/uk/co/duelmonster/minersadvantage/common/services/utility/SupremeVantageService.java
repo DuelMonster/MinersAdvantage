@@ -12,15 +12,6 @@ import java.util.Set;
 public final class SupremeVantageService {
     // Why this exists: Parity note: key code recognition, cadence, and staged reward sequencing are ported; item-grant implementation detail parity is tracked in checklist. (future-you will thank present-you).
 
-    /*
-    public static void isWorthy(boolean bToggled) {
-        // Why this exists: ...see legacy for logic... (future-you will thank present-you).
-    }
-
-    public static void GiveSupremeVantage(ServerPlayer player, String code) {
-        // Why this exists: ...see legacy for logic... (future-you will thank present-you).
-    }
-    */
     public static final String CODE_N = "2780872";
     public static final String CODE_D = "3780873";
 
@@ -108,13 +99,17 @@ public final class SupremeVantageService {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public ClientUpdate processClientTick(ClientState state, Set<Character> pressedDigits, boolean excavationToggled, boolean allFeaturesEnabled) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!allFeaturesEnabled) {
             return new ClientUpdate(ClientState.defaults(), false, false, "");
         }
 
         String code = state.enteredCode();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (excavationToggled) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             for (char digit : List.of('0', '2', '7', '8')) {
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (pressedDigits.contains(digit) && (code.isEmpty() || code.charAt(code.length() - 1) != digit)) {
                     code += digit;
                 }
@@ -122,10 +117,12 @@ public final class SupremeVantageService {
             return new ClientUpdate(new ClientState(code, state.worthy(), 0), false, false, "");
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!state.worthy() && isRecognizedCode(code)) {
             return new ClientUpdate(new ClientState(code, true, 0), true, false, "");
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (state.worthy()) {
             int idleTicks = state.idleTicks() + 1;
             boolean shouldSend = idleTicks >= 5;
@@ -133,6 +130,7 @@ public final class SupremeVantageService {
         }
 
         int idleTicks = state.idleTicks() + 1;
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if ((!code.isEmpty() && idleTicks > 5) || idleTicks >= 1000) {
             return new ClientUpdate(ClientState.defaults(), false, false, "");
         }
@@ -144,6 +142,7 @@ public final class SupremeVantageService {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public RewardGrant grantNextReward(long playerId, String code) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!isRecognizedCode(code)) {
             return null;
         }
@@ -159,6 +158,7 @@ public final class SupremeVantageService {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     private RewardGrant applyRiteVariant(RewardGrant base, String code) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!CODE_N.equals(code)) {
             return new RewardGrant(base.sequence(), base.rewardId(), base.displayName(), base.itemId(), code);
         }
@@ -190,6 +190,7 @@ public final class SupremeVantageService {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public ItemGrantSpec materializeRewardSpec(RewardGrant reward) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (reward == null) {
             return null;
         }

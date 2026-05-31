@@ -38,7 +38,9 @@ public class PacketSynchronization implements IMAPacket {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public static void process(UUID senderUuid, PacketSynchronization pkt, boolean playToServer) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (pkt.syncType == SyncType.Variables) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (playToServer && senderUuid != null) {
                 Variables.set(senderUuid, pkt.payload);
             } else {

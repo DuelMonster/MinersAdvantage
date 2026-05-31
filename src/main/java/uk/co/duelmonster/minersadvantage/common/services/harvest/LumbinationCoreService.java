@@ -19,6 +19,9 @@ import uk.co.duelmonster.minersadvantage.common.registry.RegistryPredicates;
 public final class LumbinationCoreService {
     // Why this exists: Parity note: key block/tool validation logic from legacy LumbinationHelper is ported. (future-you will thank present-you).
 
+    /**
+     * i sw oo d exists so this path stays predictable and easier to debug when things get weird.
+     */
     public boolean isWood(BlockState state) {
         return state.is(BlockTags.LOGS)
             || state.is(BlockTags.PLANKS)
@@ -35,9 +38,11 @@ public final class LumbinationCoreService {
      * Optimized isValidLog to handle large configurations efficiently.
      */
     public boolean isValidLog(BlockState state, LumbinationConfig config) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (state.is(BlockTags.LOGS) || state.getBlock() instanceof RotatedPillarBlock) {
             return true;
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (config == null || config.logs() == null || config.logs().isEmpty()) {
             return false;
         }
@@ -48,9 +53,11 @@ public final class LumbinationCoreService {
      * Optimized isValidLeaves to handle large configurations efficiently.
      */
     public boolean isValidLeaves(BlockState state, LumbinationConfig config) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (state.is(BlockTags.LEAVES) || state.getBlock() instanceof LeavesBlock) {
             return true;
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (config == null || config.leaves() == null || config.leaves().isEmpty()) {
             return false;
         }
@@ -123,7 +130,9 @@ public final class LumbinationCoreService {
         int stepsToEmit = Math.max(1, processesPerTick);
 
         List<LumbinationStep> steps = new ArrayList<>();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (int i = 0; i < stepsToEmit; i++) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (i < logsToHarvest) {
                 steps.add(new LumbinationStep("log", i));
             } else if (i - logsToHarvest < leavesToClear) {

@@ -16,42 +16,42 @@ import uk.co.duelmonster.minersadvantage.common.Functions;
 import uk.co.duelmonster.minersadvantage.common.registry.RegistryPredicates;
 
 /**
- * VeinationCoreService keeps this part of Miners Advantage running without turning server ticks into confetti.
- * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+ * Core vein discovery engine that walks connected ore blocks with bounded breadth-first traversal,
+ * while trying very hard not to set your server tick budget on fire.
  */
 public final class VeinationCoreService {
     /**
-     * VeinNode keeps this part of Miners Advantage running without turning server ticks into confetti.
-     * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+     * Lightweight coordinate payload used by helper methods and tests that reason about vein nodes.
      */
     public record VeinNode(int x, int y, int z) {}
 
     /**
-     * sameVein exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     * Compare two ore ids after family normalization so deepslate variants count as the same vein family.
      */
     public boolean sameVein(String blockId1, String blockId2) {
         return normalizeOreFamily(blockId1).equals(normalizeOreFamily(blockId2));
     }
 
     /**
-     * estimatedBlocksInVein exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     * Rough estimate helper used by callers that need a cheap upper-bound-style hint.
      */
     public int estimatedBlocksInVein(int maxVeinDistance, int foundCount) {
         return foundCount + (maxVeinDistance * 3);
     }
 
     /**
-     * discoverConnectedVein exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     * Overload that discovers connected vein blocks without an origin-state hint.
      */
     public List<BlockPos> discoverConnectedVein(Level world, BlockPos origin, int maxVeinDistance, int maxBlocks) {
         return discoverConnectedVein(world, origin, null, maxVeinDistance, maxBlocks);
     }
 
+    /**
+     * Discover connected ore blocks using BFS with optional origin hint, distance bound, and block-count cap.
+     */
     public List<BlockPos> discoverConnectedVein(Level world, BlockPos origin, BlockState originHint, int maxVeinDistance, int maxBlocks) {
         List<BlockPos> vein = new ArrayList<>();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (world == null || origin == null || maxVeinDistance < 0) {
             return vein;
         }
@@ -59,6 +59,7 @@ public final class VeinationCoreService {
 
         BlockState originState = world.getBlockState(origin);
         BlockState effectiveOriginState = RegistryPredicates.isOreLike(originState) ? originState : originHint;
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (effectiveOriginState == null || !RegistryPredicates.isOreLike(effectiveOriginState)) {
             return vein;
         }
@@ -68,12 +69,16 @@ public final class VeinationCoreService {
         Set<BlockPos> visited = new HashSet<>();
         visited.add(origin);
 
+        // If origin itself is valid ore, start there; otherwise seed queue from valid neighboring ore blocks.
         if (RegistryPredicates.isOreLike(originState) && originFamily.equals(normalizeOreFamily(blockId(originState)))) {
             queue.add(origin);
         } else {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             for (BlockPos neighbor : Functions.connectedNeighbors(origin)) {
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (visited.add(neighbor)) {
                     BlockState neighborState = world.getBlockState(neighbor);
+                    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                     if (RegistryPredicates.isOreLike(neighborState) && originFamily.equals(normalizeOreFamily(blockId(neighborState)))) {
                         queue.addLast(neighbor);
                     }
@@ -82,19 +87,24 @@ public final class VeinationCoreService {
         }
 
         int maxDistanceSquared = maxVeinDistance * maxVeinDistance;
+        // Standard BFS loop with early exits for distance and max-block budget.
         while (!queue.isEmpty() && vein.size() < effectiveMaxBlocks) {
             BlockPos current = queue.removeFirst();
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (current.distSqr(origin) > maxDistanceSquared) {
                 continue;
             }
 
             BlockState currentState = world.getBlockState(current);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (!RegistryPredicates.isOreLike(currentState) || !originFamily.equals(normalizeOreFamily(blockId(currentState)))) {
                 continue;
             }
 
             vein.add(current.immutable());
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             for (BlockPos neighbor : Functions.connectedNeighbors(current)) {
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (visited.add(neighbor)) {
                     queue.addLast(neighbor);
                 }
@@ -104,11 +114,18 @@ public final class VeinationCoreService {
         return vein;
     }
 
+    /**
+     * Convert block state to registry id string, safely handling null.
+     */
     private static String blockId(BlockState state) {
         return state == null ? "" : BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString();
     }
 
+    /**
+     * Normalize ore ids into family keys so related variants can be treated as the same vein lineage.
+     */
     private static String normalizeOreFamily(String blockId) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (blockId == null || blockId.isBlank()) {
             return "";
         }
@@ -117,6 +134,7 @@ public final class VeinationCoreService {
         String namespace = split.length > 1 ? split[0] : "minecraft";
         String path = split.length > 1 ? split[1] : split[0];
         String normalizedPath = path.toLowerCase(Locale.ROOT);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (normalizedPath.startsWith("deepslate_") && normalizedPath.endsWith("_ore")) {
             normalizedPath = normalizedPath.substring("deepslate_".length());
         }
@@ -124,34 +142,40 @@ public final class VeinationCoreService {
     }
 
     /**
-     * buildVeinNodes exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     * Build a simple expanding node list around origin for deterministic helper/test scenarios.
      */
     public List<VeinNode> buildVeinNodes(int originX, int originY, int originZ, int maxVeinDistance, int maxNodes) {
         List<VeinNode> nodes = new ArrayList<>();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (maxVeinDistance < 0 || maxNodes <= 0) {
             return nodes;
         }
 
         nodes.add(new VeinNode(originX, originY, originZ));
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (int distance = 1; distance <= maxVeinDistance && nodes.size() < maxNodes; distance++) {
             nodes.add(new VeinNode(originX + distance, originY, originZ));
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (nodes.size() >= maxNodes) {
                 break;
             }
             nodes.add(new VeinNode(originX - distance, originY, originZ));
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (nodes.size() >= maxNodes) {
                 break;
             }
             nodes.add(new VeinNode(originX, originY + distance, originZ));
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (nodes.size() >= maxNodes) {
                 break;
             }
             nodes.add(new VeinNode(originX, originY - distance, originZ));
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (nodes.size() >= maxNodes) {
                 break;
             }
             nodes.add(new VeinNode(originX, originY, originZ + distance));
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (nodes.size() >= maxNodes) {
                 break;
             }

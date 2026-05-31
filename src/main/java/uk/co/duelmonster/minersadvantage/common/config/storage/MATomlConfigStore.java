@@ -31,8 +31,14 @@ public final class MATomlConfigStore {
     private static final String CLIENT_FILE_NAME = "client-config.toml";
     private static final String SERVER_FILE_NAME = "server-config.toml";
 
+    /**
+     * Utility class only.
+     */
     private MATomlConfigStore() {}
 
+    /**
+     * Load split TOML config files and merge parsed values with provided defaults.
+     */
     public static SyncedClientConfig load(Path configDir, SyncedClientConfig defaults) {
         SyncedClientConfig fallback = defaults == null ? SyncedClientConfig.defaults() : defaults;
         Path clientFile = configDir.resolve(CLIENT_FILE_NAME);
@@ -153,6 +159,9 @@ public final class MATomlConfigStore {
         );
     }
 
+    /**
+     * Persist split TOML config files from runtime config state.
+     */
     public static void save(Path configDir, SyncedClientConfig config) {
         SyncedClientConfig value = config == null ? SyncedClientConfig.defaults() : config;
         Path clientFile = configDir.resolve(CLIENT_FILE_NAME);
@@ -258,18 +267,26 @@ public final class MATomlConfigStore {
         writeToml(serverFile, serverValues, "MinersAdvantage server configuration");
     }
 
+    /**
+     * Read simple key-value TOML lines into a flattened map.
+     */
     private static Map<String, String> readToml(Path filePath) {
         Map<String, String> values = new LinkedHashMap<>();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!Files.isRegularFile(filePath)) {
             return values;
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             for (String line : Files.readAllLines(filePath, StandardCharsets.UTF_8)) {
                 String clean = stripComment(line).trim();
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (clean.isEmpty()) {
                     continue;
                 }
                 int equals = clean.indexOf('=');
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (equals <= 0) {
                     continue;
                 }
@@ -283,10 +300,14 @@ public final class MATomlConfigStore {
         return values;
     }
 
+    /**
+     * Write flattened key-value TOML lines with a human-readable header.
+     */
     private static void writeToml(Path filePath, Map<String, String> values, String header) {
         StringBuilder builder = new StringBuilder();
         builder.append("# ").append(header).append("\n\n");
         values.forEach((key, value) -> builder.append(key).append(" = ").append(value).append("\n"));
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             Files.createDirectories(filePath.getParent());
             Files.writeString(filePath, builder.toString(), StandardCharsets.UTF_8);
@@ -295,10 +316,15 @@ public final class MATomlConfigStore {
         }
     }
 
+    /**
+     * Remove trailing TOML comment content while respecting quoted strings.
+     */
     private static String stripComment(String line) {
         boolean inQuotes = false;
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (int i = 0; i < line.length(); i++) {
             char current = line.charAt(i);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (current == '"' && (i == 0 || line.charAt(i - 1) != '\\')) {
                 inQuotes = !inQuotes;
             } else if (current == '#' && !inQuotes) {
@@ -308,15 +334,21 @@ public final class MATomlConfigStore {
         return line;
     }
 
+    /**
+     * Parse boolean value with fallback and warning on invalid input.
+     */
     private static boolean boolValue(Map<String, String> values, String key, boolean fallback) {
         String raw = values.get(key);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (raw == null) {
             return fallback;
         }
         String normalized = stripQuotes(raw).toLowerCase(Locale.ROOT);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if ("true".equals(normalized)) {
             return true;
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if ("false".equals(normalized)) {
             return false;
         }
@@ -324,11 +356,16 @@ public final class MATomlConfigStore {
         return fallback;
     }
 
+    /**
+     * Parse and clamp integer value with fallback and warning on invalid input.
+     */
     private static int intValue(Map<String, String> values, String key, int fallback, int min, int max) {
         String raw = values.get(key);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (raw == null) {
             return fallback;
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             int value = Integer.parseInt(stripQuotes(raw));
             return Math.max(min, Math.min(max, value));
@@ -338,18 +375,25 @@ public final class MATomlConfigStore {
         }
     }
 
+    /**
+     * Parse ARGB color from hex or decimal forms with fallback on invalid input.
+     */
     private static int argbColorValue(Map<String, String> values, String key, int fallback) {
         String raw = values.get(key);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (raw == null) {
             return fallback;
         }
 
         String normalized = stripQuotes(raw).trim();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (normalized.startsWith("0x") || normalized.startsWith("0X")) {
                 long parsed = Long.parseUnsignedLong(normalized.substring(2), 16);
                 return (int) parsed;
             }
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (normalized.startsWith("#")) {
                 long parsed = Long.parseUnsignedLong(normalized.substring(1), 16);
                 return (int) parsed;
@@ -361,11 +405,16 @@ public final class MATomlConfigStore {
         }
     }
 
+    /**
+     * Parse and clamp decimal value with fallback and warning on invalid input.
+     */
     private static double doubleValue(Map<String, String> values, String key, double fallback, double min, double max) {
         String raw = values.get(key);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (raw == null) {
             return fallback;
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             double value = Double.parseDouble(stripQuotes(raw));
             return Math.max(min, Math.min(max, value));
@@ -375,19 +424,25 @@ public final class MATomlConfigStore {
         }
     }
 
+    /**
+     * Parse TOML string-list value into immutable list with fallback for invalid forms.
+     */
     private static List<String> stringListValue(Map<String, String> values, String key, List<String> fallback) {
         String raw = values.get(key);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (raw == null) {
             return fallback;
         }
 
         String value = raw.trim();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!value.startsWith("[") || !value.endsWith("]")) {
             warn("Invalid list for config key " + key + ": " + raw);
             return fallback;
         }
 
         String body = value.substring(1, value.length() - 1).trim();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (body.isEmpty()) {
             return List.of();
         }
@@ -396,13 +451,16 @@ public final class MATomlConfigStore {
         StringBuilder item = new StringBuilder();
         boolean inQuotes = false;
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (int i = 0; i < body.length(); i++) {
             char current = body.charAt(i);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (current == '"' && (i == 0 || body.charAt(i - 1) != '\\')) {
                 inQuotes = !inQuotes;
                 item.append(current);
                 continue;
             }
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (current == ',' && !inQuotes) {
                 addListValue(result, item.toString());
                 item.setLength(0);
@@ -414,22 +472,32 @@ public final class MATomlConfigStore {
         return List.copyOf(result);
     }
 
+    /**
+     * Normalize and append non-empty list element.
+     */
     private static void addListValue(List<String> target, String candidate) {
         String value = stripQuotes(candidate.trim());
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!value.isBlank()) {
             target.add(value);
         }
     }
 
+    /**
+     * Parse torch placement enum with fallback and warning on invalid input.
+     */
     private static TorchPlacement torchPlacementValue(Map<String, String> values, String key, TorchPlacement fallback) {
         String raw = values.get(key);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (raw == null) {
             return fallback;
         }
         String value = stripQuotes(raw).trim();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (value.isEmpty()) {
             return fallback;
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             return TorchPlacement.valueOf(value.toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException exception) {
@@ -438,20 +506,30 @@ public final class MATomlConfigStore {
         }
     }
 
+    /**
+     * Strip one pair of surrounding double quotes.
+     */
     private static String stripQuotes(String value) {
         String trimmed = value == null ? "" : value.trim();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (trimmed.length() >= 2 && trimmed.startsWith("\"") && trimmed.endsWith("\"")) {
             return trimmed.substring(1, trimmed.length() - 1);
         }
         return trimmed;
     }
 
+    /**
+     * Format Java value to TOML literal representation.
+     */
     private static String formatTomlValue(Object value) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (value instanceof Boolean || value instanceof Number) {
             return String.valueOf(value);
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (value instanceof List<?> list) {
             List<String> values = new ArrayList<>(list.size());
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             for (Object element : list) {
                 values.add('"' + escapeTomlString(String.valueOf(element)) + '"');
             }
@@ -460,16 +538,25 @@ public final class MATomlConfigStore {
         return '"' + escapeTomlString(String.valueOf(value)) + '"';
     }
 
+    /**
+     * Format ARGB color as uppercase 0xAARRGGBB quoted token.
+     */
     private static String formatArgbColor(int color) {
         return String.format(Locale.ROOT, "\"0x%08X\"", color);
     }
 
+    /**
+     * Escape backslashes and quotes for TOML string literals.
+     */
     private static String escapeTomlString(String value) {
         return value
             .replace("\\", "\\\\")
             .replace("\"", "\\\"");
     }
 
+    /**
+     * Emit non-fatal config warning to stderr.
+     */
     private static void warn(String message) {
         System.err.println("[MinersAdvantage] " + message);
     }

@@ -9,8 +9,17 @@ import uk.co.duelmonster.minersadvantage.common.shape.builtin.ShapeGeometryUtils
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+/**
+ * Single-layer excavation processor that carves one plane oriented by hit face.
+ */
 public final class SingleLayerShapeProcessor implements MAShapeProcessor {
+    /**
+     * Compute a one-layer shape using different traversal logic for vertical vs horizontal face hits.
+     */
     @Override
+    /**
+     * c om pu te exists so this path stays predictable and easier to debug when things get weird.
+     */
     public Set<BlockPos> compute(MAShapeContext context) {
         LinkedHashSet<BlockPos> out = new LinkedHashSet<>();
         BlockPos origin = context.origin();
@@ -20,12 +29,16 @@ public final class SingleLayerShapeProcessor implements MAShapeProcessor {
         int minW = ShapeGeometryUtils.minCenteredOffset(context.width());
         int maxW = ShapeGeometryUtils.maxCenteredOffset(context.width());
 
+        // Vertical faces map to a flat XZ plane around origin.
         if (hitFace.getAxis().isVertical()) {
             int minD = ShapeGeometryUtils.minCenteredOffset(context.depth());
             int maxD = ShapeGeometryUtils.maxCenteredOffset(context.depth());
 
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             for (int depthOffset = minD; depthOffset <= maxD; depthOffset++) {
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 for (int w = minW; w <= maxW; w++) {
+                    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                     if (out.size() >= context.maxBlocks()) {
                         return out;
                     }
@@ -37,8 +50,11 @@ public final class SingleLayerShapeProcessor implements MAShapeProcessor {
             return out;
         }
 
+        // Horizontal faces push forward by depth while keeping Y fixed to preserve single-layer behavior.
         for (int d = 0; d <= context.depth(); d++) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             for (int w = minW; w <= maxW; w++) {
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (out.size() >= context.maxBlocks()) {
                     return out;
                 }

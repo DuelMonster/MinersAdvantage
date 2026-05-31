@@ -34,6 +34,7 @@ public record ExcavationConfig(
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public boolean isBlacklisted(String blockId) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (blockId == null || blockId.isBlank()) {
             return isBlockWhitelist;
         }

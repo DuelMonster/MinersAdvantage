@@ -58,6 +58,9 @@ public final class KeyBindings {
         new KeyBindingSpec(ClientAction.ABORT_WORKERS, "DELETE", null, "minersadvantage.abort.agents")
     );
 
+    /**
+     * k ey bi nd in gs exists so this path stays predictable and easier to debug when things get weird.
+     */
     private KeyBindings() {
     }
 

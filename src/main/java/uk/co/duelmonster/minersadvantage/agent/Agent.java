@@ -25,13 +25,17 @@ import uk.co.duelmonster.minersadvantage.common.services.utility.VeinationRuntim
 import java.lang.reflect.Method;
 
 /**
- * Base class for all feature agents. Modernized for production wiring.
+ * Base class for all runtime agents that do feature work over multiple ticks.
+ * Think of it as the shared survival kit: lifecycle flags, torch placement helpers, and veination fan-out glue.
  */
 public abstract class Agent {
     protected final ServerPlayer player;
     protected final Level world;
     protected boolean complete = false;
 
+    /**
+     * Bind this agent to player and world context once at construction time.
+     */
     public Agent(ServerPlayer player) {
         this.player = player;
         this.world = player.level();
@@ -43,10 +47,16 @@ public abstract class Agent {
      */
     public abstract boolean tick();
 
+    /**
+     * Quick status check used by managers and tests.
+     */
     public boolean isComplete() {
         return complete;
     }
 
+    /**
+     * Mark agent as done and log why, because future debugging always starts with "why did it stop?".
+     */
     protected boolean finish(String reason) {
         complete = true;
         LogUtils.logDebug("Completed {} for player={} reason={}", getClass().getSimpleName(), player.getScoreboardName(), reason);
@@ -60,9 +70,11 @@ public abstract class Agent {
      */
     protected boolean placeTorchWithInventory(BlockPos pos, Direction facing) {
         int slot = findTorchSlot();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (slot < 0) {
             return false;
         }
+        // Bail early if placement rules fail so we don't consume inventory for impossible placements.
         if (!canPlaceTorchAt(pos, facing)) {
             return false;
         }
@@ -71,8 +83,12 @@ public abstract class Agent {
         return placeItemFromInventoryByUse(slot, supportPos, placementDirection);
     }
 
+    /**
+     * Validate both target replaceability and support sturdiness before attempting torch placement.
+     */
     protected boolean canPlaceTorchAt(BlockPos pos, Direction facing) {
         Direction placementDirection = normalizeTorchFacing(facing);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!world.getBlockState(pos).canBeReplaced()) {
             return false;
         }
@@ -83,11 +99,17 @@ public abstract class Agent {
             && torchStateForFacing(placementDirection).canSurvive(world, pos);
     }
 
+    /**
+     * Shared helper for agents that must avoid carving into blocked headspace.
+     */
     protected boolean isAirOrReplaceableAbove(BlockPos pos) {
         BlockState above = world.getBlockState(pos.above());
         return above.isAir() || above.canBeReplaced();
     }
 
+    /**
+     * Produce torch block state for floor or wall placement based on normalized facing.
+     */
     private BlockState torchStateForFacing(Direction facing) {
         Direction placementDirection = normalizeTorchFacing(facing);
         return placementDirection == Direction.UP
@@ -95,6 +117,9 @@ public abstract class Agent {
             : Blocks.WALL_TORCH.defaultBlockState().setValue(WallTorchBlock.FACING, placementDirection);
     }
 
+    /**
+     * Normalize null/down/up facing into floor torch mode; only horizontal facings create wall torches.
+     */
     private Direction normalizeTorchFacing(Direction facing) {
         return facing == null || facing == Direction.UP || facing == Direction.DOWN ? Direction.UP : facing;
     }
@@ -106,9 +131,14 @@ public abstract class Agent {
         return findFirstInventorySlot(Items.TORCH);
     }
 
+    /**
+     * Search inventory for first slot containing the requested item.
+     */
     protected int findFirstInventorySlot(Item item) {
         Inventory inventory = player.getInventory();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (int i = 0; i < inventory.getContainerSize(); i++) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (inventory.getItem(i).is(item)) {
                 return i;
             }
@@ -116,17 +146,23 @@ public abstract class Agent {
         return -1;
     }
 
+    /**
+     * Perform item placement via game-mode use call while temporarily moving stack into offhand.
+     */
     protected boolean placeItemFromInventoryByUse(int slot, BlockPos supportPos, Direction clickedFace) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (player.gameMode == null) {
             return false;
         }
 
         Inventory inventory = player.getInventory();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (slot < 0 || slot >= inventory.getContainerSize()) {
             return false;
         }
 
         ItemStack sourceStack = inventory.getItem(slot).copy();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (sourceStack.isEmpty()) {
             return false;
         }
@@ -138,7 +174,9 @@ public abstract class Agent {
         inventory.setItem(slot, ItemStack.EMPTY);
         player.setItemInHand(InteractionHand.OFF_HAND, sourceStack);
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
+            // Aim at support face center so vanilla placement logic gets realistic hit context.
             Vec3 hitVec = Vec3.atCenterOf(supportPos).add(
                 clickedFace.getStepX() * 0.5D,
                 clickedFace.getStepY() * 0.5D,
@@ -148,6 +186,7 @@ public abstract class Agent {
             InteractionResult result = useItemOnAsPlayer(InteractionHand.OFF_HAND, hitResult);
             BlockState afterState = world.getBlockState(placementPos);
             boolean placed = !afterState.equals(beforeState);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (placed) {
                 SoundType soundType = afterState.getSoundType();
                 world.playSound(
@@ -161,13 +200,18 @@ public abstract class Agent {
             }
             return result.consumesAction() || placed;
         } finally {
+            // Always restore inventory/offhand even if placement call path throws.
             ItemStack updatedOffhand = player.getOffhandItem().copy();
             inventory.setItem(slot, updatedOffhand);
             player.setItemInHand(InteractionHand.OFF_HAND, previousOffhand);
         }
     }
 
+    /**
+     * Invoke whichever useItemOn signature exists under current mappings/runtime.
+     */
     private InteractionResult useItemOnAsPlayer(InteractionHand hand, BlockHitResult hitResult) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             Method method = player.gameMode.getClass().getMethod(
                 "useItemOn",
@@ -177,6 +221,7 @@ public abstract class Agent {
                 BlockHitResult.class
             );
             Object result = method.invoke(player.gameMode, player, world, hand, hitResult);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (result instanceof InteractionResult interactionResult) {
                 return interactionResult;
             }
@@ -184,6 +229,7 @@ public abstract class Agent {
             // Why this exists: mixed mappings expose different useItemOn overloads.
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             Method method = player.gameMode.getClass().getMethod(
                 "useItemOn",
@@ -194,6 +240,7 @@ public abstract class Agent {
                 BlockHitResult.class
             );
             Object result = method.invoke(player.gameMode, player, world, player.getItemInHand(hand), hand, hitResult);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (result instanceof InteractionResult interactionResult) {
                 return interactionResult;
             }
@@ -204,13 +251,15 @@ public abstract class Agent {
         return InteractionResult.PASS;
     }
 
-    /** Returns true if the player has at least one torch in their inventory. */
+    /**
+     * Returns true if inventory still has at least one torch to place.
+     */
     protected boolean playerHasTorches() {
         return findTorchSlot() >= 0;
     }
 
     /**
-     * maybeFanOutVeination keeps veination fan-out checks consistent across agents.
+     * Shared gate for veination fan-out so every mining-style agent applies the same rules and checks.
      */
     protected boolean maybeFanOutVeination(
         BlockPos pos,
@@ -221,11 +270,14 @@ public abstract class Agent {
         VeinationConfig veinationConfig,
         ItemStack veinationTriggerTool
     ) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!mineVeins || veinationRuntime == null || veinationConfig == null || !veinationConfig.enabled()) {
             return false;
         }
 
+        // Only one active VeinationAgent per player at a time; no queue pileups allowed.
         AgentManager agentManager = AgentManager.get();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (agentManager.hasAgentType(player, VeinationAgent.class)) {
             return true;
         }
@@ -238,14 +290,17 @@ public abstract class Agent {
         boolean toolMinesCandidate = candidateState != null
             && (!candidateState.requiresCorrectToolForDrops() || toolStack.isCorrectToolForDrops(candidateState));
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!toolAllowedByAllowlist && !toolMinesCandidate) {
             return false;
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!veinationRuntime.isOreAllowed(veinationConfig, candidateState)) {
             return false;
         }
 
+        // Anchor drops at trigger point then queue veination worker.
         veinationRuntime.registerDropAnchor(player, pos, veinationConfig);
         agentManager.addAgent(player, new VeinationAgent(player, pos, candidateState, commonConfig, veinationRuntime, veinationConfig));
         return true;

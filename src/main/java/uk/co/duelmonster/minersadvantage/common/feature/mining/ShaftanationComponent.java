@@ -101,11 +101,13 @@ public final class ShaftanationComponent implements ComponentLifecycle {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public void tick() {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!ComponentTickHelper.shouldExecute(isEnabled())) {
             return;
         }
 
         var context = ComponentTickHelper.getContext();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (service.isStone(context.blockId())) {
             lastBatch = service.buildBatch(progressDepth, config.depth(), config.processesPerTick());
             progressDepth = lastBatch.newDepth();

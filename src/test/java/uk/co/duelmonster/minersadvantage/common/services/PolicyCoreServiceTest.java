@@ -15,12 +15,18 @@ import uk.co.duelmonster.minersadvantage.common.services.policy.PolicyCoreServic
  */
 class PolicyCoreServiceTest {
     @Test
+    /**
+     * v al id at es ra ng es exists so this path stays predictable and easier to debug when things get weird.
+     */
     void validatesRanges() {
         PolicyCoreService service = new PolicyCoreService();
         assertEquals(5, service.clampRange(9, 1, 5));
     }
 
     @Test
+    /**
+     * a pp li es se rv er au th or it at iv ec on fi gt oe ff ec ti ve co nf ig exists so this path stays predictable and easier to debug when things get weird.
+     */
     void appliesServerAuthoritativeConfigToEffectiveConfig() {
         PolicyCoreService service = new PolicyCoreService();
         SyncedClientConfig client = SyncedClientConfig.defaults();
@@ -37,6 +43,9 @@ class PolicyCoreServiceTest {
     }
 
     @Test
+    /**
+     * e nf or ce ss er ve rc om mo np ol ic yv al ue s exists so this path stays predictable and easier to debug when things get weird.
+     */
     void enforcesServerCommonPolicyValues() {
         PolicyCoreService service = new PolicyCoreService();
         SyncedClientConfig client = SyncedClientConfig.defaults();
@@ -54,6 +63,9 @@ class PolicyCoreServiceTest {
     }
 
     @Test
+    /**
+     * u se ss er ve rg am ep la yc on fi ge ve nw it ho ut en fo rc em en tf la gs exists so this path stays predictable and easier to debug when things get weird.
+     */
     void usesServerGameplayConfigEvenWithoutEnforcementFlags() {
         PolicyCoreService service = new PolicyCoreService();
         SyncedClientConfig client = SyncedClientConfig.defaults();

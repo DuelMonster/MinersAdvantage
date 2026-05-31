@@ -16,6 +16,9 @@ import uk.co.duelmonster.minersadvantage.common.services.core.PlayerStateService
  */
 class WorkerRuntimeServiceTest {
     @Test
+    /**
+     * Verify queued work completes and captured drops flush on worker completion.
+     */
     void processesWorkAndCompletesWorkerWithDropFlush() {
         PlayerStateService playerStates = new PlayerStateService();
         WorkerRuntimeService service = new WorkerRuntimeService(playerStates);
@@ -38,6 +41,9 @@ class WorkerRuntimeServiceTest {
     }
 
     @Test
+    /**
+     * Verify hunger guard pauses worker processing.
+     */
     void pausesWorkerWhenHungerGuardIsActive() {
         PlayerStateService playerStates = new PlayerStateService();
         playerStates.updatePlayerState(7L, new PlayerStateService.PlayerState(7L, true, 0L, 0, false, false));
@@ -56,6 +62,9 @@ class WorkerRuntimeServiceTest {
     }
 
     @Test
+    /**
+     * Verify aborting player workers flushes only that player's worker drops.
+     */
     void abortAllForPlayerCancelsAndFlushesDrops() {
         PlayerStateService playerStates = new PlayerStateService();
         WorkerRuntimeService service = new WorkerRuntimeService(playerStates);
@@ -79,6 +88,9 @@ class WorkerRuntimeServiceTest {
     }
 
     @Test
+    /**
+     * Verify live-drop interception honors gather-drops policy.
+     */
     void interceptLiveDropHonorsGatherDropsPolicy() {
         PlayerStateService playerStates = new PlayerStateService();
         WorkerRuntimeService service = new WorkerRuntimeService(playerStates);
@@ -104,6 +116,9 @@ class WorkerRuntimeServiceTest {
     }
 
     @Test
+    /**
+     * Verify player-level interception routes to active worker.
+     */
     void interceptLiveDropForPlayerUsesActiveWorker() {
         PlayerStateService playerStates = new PlayerStateService();
         WorkerRuntimeService service = new WorkerRuntimeService(playerStates);

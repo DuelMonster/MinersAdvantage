@@ -35,6 +35,9 @@ import uk.co.duelmonster.minersadvantage.common.log.LogUtils;
  * SubstitutionAgent: swaps the player's held tool for the best available one in inventory.
  */
 public class SubstitutionAgent extends Agent {
+    /**
+     * ToolKind gives substitution logic a shared language for tool families instead of string chaos.
+     */
     private static final int HOTBAR_TOOL_SLOTS = 9;
     private static final int RESTORE_IDLE_TICKS = 3;
     private static final double TARGET_RANGE_SQ = 36.0;
@@ -50,14 +53,20 @@ public class SubstitutionAgent extends Agent {
             .thenComparing(Candidate::isSelected, Boolean::compare)
             .thenComparing(Candidate::slot, Comparator.reverseOrder());
 
+    /**
+     * Determine whether player is actively breaking a valid target block.
+     */
     private static boolean hasActiveBreakTarget(ServerPlayer player, QueueState queueState) {
         Object gameMode = resolvePlayerGameMode(player);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (gameMode != null) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (readBooleanMember(gameMode, "isDestroyingBlock", "destroying", "isDestroying")) {
                 return true;
             }
 
             BlockPos destroyPos = readBlockPosMember(gameMode, "destroyPos", "destroyPosCurrent", "delayedDestroyPos");
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (destroyPos != null && isTargetInRangeAndSolid(player, destroyPos)) {
                 return true;
             }
@@ -66,7 +75,11 @@ public class SubstitutionAgent extends Agent {
         return queueState != null && isTargetInRangeAndSolid(player, queueState.lastTargetPos());
     }
 
+    /**
+     * Resolve game mode object across mappings by trying fields then accessors.
+     */
     private static Object resolvePlayerGameMode(ServerPlayer player) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             Field gameModeField = player.getClass().getField("gameMode");
             return gameModeField.get(player);
@@ -74,6 +87,7 @@ public class SubstitutionAgent extends Agent {
             // Why this exists: mappings can hide this member; try declared field then methods.
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             Field gameModeField = player.getClass().getDeclaredField("gameMode");
             gameModeField.setAccessible(true);
@@ -82,16 +96,21 @@ public class SubstitutionAgent extends Agent {
             // Why this exists: mappings can expose accessors instead of fields.
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (Method method : player.getClass().getMethods()) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (method.getParameterCount() != 0) {
                 continue;
             }
             String lowered = method.getName().toLowerCase(Locale.ROOT);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (!lowered.contains("gamemode")) {
                 continue;
             }
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             try {
                 Object value = method.invoke(player);
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (value != null) {
                     return value;
                 }
@@ -102,19 +121,29 @@ public class SubstitutionAgent extends Agent {
         return null;
     }
 
+    /**
+     * Read a boolean member by hint names from methods and fields.
+     */
     private static boolean readBooleanMember(Object owner, String... hints) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (Method method : owner.getClass().getMethods()) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (method.getParameterCount() != 0) {
                 continue;
             }
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (!boolean.class.equals(method.getReturnType()) && !Boolean.class.equals(method.getReturnType())) {
                 continue;
             }
             String lowered = method.getName().toLowerCase(Locale.ROOT);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             for (String hint : hints) {
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (lowered.contains(hint.toLowerCase(Locale.ROOT))) {
+                    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                     try {
                         Object value = method.invoke(owner);
+                        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                         if (value instanceof Boolean flag && flag) {
                             return true;
                         }
@@ -125,15 +154,21 @@ public class SubstitutionAgent extends Agent {
             }
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (Field field : owner.getClass().getDeclaredFields()) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (!boolean.class.equals(field.getType()) && !Boolean.class.equals(field.getType())) {
                 continue;
             }
             String lowered = field.getName().toLowerCase(Locale.ROOT);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             for (String hint : hints) {
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (lowered.contains(hint.toLowerCase(Locale.ROOT))) {
+                    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                     try {
                         field.setAccessible(true);
+                        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                         if (field.getBoolean(owner)) {
                             return true;
                         }
@@ -146,19 +181,29 @@ public class SubstitutionAgent extends Agent {
         return false;
     }
 
+    /**
+     * Read a BlockPos member by hint names from methods and fields.
+     */
     private static BlockPos readBlockPosMember(Object owner, String... hints) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (Method method : owner.getClass().getMethods()) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (method.getParameterCount() != 0) {
                 continue;
             }
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (!BlockPos.class.isAssignableFrom(method.getReturnType())) {
                 continue;
             }
             String lowered = method.getName().toLowerCase(Locale.ROOT);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             for (String hint : hints) {
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (lowered.contains(hint.toLowerCase(Locale.ROOT))) {
+                    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                     try {
                         Object value = method.invoke(owner);
+                        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                         if (value instanceof BlockPos pos) {
                             return pos;
                         }
@@ -169,16 +214,22 @@ public class SubstitutionAgent extends Agent {
             }
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (Field field : owner.getClass().getDeclaredFields()) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (!BlockPos.class.isAssignableFrom(field.getType())) {
                 continue;
             }
             String lowered = field.getName().toLowerCase(Locale.ROOT);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             for (String hint : hints) {
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (lowered.contains(hint.toLowerCase(Locale.ROOT))) {
+                    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                     try {
                         field.setAccessible(true);
                         Object value = field.get(owner);
+                        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                         if (value instanceof BlockPos pos) {
                             return pos;
                         }
@@ -191,10 +242,15 @@ public class SubstitutionAgent extends Agent {
         return null;
     }
 
+    /**
+     * Check target proximity and solidity before considering active break state.
+     */
     private static boolean isTargetInRangeAndSolid(ServerPlayer player, BlockPos pos) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (pos == null) {
             return false;
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (player.level().getBlockState(pos).isAir()) {
             return false;
         }
@@ -204,6 +260,10 @@ public class SubstitutionAgent extends Agent {
         double z = player.getZ() - (pos.getZ() + 0.5D);
         return x * x + y * y + z * z <= TARGET_RANGE_SQ;
     }
+
+    /**
+     * ToolKind gives substitution logic a shared language for tool families instead of string chaos.
+     */
     private enum ToolKind {
         PICKAXE,
         AXE,
@@ -218,18 +278,30 @@ public class SubstitutionAgent extends Agent {
     private final Set<String> blacklist;
     private final String targetEntityTypeId;
 
+    /**
+     * Convenience constructor using current player block as target.
+     */
     public SubstitutionAgent(ServerPlayer player) {
         this(player, player.level().getBlockState(player.blockPosition()), SubstitutionAction.BREAK, InteractionHand.MAIN_HAND, new SubstitutionConfig());
     }
 
+    /**
+     * Convenience constructor with explicit target state.
+     */
     public SubstitutionAgent(ServerPlayer player, BlockState targetState) {
         this(player, targetState, SubstitutionAction.BREAK, InteractionHand.MAIN_HAND, new SubstitutionConfig());
     }
 
+    /**
+     * Convenience constructor for explicit hand/config.
+     */
     public SubstitutionAgent(ServerPlayer player, BlockState targetState, InteractionHand hand, SubstitutionConfig config) {
         this(player, targetState, SubstitutionAction.BREAK, hand, config);
     }
 
+    /**
+     * Constructor with explicit action and config.
+     */
     public SubstitutionAgent(
         ServerPlayer player,
         BlockState targetState,
@@ -240,6 +312,9 @@ public class SubstitutionAgent extends Agent {
         this(player, targetState, action, hand, config, null);
     }
 
+    /**
+     * Full constructor supporting block and entity substitution contexts.
+     */
     public SubstitutionAgent(
         ServerPlayer player,
         BlockState targetState,
@@ -257,48 +332,66 @@ public class SubstitutionAgent extends Agent {
         this.targetEntityTypeId = targetEntityTypeId == null ? "" : targetEntityTypeId.toLowerCase(Locale.ROOT);
     }
 
+    /**
+     * Evaluate rules and apply best substitution candidate when needed.
+     */
+    /**
+     * Evaluate one substitution cycle and apply best slot switch when needed.
+     */
     @Override
+    /**
+     * t ic k exists so this path stays predictable and easier to debug when things get weird.
+     */
     public boolean tick() {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (targetState == null || targetState.isAir()) {
             return finish("no substitution target state");
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!config.enabled()) {
             return finish("substitution disabled");
         }
 
         ItemStack held = player.getItemInHand(hand);
         RuleResolution rule = resolveRule(held);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (rule.allowAnyTool()) {
             return finish("selection rule allows current tool");
         }
 
         ToolKind requiredKind = rule.requiredKind() == null ? inferRequiredToolKind(held, targetState) : rule.requiredKind();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (config.ignoreIfValidTool() && matchesToolKind(held, requiredKind) && held.isCorrectToolForDrops(targetState)) {
             return finish("held tool already valid");
         }
 
         List<Candidate> candidates = buildCandidates(requiredKind, held, rule);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (candidates.isEmpty()) {
             return finish("no candidate tools");
         }
 
         Candidate best = candidates.stream().max(CANDIDATE_COMPARATOR).orElse(null);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (best == null) {
             return finish("no best substitution candidate");
         }
 
         ItemStack replacement = best.stack();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (replacement.isEmpty() || ItemStack.isSameItemSameComponents(held, replacement)) {
             touchRestoreState();
             return finish("best candidate equals held");
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (hand != InteractionHand.MAIN_HAND) {
             return finish("substitution currently supports main hand only");
         }
 
         int previousSelectedSlot = hand == InteractionHand.MAIN_HAND ? selectedHotbarSlot() : -1;
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!setSelectedHotbarSlot(player, best.slot())) {
             return finish("unable to set selected hotbar slot");
         }
@@ -318,26 +411,34 @@ public class SubstitutionAgent extends Agent {
         return finish("tool substitution evaluated");
     }
 
+    /**
+     * Build scored candidate list from hotbar items.
+     */
     private List<Candidate> buildCandidates(ToolKind requiredKind, ItemStack held, RuleResolution rule) {
         List<Candidate> candidates = new ArrayList<>();
         MatchRating targetMatch = targetMatch(requiredKind, held);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!targetMatch.matches()) {
             return candidates;
         }
 
         int selectedHotbarSlot = selectedHotbarSlot();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (int slot = 0; slot < Math.min(HOTBAR_TOOL_SLOTS, player.getInventory().getContainerSize()); slot++) {
             ItemStack stack = player.getInventory().getItem(slot);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (stack.isEmpty()) {
                 continue;
             }
 
             String itemId = itemId(stack);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (blacklist.contains(itemId)) {
                 continue;
             }
 
             MatchRating toolMatch = toolMatch(stack, requiredKind, rule);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (!toolMatch.matches()) {
                 continue;
             }
@@ -347,6 +448,7 @@ public class SubstitutionAgent extends Agent {
             Candidate candidate = new Candidate(rule.targetPriority(), targetMatch, toolPriority, toolMatch, slot, selected, stack);
             candidates.add(candidate);
 
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (LogUtils.isDebugLoggingEnabled()) {
                 LogUtils.logDebug(
                     "Substitution candidate player={} action={} hand={} slot={} item={} target={} rule={} targetMatch={} toolPriority={} toolMatch={} selected={}",
@@ -368,6 +470,9 @@ public class SubstitutionAgent extends Agent {
         return candidates;
     }
 
+    /**
+     * Compute target suitability score for required tool kind.
+     */
     private MatchRating targetMatch(ToolKind requiredKind, ItemStack held) {
         boolean tagMatch = switch (requiredKind) {
             case PICKAXE -> targetState.is(BlockTags.MINEABLE_WITH_PICKAXE);
@@ -377,6 +482,7 @@ public class SubstitutionAgent extends Agent {
         };
 
         boolean inferredFromHeld = !tagMatch && matchesToolKind(held, requiredKind);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!tagMatch && !inferredFromHeld) {
             return MatchRating.noMatch();
         }
@@ -389,16 +495,22 @@ public class SubstitutionAgent extends Agent {
         return MatchRating.match(levels);
     }
 
+    /**
+     * Compute stack suitability score against target and rule constraints.
+     */
     private MatchRating toolMatch(ItemStack stack, ToolKind requiredKind, RuleResolution rule) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!matchesToolKind(stack, requiredKind)) {
             return MatchRating.noMatch();
         }
 
         boolean canDropCorrectly = !targetState.requiresCorrectToolForDrops() || stack.isCorrectToolForDrops(targetState);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!canDropCorrectly) {
             return MatchRating.noMatch();
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!matchesToolExpression(rule, stack, requiredKind, canDropCorrectly)) {
             return MatchRating.noMatch();
         }
@@ -406,12 +518,15 @@ public class SubstitutionAgent extends Agent {
         int silkLevel = enchantmentLevel(stack, Enchantments.SILK_TOUCH);
         int fortuneLevel = enchantmentLevel(stack, Enchantments.FORTUNE);
         int mendingLevel = enchantmentLevel(stack, Enchantments.MENDING);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (silkLevel < rule.minSilkTouch() || fortuneLevel < rule.minFortune()) {
             return MatchRating.noMatch();
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (rule.requireMending() && mendingLevel <= 0) {
             return MatchRating.noMatch();
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (rule.denyMending() && mendingLevel > 0) {
             return MatchRating.noMatch();
         }
@@ -429,32 +544,46 @@ public class SubstitutionAgent extends Agent {
         });
     }
 
+    /**
+     * Compute candidate tool priority with small context bonuses.
+     */
     private int toolPriority(ItemStack stack, ToolKind requiredKind, RuleResolution rule) {
         int priority = rule.toolPriority() + (matchesToolKind(stack, requiredKind) ? 10 : 0);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (stack.is(ItemTags.MINING_ENCHANTABLE)) {
             priority += 1;
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (isPickaxeTool(stack) && requiredKind == ToolKind.PICKAXE) {
             priority += 2;
         }
         return priority;
     }
 
+    /**
+     * Score enchantment preference according to context and rule flags.
+     */
     private double enchantPreferenceRating(int silkLevel, int fortuneLevel, RuleResolution rule) {
         boolean oreContext = targetState.is(BlockTags.MINEABLE_WITH_PICKAXE);
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!oreContext) {
             return silkLevel + fortuneLevel;
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (rule.preferSilkTouch()) {
             return silkLevel * 10.0 + fortuneLevel;
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (rule.preferFortune()) {
             return fortuneLevel * 10.0 + silkLevel;
         }
         return silkLevel + fortuneLevel;
     }
 
+    /**
+     * Resolve most specific matching rule or fallback implicit defaults.
+     */
     private RuleResolution resolveRule(ItemStack held) {
         Optional<SelectionRule> bestRule = config.selectionRules().stream()
             .filter(this::actionMatches)
@@ -463,6 +592,7 @@ public class SubstitutionAgent extends Agent {
                 .thenComparingInt(this::targetSpecificity)
                 .thenComparing(SelectionRule::targetId));
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (bestRule.isEmpty()) {
             return new RuleResolution(
                 null,
@@ -499,16 +629,23 @@ public class SubstitutionAgent extends Agent {
         );
     }
 
+    /**
+     * Check whether a selection rule applies to current substitution action.
+     */
     private boolean actionMatches(SelectionRule rule) {
         return rule.action() == SubstitutionAction.ANY || rule.action() == action;
     }
 
+    /**
+     * Check structural target kind and optional target expression.
+     */
     private boolean targetMatches(SelectionRule rule) {
         boolean structuralMatch = switch (rule.targetKind()) {
             case ANY -> true;
             case ENTITY_TYPE -> !targetEntityTypeId.isBlank() && targetEntityTypeId.equalsIgnoreCase(rule.targetId());
             case BLOCK_TAG -> matchesKnownBlockTag(rule.targetId());
         };
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!structuralMatch) {
             return false;
         }
@@ -516,6 +653,9 @@ public class SubstitutionAgent extends Agent {
         return evaluateExpression(rule.targetExpression(), this::matchesTargetSelector);
     }
 
+    /**
+     * Resolve known block-tag identifiers used by substitution rules.
+     */
     private boolean matchesKnownBlockTag(String tagId) {
         return switch (tagId) {
             case "minecraft:mineable/pickaxe" -> targetState.is(BlockTags.MINEABLE_WITH_PICKAXE);
@@ -526,6 +666,9 @@ public class SubstitutionAgent extends Agent {
         };
     }
 
+    /**
+     * Return target-kind specificity rank for tie-breaking rule selection.
+     */
     private int targetSpecificity(SelectionRule rule) {
         return switch (rule.targetKind()) {
             case ANY -> 0;
@@ -534,27 +677,38 @@ public class SubstitutionAgent extends Agent {
         };
     }
 
+    /**
+     * Evaluate boolean tool expression against a concrete tool stack.
+     */
     private boolean matchesToolExpression(RuleResolution rule, ItemStack stack, ToolKind requiredKind, boolean canDropCorrectly) {
         return evaluateExpression(rule.toolExpression(), selector -> matchesToolSelector(selector, stack, requiredKind, canDropCorrectly));
     }
 
+    /**
+     * Evaluate one target selector atom.
+     */
     private boolean matchesTargetSelector(String selector) {
         String normalized = selector.trim().toLowerCase(Locale.ROOT);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (normalized.isBlank()) {
             return true;
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (normalized.startsWith("block_tag:")) {
             return matchesKnownBlockTag(normalized.substring("block_tag:".length()));
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (normalized.startsWith("action:")) {
             String actionToken = normalized.substring("action:".length()).trim();
             return action.name().equalsIgnoreCase(actionToken);
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (normalized.startsWith("target_block:")) {
             String blockId = BuiltInRegistries.BLOCK.getKey(targetState.getBlock()).toString();
             return blockId.equalsIgnoreCase(normalized.substring("target_block:".length()).trim());
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (normalized.startsWith("entity_type:")) {
             return !targetEntityTypeId.isBlank() && targetEntityTypeId.equalsIgnoreCase(normalized.substring("entity_type:".length()).trim());
         }
@@ -568,19 +722,26 @@ public class SubstitutionAgent extends Agent {
         };
     }
 
+    /**
+     * Evaluate one tool selector atom.
+     */
     private boolean matchesToolSelector(String selector, ItemStack stack, ToolKind requiredKind, boolean canDropCorrectly) {
         String normalized = selector.trim().toLowerCase(Locale.ROOT);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (normalized.isBlank()) {
             return true;
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (normalized.startsWith("tool_kind:")) {
             Optional<ToolKind> parsed = parseRequiredToolKind(normalized.substring("tool_kind:".length()));
             return parsed.isPresent() && matchesToolKind(stack, parsed.get());
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (normalized.startsWith("item:")) {
             return itemId(stack).equalsIgnoreCase(normalized.substring("item:".length()).trim());
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (normalized.startsWith("action:")) {
             String actionToken = normalized.substring("action:".length()).trim();
             return action.name().equalsIgnoreCase(actionToken);
@@ -594,11 +755,16 @@ public class SubstitutionAgent extends Agent {
         };
     }
 
+    /**
+     * Parse and evaluate lightweight boolean expression using AND/OR/NOT.
+     */
     private boolean evaluateExpression(String expression, Predicate<String> atomEvaluator) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (expression == null || expression.isBlank()) {
             return true;
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             return new BooleanExpressionParser(expression).evaluate(atomEvaluator);
         } catch (IllegalArgumentException ex) {
@@ -607,7 +773,11 @@ public class SubstitutionAgent extends Agent {
         }
     }
 
+    /**
+     * Parse configured required tool-kind token.
+     */
     private Optional<ToolKind> parseRequiredToolKind(String value) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (value == null || value.isBlank()) {
             return Optional.empty();
         }
@@ -621,22 +791,34 @@ public class SubstitutionAgent extends Agent {
         };
     }
 
+    /**
+     * Compute normalized durability score for tool ranking.
+     */
     private double durabilityRating(ItemStack stack) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!stack.isDamageableItem() || stack.getMaxDamage() <= 0) {
             return stack.getCount();
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!config.allowMending() && enchantmentLevel(stack, Enchantments.MENDING) > 0) {
             return 0.0;
         }
         return (double) (stack.getMaxDamage() - stack.getDamageValue()) / stack.getMaxDamage();
     }
 
+    /**
+     * Resolve current hotbar slot for this player.
+     */
     private int selectedHotbarSlot() {
         return selectedHotbarSlot(player);
     }
 
+    /**
+     * Store restore state so slot can be switched back after inactivity.
+     */
     private void rememberRestoreState(int previousSelectedSlot, int switchedToSlot) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!config.switchBack()) {
             clearRestoreState(player, hand);
             return;
@@ -654,28 +836,38 @@ public class SubstitutionAgent extends Agent {
         );
     }
 
+    /**
+     * Refresh restore-state activity timestamp.
+     */
     private void touchRestoreState() {
         touchRestoreState(player, hand);
     }
 
+    /**
+     * Return effective break-hand stack while substitution switch is active.
+     */
     public static ItemStack effectiveBreakHandStack(ServerPlayer player, InteractionHand hand) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (player == null || hand == null) {
             return ItemStack.EMPTY;
         }
 
         ItemStack current = player.getItemInHand(hand);
         RestoreState state = RESTORE_STATES.get(new RestoreKey(player.getUUID(), hand));
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (state == null || state.action() != SubstitutionAction.BREAK) {
             return current;
         }
 
         long now = player.level().getGameTime();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (now - state.lastActivityTick() > (RESTORE_IDLE_TICKS + 1L)) {
             return current;
         }
 
         int slot = state.switchedToSlot();
         int maxSlot = Math.min(HOTBAR_TOOL_SLOTS, player.getInventory().getContainerSize());
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (slot < 0 || slot >= maxSlot) {
             return current;
         }
@@ -684,12 +876,16 @@ public class SubstitutionAgent extends Agent {
         return switched.isEmpty() ? current : switched;
     }
 
+    /**
+     * Deduplicate start-queue requests for same target in adjacent ticks.
+     */
     public static boolean shouldQueueStartSubstitution(
         ServerPlayer player,
         InteractionHand hand,
         SubstitutionAction action,
         BlockPos targetPos
     ) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (player == null || hand == null || action == null || targetPos == null) {
             return true;
         }
@@ -697,8 +893,10 @@ public class SubstitutionAgent extends Agent {
         long now = player.level().getGameTime();
         QueueKey key = new QueueKey(player.getUUID(), hand, action);
         QueueState previous = QUEUE_STATES.get(key);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (previous != null) {
             boolean sameTarget = previous.lastTargetPos().equals(targetPos);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (sameTarget && now - previous.lastQueuedTick() <= QUEUE_DEDUPE_TICKS) {
                 QUEUE_STATES.put(key, previous.withLastSeenTick(now));
                 touchRestoreState(player, hand);
@@ -711,7 +909,11 @@ public class SubstitutionAgent extends Agent {
         return true;
     }
 
+    /**
+     * Update queue/restore activity when substitution work is observed.
+     */
     public static void markSubstitutionActivity(ServerPlayer player, InteractionHand hand, SubstitutionAction action, BlockPos targetPos) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (player == null || hand == null || action == null || targetPos == null) {
             return;
         }
@@ -719,6 +921,7 @@ public class SubstitutionAgent extends Agent {
         long now = player.level().getGameTime();
         QueueKey key = new QueueKey(player.getUUID(), hand, action);
         QueueState previous = QUEUE_STATES.get(key);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (previous == null) {
             QUEUE_STATES.put(key, new QueueState(targetPos.immutable(), now, now));
         } else {
@@ -727,9 +930,13 @@ public class SubstitutionAgent extends Agent {
         touchRestoreState(player, hand);
     }
 
+    /**
+     * Touch restore state for one player+hand.
+     */
     private static void touchRestoreState(ServerPlayer player, InteractionHand hand) {
         RestoreKey key = new RestoreKey(player.getUUID(), hand);
         RestoreState state = RESTORE_STATES.get(key);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (state == null) {
             return;
         }
@@ -737,7 +944,11 @@ public class SubstitutionAgent extends Agent {
         RESTORE_STATES.put(key, state.withLastActivityTick(player.level().getGameTime()));
     }
 
+    /**
+     * Process pending switch-back logic for both hands.
+     */
     public static void processSwitchBack(ServerPlayer player) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (player == null) {
             return;
         }
@@ -746,7 +957,11 @@ public class SubstitutionAgent extends Agent {
         processSwitchBack(player, InteractionHand.OFF_HAND);
     }
 
+    /**
+     * Clear restore/queue state for this player.
+     */
     public static void clearRestoreState(ServerPlayer player) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (player == null) {
             return;
         }
@@ -756,36 +971,46 @@ public class SubstitutionAgent extends Agent {
         QUEUE_STATES.keySet().removeIf(key -> key.playerId().equals(player.getUUID()));
     }
 
+    /**
+     * Evaluate idle timeout and restore previous selected slot when safe.
+     */
     private static void processSwitchBack(ServerPlayer player, InteractionHand hand) {
         RestoreKey key = new RestoreKey(player.getUUID(), hand);
         RestoreState state = RESTORE_STATES.get(key);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (state == null) {
             return;
         }
 
         long now = player.level().getGameTime();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (now - state.lastActivityTick() <= RESTORE_IDLE_TICKS) {
             return;
         }
 
         QueueState queueState = QUEUE_STATES.get(new QueueKey(player.getUUID(), hand, state.action()));
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (state.action() == SubstitutionAction.BREAK && hasActiveBreakTarget(player, queueState)) {
             RESTORE_STATES.put(key, state.withLastActivityTick(now));
             return;
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (queueState != null && now - queueState.lastSeenTick() <= RESTORE_IDLE_TICKS) {
             RESTORE_STATES.put(key, state.withLastActivityTick(now));
             return;
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (isStillUsingTool(player)) {
             RESTORE_STATES.put(key, state.withLastActivityTick(now));
             return;
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (hand == InteractionHand.MAIN_HAND) {
             int selectedSlot = selectedHotbarSlot(player);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (selectedSlot != state.switchedToSlot()) {
                 RESTORE_STATES.remove(key);
                 LogUtils.logDebug(
@@ -799,11 +1024,13 @@ public class SubstitutionAgent extends Agent {
             }
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (state.previousSelectedSlot() < 0 || state.previousSelectedSlot() >= Math.min(HOTBAR_TOOL_SLOTS, player.getInventory().getContainerSize())) {
             RESTORE_STATES.remove(key);
             return;
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!setSelectedHotbarSlot(player, state.previousSelectedSlot())) {
             RESTORE_STATES.remove(key);
             return;
@@ -819,31 +1046,44 @@ public class SubstitutionAgent extends Agent {
         );
     }
 
+    /**
+     * Remove restore-state entry for one hand.
+     */
     private static void clearRestoreState(ServerPlayer player, InteractionHand hand) {
         RESTORE_STATES.remove(new RestoreKey(player.getUUID(), hand));
     }
 
+    /**
+     * Heuristic check for active swing/use state across mapping differences.
+     */
     private static boolean isStillUsingTool(ServerPlayer player) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (player.isUsingItem()) {
             return true;
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (Method method : player.getClass().getMethods()) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (method.getParameterCount() != 0) {
                 continue;
             }
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (!boolean.class.equals(method.getReturnType()) && !Boolean.class.equals(method.getReturnType())) {
                 continue;
             }
 
             String name = method.getName();
             String lowered = name.toLowerCase(Locale.ROOT);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (!lowered.contains("swing")) {
                 continue;
             }
 
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             try {
                 Object value = method.invoke(player);
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (value instanceof Boolean flag && flag) {
                     return true;
                 }
@@ -852,21 +1092,27 @@ public class SubstitutionAgent extends Agent {
             }
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (Method method : player.getClass().getMethods()) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (method.getParameterCount() != 0) {
                 continue;
             }
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (!int.class.equals(method.getReturnType()) && !Integer.class.equals(method.getReturnType())) {
                 continue;
             }
 
             String lowered = method.getName().toLowerCase(Locale.ROOT);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (!lowered.contains("swing")) {
                 continue;
             }
 
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             try {
                 Object value = method.invoke(player);
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (value instanceof Integer counter && counter > 0) {
                     return true;
                 }
@@ -877,10 +1123,15 @@ public class SubstitutionAgent extends Agent {
         return false;
     }
 
+    /**
+     * Resolve selected hotbar slot via method/field fallbacks.
+     */
     private static int selectedHotbarSlot(ServerPlayer player) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             Method getSelectedSlot = player.getInventory().getClass().getMethod("getSelectedSlot");
             Object value = getSelectedSlot.invoke(player.getInventory());
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (value instanceof Integer slot) {
                 return slot;
             }
@@ -888,6 +1139,7 @@ public class SubstitutionAgent extends Agent {
             // Why this exists: fall through to a safe default for mixed mappings.
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             Field selectedField = player.getInventory().getClass().getDeclaredField("selected");
             selectedField.setAccessible(true);
@@ -898,13 +1150,18 @@ public class SubstitutionAgent extends Agent {
         return 0;
     }
 
+    /**
+     * Set selected slot and sync packet to client when possible.
+     */
     private static boolean setSelectedHotbarSlot(ServerPlayer player, int slot) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (slot < 0 || slot >= HOTBAR_TOOL_SLOTS) {
             return false;
         }
 
         Object inventory = player.getInventory();
         boolean selected = false;
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             Method method = inventory.getClass().getMethod("setSelectedSlot", int.class);
             method.invoke(inventory, slot);
@@ -913,7 +1170,9 @@ public class SubstitutionAgent extends Agent {
             // Why this exists: try alternate names/field for mixed mappings.
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!selected) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             try {
                 Method method = inventory.getClass().getMethod("setSelected", int.class);
                 method.invoke(inventory, slot);
@@ -923,7 +1182,9 @@ public class SubstitutionAgent extends Agent {
             }
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!selected) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             try {
                 Field selectedField = inventory.getClass().getDeclaredField("selected");
                 selectedField.setAccessible(true);
@@ -934,14 +1195,19 @@ public class SubstitutionAgent extends Agent {
             }
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (selected) {
             syncSelectedSlotToClient(player, slot);
         }
         return selected;
     }
 
+    /**
+     * Send selected-slot update packet through resolved connection.
+     */
     private static void syncSelectedSlotToClient(ServerPlayer player, int slot) {
         Object connection = null;
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             Field connectionField = player.getClass().getField("connection");
             connection = connectionField.get(player);
@@ -949,9 +1215,13 @@ public class SubstitutionAgent extends Agent {
             // Why this exists: mappings differ; try accessor method next.
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (connection == null) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             for (Method method : player.getClass().getMethods()) {
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (method.getParameterCount() == 0 && method.getName().toLowerCase(Locale.ROOT).contains("connection")) {
+                    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                     try {
                         connection = method.invoke(player);
                         break;
@@ -962,19 +1232,24 @@ public class SubstitutionAgent extends Agent {
             }
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (connection == null) {
             return;
         }
 
         Object packet = tryCreateHeldSlotPacket(slot);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (packet == null) {
             return;
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (Method method : connection.getClass().getMethods()) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (!"send".equals(method.getName()) || method.getParameterCount() != 1) {
                 continue;
             }
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             try {
                 method.invoke(connection, packet);
                 return;
@@ -984,12 +1259,17 @@ public class SubstitutionAgent extends Agent {
         }
     }
 
+    /**
+     * Try to instantiate compatible held-slot packet class.
+     */
     private static Object tryCreateHeldSlotPacket(int slot) {
         String[] packetTypes = new String[] {
             "net.minecraft.network.protocol.game.ClientboundSetHeldSlotPacket",
             "net.minecraft.network.protocol.game.ClientboundSetCarriedItemPacket"
         };
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (String packetType : packetTypes) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             try {
                 Class<?> type = Class.forName(packetType);
                 return type.getConstructor(int.class).newInstance(slot);
@@ -1000,21 +1280,30 @@ public class SubstitutionAgent extends Agent {
         return null;
     }
 
+    /**
+     * Read enchantment level by invoking mapping-dependent getLevel signature.
+     */
     private int enchantmentLevel(ItemStack stack, Object enchantmentKey) {
         Object enchantments = stack.getEnchantments();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (enchantments == null) {
             return 0;
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (Method method : enchantments.getClass().getMethods()) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (!"getLevel".equals(method.getName()) || method.getParameterCount() != 1) {
                 continue;
             }
 
             Class<?> parameter = method.getParameterTypes()[0];
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             try {
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (parameter.isInstance(enchantmentKey)) {
                     Object level = method.invoke(enchantments, enchantmentKey);
+                    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                     if (level instanceof Integer intLevel) {
                         return intLevel;
                     }
@@ -1026,33 +1315,47 @@ public class SubstitutionAgent extends Agent {
         return 0;
     }
 
+    /**
+     * Infer needed tool kind from block tags, then fallback to held-tool family.
+     */
     private ToolKind inferRequiredToolKind(ItemStack main, BlockState state) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (state.is(BlockTags.MINEABLE_WITH_PICKAXE)) {
             return ToolKind.PICKAXE;
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (state.is(BlockTags.MINEABLE_WITH_AXE)) {
             return ToolKind.AXE;
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (state.is(BlockTags.MINEABLE_WITH_SHOVEL)) {
             return ToolKind.SHOVEL;
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (state.is(BlockTags.MINEABLE_WITH_HOE)) {
             return ToolKind.HOE;
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (isPickaxeTool(main)) {
             return ToolKind.PICKAXE;
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (main.getItem() instanceof AxeItem) {
             return ToolKind.AXE;
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (main.getItem() instanceof HoeItem) {
             return ToolKind.HOE;
         }
         return ToolKind.SHOVEL;
     }
 
+    /**
+     * Check whether stack matches required tool family.
+     */
     private boolean matchesToolKind(ItemStack stack, ToolKind requiredKind) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (stack.isEmpty()) {
             return false;
         }
@@ -1064,15 +1367,24 @@ public class SubstitutionAgent extends Agent {
         };
     }
 
+    /**
+     * Identify pickaxe tools by item id suffix.
+     */
     private boolean isPickaxeTool(ItemStack stack) {
         String path = BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath();
         return path.endsWith("_pickaxe");
     }
 
+    /**
+     * Return canonical item id used by logs and blacklist filtering.
+     */
     private String itemId(ItemStack stack) {
         return BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
     }
 
+    /**
+     * Candidate packages one hotbar option with its scoring metadata for stable ranking.
+     */
     private record Candidate(
         int targetPriority,
         MatchRating targetMatch,
@@ -1084,6 +1396,9 @@ public class SubstitutionAgent extends Agent {
     ) {
     }
 
+    /**
+     * RuleResolution is the final rule snapshot after defaults and overrides are merged.
+     */
     private record RuleResolution(
         ToolKind requiredKind,
         int targetPriority,
@@ -1100,28 +1415,49 @@ public class SubstitutionAgent extends Agent {
     ) {
     }
 
+    /**
+     * Restore-state map key scoped by player and hand.
+     */
     private record RestoreKey(UUID playerId, InteractionHand hand) {
     }
 
+    /**
+     * RestoreState tracks where we came from so we can switch back gracefully after substitution.
+     */
     private record RestoreState(
         int previousSelectedSlot,
         int switchedToSlot,
         long lastActivityTick,
         SubstitutionAction action
     ) {
+        /**
+         * Copy restore state while refreshing last-activity tick.
+         */
         private RestoreState withLastActivityTick(long tick) {
             return new RestoreState(previousSelectedSlot, switchedToSlot, tick, action);
         }
     }
 
+    /**
+     * Queue-state map key scoped by player, hand, and action type.
+     */
     private record QueueKey(UUID playerId, InteractionHand hand, SubstitutionAction action) {
     }
 
+    /**
+     * Queue dedupe and liveness metadata for recent substitution targets.
+     */
     private record QueueState(BlockPos lastTargetPos, long lastQueuedTick, long lastSeenTick) {
+        /**
+         * Copy queue state while updating last-seen tick.
+         */
         private QueueState withLastSeenTick(long tick) {
             return new QueueState(lastTargetPos, lastQueuedTick, tick);
         }
 
+        /**
+         * Copy queue state while replacing tracked target and seen tick.
+         */
         private QueueState withTargetAndSeen(BlockPos targetPos, long tick) {
             return new QueueState(targetPos, lastQueuedTick, tick);
         }
@@ -1131,21 +1467,32 @@ public class SubstitutionAgent extends Agent {
         private final List<String> tokens;
         private int index;
 
+        /**
+         * Tokenize expression once for deterministic parser traversal.
+         */
         private BooleanExpressionParser(String expression) {
             this.tokens = tokenize(expression);
             this.index = 0;
         }
 
+        /**
+         * Evaluate expression and fail on trailing unexpected tokens.
+         */
         private boolean evaluate(Predicate<String> atomEvaluator) {
             boolean value = parseOr(atomEvaluator);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (index < tokens.size()) {
                 throw new IllegalArgumentException("Unexpected token '" + tokens.get(index) + "'");
             }
             return value;
         }
 
+        /**
+         * Parse OR-precedence branch.
+         */
         private boolean parseOr(Predicate<String> atomEvaluator) {
             boolean value = parseAnd(atomEvaluator);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             while (matchKeyword("OR")) {
                 boolean rhs = parseAnd(atomEvaluator);
                 value = value || rhs;
@@ -1153,8 +1500,12 @@ public class SubstitutionAgent extends Agent {
             return value;
         }
 
+        /**
+         * Parse AND-precedence branch.
+         */
         private boolean parseAnd(Predicate<String> atomEvaluator) {
             boolean value = parseNot(atomEvaluator);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             while (matchKeyword("AND")) {
                 boolean rhs = parseNot(atomEvaluator);
                 value = value && rhs;
@@ -1162,32 +1513,47 @@ public class SubstitutionAgent extends Agent {
             return value;
         }
 
+        /**
+         * Parse unary NOT chain.
+         */
         private boolean parseNot(Predicate<String> atomEvaluator) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (matchKeyword("NOT")) {
                 return !parseNot(atomEvaluator);
             }
             return parsePrimary(atomEvaluator);
         }
 
+        /**
+         * Parse grouped expression or leaf atom.
+         */
         private boolean parsePrimary(Predicate<String> atomEvaluator) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (match("(")) {
                 boolean value = parseOr(atomEvaluator);
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (!match(")")) {
                     throw new IllegalArgumentException("Missing closing ')'");
                 }
                 return value;
             }
 
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (index >= tokens.size()) {
                 throw new IllegalArgumentException("Expression ended unexpectedly");
             }
             return atomEvaluator.test(tokens.get(index++));
         }
 
+        /**
+         * Match case-insensitive keyword token.
+         */
         private boolean matchKeyword(String keyword) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (index >= tokens.size()) {
                 return false;
             }
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (tokens.get(index).equalsIgnoreCase(keyword)) {
                 index++;
                 return true;
@@ -1195,10 +1561,15 @@ public class SubstitutionAgent extends Agent {
             return false;
         }
 
+        /**
+         * Match exact token.
+         */
         private boolean match(String token) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (index >= tokens.size()) {
                 return false;
             }
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (tokens.get(index).equals(token)) {
                 index++;
                 return true;
@@ -1206,8 +1577,12 @@ public class SubstitutionAgent extends Agent {
             return false;
         }
 
+        /**
+         * Split expression into tokens while preserving parentheses.
+         */
         private static List<String> tokenize(String expression) {
             String normalized = expression.replace("(", " ( ").replace(")", " ) ").trim();
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (normalized.isEmpty()) {
                 return List.of();
             }
@@ -1217,26 +1592,47 @@ public class SubstitutionAgent extends Agent {
         }
     }
 
+    /**
+     * MatchRating stores multi-level match scores and compares them lexicographically for deterministic picks.
+     */
     private record MatchRating(boolean matches, double[] levels) implements Comparable<MatchRating> {
+        /**
+         * Construct non-match marker value.
+         */
         private static MatchRating noMatch() {
             return new MatchRating(false, new double[0]);
         }
 
+        /**
+         * Construct match marker with score levels.
+         */
         private static MatchRating match(double[] levels) {
             return new MatchRating(true, levels == null ? new double[0] : levels);
         }
 
+        /**
+         * Compare match ratings lexicographically by score levels.
+         */
+        /**
+         * Compare rating vectors lexicographically.
+         */
         @Override
+        /**
+         * c om pa re to exists so this path stays predictable and easier to debug when things get weird.
+         */
         public int compareTo(MatchRating other) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (matches != other.matches) {
                 return matches ? 1 : -1;
             }
 
             int max = Math.max(levels.length, other.levels.length);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             for (int i = 0; i < max; i++) {
                 double left = i < levels.length ? levels[i] : 0.0;
                 double right = i < other.levels.length ? other.levels[i] : 0.0;
                 int diff = Double.compare(left, right);
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (diff != 0) {
                     return diff;
                 }
@@ -1244,10 +1640,21 @@ public class SubstitutionAgent extends Agent {
             return 0;
         }
 
+        /**
+         * Render compact debug string for logging candidate scores.
+         */
+        /**
+         * Render concise match/debug representation.
+         */
         @Override
+        /**
+         * t os tr in g exists so this path stays predictable and easier to debug when things get weird.
+         */
         public String toString() {
             StringBuilder out = new StringBuilder(matches ? "match[" : "no-match[");
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             for (int i = 0; i < levels.length; i++) {
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (i > 0) {
                     out.append(',');
                 }

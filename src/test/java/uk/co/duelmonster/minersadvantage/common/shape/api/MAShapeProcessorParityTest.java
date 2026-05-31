@@ -13,19 +13,41 @@ import uk.co.duelmonster.minersadvantage.common.shape.builtin.excavation.Excavat
 import uk.co.duelmonster.minersadvantage.common.shape.builtin.excavation.ThreeByThreeGeometry;
 import uk.co.duelmonster.minersadvantage.common.shape.builtin.shaft.ShaftFloorGeometry;
 
+/**
+ * Parity suite for built-in shape registration, index selection behavior, and geometry helpers.
+ * If anything drifts here, clients and servers will politely disagree in very impolite ways.
+ */
 class MAShapeProcessorParityTest {
+    /**
+     * Bootstrap built-ins once so all tests observe a populated registry.
+     */
     @BeforeAll
+    /**
+     * Run bootstrap once before assertions.
+     */
     static void bootstrapShapes() {
         MAShapeBootstrap.ensureInitialized();
     }
 
+    /**
+     * Sanity check expected built-in shape counts per feature.
+     */
     @Test
+    /**
+     * Validate expected builtin shape totals.
+     */
     void registersExpectedBuiltinShapeCountsPerFeature() {
         assertEquals(6, MAShapeRegistry.forFeature(FeatureId.EXCAVATION).size());
         assertEquals(3, MAShapeRegistry.forFeature(FeatureId.SHAFTANATION).size());
     }
 
+    /**
+     * Shape selection should wrap by index instead of exploding when index is larger than list size.
+     */
     @Test
+    /**
+     * Validate wrapping index selection behavior.
+     */
     void excavationSelectionWrapsByIndex() {
         var selected = MAShapeRegistry.byIndex(FeatureId.EXCAVATION, 99);
         assertTrue(selected.isPresent());
@@ -35,7 +57,13 @@ class MAShapeProcessorParityTest {
         assertEquals(99 % MAShapeRegistry.forFeature(FeatureId.EXCAVATION).size(), resolvedIndex);
     }
 
+    /**
+     * Ensure known shaft builtin ids resolve to real registry entries.
+     */
     @Test
+    /**
+     * Validate known shaft ids resolve.
+     */
     void shaftSelectionResolvesKnownBuiltinIds() {
         int shaftIndex = MAShapeRegistry.indexOf(FeatureId.SHAFTANATION, MAShapeIds.SHAFTANATION_SHAFT);
         int upIndex = MAShapeRegistry.indexOf(FeatureId.SHAFTANATION, MAShapeIds.SHAFTANATION_STAIRCASE_UP);
@@ -46,7 +74,13 @@ class MAShapeProcessorParityTest {
         assertTrue(downIndex >= 0);
     }
 
+    /**
+     * Bootstrapping multiple times should not duplicate entries.
+     */
     @Test
+    /**
+     * Validate bootstrap idempotency.
+     */
     void bootstrapIsIdempotentForRegistryCounts() {
         int excavationBefore = MAShapeRegistry.forFeature(FeatureId.EXCAVATION).size();
         int shaftBefore = MAShapeRegistry.forFeature(FeatureId.SHAFTANATION).size();
@@ -58,12 +92,24 @@ class MAShapeProcessorParityTest {
         assertEquals(shaftBefore, MAShapeRegistry.forFeature(FeatureId.SHAFTANATION).size());
     }
 
+    /**
+     * Unknown ids should return -1 rather than pretending everything is fine.
+     */
     @Test
+    /**
+     * Validate unknown id sentinel behavior.
+     */
     void unknownShapeIdReturnsMissingIndex() {
         assertEquals(-1, MAShapeRegistry.indexOf(FeatureId.EXCAVATION, "minersadvantage:not_real"));
     }
 
+    /**
+     * North/South hit axis should generate XY plane offsets with no Z depth spread.
+     */
     @Test
+    /**
+     * Validate Z-face 3x3 offsets.
+     */
     void threeByThreeNorthHitUsesEastWestAndUpDownWithSingleDepth() {
         Set<String> offsets = toOffsetKeys(ThreeByThreeGeometry.offsetsForFaceAxis(ThreeByThreeGeometry.FaceAxis.Z));
 
@@ -76,7 +122,13 @@ class MAShapeProcessorParityTest {
         assertFalse(offsets.contains(key(0, 0, 1)));
     }
 
+    /**
+     * Top hit axis should generate XZ plane offsets with no Y spread.
+     */
     @Test
+    /**
+     * Validate Y-face 3x3 offsets.
+     */
     void threeByThreeTopHitUsesEastWestAndNorthSouthWithSingleDepth() {
         Set<String> offsets = toOffsetKeys(ThreeByThreeGeometry.offsetsForFaceAxis(ThreeByThreeGeometry.FaceAxis.Y));
 
@@ -89,7 +141,13 @@ class MAShapeProcessorParityTest {
         assertFalse(offsets.contains(key(0, -1, 0)));
     }
 
+    /**
+     * East/West hit axis should generate ZY plane offsets with no X spread.
+     */
     @Test
+    /**
+     * Validate X-face 3x3 offsets.
+     */
     void threeByThreeEastHitUsesNorthSouthAndUpDownWithSingleDepth() {
         Set<String> offsets = toOffsetKeys(ThreeByThreeGeometry.offsetsForFaceAxis(ThreeByThreeGeometry.FaceAxis.X));
 
@@ -102,7 +160,13 @@ class MAShapeProcessorParityTest {
         assertFalse(offsets.contains(key(-1, 0, 0)));
     }
 
+    /**
+     * North/South excavation offsets should flip depth direction on Z while preserving XY plane semantics.
+     */
     @Test
+    /**
+     * Validate north/south excavation mapping.
+     */
     void excavationNorthSouthHitsUseXYPlaneAndFlipDepthOnZ() {
         assertOffset(
             ExcavationFaceGeometry.offsetFor(ExcavationFaceGeometry.FaceDirection.NORTH, 2, 1, -1),
@@ -118,7 +182,13 @@ class MAShapeProcessorParityTest {
         );
     }
 
+    /**
+     * Up/Down excavation offsets should flip depth direction on Y while preserving XZ plane semantics.
+     */
     @Test
+    /**
+     * Validate up/down excavation mapping.
+     */
     void excavationUpDownHitsUseXZPlaneAndFlipDepthOnY() {
         assertOffset(
             ExcavationFaceGeometry.offsetFor(ExcavationFaceGeometry.FaceDirection.UP, 2, 1, -1),
@@ -134,7 +204,13 @@ class MAShapeProcessorParityTest {
         );
     }
 
+    /**
+     * East/West excavation offsets should flip depth direction on X while preserving ZY plane semantics.
+     */
     @Test
+    /**
+     * Validate east/west excavation mapping.
+     */
     void excavationEastWestHitsUseZYPlaneAndFlipDepthOnX() {
         assertOffset(
             ExcavationFaceGeometry.offsetFor(ExcavationFaceGeometry.FaceDirection.EAST, 2, 1, -1),
@@ -150,34 +226,62 @@ class MAShapeProcessorParityTest {
         );
     }
 
+    /**
+     * Floor anchoring should snap to player feet when origin is inside anchoring window.
+     */
     @Test
+    /**
+     * Validate floor snap to feet.
+     */
     void shaftFloorAnchorsToPlayerFeetWhenOriginIsWithinFeetPlusHeightMinusOne() {
         assertEquals(64, ShaftFloorGeometry.resolveFloorY(66, 64, 3));
         assertEquals(64, ShaftFloorGeometry.resolveFloorY(64, 64, 3));
     }
 
+    /**
+     * Origins above anchoring window keep their own Y level.
+     */
     @Test
+    /**
+     * Validate high origins keep original floor.
+     */
     void shaftFloorUsesOriginWhenOriginIsAboveFeetPlusHeightMinusOne() {
         assertEquals(67, ShaftFloorGeometry.resolveFloorY(67, 64, 3));
     }
 
+    /**
+     * Origins below feet should remain below feet; no forced snapping upward.
+     */
     @Test
+    /**
+     * Validate below-feet origins stay below.
+     */
     void shaftFloorUsesOriginWhenOriginIsBelowFeetLevel() {
         assertEquals(63, ShaftFloorGeometry.resolveFloorY(63, 64, 3));
     }
 
+    /**
+     * Convert raw offset arrays into deterministic string keys for set-based comparison assertions.
+     */
     private static Set<String> toOffsetKeys(int[][] offsets) {
         Set<String> keys = new HashSet<>();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (int[] offset : offsets) {
             keys.add(key(offset[0], offset[1], offset[2]));
         }
         return keys;
     }
 
+    /**
+     * Compare one produced offset with expected coordinates.
+     */
     private static void assertOffset(int[] offset, int x, int y, int z) {
         assertEquals(key(x, y, z), key(offset[0], offset[1], offset[2]));
     }
 
+    /**
+     * Build compact coordinate key for readable assertion sets.
+     */
     private static String key(int x, int y, int z) {
         return x + "," + y + "," + z;
     }

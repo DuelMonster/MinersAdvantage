@@ -91,15 +91,18 @@ public final class LumbinationComponent implements ComponentLifecycle {
      * Optimized tick method to improve runtime performance and reduce unnecessary computations.
      */
     public void tick() {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!ComponentTickHelper.shouldExecute(isEnabled())) {
             return;
         }
 
         var context = ComponentTickHelper.getContext();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (context == null || context.blockId() == null) {
             return;
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (service.isLog(context.blockId())) {
             lastPlan = service.buildPlan(
                 Math.max(1, config.maxTrunkRange()),

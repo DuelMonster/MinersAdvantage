@@ -15,11 +15,17 @@ import uk.co.duelmonster.minersadvantage.common.orchestration.FeatureDispatchCon
  */
 class CommonEventHandlerImplTest {
     @AfterEach
+    /**
+     * c le ar ob se rv er exists so this path stays predictable and easier to debug when things get weird.
+     */
     void clearObserver() {
         FeatureEventHandler.resetDispatchObserverForTesting();
     }
 
     @Test
+    /**
+     * r ou te sp ic ka xe st on et os ha ft an at io n exists so this path stays predictable and easier to debug when things get weird.
+     */
     void routesPickaxeStoneToShaftanation() {
         CommonEventHandlerImpl handler = new CommonEventHandlerImpl(new MinersAdvantageCore());
         AtomicReference<FeatureDispatchContext> captured = new AtomicReference<>();
@@ -31,6 +37,9 @@ class CommonEventHandlerImplTest {
     }
 
     @Test
+    /**
+     * r ou te sh oe cr op to cr op in at io n exists so this path stays predictable and easier to debug when things get weird.
+     */
     void routesHoeCropToCropination() {
         CommonEventHandlerImpl handler = new CommonEventHandlerImpl(new MinersAdvantageCore());
         AtomicReference<FeatureDispatchContext> captured = new AtomicReference<>();

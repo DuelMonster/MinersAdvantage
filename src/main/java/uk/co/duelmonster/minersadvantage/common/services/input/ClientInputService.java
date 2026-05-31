@@ -32,6 +32,9 @@ public final class ClientInputService {
             selectedShaftanationShapeIndex = Math.max(0, selectedShaftanationShapeIndex);
         }
 
+        /**
+         * c li en ti np ut st at e exists so this path stays predictable and easier to debug when things get weird.
+         */
         public ClientInputState(Map<FeatureId, Boolean> featureEnabled, boolean excavationToggled, boolean shaftVentToggled) {
             this(featureEnabled, excavationToggled, shaftVentToggled, 0, 0);
         }
@@ -42,6 +45,7 @@ public final class ClientInputService {
          */
         public static ClientInputState defaults() {
             EnumMap<FeatureId, Boolean> features = new EnumMap<>(FeatureId.class);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             for (FeatureId feature : FeatureId.values()) {
                 features.put(feature, true);
             }
@@ -82,7 +86,9 @@ public final class ClientInputService {
 
         boolean excavationEnabled = features.getOrDefault(FeatureId.EXCAVATION, false);
         boolean excavationToggled = state.excavationToggled();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (excavationEnabled) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (!excavationToggleMode) {
                 excavationToggled = pressedActions.contains(ClientAction.EXCAVATION_MODE_TOGGLE);
             } else if (pressedActions.contains(ClientAction.EXCAVATION_MODE_TOGGLE)) {
@@ -97,6 +103,7 @@ public final class ClientInputService {
         boolean illuminationEnabled = features.getOrDefault(FeatureId.ILLUMINATION, false);
 
         int selectedExcavationShapeIndex = state.selectedExcavationShapeIndex();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (excavationEnabled) {
             selectedExcavationShapeIndex = cycleIndex(
                 selectedExcavationShapeIndex,
@@ -107,6 +114,7 @@ public final class ClientInputService {
         }
 
         int selectedShaftanationShapeIndex = state.selectedShaftanationShapeIndex();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (shaftEnabled) {
             selectedShaftanationShapeIndex = cycleIndex(
                 selectedShaftanationShapeIndex,
@@ -141,6 +149,7 @@ public final class ClientInputService {
         ClientAction action,
         Set<ClientAction> pressedActions
     ) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!pressedActions.contains(action)) {
             return;
         }
@@ -149,14 +158,20 @@ public final class ClientInputService {
         packets.add(new ComponentTogglePacket(feature, next));
     }
 
+    /**
+     * c yc le in de x exists so this path stays predictable and easier to debug when things get weird.
+     */
     private int cycleIndex(int currentIndex, int size, boolean nextPressed, boolean prevPressed) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (size <= 0) {
             return 0;
         }
         int result = currentIndex;
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (nextPressed) {
             result = Math.floorMod(result + 1, size);
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (prevPressed) {
             result = Math.floorMod(result - 1, size);
         }

@@ -106,6 +106,9 @@ public final class MinersAdvantageCore {
         LogUtils.logInfo("Bootstrapped {} feature components", components.size());
     }
 
+    /**
+     * r eg is te rf ea tu re exists so this path stays predictable and easier to debug when things get weird.
+     */
     private <C> void registerFeature(FeatureId id, String key, Supplier<C> configGetter, Function<C, ? extends ComponentLifecycle> componentFactory) {
         ComponentLifecycle component = componentFactory.apply(configGetter.get());
         components.put(id, component);
@@ -180,11 +183,13 @@ public final class MinersAdvantageCore {
     public boolean handleComponentTogglePacket(ComponentTogglePacket packet) {
         LogUtils.logDebug("Handling component toggle feature={} enabled={}", packet.feature(), packet.enabled());
         ComponentLifecycle component = components.get(packet.feature());
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (component == null) {
             LogUtils.logWarn("Received toggle for unknown feature={}", packet.feature());
             return false;
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (packet.enabled()) {
             component.enable();
         } else {
@@ -255,11 +260,13 @@ public final class MinersAdvantageCore {
      * handleIlluminationActionPacket routes explicit client illumination requests into the live server agent path.
      */
     public boolean handleIlluminationActionPacket(ServerPlayer player, IlluminationActionPacket packet) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (player == null || packet == null) {
             return false;
         }
 
         ComponentLifecycle component = components.get(FeatureId.ILLUMINATION);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (component == null || !component.isEnabled()) {
             return false;
         }
@@ -267,6 +274,7 @@ public final class MinersAdvantageCore {
         SyncedClientConfig effectiveConfig = syncCoreService.getPlayerState(player.getUUID().getLeastSignificantBits()).effectiveConfig();
         CommonConfig commonConfig = effectiveConfig == null ? defaultConfig.common() : effectiveConfig.common();
         IlluminationConfig illuminationConfig = effectiveConfig == null ? defaultConfig.illumination() : effectiveConfig.illumination();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (illuminationConfig == null || !illuminationConfig.enabled()) {
             return false;
         }
@@ -279,6 +287,7 @@ public final class MinersAdvantageCore {
             targetPos
         );
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!packet.area()) {
             AgentManager.get().addAgent(player, new IlluminationPlaceAgent(player, targetPos, packet.faceDirection(), illuminationConfig, commonConfig));
         } else {

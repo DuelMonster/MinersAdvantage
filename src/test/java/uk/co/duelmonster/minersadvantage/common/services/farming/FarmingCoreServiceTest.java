@@ -13,6 +13,9 @@ import org.junit.jupiter.api.Test;
  */
 class FarmingCoreServiceTest {
     @Test
+    /**
+     * b ui ld sh yd ra ti on aw ar ec ul ti va ti on pl an exists so this path stays predictable and easier to debug when things get weird.
+     */
     void buildsHydrationAwareCultivationPlan() {
         FarmingCoreService service = new FarmingCoreService();
         List<FarmingCoreService.CultivationStep> plan = service.buildCultivationPlan(10, 64, 10, 2, 4);

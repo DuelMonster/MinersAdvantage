@@ -33,6 +33,7 @@ final class PacketProcessSupport {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     static void dispatchFeature(Object player, FeatureId feature, BaseBlockPacket packet) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (packet == null) {
             return;
         }
@@ -44,10 +45,12 @@ final class PacketProcessSupport {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     static void dispatchSubstitution(Object player, PacketSubstituteTool packet) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (packet == null) {
             return;
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (packet.slot >= 0) {
             Variables vars = resolveVariables(player);
             vars.optimalSlot = packet.slot;
@@ -99,7 +102,9 @@ final class PacketProcessSupport {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     private static String resolveBlockId(int stateId) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (stateId > 0) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             try {
                 return BuiltInRegistries.BLOCK.getKey(Block.stateById(stateId).getBlock()).toString();
             } catch (RuntimeException ignored) {
@@ -114,13 +119,16 @@ final class PacketProcessSupport {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     private static String resolveToolId(Object player) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (player instanceof Player minecraftPlayer) {
             return toolIdFromStack(minecraftPlayer.getMainHandItem());
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             Method method = player == null ? null : player.getClass().getMethod("getMainHandItem");
             Object result = method == null ? null : method.invoke(player);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (result instanceof ItemStack stack) {
                 return toolIdFromStack(stack);
             }
@@ -136,6 +144,7 @@ final class PacketProcessSupport {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     private static String toolIdFromStack(ItemStack stack) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (stack == null || stack.isEmpty()) {
             return FALLBACK_ID;
         }
@@ -148,6 +157,7 @@ final class PacketProcessSupport {
      */
     private static Variables resolveVariables(Object player) {
         UUID uuid = resolveUuid(player);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (uuid == null) {
             return Variables.get();
         }
@@ -159,13 +169,16 @@ final class PacketProcessSupport {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     private static UUID resolveUuid(Object player) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (player instanceof Player minecraftPlayer) {
             return minecraftPlayer.getUUID();
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             Method method = player == null ? null : player.getClass().getMethod("getUUID");
             Object result = method == null ? null : method.invoke(player);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (result instanceof UUID uuid) {
                 return uuid;
             }

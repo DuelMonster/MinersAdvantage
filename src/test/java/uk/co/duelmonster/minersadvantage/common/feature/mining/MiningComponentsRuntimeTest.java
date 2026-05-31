@@ -19,11 +19,17 @@ import uk.co.duelmonster.minersadvantage.common.orchestration.FeatureDispatchCon
  */
 class MiningComponentsRuntimeTest {
     @AfterEach
+    /**
+     * Clear shared dispatch context after each test.
+     */
     void clearDispatchContext() {
         FeatureDispatchBus.clearContext();
     }
 
     @Test
+    /**
+     * Verify excavation plan respects configured height.
+     */
     void excavationUsesConfiguredHeight() {
         ExcavationComponent component = new ExcavationComponent(new ExcavationConfig(true, 1, 5, 1, 5));
         component.register();
@@ -37,6 +43,9 @@ class MiningComponentsRuntimeTest {
     }
 
     @Test
+    /**
+     * Verify shaftanation progress advances with valid stone context.
+     */
     void shaftanationAdvancesDepthWhenStoneContextPresent() {
         ShaftanationComponent component = new ShaftanationComponent(new ShaftanationConfig(true, 9, 3));
         component.register();
@@ -51,6 +60,9 @@ class MiningComponentsRuntimeTest {
     }
 
     @Test
+    /**
+     * Verify ventilation progress is limited to intended cave-depth contexts.
+     */
     void ventilationOnlyProgressesInCaveDepths() {
         VentilationComponent component = new VentilationComponent(new VentilationConfig(true, 2, 4, 1, 4));
         component.register();

@@ -7,7 +7,14 @@ import uk.co.duelmonster.minersadvantage.common.shape.builtin.ShapeGeometryUtils
 
 import java.util.LinkedHashSet;
 
+/**
+ * Shared excavation geometry helper that keeps direction math and offset wiring in one place,
+ * so shape processors can focus on shape logic instead of coordinate acrobatics.
+ */
 public final class ExcavationFaceGeometry {
+    /**
+     * Bundles state plus centered ranges so processors can start work without repeating setup boilerplate.
+     */
     public record ComputePlan(
         ComputeState state,
         IntRange widthRange,
@@ -15,6 +22,9 @@ public final class ExcavationFaceGeometry {
     ) {
     }
 
+    /**
+     * Mutable-ish compute context passed through inner loops without hauling three separate locals around.
+     */
     public record ComputeState(
         LinkedHashSet<BlockPos> out,
         BlockPos origin,
@@ -22,9 +32,15 @@ public final class ExcavationFaceGeometry {
     ) {
     }
 
+    /**
+     * Tiny inclusive range holder used for centered width/height traversal.
+     */
     public record IntRange(int min, int max) {
     }
 
+    /**
+     * Internal face enum so processors avoid Minecraft-direction-specific branching in every loop.
+     */
     public enum FaceDirection {
         NORTH,
         SOUTH,
@@ -34,9 +50,15 @@ public final class ExcavationFaceGeometry {
         DOWN
     }
 
+    /**
+     * Utility class only; if someone instantiates this, they owe the team snacks.
+     */
     private ExcavationFaceGeometry() {
     }
 
+    /**
+     * Convert the hit face once up front so loop code can stay branch-light.
+     */
     public static FaceDirection fromMinecraftDirection(Direction direction) {
         return switch (direction) {
             case NORTH -> FaceDirection.NORTH;
@@ -48,6 +70,9 @@ public final class ExcavationFaceGeometry {
         };
     }
 
+    /**
+     * Translate logical depth/width/height movement into world-axis offsets based on chosen face.
+     */
     public static int[] offsetFor(FaceDirection faceDirection, int depth, int width, int height) {
         return switch (faceDirection) {
             case NORTH -> new int[] {width, height, depth};
@@ -59,6 +84,9 @@ public final class ExcavationFaceGeometry {
         };
     }
 
+    /**
+     * Create the base compute state with origin and resolved face direction.
+     */
     public static ComputeState begin(MAShapeContext context) {
         return new ComputeState(
             new LinkedHashSet<>(),
@@ -67,6 +95,9 @@ public final class ExcavationFaceGeometry {
         );
     }
 
+    /**
+     * Precompute the two centered ranges most excavation shapes need, because repetition is boring.
+     */
     public static ComputePlan beginWithCenteredWidthAndHeight(MAShapeContext context) {
         return new ComputePlan(
             begin(context),
@@ -75,6 +106,9 @@ public final class ExcavationFaceGeometry {
         );
     }
 
+    /**
+     * Build an inclusive centered range for the supplied size.
+     */
     public static IntRange centeredRange(int size) {
         return new IntRange(
             ShapeGeometryUtils.minCenteredOffset(size),
@@ -82,6 +116,9 @@ public final class ExcavationFaceGeometry {
         );
     }
 
+    /**
+     * Guard against overshooting max block count while filling output sets.
+     */
     public static boolean hasCapacity(
         LinkedHashSet<BlockPos> out,
         MAShapeContext context
@@ -89,6 +126,9 @@ public final class ExcavationFaceGeometry {
         return out.size() < context.maxBlocks();
     }
 
+    /**
+     * Convenience overload for callers already carrying a ComputeState.
+     */
     public static boolean hasCapacity(
         ComputeState state,
         MAShapeContext context
@@ -96,6 +136,9 @@ public final class ExcavationFaceGeometry {
         return hasCapacity(state.out(), context);
     }
 
+    /**
+     * Resolve and add one immutable world position from local shape coordinates.
+     */
     public static void addOffset(
         LinkedHashSet<BlockPos> out,
         BlockPos origin,
@@ -108,6 +151,9 @@ public final class ExcavationFaceGeometry {
         out.add(origin.offset(offset[0], offset[1], offset[2]).immutable());
     }
 
+    /**
+     * Convenience overload that uses the origin/face already stored in ComputeState.
+     */
     public static void addOffset(
         ComputeState state,
         int depth,

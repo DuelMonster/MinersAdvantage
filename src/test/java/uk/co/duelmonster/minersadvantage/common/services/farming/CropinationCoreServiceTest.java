@@ -12,6 +12,9 @@ import org.junit.jupiter.api.Test;
  */
 class CropinationCoreServiceTest {
     @Test
+    /**
+     * d et ec ts fu ll yg ro wn cr op s exists so this path stays predictable and easier to debug when things get weird.
+     */
     void detectsFullyGrownCrops() {
         CropinationCoreService service = new CropinationCoreService();
         assertTrue(service.isFullyGrown(7, 7));
@@ -19,6 +22,9 @@ class CropinationCoreServiceTest {
     }
 
     @Test
+    /**
+     * c al cu la te sr ed uc ed du ra bi li ty ca de nc e exists so this path stays predictable and easier to debug when things get weird.
+     */
     void calculatesReducedDurabilityCadence() {
         CropinationCoreService service = new CropinationCoreService();
         assertEquals(1, service.adjustedDurabilityCost(5, 5));
@@ -26,6 +32,9 @@ class CropinationCoreServiceTest {
     }
 
     @Test
+    /**
+     * e va lu at es ha rv es ta nd re pl an ta ct io n exists so this path stays predictable and easier to debug when things get weird.
+     */
     void evaluatesHarvestAndReplantAction() {
         CropinationCoreService service = new CropinationCoreService();
         CropinationCoreService.CropAction action = service.evaluateCrop(7, 7, 4, true, 5, 5);

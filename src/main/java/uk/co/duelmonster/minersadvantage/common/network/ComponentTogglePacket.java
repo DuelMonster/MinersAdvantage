@@ -31,6 +31,7 @@ public record ComponentTogglePacket(
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     private static Type<ComponentTogglePacket> createType() {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             return payloadId("component_toggle");
         } catch (Throwable throwable) {
@@ -44,6 +45,7 @@ public record ComponentTogglePacket(
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     private static StreamCodec<RegistryFriendlyByteBuf, ComponentTogglePacket> createStreamCodec() {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             StreamCodec<RegistryFriendlyByteBuf, FeatureId> featureCodec =
                 (StreamCodec<RegistryFriendlyByteBuf, FeatureId>) (StreamCodec<?, FeatureId>) ByteBufCodecs.STRING_UTF8.map(FeatureId::valueOf, FeatureId::name);

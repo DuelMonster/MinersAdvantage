@@ -26,6 +26,7 @@ public final class FeatureEventHandler {
      */
     public static void onToolUse(FeatureId feature, int blockX, int blockY, int blockZ, String blockId, String toolId) {
         FeatureDispatchBus.setContext(new FeatureDispatchContext(feature, blockX, blockY, blockZ, blockId, toolId, 0L));
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             handleFeatureDispatch(feature);
         } finally {
@@ -39,6 +40,7 @@ public final class FeatureEventHandler {
      */
     private static void handleFeatureDispatch(FeatureId feature) {
         FeatureDispatchContext context = FeatureDispatchBus.getContext();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (context != null && context.feature() == feature) {
             dispatchObserver.onDispatch(context);
         }

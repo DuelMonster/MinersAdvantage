@@ -17,6 +17,9 @@ public record SubstitutionConfig(
     List<String> blacklist,
     List<SelectionRule> selectionRules
 ) {
+    /**
+     * s ub st it ut io nc on fi g exists so this path stays predictable and easier to debug when things get weird.
+     */
     public SubstitutionConfig() {
         this(true, false, false, true, true, true, true, List.of(), defaultSelectionRules());
     }
@@ -55,6 +58,9 @@ public record SubstitutionConfig(
         return prioritizeSilkTouch;
     }
 
+    /**
+     * d ef au lt se le ct io nr ul es exists so this path stays predictable and easier to debug when things get weird.
+     */
     public static List<SelectionRule> defaultSelectionRules() {
         return List.of(
             new SelectionRule(SubstitutionAction.BREAK, TargetKind.BLOCK_TAG, "minecraft:mineable/pickaxe", "pickaxe", 100, 10, false, true, "", "tool_kind:pickaxe AND correct_tool", 0, 0, false, false),
@@ -68,6 +74,9 @@ public record SubstitutionConfig(
         );
     }
 
+    /**
+     * SubstitutionAction captures the player intent so rule evaluation can stay context-aware.
+     */
     public enum SubstitutionAction {
         BREAK,
         INTERACT,
@@ -76,12 +85,18 @@ public record SubstitutionConfig(
         ANY
     }
 
+    /**
+     * TargetKind tells the resolver whether a rule is matching tags, entities, or everything.
+     */
     public enum TargetKind {
         BLOCK_TAG,
         ENTITY_TYPE,
         ANY
     }
 
+    /**
+     * SelectionRule is the one-stop bundle for substitution matching and ranking preferences.
+     */
     public record SelectionRule(
         SubstitutionAction action,
         TargetKind targetKind,
@@ -135,6 +150,7 @@ public record SubstitutionConfig(
             toolExpression = toolExpression == null ? "" : toolExpression;
             minSilkTouch = Math.max(0, minSilkTouch);
             minFortune = Math.max(0, minFortune);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (requireMending && denyMending) {
                 denyMending = false;
             }

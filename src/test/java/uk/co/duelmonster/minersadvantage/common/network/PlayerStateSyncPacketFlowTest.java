@@ -19,6 +19,9 @@ import uk.co.duelmonster.minersadvantage.common.services.utility.SupremeVantageS
  */
 class PlayerStateSyncPacketFlowTest {
     @Test
+    /**
+     * p la ye rs ta te sy nc pa ck et ap pl ie ss er ve ra ut ho ri ta ti ve co nf ig exists so this path stays predictable and easier to debug when things get weird.
+     */
     void playerStateSyncPacketAppliesServerAuthoritativeConfig() {
         Assumptions.assumeTrue(isSlf4jAvailable());
         MinersAdvantageCore core = new MinersAdvantageCore();
@@ -34,6 +37,9 @@ class PlayerStateSyncPacketFlowTest {
     }
 
     @Test
+    /**
+     * c om po ne nt to gg le pa ck et en ab le sa nd di sa bl es re gi st er ed fe at ur es exists so this path stays predictable and easier to debug when things get weird.
+     */
     void componentTogglePacketEnablesAndDisablesRegisteredFeatures() {
         Assumptions.assumeTrue(isSlf4jAvailable());
         MinersAdvantageCore core = new MinersAdvantageCore();
@@ -45,6 +51,9 @@ class PlayerStateSyncPacketFlowTest {
     }
 
     @Test
+    /**
+     * s up re me va nt ag ep ac ke tr et ur ns re wa rd gr an t exists so this path stays predictable and easier to debug when things get weird.
+     */
     void supremeVantagePacketReturnsRewardGrant() {
         Assumptions.assumeTrue(isSlf4jAvailable());
         MinersAdvantageCore core = new MinersAdvantageCore();
@@ -57,7 +66,11 @@ class PlayerStateSyncPacketFlowTest {
         assertEquals("SupremeVantagePacket", PacketRegistry.getPacketName(PacketRegistry.SUPREME_VANTAGE));
     }
 
+    /**
+     * i ss lf4 ja va il ab le exists so this path stays predictable and easier to debug when things get weird.
+     */
     private static boolean isSlf4jAvailable() {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             Class.forName("org.slf4j.LoggerFactory");
             return true;

@@ -66,9 +66,11 @@ public final class ClientInputHandler {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     private static void registerKeyMapping(KeyMapping keyMapping) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             Class<?> helperClass;
             Method registerMethod;
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             try {
                 helperClass = Class.forName("net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper");
                 registerMethod = helperClass.getMethod("registerKeyBinding", KeyMapping.class);
@@ -83,6 +85,7 @@ public final class ClientInputHandler {
     }
 
     private static KeyMapping.Category createKeyCategory() {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             Object identifier = createCategoryIdentifier();
             Method registerCategoryMethod = KeyMapping.Category.class.getMethod("register", identifier.getClass());
@@ -92,7 +95,11 @@ public final class ClientInputHandler {
         }
     }
 
+    /**
+     * Resolve a version-safe identifier object so key category registration works across mapping variants.
+     */
     private static Object createCategoryIdentifier() throws ReflectiveOperationException {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             Class<?> identifierClass = Class.forName("net.minecraft.resources.Identifier");
             Method factory = identifierClass.getMethod("fromNamespaceAndPath", String.class, String.class);
@@ -110,6 +117,7 @@ public final class ClientInputHandler {
      * Called from FabricClientEntrypoint.onInitializeClient().
      */
     public static void registerKeybindings() {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (KeyBindings.KeyBindingSpec spec : KeyBindings.all()) {
             String translationKey = "key." + uk.co.duelmonster.minersadvantage.ModCommon.MOD_ID + "." + spec.action().name().toLowerCase();
 
@@ -154,13 +162,16 @@ public final class ClientInputHandler {
             ClientPlayNetworking.send(packet);
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (result.illuminatePlace()) {
             sendIlluminationAction(false);
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (result.illuminateArea()) {
             sendIlluminationAction(true);
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (result.abortRequested()) {
             long playerId = ClientActionInputSupport.resolveLocalPlayerId();
             ClientPlayNetworking.send(new AbortWorkersPacket(playerId, "client:keybind"));
@@ -168,6 +179,7 @@ public final class ClientInputHandler {
 
         boolean activationStateChanged = ClientActionInputSupport.hasActivationStateChanged(lastSyncedState, result.state());
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (activationStateChanged && (result.shouldSyncConfig() || result.shouldSyncVariables())) {
             syncStateToServer(result.state());
         }
@@ -177,12 +189,17 @@ public final class ClientInputHandler {
         return inputState;
     }
 
+    /**
+     * o nm ou se sc ro ll exists so this path stays predictable and easier to debug when things get weird.
+     */
     public static boolean onMouseScroll(double scrollY) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (scrollY == 0.0d) {
             return false;
         }
 
         Set<KeyBindings.ClientAction> actions = ClientActionInputSupport.collectScrollActions(inputState, scrollY);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (actions.isEmpty()) {
             return false;
         }
@@ -195,27 +212,34 @@ public final class ClientInputHandler {
         return true;
     }
 
+    /**
+     * s ho ws ha pe hu di fc ha ng ed or ac ti va te d exists so this path stays predictable and easier to debug when things get weird.
+     */
     private static void showShapeHudIfChangedOrActivated(ClientInputService.ClientInputState previous, ClientInputService.ClientInputState current) {
         boolean excavationChanged = previous.selectedExcavationShapeIndex() != current.selectedExcavationShapeIndex();
         boolean shaftChanged = previous.selectedShaftanationShapeIndex() != current.selectedShaftanationShapeIndex();
         boolean excavationActivated = !previous.excavationToggled() && current.excavationToggled();
         boolean shaftActivated = !previous.shaftVentToggled() && current.shaftVentToggled();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!excavationChanged && !shaftChanged && !excavationActivated && !shaftActivated) {
             return;
         }
 
         MAShapeBootstrap.ensureInitialized();
         StringBuilder message = new StringBuilder();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (excavationChanged || excavationActivated) {
             String excavationName = MAShapeRegistry.byIndex(FeatureId.EXCAVATION, current.selectedExcavationShapeIndex())
                 .map(shape -> shape.displayName())
                 .orElse("#" + current.selectedExcavationShapeIndex());
             message.append("Excavation Shape: ").append(excavationName);
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (shaftChanged || shaftActivated) {
             String shaftName = MAShapeRegistry.byIndex(FeatureId.SHAFTANATION, current.selectedShaftanationShapeIndex())
                 .map(shape -> shape.displayName())
                 .orElse("#" + current.selectedShaftanationShapeIndex());
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (!message.isEmpty()) {
                 message.append(" | ");
             }
@@ -223,18 +247,26 @@ public final class ClientInputHandler {
         }
 
         Minecraft minecraft = Minecraft.getInstance();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (minecraft.gui != null) {
             minecraft.gui.setOverlayMessage(Component.literal(message.toString()), false);
         }
     }
 
+    /**
+     * s yn cs ta te to se rv er exists so this path stays predictable and easier to debug when things get weird.
+     */
     private static void syncStateToServer(ClientInputService.ClientInputState state) {
         ClientPlayNetworking.send(ClientActionInputSupport.createPlayerStateSyncPacket(state));
         lastSyncedState = state;
     }
 
+    /**
+     * s en di ll um in at io na ct io n exists so this path stays predictable and easier to debug when things get weird.
+     */
     private static void sendIlluminationAction(boolean area) {
         Minecraft client = Minecraft.getInstance();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!(client.hitResult instanceof BlockHitResult blockHit)) {
             return;
         }

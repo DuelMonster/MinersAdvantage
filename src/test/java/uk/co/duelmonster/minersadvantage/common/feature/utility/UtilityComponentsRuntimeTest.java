@@ -21,11 +21,17 @@ import uk.co.duelmonster.minersadvantage.common.orchestration.FeatureDispatchCon
  */
 class UtilityComponentsRuntimeTest {
     @AfterEach
+    /**
+     * Clear shared dispatch context between tests.
+     */
     void clearDispatchContext() {
         FeatureDispatchBus.clearContext();
     }
 
     @Test
+    /**
+     * Verify illumination component produces place decision from context.
+     */
     void illuminationProducesDecisionFromContext() {
         IlluminationComponent component = new IlluminationComponent(new IlluminationConfig(true, 2, 1));
         component.register();
@@ -40,6 +46,9 @@ class UtilityComponentsRuntimeTest {
     }
 
     @Test
+    /**
+     * Verify illumination reports depleted inventory when no torch supply exists.
+     */
     void illuminationReportsInventoryDepletionWhenTorchSupplyIsEmpty() {
         IlluminationComponent component = new IlluminationComponent(new IlluminationConfig(true, 2, 1));
         component.register();
@@ -53,6 +62,9 @@ class UtilityComponentsRuntimeTest {
     }
 
     @Test
+    /**
+     * Verify pathanation component builds path using configured length.
+     */
     void pathanationBuildsPathWithinConfiguredRange() {
         PathanationComponent component = new PathanationComponent(new PathanationConfig(true, 4));
         component.register();
@@ -65,6 +77,9 @@ class UtilityComponentsRuntimeTest {
     }
 
     @Test
+    /**
+     * Verify veination plan exists only for ore contexts.
+     */
     void veinationOnlyBuildsPlanForOreBlocks() {
         VeinationComponent component = new VeinationComponent(new VeinationConfig(true, 3));
         component.register();
@@ -80,6 +95,9 @@ class UtilityComponentsRuntimeTest {
     }
 
     @Test
+    /**
+     * Verify substitution prefers silk tool in ore context when configured.
+     */
     void substitutionChoosesSilkToolInOreContextWhenConfigured() {
         SubstitutionComponent component = new SubstitutionComponent(new SubstitutionConfig(true, false, true));
         component.register();
@@ -92,6 +110,9 @@ class UtilityComponentsRuntimeTest {
     }
 
     @Test
+    /**
+     * Verify substitution enters combat mode and restores primary tool afterward.
+     */
     void substitutionSwitchesToCombatToolAndBackToPrimary() {
         SubstitutionComponent component = new SubstitutionComponent(new SubstitutionConfig(true, true, false));
         component.register();

@@ -22,6 +22,7 @@ public final class DropsSpawner {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public static void recordDrop(ItemEntity itemEntity) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (itemEntity != null) {
             DROP_HISTORY.add(itemEntity);
         }
@@ -67,15 +68,20 @@ public final class DropsSpawner {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public static Block getDropOfBlockTypeFromList(Class<?> blockType, List<Entity> dropsHistory) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (blockType == null || dropsHistory == null || dropsHistory.isEmpty()) {
             return Blocks.AIR;
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (Entity entity : dropsHistory) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (entity instanceof ItemEntity itemEntity) {
                 ItemStack stack = itemEntity.getItem();
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (stack != null && !stack.isEmpty() && stack.getItem() instanceof net.minecraft.world.item.BlockItem blockItem) {
                     Block block = blockItem.getBlock();
+                    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                     if (blockType.isInstance(block)) {
                         return block;
                     }

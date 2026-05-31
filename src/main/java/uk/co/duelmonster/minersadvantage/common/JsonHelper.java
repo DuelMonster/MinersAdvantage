@@ -39,11 +39,14 @@ public class JsonHelper {
      */
     public static JsonObject ParseObject(String[] stringList) {
         JsonObject json = new JsonObject();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (stringList == null) {
             return json;
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (String value : stringList) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (value != null && !value.isBlank()) {
                 json.addProperty(value, "");
             }
@@ -72,12 +75,15 @@ public class JsonHelper {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public static String[] toStringList(JsonObject json) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (json == null || json.size() == 0) {
             return new String[0];
         }
 
         List<String> values = new ArrayList<>();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (Entry<String, JsonElement> entry : json.entrySet()) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (!values.contains(entry.getKey())) {
                 values.add(entry.getKey());
             }
@@ -114,6 +120,7 @@ public class JsonHelper {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public static JsonArray GetArray(JsonObject json, String key) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (json != null && json.has(key) && json.get(key).isJsonArray()) {
             return json.get(key).getAsJsonArray();
         }
@@ -125,6 +132,7 @@ public class JsonHelper {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public static JsonObject GetObject(JsonObject json, String key) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (json != null && json.has(key) && json.get(key).isJsonObject()) {
             return json.get(key).getAsJsonObject();
         }
@@ -136,6 +144,7 @@ public class JsonHelper {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public static String GetString(JsonObject json, String key, String defaultValue) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (json != null && json.has(key) && json.get(key).isJsonPrimitive() && json.get(key).getAsJsonPrimitive().isString()) {
             return json.get(key).getAsString();
         }
@@ -147,7 +156,9 @@ public class JsonHelper {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public static Number GetNumber(JsonObject json, String key, Number defaultValue) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (json != null && json.has(key) && json.get(key).isJsonPrimitive()) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             try {
                 return json.get(key).getAsNumber();
             } catch (Exception ignored) {
@@ -162,7 +173,9 @@ public class JsonHelper {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public static boolean GetBoolean(JsonObject json, String key, boolean defaultValue) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (json != null && json.has(key) && json.get(key).isJsonPrimitive()) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             try {
                 return json.get(key).getAsBoolean();
             } catch (Exception ignored) {
@@ -177,10 +190,15 @@ public class JsonHelper {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public static JsonObject ReadFromFile(File sourceFile) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (sourceFile == null || !sourceFile.exists()) {
             return new JsonObject();
         }
 
+        /**
+         * f il ei np ut st re am exists so this path stays predictable and easier to debug when things get weird.
+         */
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try (InputStreamReader reader = new InputStreamReader(new FileInputStream(sourceFile), StandardCharsets.UTF_8)) {
             JsonObject json = new Gson().fromJson(reader, JsonObject.class);
             return json == null ? new JsonObject() : json;
@@ -195,19 +213,27 @@ public class JsonHelper {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public static void WriteToFile(File outputFile, JsonObject json) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (outputFile == null) {
             return;
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (!outputFile.exists()) {
                 File parent = outputFile.getParentFile();
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (parent != null && !parent.exists()) {
                     parent.mkdirs();
                 }
                 outputFile.createNewFile();
             }
 
+            /**
+             * f il eo ut pu ts tr ea m exists so this path stays predictable and easier to debug when things get weird.
+             */
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(outputFile), StandardCharsets.UTF_8)) {
                 new GsonBuilder().setPrettyPrinting().create().toJson(json == null ? new JsonObject() : json, writer);
             }
@@ -221,14 +247,17 @@ public class JsonHelper {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public static void CopyPaste(File sourceFile, File outputFile) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (sourceFile == null || outputFile == null) {
             return;
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(sourceFile), StandardCharsets.UTF_8));
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFile), StandardCharsets.UTF_8))) {
             char[] buffer = new char[256];
             int read;
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             while ((read = reader.read(buffer)) != -1) {
                 writer.write(buffer, 0, read);
             }

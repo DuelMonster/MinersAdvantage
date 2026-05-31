@@ -24,10 +24,16 @@ public final class PlayerStateService {
         int selectedExcavationShapeIndex,
         int selectedShaftanationShapeIndex
     ) {
+        /**
+         * i se xc av at io na ct iv e exists so this path stays predictable and easier to debug when things get weird.
+         */
         public boolean isExcavationActive() {
             return excavationToggled;
         }
 
+        /**
+         * p la ye rs ta te exists so this path stays predictable and easier to debug when things get weird.
+         */
         public PlayerState(long playerId, boolean hungerGuardActive, long lastHarvestTick, int recentHarvests, boolean excavationToggled, boolean shaftVentToggled) {
             this(playerId, hungerGuardActive, lastHarvestTick, recentHarvests, excavationToggled, shaftVentToggled, 0, 0);
         }

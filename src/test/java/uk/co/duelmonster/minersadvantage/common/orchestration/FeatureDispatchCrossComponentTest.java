@@ -12,6 +12,9 @@ import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
  */
 class FeatureDispatchCrossComponentTest {
     @Test
+    /**
+     * m in in gf ea tu re sr ou te to sh ar ed de pe nd en tf ea tu re s exists so this path stays predictable and easier to debug when things get weird.
+     */
     void miningFeaturesRouteToSharedDependentFeatures() {
         assertTrue(FeatureOrchestration.shouldDispatchToFeature(FeatureId.EXCAVATION, FeatureId.ILLUMINATION));
         assertTrue(FeatureOrchestration.shouldDispatchToFeature(FeatureId.EXCAVATION, FeatureId.VEINATION));
@@ -22,6 +25,9 @@ class FeatureDispatchCrossComponentTest {
     }
 
     @Test
+    /**
+     * u nr el at ed fe at ur es do no tr ou te ac ro ss th em at ri x exists so this path stays predictable and easier to debug when things get weird.
+     */
     void unrelatedFeaturesDoNotRouteAcrossTheMatrix() {
         assertFalse(FeatureOrchestration.shouldDispatchToFeature(FeatureId.CAPTIVATION, FeatureId.VEINATION));
         assertFalse(FeatureOrchestration.shouldDispatchToFeature(FeatureId.CROPINATION, FeatureId.ILLUMINATION));

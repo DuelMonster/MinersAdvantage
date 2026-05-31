@@ -37,6 +37,7 @@ public final class PathanationCoreService {
     public List<PathStep> buildPath(int startX, int startY, int startZ, int distance, int maxSteps) {
         int steps = Math.max(0, Math.min(distance, maxSteps));
         List<PathStep> plan = new ArrayList<>();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (int i = 1; i <= steps; i++) {
             plan.add(new PathStep(startX + i, startY, startZ, "flatten"));
         }

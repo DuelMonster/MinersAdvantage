@@ -25,10 +25,12 @@ public final class CommonEventHandlerImpl implements ToolEventHandler {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public void onPickaxeUse(int blockX, int blockY, int blockZ, String blockId) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (RegistryPredicates.isStoneLikeBlockId(blockId)) {
             FeatureEventHandler.onToolUse(FeatureId.SHAFTANATION, blockX, blockY, blockZ, blockId, "pickaxe");
             return;
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (RegistryPredicates.isOreLikeBlockId(blockId)) {
             FeatureEventHandler.onToolUse(FeatureId.EXCAVATION, blockX, blockY, blockZ, blockId, "pickaxe");
         }
@@ -40,6 +42,7 @@ public final class CommonEventHandlerImpl implements ToolEventHandler {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public void onShovelUse(int blockX, int blockY, int blockZ, String blockId) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (RegistryPredicates.isDirtLikeBlockId(blockId)) {
             FeatureEventHandler.onToolUse(FeatureId.EXCAVATION, blockX, blockY, blockZ, blockId, "shovel");
         }
@@ -51,6 +54,7 @@ public final class CommonEventHandlerImpl implements ToolEventHandler {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public void onHoeUse(int blockX, int blockY, int blockZ, String blockId) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (RegistryPredicates.isCropBlockId(blockId)) {
             FeatureEventHandler.onToolUse(FeatureId.CROPINATION, blockX, blockY, blockZ, blockId, "hoe");
         } else if (RegistryPredicates.isDirtLikeBlockId(blockId)) {
@@ -64,6 +68,7 @@ public final class CommonEventHandlerImpl implements ToolEventHandler {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public void onAxeUse(int blockX, int blockY, int blockZ, String blockId) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (RegistryPredicates.isLogLikeBlockId(blockId)) {
             FeatureEventHandler.onToolUse(FeatureId.LUMBINATION, blockX, blockY, blockZ, blockId, "axe");
         }

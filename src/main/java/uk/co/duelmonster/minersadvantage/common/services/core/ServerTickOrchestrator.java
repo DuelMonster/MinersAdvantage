@@ -38,12 +38,17 @@ public final class ServerTickOrchestrator {
     public void onServerTick() {
         tickCounter++;
         playerStateService.tick();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (shouldProcessWorkersThisTick()) {
             workerRuntimeService.tick(tpsGuardActive);
         }
     }
 
+    /**
+     * s ho ul dp ro ce ss wo rk er st hi st ic k exists so this path stays predictable and easier to debug when things get weird.
+     */
     private boolean shouldProcessWorkersThisTick() {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!enableTickDelay || tickDelay <= 0) {
             return true;
         }
@@ -75,6 +80,9 @@ public final class ServerTickOrchestrator {
         this.tpsGuardActive = tpsGuardActive;
     }
 
+    /**
+     * s et pr oc es si ng de la y exists so this path stays predictable and easier to debug when things get weird.
+     */
     public void setProcessingDelay(boolean enableTickDelay, int tickDelay) {
         this.enableTickDelay = enableTickDelay;
         this.tickDelay = Math.max(0, tickDelay);

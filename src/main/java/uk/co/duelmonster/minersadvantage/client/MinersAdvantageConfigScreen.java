@@ -86,6 +86,7 @@ public final class MinersAdvantageConfigScreen {
             .setSaveConsumer(value -> mutable.outlineSeeThroughColor = value)
             .build());
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!gameplayEditable) {
             generalCategory.addEntry(authorityNoticeEntry(entryBuilder));
             featuresCategory.addEntry(authorityNoticeEntry(entryBuilder));
@@ -173,6 +174,9 @@ public final class MinersAdvantageConfigScreen {
         return builder.build();
     }
 
+    /**
+     * FeatureLaunchAction exists to trigger screen transitions through selector state changes cleanly.
+     */
     private enum FeatureLaunchAction {
         OPEN_A,
         OPEN_B
@@ -201,18 +205,22 @@ public final class MinersAdvantageConfigScreen {
             })
             .setErrorSupplier(action -> {
                 SelectionListEntry<FeatureLaunchAction> selectorEntry = entryRef[0];
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (selectorEntry != null) {
                     updateFeatureEntryLabelReflective(selectorEntry, featureName, enabledSupplier.getAsBoolean());
                     configureFeatureResetButton(selectorEntry, featureName, resetEnabledSupplier, resetRunnable);
                 }
 
                 FeatureLaunchAction previousAction = lastAction.get();
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (action != previousAction) {
                     lastAction.set(action);
                     Screen activeScreen = Minecraft.getInstance().screen;
+                    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                     if (activeScreen != null) {
                         Minecraft.getInstance().setScreen(targetScreenFactory.apply(activeScreen));
                     }
+                    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                     if (selectorEntry != null) {
                         resetSelectorEditedState(selectorEntry);
                     }
@@ -228,7 +236,11 @@ public final class MinersAdvantageConfigScreen {
         category.addEntry(entry);
     }
 
+    /**
+     * Refresh feature row label text without rebuilding the whole entry list.
+     */
     private static void updateFeatureEntryLabelReflective(SelectionListEntry<?> entry, String featureName, boolean enabled) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             Field fieldNameField = AbstractConfigListEntry.class.getDeclaredField("fieldName");
             fieldNameField.setAccessible(true);
@@ -238,6 +250,9 @@ public final class MinersAdvantageConfigScreen {
         }
     }
 
+    /**
+     * Build the feature title label with enabled/disabled status styling.
+     */
     private static Component buildFeatureStatusLabel(String featureName, boolean enabled) {
         Component status = enabled
             ? Component.literal("Enabled").withStyle(ChatFormatting.GREEN)
@@ -252,12 +267,14 @@ public final class MinersAdvantageConfigScreen {
         Runnable resetRunnable
     ) {
         Button resetButton = getSelectionResetButton(entry);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (resetButton == null) {
             return;
         }
 
         resetButton.active = resetEnabledSupplier.getAsBoolean();
         setButtonOnPressReflective(resetButton, ignored -> {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (!resetEnabledSupplier.getAsBoolean()) {
                 return;
             }
@@ -267,6 +284,7 @@ public final class MinersAdvantageConfigScreen {
             minecraft.setScreen(new ConfirmScreen(
                 confirmed -> {
                     minecraft.setScreen(previousScreen);
+                    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                     if (confirmed) {
                         resetRunnable.run();
                     }
@@ -277,11 +295,16 @@ public final class MinersAdvantageConfigScreen {
         });
     }
 
+    /**
+     * Resolve the reset button from a selector entry via reflective access.
+     */
     private static Button getSelectionResetButton(SelectionListEntry<?> entry) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             Field field = SelectionListEntry.class.getDeclaredField("resetButton");
             field.setAccessible(true);
             Object value = field.get(entry);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (value instanceof Button button) {
                 return button;
             }
@@ -291,15 +314,22 @@ public final class MinersAdvantageConfigScreen {
         }
     }
 
+    /**
+     * Replace button click handler across mapped/private field names.
+     */
     private static void setButtonOnPressReflective(Button button, Button.OnPress onPress) {
         Class<?> current = button.getClass();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         while (current != null) {
             Field[] fields = current.getDeclaredFields();
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             for (Field field : fields) {
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (!Button.OnPress.class.isAssignableFrom(field.getType())) {
                     continue;
                 }
 
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 try {
                     field.setAccessible(true);
                     field.set(button, onPress);
@@ -312,11 +342,16 @@ public final class MinersAdvantageConfigScreen {
         }
     }
 
+    /**
+     * Clear selector edited marker after launching a feature screen.
+     */
     private static void resetSelectorEditedState(SelectionListEntry<?> entry) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             Field indexField = SelectionListEntry.class.getDeclaredField("index");
             indexField.setAccessible(true);
             Object indexValue = indexField.get(entry);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (!(indexValue instanceof java.util.concurrent.atomic.AtomicInteger index)) {
                 return;
             }
@@ -330,6 +365,9 @@ public final class MinersAdvantageConfigScreen {
         }
     }
 
+    /**
+     * Build standalone client-only config screen.
+     */
     private static Screen createClientConfigScreen(Screen parent, MutableConfig mutable, boolean gameplayEditable) {
         ConfigBuilder builder = ConfigBuilder.create()
             .setParentScreen(parent)
@@ -368,6 +406,9 @@ public final class MinersAdvantageConfigScreen {
         return builder.build();
     }
 
+    /**
+     * Build standalone general/gameplay config screen.
+     */
     private static Screen createGeneralConfigScreen(Screen parent, MutableConfig mutable, boolean gameplayEditable) {
         ConfigBuilder builder = ConfigBuilder.create()
             .setParentScreen(parent)
@@ -375,6 +416,7 @@ public final class MinersAdvantageConfigScreen {
         ConfigEntryBuilder entryBuilder = builder.entryBuilder();
         ConfigCategory generalCategory = builder.getOrCreateCategory(Component.literal("General"));
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!gameplayEditable) {
             generalCategory.addEntry(authorityNoticeEntry(entryBuilder));
         }
@@ -393,6 +435,9 @@ public final class MinersAdvantageConfigScreen {
         return builder.build();
     }
 
+    /**
+     * Build a feature-specific sub-screen and wire shared footer/save behavior.
+     */
     private static Screen createFeatureConfigScreen(Screen parent, MutableConfig mutable, boolean gameplayEditable, String featureName, Consumer<List<AbstractConfigListEntry<?>>> featureEntries) {
         ConfigBuilder builder = ConfigBuilder.create()
             .setParentScreen(parent)
@@ -401,6 +446,7 @@ public final class MinersAdvantageConfigScreen {
         ConfigCategory category = builder.getOrCreateCategory(Component.literal(featureName));
 
         List<AbstractConfigListEntry<?>> entries = new ArrayList<>();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!gameplayEditable) {
             entries.add(authorityNoticeEntry(entryBuilder));
         }
@@ -412,6 +458,9 @@ public final class MinersAdvantageConfigScreen {
         return builder.build();
     }
 
+    /**
+     * Replace default footer with explicit Back/Save buttons.
+     */
     private static void addFeatureFooterButtons(Screen screen, Screen parent, MutableConfig mutable, boolean gameplayEditable) {
         int width = getScreenDimension(screen, "width");
         int height = getScreenDimension(screen, "height");
@@ -428,6 +477,7 @@ public final class MinersAdvantageConfigScreen {
             .build();
 
         Button saveButton = Button.builder(Component.literal("Save"), ignored -> {
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (screen instanceof AbstractConfigScreen configScreen) {
                     configScreen.saveAll(false);
                 } else {
@@ -442,13 +492,19 @@ public final class MinersAdvantageConfigScreen {
         addWidgetReflective(screen, saveButton);
     }
 
+    /**
+     * Hide overlapping default footer controls near custom footer row.
+     */
     private static void hideDefaultFooterButtons(Screen screen, int customFooterY) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (Object child : getScreenChildrenReflective(screen)) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (!(child instanceof Button button)) {
                 continue;
             }
 
             int buttonY = getWidgetY(button);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (Math.abs(buttonY - customFooterY) <= 3) {
                 button.visible = false;
                 button.active = false;
@@ -456,13 +512,19 @@ public final class MinersAdvantageConfigScreen {
         }
     }
 
+    /**
+     * Pull child widgets through reflection so this screen stays resilient across API shifts.
+     */
     private static List<?> getScreenChildrenReflective(Screen screen) {
         Class<?> current = screen.getClass();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         while (current != null) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             try {
                 Method childrenMethod = current.getDeclaredMethod("children");
                 childrenMethod.setAccessible(true);
                 Object result = childrenMethod.invoke(screen);
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (result instanceof List<?> list) {
                     return list;
                 }
@@ -476,10 +538,15 @@ public final class MinersAdvantageConfigScreen {
         return List.of();
     }
 
+    /**
+     * Read widget Y coordinate using method-first then field fallback.
+     */
     private static int getWidgetY(Button button) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             Method getYMethod = button.getClass().getMethod("getY");
             Object value = getYMethod.invoke(button);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (value instanceof Integer y) {
                 return y;
             }
@@ -487,9 +554,12 @@ public final class MinersAdvantageConfigScreen {
             // fall back to field lookup below
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             Class<?> current = button.getClass();
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             while (current != null) {
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 try {
                     java.lang.reflect.Field yField = current.getDeclaredField("y");
                     yField.setAccessible(true);
@@ -505,7 +575,11 @@ public final class MinersAdvantageConfigScreen {
         return Integer.MIN_VALUE;
     }
 
+    /**
+     * Resolve private screen dimension field (width/height) reflectively.
+     */
     private static int getScreenDimension(Screen screen, String fieldName) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             java.lang.reflect.Field field = Screen.class.getDeclaredField(fieldName);
             field.setAccessible(true);
@@ -515,12 +589,17 @@ public final class MinersAdvantageConfigScreen {
         }
     }
 
+    /**
+     * Add widget through whichever add-method exists for this runtime.
+     */
     private static void addWidgetReflective(Screen screen, Button button) {
         Method addMethod = findCompatibleWidgetAddMethod(screen.getClass(), button.getClass());
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (addMethod == null) {
             throw new IllegalStateException("Unable to add config footer button");
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             addMethod.setAccessible(true);
             addMethod.invoke(screen, button);
@@ -529,6 +608,9 @@ public final class MinersAdvantageConfigScreen {
         }
     }
 
+    /**
+     * Locate a compatible one-arg screen widget insertion method.
+     */
     private static Method findCompatibleWidgetAddMethod(Class<?> screenClass, Class<?> widgetClass) {
         String[] candidateNames = {
             "addRenderableWidget",
@@ -538,14 +620,19 @@ public final class MinersAdvantageConfigScreen {
         };
 
         Class<?> current = screenClass;
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         while (current != null) {
             Method[] methods = current.getDeclaredMethods();
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             for (String candidateName : candidateNames) {
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 for (Method method : methods) {
+                    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                     if (!candidateName.equals(method.getName())) {
                         continue;
                     }
                     Class<?>[] parameterTypes = method.getParameterTypes();
+                    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                     if (parameterTypes.length == 1 && parameterTypes[0].isAssignableFrom(widgetClass)) {
                         return method;
                     }
@@ -556,9 +643,13 @@ public final class MinersAdvantageConfigScreen {
         return null;
     }
 
+    /**
+     * Persist mutable edits to config roots and push client sync packet.
+     */
     private static void saveMutableConfig(MutableConfig mutable, boolean gameplayEditable) {
         currentClientConfig = mutable.toClientRootConfig(currentClientConfig);
         MAConfig_Base.setClientRootConfig(currentClientConfig);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (gameplayEditable) {
             currentServerConfig = mutable.toServerRootConfig(currentServerConfig);
             MAConfig_Base.setServerRootConfig(currentServerConfig);
@@ -568,6 +659,9 @@ public final class MinersAdvantageConfigScreen {
         sendClientSync(currentClientConfig);
     }
 
+    /**
+     * Build Captivation feature settings screen.
+     */
     private static Screen createCaptivationScreen(Screen parent, MutableConfig mutable, boolean gameplayEditable) {
         return createFeatureConfigScreen(parent, mutable, gameplayEditable, "Captivation", entries -> {
             ConfigEntryBuilder entryBuilder = ConfigEntryBuilder.create();
@@ -584,6 +678,9 @@ public final class MinersAdvantageConfigScreen {
         });
     }
 
+    /**
+     * Build Cropination feature settings screen.
+     */
     private static Screen createCropinationScreen(Screen parent, MutableConfig mutable, boolean gameplayEditable) {
         return createFeatureConfigScreen(parent, mutable, gameplayEditable, "Cropination", entries -> {
             ConfigEntryBuilder entryBuilder = ConfigEntryBuilder.create();
@@ -593,6 +690,9 @@ public final class MinersAdvantageConfigScreen {
         });
     }
 
+    /**
+     * Build Cultivation feature settings screen.
+     */
     private static Screen createCultivationScreen(Screen parent, MutableConfig mutable, boolean gameplayEditable) {
         return createFeatureConfigScreen(parent, mutable, gameplayEditable, "Cultivation", entries -> {
             ConfigEntryBuilder entryBuilder = ConfigEntryBuilder.create();
@@ -602,6 +702,9 @@ public final class MinersAdvantageConfigScreen {
         });
     }
 
+    /**
+     * Build Excavation feature settings screen.
+     */
     private static Screen createExcavationScreen(Screen parent, MutableConfig mutable, boolean gameplayEditable) {
         return createFeatureConfigScreen(parent, mutable, gameplayEditable, "Excavation", entries -> {
             ConfigEntryBuilder entryBuilder = ConfigEntryBuilder.create();
@@ -620,6 +723,9 @@ public final class MinersAdvantageConfigScreen {
         });
     }
 
+    /**
+     * Build Pathanation feature settings screen.
+     */
     private static Screen createPathanationScreen(Screen parent, MutableConfig mutable, boolean gameplayEditable) {
         return createFeatureConfigScreen(parent, mutable, gameplayEditable, "Pathanation", entries -> {
             ConfigEntryBuilder entryBuilder = ConfigEntryBuilder.create();
@@ -630,6 +736,9 @@ public final class MinersAdvantageConfigScreen {
         });
     }
 
+    /**
+     * Build Illumination feature settings screen.
+     */
     private static Screen createIlluminationScreen(Screen parent, MutableConfig mutable, boolean gameplayEditable) {
         return createFeatureConfigScreen(parent, mutable, gameplayEditable, "Illumination", entries -> {
             ConfigEntryBuilder entryBuilder = ConfigEntryBuilder.create();
@@ -643,6 +752,9 @@ public final class MinersAdvantageConfigScreen {
         });
     }
 
+    /**
+     * Build Lumbination feature settings screen.
+     */
     private static Screen createLumbinationScreen(Screen parent, MutableConfig mutable, boolean gameplayEditable) {
         return createFeatureConfigScreen(parent, mutable, gameplayEditable, "Lumbination", entries -> {
             ConfigEntryBuilder entryBuilder = ConfigEntryBuilder.create();
@@ -665,6 +777,9 @@ public final class MinersAdvantageConfigScreen {
         });
     }
 
+    /**
+     * Build Shaftanation feature settings screen.
+     */
     private static Screen createShaftanationScreen(Screen parent, MutableConfig mutable, boolean gameplayEditable) {
         return createFeatureConfigScreen(parent, mutable, gameplayEditable, "Shaftanation", entries -> {
             ConfigEntryBuilder entryBuilder = ConfigEntryBuilder.create();
@@ -679,6 +794,9 @@ public final class MinersAdvantageConfigScreen {
         });
     }
 
+    /**
+     * Build Substitution feature settings screen.
+     */
     private static Screen createSubstitutionScreen(Screen parent, MutableConfig mutable, boolean gameplayEditable) {
         return createFeatureConfigScreen(parent, mutable, gameplayEditable, "Substitution", entries -> {
             ConfigEntryBuilder entryBuilder = ConfigEntryBuilder.create();
@@ -697,6 +815,9 @@ public final class MinersAdvantageConfigScreen {
         });
     }
 
+    /**
+     * Build Veination feature settings screen.
+     */
     private static Screen createVeinationScreen(Screen parent, MutableConfig mutable, boolean gameplayEditable) {
         return createFeatureConfigScreen(parent, mutable, gameplayEditable, "Veination", entries -> {
             ConfigEntryBuilder entryBuilder = ConfigEntryBuilder.create();
@@ -714,6 +835,9 @@ public final class MinersAdvantageConfigScreen {
         });
     }
 
+    /**
+     * Build Ventilation feature settings screen.
+     */
     private static Screen createVentilationScreen(Screen parent, MutableConfig mutable, boolean gameplayEditable) {
         return createFeatureConfigScreen(parent, mutable, gameplayEditable, "Ventilation", entries -> {
             ConfigEntryBuilder entryBuilder = ConfigEntryBuilder.create();
@@ -737,6 +861,7 @@ public final class MinersAdvantageConfigScreen {
         Consumer<List<AbstractConfigListEntry<?>>> entryCollector
     ) {
         List<AbstractConfigListEntry<?>> entries = new ArrayList<>();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!editable) {
             entries.add(authorityNoticeEntry(entryBuilder));
         }
@@ -794,6 +919,7 @@ public final class MinersAdvantageConfigScreen {
         boolean editable,
         Consumer<Boolean> consumer
     ) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!editable) {
             addReadOnlyEntry(entries, entryBuilder, label + ": " + (currentValue ? "Enabled" : "Disabled"));
             return;
@@ -818,6 +944,7 @@ public final class MinersAdvantageConfigScreen {
         boolean editable,
         Consumer<Integer> consumer
     ) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!editable) {
             addReadOnlyEntry(entries, entryBuilder, label + ": " + currentValue);
             return;
@@ -844,6 +971,7 @@ public final class MinersAdvantageConfigScreen {
         boolean editable,
         Consumer<Double> consumer
     ) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!editable) {
             addReadOnlyEntry(entries, entryBuilder, label + ": " + currentValue);
             return;
@@ -869,6 +997,7 @@ public final class MinersAdvantageConfigScreen {
         boolean editable,
         Consumer<T> consumer
     ) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!editable) {
             addReadOnlyEntry(entries, entryBuilder, label + ": " + currentValue.name());
             return;
@@ -891,6 +1020,7 @@ public final class MinersAdvantageConfigScreen {
         boolean editable,
         Consumer<List<String>> consumer
     ) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!editable) {
             addReadOnlyEntry(entries, entryBuilder, label + ": " + (currentValue.isEmpty() ? "[]" : String.join(", ", currentValue)));
             return;
@@ -913,6 +1043,7 @@ public final class MinersAdvantageConfigScreen {
         boolean editable,
         Consumer<Boolean> consumer
     ) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!editable) {
             addReadOnlyEntry(category, entryBuilder, label + ": " + (currentValue ? "Enabled" : "Disabled"));
             return;
@@ -937,6 +1068,7 @@ public final class MinersAdvantageConfigScreen {
         boolean editable,
         Consumer<Integer> consumer
     ) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!editable) {
             addReadOnlyEntry(category, entryBuilder, label + ": " + currentValue);
             return;
@@ -955,15 +1087,23 @@ public final class MinersAdvantageConfigScreen {
         return textDescriptionEntry(entryBuilder, "Gameplay settings are controlled by the server while connected to remote multiplayer.");
     }
 
+    /**
+     * Append server-authority note when gameplay values are read-only.
+     */
     private static Component authorityAwareDescription(String baseDescription, boolean gameplayEditable) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (gameplayEditable) {
             return Component.literal(baseDescription);
         }
         return Component.literal(baseDescription + " Controlled by the server in multiplayer.");
     }
 
+    /**
+     * Determine whether gameplay config is locally editable in current session.
+     */
     private static boolean isGameplayEditable() {
         Minecraft minecraft = Minecraft.getInstance();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (minecraft.getConnection() == null) {
             return true;
         }
@@ -976,6 +1116,7 @@ public final class MinersAdvantageConfigScreen {
      */
     private static void sendClientSync(MAClientRootConfig updatedConfig) {
         Minecraft minecraft = Minecraft.getInstance();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (minecraft.getConnection() == null || minecraft.player == null) {
             return;
         }
@@ -987,6 +1128,7 @@ public final class MinersAdvantageConfigScreen {
             MAServerRootConfig.defaults()
         );
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (invokeStaticSingleArgMethod(
             "net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking",
             "send",
@@ -1002,15 +1144,22 @@ public final class MinersAdvantageConfigScreen {
         );
     }
 
+    /**
+     * Invoke optional static networking helper method with one argument.
+     */
     private static boolean invokeStaticSingleArgMethod(String className, String methodName, Object argument) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             Class<?> owner = Class.forName(className);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             for (Method method : owner.getMethods()) {
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (!methodName.equals(method.getName()) || method.getParameterCount() != 1) {
                     continue;
                 }
 
                 Class<?> parameterType = method.getParameterTypes()[0];
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (!parameterType.isAssignableFrom(argument.getClass())) {
                     continue;
                 }
@@ -1225,6 +1374,9 @@ public final class MinersAdvantageConfigScreen {
             this.ventilationPlaceLadders = config.ventilation().placeLadders();
         }
 
+        /**
+         * Check if Captivation values differ from defaults.
+         */
         private boolean isCaptivationDifferentFromDefaults() {
             uk.co.duelmonster.minersadvantage.common.config.CaptivationConfig defaults = MAServerRootConfig.defaults().captivation();
             return captivationEnabled != defaults.enabled()
@@ -1236,6 +1388,9 @@ public final class MinersAdvantageConfigScreen {
                 || !captivationBlacklist.equals(defaults.blacklist());
         }
 
+        /**
+         * Reset Captivation values to defaults.
+         */
         private void resetCaptivationToDefaults() {
             uk.co.duelmonster.minersadvantage.common.config.CaptivationConfig defaults = MAServerRootConfig.defaults().captivation();
             captivationEnabled = defaults.enabled();
@@ -1247,30 +1402,45 @@ public final class MinersAdvantageConfigScreen {
             captivationBlacklist = new ArrayList<>(defaults.blacklist());
         }
 
+        /**
+         * Check if Cropination values differ from defaults.
+         */
         private boolean isCropinationDifferentFromDefaults() {
             uk.co.duelmonster.minersadvantage.common.config.CropinationConfig defaults = MAServerRootConfig.defaults().cropination();
             return cropinationEnabled != defaults.enabled()
                 || cropinationHarvestSeeds != defaults.harvestSeeds();
         }
 
+        /**
+         * Reset Cropination values to defaults.
+         */
         private void resetCropinationToDefaults() {
             uk.co.duelmonster.minersadvantage.common.config.CropinationConfig defaults = MAServerRootConfig.defaults().cropination();
             cropinationEnabled = defaults.enabled();
             cropinationHarvestSeeds = defaults.harvestSeeds();
         }
 
+        /**
+         * Check if Cultivation values differ from defaults.
+         */
         private boolean isCultivationDifferentFromDefaults() {
             uk.co.duelmonster.minersadvantage.common.config.CultivationConfig defaults = MAServerRootConfig.defaults().cultivation();
             return cultivationEnabled != defaults.enabled()
                 || cultivationHydrationDistance != defaults.hydrationDistance();
         }
 
+        /**
+         * Reset Cultivation values to defaults.
+         */
         private void resetCultivationToDefaults() {
             uk.co.duelmonster.minersadvantage.common.config.CultivationConfig defaults = MAServerRootConfig.defaults().cultivation();
             cultivationEnabled = defaults.enabled();
             cultivationHydrationDistance = defaults.hydrationDistance();
         }
 
+        /**
+         * Check if Excavation values differ from defaults.
+         */
         private boolean isExcavationDifferentFromDefaults() {
             uk.co.duelmonster.minersadvantage.common.config.ExcavationConfig defaults = MAServerRootConfig.defaults().excavation();
             return excavationEnabled != defaults.enabled()
@@ -1284,6 +1454,9 @@ public final class MinersAdvantageConfigScreen {
                 || !excavationBlockBlacklist.equals(defaults.blockBlacklist());
         }
 
+        /**
+         * Reset Excavation values to defaults.
+         */
         private void resetExcavationToDefaults() {
             uk.co.duelmonster.minersadvantage.common.config.ExcavationConfig defaults = MAServerRootConfig.defaults().excavation();
             excavationEnabled = defaults.enabled();
@@ -1297,6 +1470,9 @@ public final class MinersAdvantageConfigScreen {
             excavationBlockBlacklist = new ArrayList<>(defaults.blockBlacklist());
         }
 
+        /**
+         * Check if Pathanation values differ from defaults.
+         */
         private boolean isPathanationDifferentFromDefaults() {
             uk.co.duelmonster.minersadvantage.common.config.PathanationConfig defaults = MAServerRootConfig.defaults().pathanation();
             return pathanationEnabled != defaults.enabled()
@@ -1304,6 +1480,9 @@ public final class MinersAdvantageConfigScreen {
                 || pathanationPathWidth != defaults.pathWidth();
         }
 
+        /**
+         * Reset Pathanation values to defaults.
+         */
         private void resetPathanationToDefaults() {
             uk.co.duelmonster.minersadvantage.common.config.PathanationConfig defaults = MAServerRootConfig.defaults().pathanation();
             pathanationEnabled = defaults.enabled();
@@ -1311,6 +1490,9 @@ public final class MinersAdvantageConfigScreen {
             pathanationPathWidth = defaults.pathWidth();
         }
 
+        /**
+         * Check if Illumination values differ from defaults.
+         */
         private boolean isIlluminationDifferentFromDefaults() {
             uk.co.duelmonster.minersadvantage.common.config.IlluminationConfig defaults = MAServerRootConfig.defaults().illumination();
             return illuminationEnabled != defaults.enabled()
@@ -1320,6 +1502,9 @@ public final class MinersAdvantageConfigScreen {
                 || illuminationUseBlockLight != defaults.useBlockLight();
         }
 
+        /**
+         * Reset Illumination values to defaults.
+         */
         private void resetIlluminationToDefaults() {
             uk.co.duelmonster.minersadvantage.common.config.IlluminationConfig defaults = MAServerRootConfig.defaults().illumination();
             illuminationEnabled = defaults.enabled();
@@ -1329,6 +1514,9 @@ public final class MinersAdvantageConfigScreen {
             illuminationUseBlockLight = defaults.useBlockLight();
         }
 
+        /**
+         * Check if Lumbination values differ from defaults.
+         */
         private boolean isLumbinationDifferentFromDefaults() {
             uk.co.duelmonster.minersadvantage.common.config.LumbinationConfig defaults = MAServerRootConfig.defaults().lumbination();
             return lumbinationEnabled != defaults.enabled()
@@ -1346,6 +1534,9 @@ public final class MinersAdvantageConfigScreen {
                 || !lumbinationAxes.equals(defaults.axes());
         }
 
+        /**
+         * Reset Lumbination values to defaults.
+         */
         private void resetLumbinationToDefaults() {
             uk.co.duelmonster.minersadvantage.common.config.LumbinationConfig defaults = MAServerRootConfig.defaults().lumbination();
             lumbinationEnabled = defaults.enabled();
@@ -1363,6 +1554,9 @@ public final class MinersAdvantageConfigScreen {
             lumbinationAxes = new ArrayList<>(defaults.axes());
         }
 
+        /**
+         * Check if Shaftanation values differ from defaults.
+         */
         private boolean isShaftanationDifferentFromDefaults() {
             uk.co.duelmonster.minersadvantage.common.config.ShaftanationConfig defaults = MAServerRootConfig.defaults().shaftanation();
             return shaftanationEnabled != defaults.enabled()
@@ -1373,6 +1567,9 @@ public final class MinersAdvantageConfigScreen {
                 || shaftanationTorchPlacement != defaults.torchPlacement();
         }
 
+        /**
+         * Reset Shaftanation values to defaults.
+         */
         private void resetShaftanationToDefaults() {
             uk.co.duelmonster.minersadvantage.common.config.ShaftanationConfig defaults = MAServerRootConfig.defaults().shaftanation();
             shaftanationEnabled = defaults.enabled();
@@ -1383,6 +1580,9 @@ public final class MinersAdvantageConfigScreen {
             shaftanationTorchPlacement = defaults.torchPlacement();
         }
 
+        /**
+         * Check if Substitution values differ from defaults.
+         */
         private boolean isSubstitutionDifferentFromDefaults() {
             uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig defaults = MAServerRootConfig.defaults().substitution();
             return substitutionEnabled != defaults.enabled()
@@ -1395,6 +1595,9 @@ public final class MinersAdvantageConfigScreen {
                 || !substitutionBlacklist.equals(defaults.blacklist());
         }
 
+        /**
+         * Reset Substitution values to defaults.
+         */
         private void resetSubstitutionToDefaults() {
             uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig defaults = MAServerRootConfig.defaults().substitution();
             substitutionEnabled = defaults.enabled();
@@ -1407,6 +1610,9 @@ public final class MinersAdvantageConfigScreen {
             substitutionBlacklist = new ArrayList<>(defaults.blacklist());
         }
 
+        /**
+         * Check if Veination values differ from defaults.
+         */
         private boolean isVeinationDifferentFromDefaults() {
             uk.co.duelmonster.minersadvantage.common.config.VeinationConfig defaults = MAServerRootConfig.defaults().veination();
             return veinationEnabled != defaults.enabled()
@@ -1419,6 +1625,9 @@ public final class MinersAdvantageConfigScreen {
                 || !veinationPickaxeBlacklist.equals(defaults.pickaxeBlacklist());
         }
 
+        /**
+         * Reset Veination values to defaults.
+         */
         private void resetVeinationToDefaults() {
             uk.co.duelmonster.minersadvantage.common.config.VeinationConfig defaults = MAServerRootConfig.defaults().veination();
             veinationEnabled = defaults.enabled();
@@ -1431,6 +1640,9 @@ public final class MinersAdvantageConfigScreen {
             veinationPickaxeBlacklist = new ArrayList<>(defaults.pickaxeBlacklist());
         }
 
+        /**
+         * Check if Ventilation values differ from defaults.
+         */
         private boolean isVentilationDifferentFromDefaults() {
             uk.co.duelmonster.minersadvantage.common.config.VentilationConfig defaults = MAServerRootConfig.defaults().ventilation();
             return ventilationEnabled != defaults.enabled()
@@ -1441,6 +1653,9 @@ public final class MinersAdvantageConfigScreen {
                 || ventilationPlaceLadders != defaults.placeLadders();
         }
 
+        /**
+         * Reset Ventilation values to defaults.
+         */
         private void resetVentilationToDefaults() {
             uk.co.duelmonster.minersadvantage.common.config.VentilationConfig defaults = MAServerRootConfig.defaults().ventilation();
             ventilationEnabled = defaults.enabled();
@@ -1451,6 +1666,9 @@ public final class MinersAdvantageConfigScreen {
             ventilationPlaceLadders = defaults.placeLadders();
         }
 
+        /**
+         * Build client root config from mutable in-memory state.
+         */
         private MAClientRootConfig toClientRootConfig(MAClientRootConfig baseline) {
             return new MAClientRootConfig(
                 new ClientConfig(

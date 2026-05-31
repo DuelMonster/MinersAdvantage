@@ -26,6 +26,7 @@ public class Variables {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public static Variables get(UUID uid) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (playerVariables.isEmpty() || playerVariables.get(uid) == null)
             set(uid, new Variables());
         return playerVariables.get(uid);
@@ -135,6 +136,7 @@ public class Variables {
      */
     public boolean hasChanged() {
         String current = JsonHelper.toJson(this);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (history == null || history.isEmpty() || !history.equals(current)) {
             history = current;
             return true;
@@ -147,6 +149,7 @@ public class Variables {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public static void syncToPlayer(Object playerEntity) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (playerEntity != null) {
             Variables.get().hasChanged();
         }

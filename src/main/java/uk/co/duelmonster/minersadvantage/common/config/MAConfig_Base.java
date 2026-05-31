@@ -21,6 +21,9 @@ public class MAConfig_Base {
         setGlobalConfigInternal(loadGlobalConfig());
     }
 
+    /**
+     * Utility holder; do not instantiate.
+     */
     protected MAConfig_Base() {}
 
     /**
@@ -28,6 +31,7 @@ public class MAConfig_Base {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public static SyncedClientConfig getPlayerConfig(UUID playerId) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (playerId == null) {
             return getGlobalConfig();
         }
@@ -42,10 +46,16 @@ public class MAConfig_Base {
         return serverRootConfig.toSyncedConfig(clientRootConfig.client());
     }
 
+    /**
+     * Return current persisted client-root configuration snapshot.
+     */
     public static MAClientRootConfig getClientRootConfig() {
         return clientRootConfig;
     }
 
+    /**
+     * Return current persisted server-root configuration snapshot.
+     */
     public static MAServerRootConfig getServerRootConfig() {
         return serverRootConfig;
     }
@@ -59,11 +69,17 @@ public class MAConfig_Base {
         saveGlobalConfig(getGlobalConfig());
     }
 
+    /**
+     * Set client-root config and persist merged global snapshot.
+     */
     public static void setClientRootConfig(MAClientRootConfig clientConfig) {
         clientRootConfig = clientConfig == null ? MAClientRootConfig.defaults() : clientConfig;
         saveGlobalConfig(getGlobalConfig());
     }
 
+    /**
+     * Set server-root config and persist merged global snapshot.
+     */
     public static void setServerRootConfig(MAServerRootConfig serverConfig) {
         serverRootConfig = serverConfig == null ? MAServerRootConfig.defaults() : serverConfig;
         saveGlobalConfig(getGlobalConfig());
@@ -74,9 +90,11 @@ public class MAConfig_Base {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public static void setPlayerConfig(UUID playerId, SyncedClientConfig config) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (playerId == null) {
             return;
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (config == null) {
             PLAYER_CONFIGS.remove(playerId);
             return;
@@ -89,6 +107,7 @@ public class MAConfig_Base {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public static void clearPlayerConfig(UUID playerId) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (playerId == null) {
             return;
         }
@@ -103,7 +122,11 @@ public class MAConfig_Base {
         PLAYER_CONFIGS.clear();
     }
 
+    /**
+     * Load global config from disk, normalize, and resave canonical form.
+     */
     private static SyncedClientConfig loadGlobalConfig() {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             Files.createDirectories(CONFIG_DIR);
         } catch (Exception exception) {
@@ -116,10 +139,16 @@ public class MAConfig_Base {
         return loaded;
     }
 
+    /**
+     * Persist global config to split TOML files.
+     */
     private static void saveGlobalConfig(SyncedClientConfig config) {
         MATomlConfigStore.save(CONFIG_DIR, config == null ? SyncedClientConfig.defaults() : config);
     }
 
+    /**
+     * Update root config snapshots from one synced config payload.
+     */
     private static void setGlobalConfigInternal(SyncedClientConfig config) {
         SyncedClientConfig value = config == null ? SyncedClientConfig.defaults() : config;
         clientRootConfig = MAClientRootConfig.fromSyncedConfig(value);

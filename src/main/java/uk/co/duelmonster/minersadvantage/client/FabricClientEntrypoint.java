@@ -35,7 +35,11 @@ public final class FabricClientEntrypoint implements ClientModInitializer {
         registerOutlineRenderHook();
     }
 
+    /**
+     * r eg is te ro ut li ne re nd er ho ok exists so this path stays predictable and easier to debug when things get weird.
+     */
     private static void registerOutlineRenderHook() {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             Class<?> worldRenderEventsClass = findWorldRenderEventsClass();
             Object beforeBlockOutlineEvent = worldRenderEventsClass.getField("BEFORE_BLOCK_OUTLINE").get(null);
@@ -47,6 +51,7 @@ public final class FabricClientEntrypoint implements ClientModInitializer {
                     Object context = args[0];
                     Object consumers = context.getClass().getMethod("consumers").invoke(context);
                     PoseStack matrices = (PoseStack) context.getClass().getMethod("matrices").invoke(context);
+                    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                     if (consumers == null || matrices == null) {
                         return true;
                     }
@@ -73,7 +78,11 @@ public final class FabricClientEntrypoint implements ClientModInitializer {
         }
     }
 
+    /**
+     * Find the world-render events class across API package variants without forcing a hard dependency.
+     */
     private static Class<?> findWorldRenderEventsClass() throws ClassNotFoundException {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             return Class.forName("net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents");
         } catch (ClassNotFoundException ignored) {

@@ -30,6 +30,7 @@ public record AbortWorkersPacket(
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     private static Type<AbortWorkersPacket> createType() {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             return payloadId("abort_workers");
         } catch (Throwable throwable) {
@@ -42,6 +43,7 @@ public record AbortWorkersPacket(
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     private static StreamCodec<RegistryFriendlyByteBuf, AbortWorkersPacket> createStreamCodec() {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             return StreamCodec.composite(
                 ByteBufCodecs.VAR_LONG,

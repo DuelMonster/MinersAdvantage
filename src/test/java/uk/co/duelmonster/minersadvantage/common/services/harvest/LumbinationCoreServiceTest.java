@@ -11,6 +11,9 @@ import org.junit.jupiter.api.Test;
  */
 class LumbinationCoreServiceTest {
     @Test
+    /**
+     * b ui ld st ru nk le af an ds ap li ng pl an exists so this path stays predictable and easier to debug when things get weird.
+     */
     void buildsTrunkLeafAndSaplingPlan() {
         LumbinationCoreService service = new LumbinationCoreService();
         LumbinationCoreService.LumbinationPlan plan = service.buildPlan(6, 4, 3, 5, true);

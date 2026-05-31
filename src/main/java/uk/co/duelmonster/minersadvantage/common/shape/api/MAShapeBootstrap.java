@@ -17,10 +17,17 @@ import uk.co.duelmonster.minersadvantage.common.shape.builtin.shaft.StaircaseUpS
 public final class MAShapeBootstrap {
     private static boolean initialized = false;
 
+    /**
+     * m as ha pe bo ot st ra p exists so this path stays predictable and easier to debug when things get weird.
+     */
     private MAShapeBootstrap() {
     }
 
+    /**
+     * Register all built-in shape definitions once, then get out of the way.
+     */
     public static synchronized void ensureInitialized() {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (initialized) {
             return;
         }

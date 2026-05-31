@@ -11,6 +11,9 @@ import org.junit.jupiter.api.Test;
  */
 class VentilationCoreServiceTest {
     @Test
+    /**
+     * b ui ld sv en ti la ti on ba tc hw it hl ad de rc ad en ce exists so this path stays predictable and easier to debug when things get weird.
+     */
     void buildsVentilationBatchWithLadderCadence() {
         VentilationCoreService service = new VentilationCoreService();
         VentilationCoreService.VentilationBatch batch = service.buildBatch(1, 3, 3, 3, 4);

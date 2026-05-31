@@ -41,8 +41,10 @@ public final class IlluminationCoreService {
         torchIndex = -1;
 
         Item torchItem = Blocks.TORCH.asItem();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
             ItemStack stack = player.getInventory().getItem(slot);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (stack != null && stack.getItem().equals(torchItem)) {
                 torchStackCount++;
                 torchIndex = Functions.getSlotFromInventory(player, stack);
@@ -58,10 +60,14 @@ public final class IlluminationCoreService {
         List<BlockPos> positions = new ArrayList<>();
         BlockPos previousPos = null;
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (double y = area.minY; y <= area.maxY; y++) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             for (double x = area.minX; x <= area.maxX; x++) {
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 for (double z = area.minZ; z <= area.maxZ; z++) {
                     BlockPos pos = new BlockPos((int) x, (int) y, (int) z);
+                    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                     if (isTorchablePosition(world, pos) && (previousPos == null || !Functions.isWithinRange(previousPos, pos, 5))) {
                         positions.add(pos);
                         previousPos = pos;
@@ -124,6 +130,7 @@ public final class IlluminationCoreService {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public TorchPlacement selectPlacement(boolean leftWallAvailable, boolean rightWallAvailable) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (leftWallAvailable && rightWallAvailable) {
             return TorchPlacement.BOTH_WALLS;
         } else if (leftWallAvailable) {
@@ -155,23 +162,30 @@ public final class IlluminationCoreService {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public TorchPlacement selectPlacement(boolean leftWallAvailable, boolean rightWallAvailable, String toolHint) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (RegistryPredicates.isManualLeftMode(toolHint)) {
             return leftWallAvailable ? TorchPlacement.LEFT_WALL : TorchPlacement.FLOOR;
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (RegistryPredicates.isManualRightMode(toolHint)) {
             return rightWallAvailable ? TorchPlacement.RIGHT_WALL : TorchPlacement.FLOOR;
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (toolHint.contains("manual_both") || toolHint.contains("manual_wall")) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (leftWallAvailable && rightWallAvailable) {
                 return TorchPlacement.BOTH_WALLS;
             }
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (leftWallAvailable) {
                 return TorchPlacement.LEFT_WALL;
             }
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (rightWallAvailable) {
                 return TorchPlacement.RIGHT_WALL;
             }
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (toolHint.contains("manual_floor")) {
             return TorchPlacement.FLOOR;
         }
@@ -183,9 +197,11 @@ public final class IlluminationCoreService {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public int availableTorches(String toolHint, int requestedTorches) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (toolHint.contains("empty")) {
             return 0;
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (toolHint.contains("single")) {
             return 1;
         }
@@ -201,6 +217,7 @@ public final class IlluminationCoreService {
         String toolHint
     ) {
         boolean manualMode = isManualMode(toolHint);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!shouldPlaceTorch(lightLevel)) {
             return new IlluminationDecision(TorchPlacement.FLOOR, 0, false, manualMode, false);
         }

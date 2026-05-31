@@ -11,6 +11,9 @@ import java.util.Set;
 public final class SubstitutionCoreService {
     // Why this exists: Parity note: core tool-ranking and decision behavior is ported; deeper combat/tool simulation parity is tracked in checklist. (future-you will thank present-you).
 
+    /**
+     * RankingMode labels the scoring mood so substitution chooses tools with the right priorities.
+     */
     public enum RankingMode {
         GENERAL,
         MINING_SILK,
@@ -19,11 +22,6 @@ public final class SubstitutionCoreService {
         RESTORE
     }
 
-    /*
-    public void processToolSubtitution(ServerPlayer player, BlockPos pos) {
-        // Why this exists: ...see legacy for logic... (future-you will thank present-you).
-    }
-    */
     /**
      * ToolCandidate keeps this part of Miners Advantage running without turning server ticks into confetti.
      * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
@@ -49,15 +47,19 @@ public final class SubstitutionCoreService {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     private RankingMode resolveMode(boolean favourSilkTouch, boolean favourFortune, boolean combatContext, boolean switchBackToPrimary) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (switchBackToPrimary) {
             return RankingMode.RESTORE;
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (combatContext) {
             return RankingMode.COMBAT;
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (favourSilkTouch) {
             return RankingMode.MINING_SILK;
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (favourFortune) {
             return RankingMode.MINING_FORTUNE;
         }
@@ -126,6 +128,7 @@ public final class SubstitutionCoreService {
         boolean switchBackToPrimary
     ) {
         RankingMode mode = resolveMode(favourSilkTouch, favourFortune, combatContext, switchBackToPrimary);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (mode == RankingMode.RESTORE) {
             return new SubstitutionDecision(currentToolId, false, true, mode.name().toLowerCase());
         }
@@ -136,6 +139,7 @@ public final class SubstitutionCoreService {
             .max(comparatorFor(favourSilkTouch, favourFortune, combatContext))
             .orElse(null);
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (best == null) {
             return new SubstitutionDecision(currentToolId, false, false, "unavailable");
         }
@@ -154,11 +158,13 @@ public final class SubstitutionCoreService {
         Set<String> blacklist
     ) {
         RankingMode mode = resolveMode(favourSilkTouch, favourFortune, combatContext, switchBackToPrimary);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (mode == RankingMode.RESTORE) {
             return new SubstitutionDecision(currentToolId, false, true, mode.name().toLowerCase());
         }
 
         ToolCandidate best = selectBest(candidates, favourSilkTouch, favourFortune, combatContext, blacklist, allowMending);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (best == null) {
             return new SubstitutionDecision(currentToolId, false, false, "unavailable");
         }

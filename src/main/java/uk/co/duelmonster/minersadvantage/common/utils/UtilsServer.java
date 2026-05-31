@@ -18,6 +18,7 @@ public final class UtilsServer {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public static void giveToInventory(long playerId, String itemId) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (itemId == null || itemId.isBlank()) {
             return;
         }
@@ -29,9 +30,11 @@ public final class UtilsServer {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public static void setHotbarSlot(long playerId, String itemId, int hotbarSlot) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (hotbarSlot < 0 || hotbarSlot > 8) {
             return;
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (itemId != null && !itemId.isBlank()) {
             LAST_GIVEN_ITEM.put(playerId, itemId);
         }
@@ -43,6 +46,7 @@ public final class UtilsServer {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public static void setHeldItemSlot(long playerId, int hotbarSlot) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (hotbarSlot < 0 || hotbarSlot > 8) {
             return;
         }

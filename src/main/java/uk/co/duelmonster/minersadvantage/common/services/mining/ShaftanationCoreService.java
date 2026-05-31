@@ -41,6 +41,7 @@ public final class ShaftanationCoreService {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public ShaftBatch buildBatch(int currentDepth, int maxDepth, int processesPerTick) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (processesPerTick <= 0 || currentDepth >= maxDepth) {
             return new ShaftBatch(currentDepth, 0, List.of());
         }
@@ -49,8 +50,10 @@ public final class ShaftanationCoreService {
         int torchPlacements = 0;
         List<ShaftStep> steps = new ArrayList<>();
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (int depth = currentDepth + 1; depth <= newDepth; depth++) {
             boolean placeTorch = depth % 5 == 0;
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (placeTorch) {
                 torchPlacements++;
             }

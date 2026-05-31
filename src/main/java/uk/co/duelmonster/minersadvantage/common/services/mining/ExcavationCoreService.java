@@ -50,10 +50,12 @@ public final class ExcavationCoreService {
         int depth,
         int maxTargets
     ) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!isBlock(blockId) || maxTargets <= 0) {
             return List.of();
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (isOre(blockId)) {
             return buildVeinPlan(originX, originY, originZ, maxTargets);
         }
@@ -73,6 +75,7 @@ public final class ExcavationCoreService {
             {0, 0, 1}, {0, 0, -1}
         };
         List<ExcavationTarget> targets = new ArrayList<>();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (int i = 0; i < offsets.length && targets.size() < maxTargets; i++) {
             int[] offset = offsets[i];
             targets.add(new ExcavationTarget(
@@ -98,8 +101,11 @@ public final class ExcavationCoreService {
         int halfHeight = Math.max(0, height / 2);
         int halfDepth = Math.max(0, depth / 2);
         List<ExcavationTarget> targets = new ArrayList<>();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (int y = -halfHeight; y <= halfHeight && targets.size() < maxTargets; y++) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             for (int x = -halfWidth; x <= halfWidth && targets.size() < maxTargets; x++) {
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 for (int z = -halfDepth; z <= halfDepth && targets.size() < maxTargets; z++) {
                     targets.add(new ExcavationTarget(originX + x, originY + y, originZ + z, "excavate"));
                 }

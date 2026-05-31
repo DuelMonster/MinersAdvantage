@@ -12,6 +12,7 @@ public final class UtilsCommon {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public static <T> void checkNotNull(T object, String name) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (object == null) {
             throw new NullPointerException(name + " must not be null.");
         }

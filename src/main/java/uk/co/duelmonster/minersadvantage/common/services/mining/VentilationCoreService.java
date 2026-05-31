@@ -39,8 +39,10 @@ public final class VentilationCoreService {
         ladderIndex = -1;
 
         Item ladderItem = Blocks.LADDER.asItem();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
             ItemStack stack = player.getInventory().getItem(slot);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (stack != null && stack.getItem().equals(ladderItem)) {
                 ladderStackCount++;
                 ladderIndex = Functions.getSlotFromInventory(player, stack);
@@ -105,6 +107,7 @@ public final class VentilationCoreService {
         int depth,
         int processesPerTick
     ) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (processesPerTick <= 0) {
             return new VentilationBatch(currentProgress, 0, List.of());
         }
@@ -114,8 +117,10 @@ public final class VentilationCoreService {
         int ladderPlacements = 0;
         List<VentilationStep> steps = new ArrayList<>();
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (int index = currentProgress + 1; index <= newProgress; index++) {
             boolean placeLadder = index % 3 == 0;
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (placeLadder) {
                 ladderPlacements++;
             }

@@ -17,11 +17,17 @@ import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeBootstrap;
  */
 class ClientInputServiceTest {
     @BeforeAll
+    /**
+     * Initialize shape registry used by input tests.
+     */
     static void bootstrapShapes() {
         MAShapeBootstrap.ensureInitialized();
     }
 
     @Test
+    /**
+     * Verify toggles and sync flags are produced.
+     */
     void togglesFeaturesAndRequestsSync() {
         ClientInputService service = new ClientInputService();
         ClientInputService.ClientInputResult result = service.process(
@@ -38,6 +44,9 @@ class ClientInputServiceTest {
     }
 
     @Test
+    /**
+     * Verify hold-mode excavation mirrors key press.
+     */
     void mirrorsHoldModeExcavationTogglesWhenToggleModeDisabled() {
         ClientInputService service = new ClientInputService();
         ClientInputService.ClientInputResult result = service.process(
@@ -50,6 +59,9 @@ class ClientInputServiceTest {
     }
 
     @Test
+    /**
+     * Verify toggle-mode excavation flips on repeated presses.
+     */
     void togglesExcavationModeWhenToggleModeEnabled() {
         ClientInputService service = new ClientInputService();
         ClientInputService.ClientInputState initial = ClientInputService.ClientInputState.defaults();
@@ -70,6 +82,9 @@ class ClientInputServiceTest {
     }
 
     @Test
+    /**
+     * Verify illumination actions are gated by feature state.
+     */
     void gatesIlluminationActionsOnFeatureState() {
         ClientInputService service = new ClientInputService();
         ClientInputService.ClientInputState disabled = new ClientInputService.ClientInputState(
@@ -96,6 +111,9 @@ class ClientInputServiceTest {
     }
 
     @Test
+    /**
+     * Verify shaft/vent hold toggle mirrors key state.
+     */
     void mirrorsShaftVentHoldToggle() {
         ClientInputService service = new ClientInputService();
         ClientInputService.ClientInputResult result = service.process(
@@ -108,6 +126,9 @@ class ClientInputServiceTest {
     }
 
     @Test
+    /**
+     * Verify excavation shape selection wraps around valid range.
+     */
     void cyclesExcavationShapeIndexWithWrapAround() {
         ClientInputService service = new ClientInputService();
         ClientInputService.ClientInputState initial = ClientInputService.ClientInputState.defaults();
@@ -135,6 +156,9 @@ class ClientInputServiceTest {
     }
 
     @Test
+    /**
+     * Verify shaft shape selection wraps around valid range.
+     */
     void cyclesShaftShapeIndexWithWrapAround() {
         ClientInputService service = new ClientInputService();
         ClientInputService.ClientInputState initial = ClientInputService.ClientInputState.defaults();

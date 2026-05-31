@@ -1,5 +1,6 @@
 ## 0.10.0
 
+- Apply workspace-wide comment updates across Java sources and tests, and fix malformed comment syntax regressions in NeoForge/Fabric generation paths to restore full compile-matrix gate success.
 - Complete full-workspace optimization pass with shared helper extraction across client input, excavation and shaft shape placement, config-screen readonly entries, and test fixture setup; include structural cleanup and duplicate reduction across main/test/versioned source roots.
 - Add client-configurable preview outline foreground and see-through colors, persist them in `client-config.toml`, and expose both settings in the client config UI using alpha color fields.
 - Implement dual-pass shape outline rendering matching LiteMiner: translucent NO_DEPTH_TEST pass (occluded bounds visible through blocks) plus opaque depth-tested foreground pass using `mc.renderBuffers().bufferSource()` directly with Stonecutter-gated mc1/mc26 pipeline API paths.

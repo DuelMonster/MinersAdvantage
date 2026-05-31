@@ -35,6 +35,7 @@ public final class CropinationCoreService {
         int harvestedBlocks,
         int durabilityCadence
     ) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!isFullyGrown(age, maxAge)) {
             return new CropAction(false, false, 0, 0);
         }

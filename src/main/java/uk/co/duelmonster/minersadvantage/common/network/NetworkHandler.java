@@ -27,6 +27,7 @@ public final class NetworkHandler {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public void registerServerHandler(int packetId, Consumer<Object> handler) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (handler == null) {
             serverHandlers.remove(packetId);
             return;
@@ -39,6 +40,7 @@ public final class NetworkHandler {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public void registerPlayerHandler(long playerId, Consumer<Object> handler) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (handler == null) {
             playerHandlers.remove(playerId);
             return;
@@ -52,11 +54,13 @@ public final class NetworkHandler {
      */
     public void sendToServer(Object msg) {
         Consumer<Object> handler = serverHandlers.get(resolvePacketId(msg));
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (handler != null) {
             handler.accept(msg);
             return;
         }
         Consumer<Object> fallback = serverHandlers.get(FALLBACK_PACKET_ID);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (fallback != null) {
             fallback.accept(msg);
         }
@@ -68,6 +72,7 @@ public final class NetworkHandler {
      */
     public void sendTo(long playerId, Object msg) {
         Consumer<Object> handler = playerHandlers.get(playerId);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (handler != null) {
             handler.accept(msg);
         }
@@ -78,6 +83,7 @@ public final class NetworkHandler {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     private int resolvePacketId(Object msg) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (msg instanceof IMAPacket packet && packet.getPacketId() != null) {
             return packet.getPacketId().ordinal();
         }

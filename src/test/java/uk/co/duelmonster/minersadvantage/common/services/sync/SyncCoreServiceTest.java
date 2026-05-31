@@ -17,6 +17,9 @@ import uk.co.duelmonster.minersadvantage.common.services.policy.PolicyCoreServic
  */
 class SyncCoreServiceTest {
     @Test
+    /**
+     * s yn ch ro ni ze st yp ed cl ie nt an ds er ve rs na ps ho ts exists so this path stays predictable and easier to debug when things get weird.
+     */
     void synchronizesTypedClientAndServerSnapshots() {
         SyncCoreService service = new SyncCoreService();
         PolicyCoreService policy = new PolicyCoreService();

@@ -19,10 +19,16 @@ public class VeinationAgent extends Agent {
     private final VeinationConfig config;
     private final int blocksPerTick;
 
+    /**
+     * v ei na ti on ag en t exists so this path stays predictable and easier to debug when things get weird.
+     */
     public VeinationAgent(ServerPlayer player, BlockPos origin, CommonConfig commonConfig, VeinationRuntimeService runtime, VeinationConfig config) {
         this(player, origin, null, commonConfig, runtime, config);
     }
 
+    /**
+     * v ei na ti on ag en t exists so this path stays predictable and easier to debug when things get weird.
+     */
     public VeinationAgent(ServerPlayer player, BlockPos origin, BlockState originStateHint, CommonConfig commonConfig, VeinationRuntimeService runtime, VeinationConfig config) {
         super(player);
         this.runtime = runtime;
@@ -32,10 +38,15 @@ public class VeinationAgent extends Agent {
     }
 
     @Override
+    /**
+     * t ic k exists so this path stays predictable and easier to debug when things get weird.
+     */
     public boolean tick() {
         int count = 0;
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         while (!queue.isEmpty() && count < blocksPerTick) {
             BlockPos pos = queue.poll();
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (world.getBlockState(pos).isAir()) {
                 continue;
             }
@@ -43,6 +54,7 @@ public class VeinationAgent extends Agent {
             world.destroyBlock(pos, true, player);
             count++;
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (queue.isEmpty()) {
             return finish("vein queue exhausted");
         }

@@ -11,6 +11,9 @@ import uk.co.duelmonster.minersadvantage.common.services.drop.DropCoreService;
  */
 class DropCoreServiceTest {
     @Test
+    /**
+     * c ap tu re sa nd fl us he sd ro ps exists so this path stays predictable and easier to debug when things get weird.
+     */
     void capturesAndFlushesDrops() {
         DropCoreService service = new DropCoreService();
         service.capture("item", 2);

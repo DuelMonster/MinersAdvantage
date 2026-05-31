@@ -12,6 +12,9 @@ import org.junit.jupiter.api.Test;
  */
 class PathanationCoreServiceTest {
     @Test
+    /**
+     * b ui ld sl in ea rp at hp la n exists so this path stays predictable and easier to debug when things get weird.
+     */
     void buildsLinearPathPlan() {
         PathanationCoreService service = new PathanationCoreService();
         List<PathanationCoreService.PathStep> steps = service.buildPath(10, 64, 10, 5, 3);

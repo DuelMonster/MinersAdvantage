@@ -13,6 +13,9 @@ import uk.co.duelmonster.minersadvantage.common.services.world.WorldQueryService
  */
 class WorldQueryServiceTest {
     @Test
+    /**
+     * c om pu te sa re aa nd di st an ce he lp er s exists so this path stays predictable and easier to debug when things get weird.
+     */
     void computesAreaAndDistanceHelpers() {
         WorldQueryService service = new WorldQueryService();
         assertEquals(6, service.manhattanDistance(0, 0, 0, 1, 2, 3));

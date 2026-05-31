@@ -11,6 +11,9 @@ import org.junit.jupiter.api.Test;
  */
 class PlayerStateServiceTest {
     @Test
+    /**
+     * s to re sa nd re tr ie ve sp la ye rs ta te exists so this path stays predictable and easier to debug when things get weird.
+     */
     void storesAndRetrievesPlayerState() {
         PlayerStateService service = new PlayerStateService();
         PlayerStateService.PlayerState state = new PlayerStateService.PlayerState(1L, true, 100L, 5, true, false);
@@ -23,6 +26,9 @@ class PlayerStateServiceTest {
     }
 
     @Test
+    /**
+     * r et ur ns de fa ul ts ta te fo ru nk no wn pl ay er exists so this path stays predictable and easier to debug when things get weird.
+     */
     void returnsDefaultStateForUnknownPlayer() {
         PlayerStateService service = new PlayerStateService();
         PlayerStateService.PlayerState state = service.getPlayerState(999L);

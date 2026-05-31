@@ -36,10 +36,12 @@ public final class FarmingCoreService {
         int maxTiles
     ) {
         List<CultivationStep> plan = new ArrayList<>();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (maxTiles <= 0) {
             return plan;
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (int step = 0; step < maxTiles; step++) {
             int x = originX + step;
             boolean hydrated = canHydrate(step, hydrationDistance);
@@ -53,6 +55,7 @@ public final class FarmingCoreService {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public BlockPos getWaterSource(Level world, BlockPos originPos) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (int offset = 1; offset <= 4; offset++) {
             AABB box = new AABB(
                 originPos.getX(), originPos.getY(), originPos.getZ(),
@@ -65,8 +68,10 @@ public final class FarmingCoreService {
                 new BlockPos((int) box.maxX, originPos.getY(), (int) box.maxZ)
             );
 
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             for (BlockPos pos : positions) {
                 BlockState state = world.getBlockState(pos);
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (state.getFluidState().is(Fluids.WATER) ||
                     (state.hasProperty(BlockStateProperties.WATERLOGGED) && state.getValue(BlockStateProperties.WATERLOGGED))) {
                     return pos;
@@ -82,6 +87,7 @@ public final class FarmingCoreService {
      */
     public AABB getFarmableLand(Level world, BlockPos originPos) {
         BlockPos waterSource = getWaterSource(world, originPos);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (waterSource != null) {
             return new AABB(
                 waterSource.getX() - 4, waterSource.getY(), waterSource.getZ() - 4,

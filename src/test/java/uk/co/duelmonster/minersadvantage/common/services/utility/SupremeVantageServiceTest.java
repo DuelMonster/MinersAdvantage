@@ -14,10 +14,14 @@ import org.junit.jupiter.api.Test;
  */
 class SupremeVantageServiceTest {
     @Test
+    /**
+     * u nl oc ks wo rt hy st at ea ft er se cr et ex ca va ti on co de exists so this path stays predictable and easier to debug when things get weird.
+     */
     void unlocksWorthyStateAfterSecretExcavationCode() {
         SupremeVantageService service = new SupremeVantageService();
         SupremeVantageService.ClientState state = SupremeVantageService.ClientState.defaults();
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (char digit : "2780872".toCharArray()) {
             state = service.processClientTick(state, Set.of(digit), true, true).state();
         }
@@ -30,6 +34,9 @@ class SupremeVantageServiceTest {
     }
 
     @Test
+    /**
+     * e mi ts re wa rd pa ck et ca de nc ew hi le wo rt hy exists so this path stays predictable and easier to debug when things get weird.
+     */
     void emitsRewardPacketCadenceWhileWorthy() {
         SupremeVantageService service = new SupremeVantageService();
         SupremeVantageService.ClientState state = new SupremeVantageService.ClientState("2780872", true, 4);
@@ -41,6 +48,9 @@ class SupremeVantageServiceTest {
     }
 
     @Test
+    /**
+     * g ra nt sr ew ar ds eq ue nc ea nd ne th er it ev ar ia nt exists so this path stays predictable and easier to debug when things get weird.
+     */
     void grantsRewardSequenceAndNetheriteVariant() {
         SupremeVantageService service = new SupremeVantageService();
 

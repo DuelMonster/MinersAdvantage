@@ -17,6 +17,9 @@ public class IlluminationPlaceAgent extends Agent {
     private final Direction faceDirection;
     private final IlluminationConfig config;
 
+    /**
+     * i ll um in at io np la ce ag en t exists so this path stays predictable and easier to debug when things get weird.
+     */
     public IlluminationPlaceAgent(ServerPlayer player, BlockPos target, Direction faceDirection, IlluminationConfig config, CommonConfig commonConfig) {
         super(player);
         this.target = target;
@@ -25,20 +28,27 @@ public class IlluminationPlaceAgent extends Agent {
     }
 
     @Override
+    /**
+     * t ic k exists so this path stays predictable and easier to debug when things get weird.
+     */
     public boolean tick() {
         BlockState state = world.getBlockState(target);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!state.isAir()) {
             return finish("illumination-place skipped: target not air pos=" + target);
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!playerHasTorches()) {
             return finish("illumination-place skipped: no torches in inventory pos=" + target);
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!canPlaceTorchAt(target, faceDirection)) {
             return finish("illumination-place skipped: invalid supporting face pos=" + target + " face=" + faceDirection);
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!placeTorchWithInventory(target, faceDirection)) {
             return finish("illumination-place skipped: torch placement rejected pos=" + target + " face=" + faceDirection);
         }

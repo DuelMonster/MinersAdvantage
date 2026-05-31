@@ -13,6 +13,9 @@ import org.junit.jupiter.api.Test;
  */
 class ExcavationCoreServiceTest {
     @Test
+    /**
+     * Verify basic block validity checks.
+     */
     void identifiesValidBlocks() {
         ExcavationCoreService service = new ExcavationCoreService();
         assertTrue(service.isBlock("dirt"));
@@ -21,6 +24,9 @@ class ExcavationCoreServiceTest {
     }
 
     @Test
+    /**
+     * Verify ore detection helper behavior.
+     */
     void detectsOres() {
         ExcavationCoreService service = new ExcavationCoreService();
         assertTrue(service.isOre("iron_ore"));
@@ -28,12 +34,18 @@ class ExcavationCoreServiceTest {
     }
 
     @Test
+    /**
+     * Verify volume estimate calculation.
+     */
     void estimatesExcavationVolume() {
         ExcavationCoreService service = new ExcavationCoreService();
         assertEquals(27, service.estimatedTurnsToExcavate(3, 3, 3));
     }
 
     @Test
+    /**
+     * Verify ore context produces vein operation plan.
+     */
     void buildsOreVeinPlanWithVeinOperations() {
         ExcavationCoreService service = new ExcavationCoreService();
         List<ExcavationCoreService.ExcavationTarget> plan =
@@ -44,6 +56,9 @@ class ExcavationCoreServiceTest {
     }
 
     @Test
+    /**
+     * Verify area context plan stays within requested vertical layer.
+     */
     void buildsAreaPlanWithinRequestedHeight() {
         ExcavationCoreService service = new ExcavationCoreService();
         List<ExcavationCoreService.ExcavationTarget> plan =

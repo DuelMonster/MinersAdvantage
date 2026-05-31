@@ -21,6 +21,7 @@ public final class InventoryCoreService {
      */
     public boolean consume(Map<String, Integer> inventory, String itemId, int amount) {
         int current = inventory.getOrDefault(itemId, 0);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (current < amount) {
             return false;
         }

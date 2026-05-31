@@ -33,6 +33,7 @@ public final class ClientEventHandler {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public boolean shouldCancelItemPickup(String itemId, boolean captivationEnabled, boolean unconditionalBlacklist, java.util.List<String> blacklist) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!captivationEnabled || !unconditionalBlacklist || blacklist == null || blacklist.isEmpty()) {
             return false;
         }

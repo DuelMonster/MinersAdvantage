@@ -14,6 +14,9 @@ public enum TorchPlacement {
     private final int index;
     private final String name;
 
+    /**
+     * t or ch pl ac em en t exists so this path stays predictable and easier to debug when things get weird.
+     */
     TorchPlacement(int index, String name) {
         this.index = index;
         this.name = name;

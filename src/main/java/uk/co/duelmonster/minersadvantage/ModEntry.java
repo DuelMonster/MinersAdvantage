@@ -94,7 +94,13 @@ public final class ModEntry implements ModInitializer {
     private final VeinationRuntimeService veinationRuntime = new VeinationRuntimeService();
     private final Map<Long, BreakFaceState> lastBreakFaces = new ConcurrentHashMap<>();
 
+    /**
+     * Bootstrap core services and register all Fabric-side gameplay/network/event hooks.
+     */
     @Override
+    /**
+     * o ni ni ti al iz e exists so this path stays predictable and easier to debug when things get weird.
+     */
     public void onInitialize() {
         LogUtils.applyConfiguredLogging();
         LogUtils.logInfo("Initializing {} {} debugLogging={}", ModCommon.MOD_NAME, ModCommon.MOD_VERSION, LogUtils.isDebugLoggingEnabled());
@@ -109,12 +115,14 @@ public final class ModEntry implements ModInitializer {
         ServerEntityEvents.ENTITY_LOAD.register(this::onFabricEntityLoad);
 
         AttackBlockCallback.EVENT.register((player, world, hand, pos, direction) -> {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (world.isClientSide() || !(player instanceof ServerPlayer serverPlayer)) {
                 return InteractionResult.PASS;
             }
 
             rememberBreakFace(serverPlayer, pos, direction);
 
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (!isFeatureEnabled(FeatureId.SUBSTITUTION)) {
                 return InteractionResult.PASS;
             }
@@ -122,12 +130,14 @@ public final class ModEntry implements ModInitializer {
             BlockState state = world.getBlockState(pos);
             ItemStack stack = player.getItemInHand(hand);
 
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (!SubstitutionAgent.shouldQueueStartSubstitution(serverPlayer, hand, SubstitutionAction.BREAK, pos)) {
                 return InteractionResult.PASS;
             }
 
             LogUtils.logDebug("Attack block trigger feature=Substitution player={} hand={} item={} pos={}", serverPlayer.getScoreboardName(), hand, itemId(stack), pos);
             SubstitutionAgent agent = new SubstitutionAgent(serverPlayer, state, SubstitutionAction.BREAK, hand, substitutionConfig(serverPlayer));
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (!agent.tick()) {
                 AgentManager.get().addAgent(serverPlayer, agent);
             }
@@ -135,29 +145,35 @@ public final class ModEntry implements ModInitializer {
         });
 
         AttackEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (world.isClientSide() || !(player instanceof ServerPlayer serverPlayer)) {
                 return InteractionResult.PASS;
             }
 
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (!isFeatureEnabled(FeatureId.SUBSTITUTION)) {
                 return InteractionResult.PASS;
             }
 
             SubstitutionConfig config = substitutionConfig(serverPlayer);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (config.ignorePassiveMobs() && entity.getType().getCategory().isFriendly()) {
                 return InteractionResult.PASS;
             }
 
             BlockPos targetPos = entity.blockPosition();
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (!SubstitutionAgent.shouldQueueStartSubstitution(serverPlayer, hand, SubstitutionAction.ATTACK, targetPos)) {
                 SubstitutionAgent.markSubstitutionActivity(serverPlayer, hand, SubstitutionAction.ATTACK, targetPos);
                 return InteractionResult.PASS;
             }
 
             BlockState contextState = world.getBlockState(targetPos);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (contextState.isAir()) {
                 contextState = world.getBlockState(targetPos.below());
             }
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (contextState.isAir()) {
                 contextState = world.getBlockState(serverPlayer.blockPosition());
             }
@@ -171,6 +187,7 @@ public final class ModEntry implements ModInitializer {
             );
             String targetEntityTypeId = BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType()).toString();
             SubstitutionAgent agent = new SubstitutionAgent(serverPlayer, contextState, SubstitutionAction.ATTACK, hand, config, targetEntityTypeId);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (!agent.tick()) {
                 AgentManager.get().addAgent(serverPlayer, agent);
             }
@@ -178,6 +195,7 @@ public final class ModEntry implements ModInitializer {
         });
 
         PlayerBlockBreakEvents.AFTER.register((level, player, pos, state, blockEntity) -> {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (level.isClientSide() || !(player instanceof ServerPlayer serverPlayer)) {
                 return;
             }
@@ -195,10 +213,12 @@ public final class ModEntry implements ModInitializer {
 
             boolean allowedOre = veinationRuntime.isOreAllowed(veinationConfig, state);
 
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (isFeatureEnabled(FeatureId.VEINATION) && playerCommonConfig.mineVeins() && veinationGesture && isPickaxeTool(stack) && allowedPickaxe && allowedOre) {
                 LogUtils.logDebug("Block break trigger feature=Veination player={} item={} block={} pos={}", serverPlayer.getScoreboardName(), itemId, brokenBlockId, pos);
                 veinationRuntime.registerDropAnchor(serverPlayer, pos, veinationConfig);
                 AgentManager agentManager = AgentManager.get();
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (!agentManager.hasAgentType(serverPlayer, VeinationAgent.class)) {
                     agentManager.addAgent(serverPlayer, new VeinationAgent(serverPlayer, pos, state, playerCommonConfig, veinationRuntime, veinationConfig));
                 }
@@ -206,11 +226,13 @@ public final class ModEntry implements ModInitializer {
                 Direction breakFace = consumeBreakFace(serverPlayer, pos);
                 boolean verticalFace = breakFace == Direction.UP || breakFace == Direction.DOWN;
                 AgentManager agentManager = AgentManager.get();
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (verticalFace) {
                     LogUtils.logDebug("Block break trigger feature=Ventilation player={} item={} block={} pos={} face={}", serverPlayer.getScoreboardName(), itemId, brokenBlockId, pos, breakFace);
                     agentManager.addAgent(serverPlayer, new VentilationAgent(serverPlayer, pos, breakFace != null ? breakFace.getOpposite() : Direction.DOWN, ventilationConfig(serverPlayer), commonConfig(serverPlayer), veinationRuntime, veinationConfig, stack));
                 } else {
                     LogUtils.logDebug("Block break trigger feature=Shaftanation player={} item={} block={} pos={} face={}", serverPlayer.getScoreboardName(), itemId, brokenBlockId, pos, breakFace == null ? "unknown" : breakFace);
+                    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                     if (!agentManager.hasAgentType(serverPlayer, ShaftanationAgent.class)) {
                         agentManager.addAgent(serverPlayer, new ShaftanationAgent(serverPlayer, pos, serverPlayer.getDirection(), shaftanationConfig(serverPlayer), commonConfig(serverPlayer), illuminationConfig(serverPlayer).lowestLightLevel(), veinationRuntime, veinationConfig, stack, playerState.selectedShaftanationShapeIndex(), breakFace));
                     }
@@ -241,6 +263,7 @@ public final class ModEntry implements ModInitializer {
                 );
             } else if (isFeatureEnabled(FeatureId.LUMBINATION)) {
                 LumbinationConfig lumbinationConfig = lumbinationConfig(serverPlayer);
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (isConfiguredAxe(stack, lumbinationConfig) && isConfiguredLog(state, lumbinationConfig)) {
                 LogUtils.logDebug("Block break trigger feature=Lumbination player={} item={} block={} pos={}", serverPlayer.getScoreboardName(), itemId, brokenBlockId, pos);
                     AgentManager.get().addAgent(serverPlayer, new LumbinationAgent(serverPlayer, pos, state, lumbinationConfig, commonConfig(serverPlayer)));
@@ -251,9 +274,11 @@ public final class ModEntry implements ModInitializer {
         registerCollectiveDigSpeedCallback();
 
         UseItemCallback.EVENT.register((player, world, hand) -> {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (world.isClientSide() || !(player instanceof ServerPlayer serverPlayer)) {
                 return InteractionResult.PASS;
             }
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (player.isShiftKeyDown()) {
                 LogUtils.logDebug("Use item trigger feature=Captivation player={} hand={} item={}", serverPlayer.getScoreboardName(), hand, itemId(player.getMainHandItem()));
                 AgentManager.get().addAgent(serverPlayer, new CaptivationAgent(serverPlayer, captivationConfig(serverPlayer)));
@@ -263,6 +288,7 @@ public final class ModEntry implements ModInitializer {
         });
 
         UseBlockCallback.EVENT.register((player, world, hand, hitResult) -> {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (world.isClientSide() || !(player instanceof ServerPlayer serverPlayer)) {
                 return InteractionResult.PASS;
             }
@@ -275,13 +301,16 @@ public final class ModEntry implements ModInitializer {
 
             routeToolUse(stack, pos, state);
 
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (isHoeTool(stack)) {
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (RegistryPredicates.isCropBlock(state)) {
                     LogUtils.logDebug("Use block trigger feature=Cropination player={} item={} block={} pos={}", serverPlayer.getScoreboardName(), itemId, targetBlockId, pos);
                     CommonConfig commonConfig = commonConfig(serverPlayer);
                     AgentManager.get().addAgent(serverPlayer, new CropinationAgent(serverPlayer, pos, commonConfig.blockRadius(), cropinationConfig(serverPlayer), commonConfig));
                     return InteractionResult.SUCCESS;
                 }
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (RegistryPredicates.isDirtLike(state)) {
                     LogUtils.logDebug("Use block trigger feature=Cultivation player={} item={} block={} pos={}", serverPlayer.getScoreboardName(), itemId, targetBlockId, pos);
                     CommonConfig commonConfig = commonConfig(serverPlayer);
@@ -290,22 +319,27 @@ public final class ModEntry implements ModInitializer {
                 }
             }
 
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (isShovelTool(stack) && state.is(BlockTags.DIRT)) {
                 LogUtils.logDebug("Use block trigger feature=Pathanation player={} item={} block={} pos={}", serverPlayer.getScoreboardName(), itemId, targetBlockId, pos);
                 AgentManager.get().addAgent(serverPlayer, new PathanationAgent(serverPlayer, pos, serverPlayer.getDirection(), pathanationConfig(serverPlayer), commonConfig(serverPlayer)));
                 return InteractionResult.SUCCESS;
             }
 
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (isPickaxeTool(stack) && player.isShiftKeyDown()) {
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (RegistryPredicates.isOreLike(state)) {
                     return InteractionResult.PASS;
                 }
             }
 
             var playerState = core.playerStateService().getPlayerState(playerId(serverPlayer));
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (playerState.shaftVentToggled() && !player.isShiftKeyDown()) {
                 Direction face = hitResult.getDirection();
                 boolean verticalFace = face == Direction.UP || face == Direction.DOWN;
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (verticalFace) {
                     LogUtils.logDebug("Use block trigger feature=Ventilation player={} item={} block={} pos={} face={}", serverPlayer.getScoreboardName(), itemId, targetBlockId, pos, face);
                     VeinationConfig veinationConfig = veinationConfig(serverPlayer);
@@ -313,6 +347,7 @@ public final class ModEntry implements ModInitializer {
                 } else {
                     LogUtils.logDebug("Use block trigger feature=Shaftanation player={} item={} block={} pos={} face={}", serverPlayer.getScoreboardName(), itemId, targetBlockId, pos, face);
                     AgentManager agentManager = AgentManager.get();
+                    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                     if (!agentManager.hasAgentType(serverPlayer, ShaftanationAgent.class)) {
                         VeinationConfig veinationConfig = veinationConfig(serverPlayer);
                         agentManager.addAgent(serverPlayer, new ShaftanationAgent(serverPlayer, pos, serverPlayer.getDirection(), shaftanationConfig(serverPlayer), commonConfig(serverPlayer), illuminationConfig(serverPlayer).lowestLightLevel(), veinationRuntime, veinationConfig, stack, playerState.selectedShaftanationShapeIndex(), face));
@@ -321,13 +356,16 @@ public final class ModEntry implements ModInitializer {
                 return InteractionResult.SUCCESS;
             }
 
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (isFeatureEnabled(FeatureId.SUBSTITUTION) && player.isShiftKeyDown()) {
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (!SubstitutionAgent.shouldQueueStartSubstitution(serverPlayer, hand, SubstitutionAction.INTERACT, pos)) {
                     SubstitutionAgent.markSubstitutionActivity(serverPlayer, hand, SubstitutionAction.INTERACT, pos);
                     return InteractionResult.SUCCESS;
                 }
                 LogUtils.logDebug("Use block trigger feature=Substitution player={} item={} pos={}", serverPlayer.getScoreboardName(), itemId, pos);
                 SubstitutionAgent agent = new SubstitutionAgent(serverPlayer, state, SubstitutionAction.INTERACT, hand, substitutionConfig(serverPlayer));
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (!agent.tick()) {
                     AgentManager.get().addAgent(serverPlayer, agent);
                 }
@@ -339,17 +377,22 @@ public final class ModEntry implements ModInitializer {
 
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             int tickCount = server.getTickCount();
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             for (ServerLevel level : server.getAllLevels()) {
                 AgentManager.get().tick(level);
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (tickCount % 20 == 0) {
+                    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                     for (ServerPlayer serverPlayer : level.players()) {
                         SubstitutionAgent.processSwitchBack(serverPlayer);
+                        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                         if (!AgentManager.get().hasAgentType(serverPlayer, CaptivationAgent.class)) {
                             LogUtils.logDebug("Server tick trigger feature=Captivation player={} intervalTicks={}", serverPlayer.getScoreboardName(), tickCount);
                             AgentManager.get().addAgent(serverPlayer, new CaptivationAgent(serverPlayer, captivationConfig(serverPlayer)));
                         }
                     }
                 } else {
+                    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                     for (ServerPlayer serverPlayer : level.players()) {
                         SubstitutionAgent.processSwitchBack(serverPlayer);
                     }
@@ -359,14 +402,22 @@ public final class ModEntry implements ModInitializer {
         });
     }
 
+    /**
+     * Register world/level unload callback using whichever Fabric lifecycle API is present.
+     */
     @SuppressWarnings({"rawtypes", "unchecked"})
+    /**
+     * r eg is te rf ab ri cl ev el un lo ad ev en t exists so this path stays predictable and easier to debug when things get weird.
+     */
     private void registerFabricLevelUnloadEvent() {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             Class<?> worldEventsClass = Class.forName("net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents");
             Event<?> unloadEvent = (Event<?>) worldEventsClass.getField("UNLOAD").get(null);
             Object callback = createFabricUnloadCallback("net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents$Unload");
             ((Event) unloadEvent).register(callback);
         } catch (ClassNotFoundException missingWorldEvents) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             try {
                 Class<?> levelEventsClass = Class.forName("net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents");
                 Event<?> unloadEvent = (Event<?>) levelEventsClass.getField("UNLOAD").get(null);
@@ -380,9 +431,13 @@ public final class ModEntry implements ModInitializer {
         }
     }
 
+    /**
+     * Build dynamic unload listener proxy compatible across mapping variants.
+     */
     private Object createFabricUnloadCallback(String listenerClassName) throws ReflectiveOperationException {
         Class<?> listenerClass = Class.forName(listenerClassName);
         InvocationHandler handler = (proxy, method, args) -> {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (method.getDeclaringClass() == Object.class) {
                 return switch (method.getName()) {
                     case "toString" -> "MinersAdvantageFabricUnloadCallback";
@@ -392,6 +447,7 @@ public final class ModEntry implements ModInitializer {
                 };
             }
 
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (args != null && args.length > 1 && args[1] instanceof ServerLevel level) {
                 onServerLevelUnload(level);
             }
@@ -400,11 +456,16 @@ public final class ModEntry implements ModInitializer {
         return Proxy.newProxyInstance(getClass().getClassLoader(), new Class[]{listenerClass}, handler);
     }
 
+    /**
+     * Register optional Collective dig-speed callback when the library is available.
+     */
     private void registerCollectiveDigSpeedCallback() {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             Class<?> collectivePlayerEventsClass = Class.forName("com.natamus.collective.fabric.callbacks.CollectivePlayerEvents");
             Object digSpeedEvent = collectivePlayerEventsClass.getField("ON_PLAYER_DIG_SPEED_CALC").get(null);
             Method registerMethod = findSingleArgumentMethod(digSpeedEvent.getClass(), "register");
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (registerMethod == null) {
                 LogUtils.logDebug("Collective dig speed callback registration skipped: register method not found");
                 return;
@@ -420,8 +481,12 @@ public final class ModEntry implements ModInitializer {
         }
     }
 
+    /**
+     * Build dynamic dig-speed callback proxy forwarding through veination runtime.
+     */
     private Object createCollectiveDigSpeedCallback(Class<?> listenerClass) {
         InvocationHandler handler = (proxy, method, args) -> {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (method.getDeclaringClass() == Object.class) {
                 return switch (method.getName()) {
                     case "toString" -> "MinersAdvantageCollectiveDigSpeedCallback";
@@ -431,6 +496,7 @@ public final class ModEntry implements ModInitializer {
                 };
             }
 
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (args == null || args.length < 4 || !(args[0] instanceof net.minecraft.world.level.Level level)
                 || !(args[1] instanceof Player player) || !(args[2] instanceof Float digSpeed)
                 || !(args[3] instanceof BlockState state)) {
@@ -444,8 +510,13 @@ public final class ModEntry implements ModInitializer {
         return Proxy.newProxyInstance(getClass().getClassLoader(), new Class[]{listenerClass}, handler);
     }
 
+    /**
+     * Find first public method by name that accepts exactly one argument.
+     */
     private Method findSingleArgumentMethod(Class<?> type, String name) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (Method method : type.getMethods()) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (method.getName().equals(name) && method.getParameterCount() == 1) {
                 return method;
             }
@@ -453,6 +524,9 @@ public final class ModEntry implements ModInitializer {
         return null;
     }
 
+    /**
+     * Initialize synced player state on login.
+     */
     private void onPlayerLogin(ServerPlayer player) {
         long playerId = playerId(player);
         LogUtils.logInfo("Player login player={} id={}", player.getScoreboardName(), playerId);
@@ -461,6 +535,9 @@ public final class ModEntry implements ModInitializer {
         core.handlePlayerStateSyncPacket(new PlayerStateSyncPacket(playerId, clientConfig, serverConfig));
     }
 
+    /**
+     * Flush player-specific runtime/sync/worker state on logout.
+     */
     private void onPlayerLogout(ServerPlayer player) {
         long playerId = playerId(player);
         LogUtils.logInfo("Player logout player={} id={}", player.getScoreboardName(), playerId);
@@ -469,14 +546,23 @@ public final class ModEntry implements ModInitializer {
         core.playerStateService().clearPlayerState(playerId);
     }
 
+    /**
+     * Treat level unload as implicit logout for all players in that level.
+     */
     private void onServerLevelUnload(ServerLevel level) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (ServerPlayer player : level.players()) {
             onPlayerLogout(player);
         }
     }
 
+    /**
+     * Observe item/xp entity loads and feed runtime drop-tracking services.
+     */
     private void onFabricEntityLoad(Entity entity, ServerLevel level) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (entity instanceof ItemEntity itemEntity) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (level.getNearestPlayer(entity, 8.0) instanceof ServerPlayer serverPlayer) {
                 String dropItemId = itemId(itemEntity.getItem());
                 LogUtils.logDebug("Observed item entity load player={} item={} count={}", serverPlayer.getScoreboardName(), dropItemId, itemEntity.getItem().getCount());
@@ -491,6 +577,7 @@ public final class ModEntry implements ModInitializer {
                 );
             }
         } else if (entity instanceof ExperienceOrb orb) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (level.getNearestPlayer(entity, 8.0) instanceof ServerPlayer serverPlayer) {
                 LogUtils.logDebug("Observed xp orb load player={} value={}", serverPlayer.getScoreboardName(), orb.getValue());
                 boolean gatherDrops = commonConfig(serverPlayer).gatherDrops();
@@ -504,59 +591,90 @@ public final class ModEntry implements ModInitializer {
         }
     }
 
+    /**
+     * Cache last attacked block face for later shaft/vent orientation decisions.
+     */
     private void rememberBreakFace(ServerPlayer serverPlayer, BlockPos pos, Direction face) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (serverPlayer == null || pos == null || face == null) {
             return;
         }
         lastBreakFaces.put(playerId(serverPlayer), new BreakFaceState(pos.immutable(), face));
     }
 
+    /**
+     * Consume cached break face if it still matches the target block position.
+     */
     private Direction consumeBreakFace(ServerPlayer serverPlayer, BlockPos pos) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (serverPlayer == null || pos == null) {
             return null;
         }
         BreakFaceState state = lastBreakFaces.remove(playerId(serverPlayer));
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (state == null || !state.pos().equals(pos)) {
             return null;
         }
         return state.face();
     }
 
+    /**
+     * b re ak fa ce st at e exists so this path stays predictable and easier to debug when things get weird.
+     */
     private record BreakFaceState(BlockPos pos, Direction face) {
     }
 
+    /**
+     * Route generic tool-use telemetry to the matching tool event sink.
+     */
     private void routeToolUse(ItemStack stack, BlockPos pos, BlockState state) {
         String blockId = blockId(state);
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (isPickaxeTool(stack)) {
             toolEvents.onPickaxeUse(pos.getX(), pos.getY(), pos.getZ(), blockId);
             return;
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (isShovelTool(stack)) {
             toolEvents.onShovelUse(pos.getX(), pos.getY(), pos.getZ(), blockId);
             return;
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (isHoeTool(stack)) {
             toolEvents.onHoeUse(pos.getX(), pos.getY(), pos.getZ(), blockId);
             return;
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (isAxeTool(stack)) {
             toolEvents.onAxeUse(pos.getX(), pos.getY(), pos.getZ(), blockId);
         }
     }
 
+    /**
+     * Resolve canonical item id string.
+     */
     private static String itemId(ItemStack stack) {
         return BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
     }
 
+    /**
+     * Placeholder excavation tool gate (currently permissive).
+     */
     private static boolean isExcavationTool(ItemStack stack) {
         return true;
     }
 
+    /**
+     * Placeholder shaft tool gate (currently permissive).
+     */
     private static boolean isShaftTool(ItemStack stack) {
         return true;
     }
 
+    /**
+     * Check whether tool is eligible for substitution workflows.
+     */
     private static boolean isSubstitutionTool(ItemStack stack) {
         return isPickaxeTool(stack)
             || stack.getItem() instanceof AxeItem
@@ -564,146 +682,213 @@ public final class ModEntry implements ModInitializer {
             || stack.getItem() instanceof HoeItem;
     }
 
+    /**
+     * Resolve substitution config from component or fallback defaults.
+     */
     private SubstitutionConfig substitutionConfig() {
         var component = core.components().get(FeatureId.SUBSTITUTION);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (component instanceof SubstitutionComponent substitutionComponent) {
             return substitutionComponent.config();
         }
         return SyncedClientConfig.defaults().substitution();
     }
 
+    /**
+     * Resolve per-player effective substitution config with sync fallback.
+     */
     private SubstitutionConfig substitutionConfig(ServerPlayer player) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (player == null) {
             return substitutionConfig();
         }
 
         var synced = core.syncCoreService().getPlayerState(playerId(player));
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (synced != null && synced.effectiveConfig() != null && synced.effectiveConfig().substitution() != null) {
             return synced.effectiveConfig().substitution();
         }
         return substitutionConfig();
     }
 
+    /**
+     * Resolve captivation config from component or global fallback.
+     */
     private CaptivationConfig captivationConfig() {
         var component = core.components().get(FeatureId.CAPTIVATION);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (component instanceof CaptivationComponent captivationComponent) {
             return captivationComponent.config();
         }
         return MAConfig_Base.getGlobalConfig().captivation();
     }
 
+    /**
+     * Resolve per-player effective captivation config with sync fallback.
+     */
     private CaptivationConfig captivationConfig(ServerPlayer player) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (player == null) {
             return captivationConfig();
         }
 
         var synced = core.syncCoreService().getPlayerState(playerId(player));
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (synced != null && synced.effectiveConfig() != null && synced.effectiveConfig().captivation() != null) {
             return synced.effectiveConfig().captivation();
         }
         return captivationConfig();
     }
 
+    /**
+     * Resolve cropination config from component or global fallback.
+     */
     private CropinationConfig cropinationConfig() {
         var component = core.components().get(FeatureId.CROPINATION);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (component instanceof CropinationComponent cropinationComponent) {
             return cropinationComponent.config();
         }
         return MAConfig_Base.getGlobalConfig().cropination();
     }
 
+    /**
+     * Resolve per-player effective cropination config with sync fallback.
+     */
     private CropinationConfig cropinationConfig(ServerPlayer player) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (player == null) {
             return cropinationConfig();
         }
 
         var synced = core.syncCoreService().getPlayerState(playerId(player));
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (synced != null && synced.effectiveConfig() != null && synced.effectiveConfig().cropination() != null) {
             return synced.effectiveConfig().cropination();
         }
         return cropinationConfig();
     }
 
+    /**
+     * Resolve cultivation config from component or global fallback.
+     */
     private CultivationConfig cultivationConfig() {
         var component = core.components().get(FeatureId.CULTIVATION);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (component instanceof CultivationComponent cultivationComponent) {
             return cultivationComponent.config();
         }
         return MAConfig_Base.getGlobalConfig().cultivation();
     }
 
+    /**
+     * Resolve per-player effective cultivation config with sync fallback.
+     */
     private CultivationConfig cultivationConfig(ServerPlayer player) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (player == null) {
             return cultivationConfig();
         }
 
         var synced = core.syncCoreService().getPlayerState(playerId(player));
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (synced != null && synced.effectiveConfig() != null && synced.effectiveConfig().cultivation() != null) {
             return synced.effectiveConfig().cultivation();
         }
         return cultivationConfig();
     }
 
+    /**
+     * Resolve excavation config from component or global fallback.
+     */
     private ExcavationConfig excavationConfig() {
         var component = core.components().get(FeatureId.EXCAVATION);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (component instanceof ExcavationComponent excavationComponent) {
             return excavationComponent.config();
         }
         return MAConfig_Base.getGlobalConfig().excavation();
     }
 
+    /**
+     * Resolve per-player effective excavation config with sync fallback.
+     */
     private ExcavationConfig excavationConfig(ServerPlayer player) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (player == null) {
             return excavationConfig();
         }
 
         var synced = core.syncCoreService().getPlayerState(playerId(player));
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (synced != null && synced.effectiveConfig() != null && synced.effectiveConfig().excavation() != null) {
             return synced.effectiveConfig().excavation();
         }
         return excavationConfig();
     }
 
+    /**
+     * Resolve global common config.
+     */
     private CommonConfig commonConfig() {
         return MAConfig_Base.getGlobalConfig().common();
     }
 
+    /**
+     * Resolve per-player effective common config with sync fallback.
+     */
     private CommonConfig commonConfig(ServerPlayer player) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (player == null) {
             return commonConfig();
         }
 
         var synced = core.syncCoreService().getPlayerState(playerId(player));
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (synced != null && synced.effectiveConfig() != null && synced.effectiveConfig().common() != null) {
             return synced.effectiveConfig().common();
         }
         return commonConfig();
     }
 
+    /**
+     * Resolve lumbination config from component or global fallback.
+     */
     private LumbinationConfig lumbinationConfig() {
         var component = core.components().get(FeatureId.LUMBINATION);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (component instanceof LumbinationComponent lumbinationComponent) {
             return lumbinationComponent.config();
         }
         return MAConfig_Base.getGlobalConfig().lumbination();
     }
 
+    /**
+     * Resolve per-player effective lumbination config with sync fallback.
+     */
     private LumbinationConfig lumbinationConfig(ServerPlayer player) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (player == null) {
             return lumbinationConfig();
         }
 
         var synced = core.syncCoreService().getPlayerState(playerId(player));
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (synced != null && synced.effectiveConfig() != null && synced.effectiveConfig().lumbination() != null) {
             return synced.effectiveConfig().lumbination();
         }
         return lumbinationConfig();
     }
 
+    /**
+     * Validate held axe against optional lumbination axe allowlist.
+     */
     private static boolean isConfiguredAxe(ItemStack stack, LumbinationConfig config) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!isAxeTool(stack)) {
             return false;
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (config == null || config.axes().isEmpty()) {
             return true;
         }
@@ -711,10 +896,15 @@ public final class ModEntry implements ModInitializer {
         return config.axes().contains(heldItemId);
     }
 
+    /**
+     * Validate target block against optional lumbination log allowlist.
+     */
     private static boolean isConfiguredLog(BlockState state, LumbinationConfig config) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (state == null || config == null) {
             return false;
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (config.logs().isEmpty()) {
             return state.is(BlockTags.LOGS);
         }
@@ -722,127 +912,192 @@ public final class ModEntry implements ModInitializer {
         return config.logs().contains(targetBlockId);
     }
 
+    /**
+     * Resolve pathanation config from component or global fallback.
+     */
     private PathanationConfig pathanationConfig() {
         var component = core.components().get(FeatureId.PATHANATION);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (component instanceof PathanationComponent pathanationComponent) {
             return pathanationComponent.config();
         }
         return MAConfig_Base.getGlobalConfig().pathanation();
     }
 
+    /**
+     * Resolve per-player effective pathanation config with sync fallback.
+     */
     private PathanationConfig pathanationConfig(ServerPlayer player) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (player == null) {
             return pathanationConfig();
         }
 
         var synced = core.syncCoreService().getPlayerState(playerId(player));
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (synced != null && synced.effectiveConfig() != null && synced.effectiveConfig().pathanation() != null) {
             return synced.effectiveConfig().pathanation();
         }
         return pathanationConfig();
     }
 
+    /**
+     * Resolve illumination config from component or global fallback.
+     */
     private IlluminationConfig illuminationConfig() {
         var component = core.components().get(FeatureId.ILLUMINATION);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (component instanceof IlluminationComponent illuminationComponent) {
             return illuminationComponent.config();
         }
         return MAConfig_Base.getGlobalConfig().illumination();
     }
 
+    /**
+     * Resolve per-player effective illumination config with sync fallback.
+     */
     private IlluminationConfig illuminationConfig(ServerPlayer player) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (player == null) {
             return illuminationConfig();
         }
 
         var synced = core.syncCoreService().getPlayerState(playerId(player));
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (synced != null && synced.effectiveConfig() != null && synced.effectiveConfig().illumination() != null) {
             return synced.effectiveConfig().illumination();
         }
         return illuminationConfig();
     }
 
+    /**
+     * Resolve shaftanation config from component or global fallback.
+     */
     private ShaftanationConfig shaftanationConfig() {
         var component = core.components().get(FeatureId.SHAFTANATION);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (component instanceof ShaftanationComponent shaftanationComponent) {
             return shaftanationComponent.config();
         }
         return MAConfig_Base.getGlobalConfig().shaftanation();
     }
 
+    /**
+     * Resolve per-player effective shaftanation config with sync fallback.
+     */
     private ShaftanationConfig shaftanationConfig(ServerPlayer player) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (player == null) {
             return shaftanationConfig();
         }
 
         var synced = core.syncCoreService().getPlayerState(playerId(player));
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (synced != null && synced.effectiveConfig() != null && synced.effectiveConfig().shaftanation() != null) {
             return synced.effectiveConfig().shaftanation();
         }
         return shaftanationConfig();
     }
 
+    /**
+     * Resolve ventilation config from component or global fallback.
+     */
     private VentilationConfig ventilationConfig() {
         var component = core.components().get(FeatureId.VENTILATION);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (component instanceof VentilationComponent ventilationComponent) {
             return ventilationComponent.config();
         }
         return MAConfig_Base.getGlobalConfig().ventilation();
     }
 
+    /**
+     * Resolve per-player effective ventilation config with sync fallback.
+     */
     private VentilationConfig ventilationConfig(ServerPlayer player) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (player == null) {
             return ventilationConfig();
         }
 
         var synced = core.syncCoreService().getPlayerState(playerId(player));
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (synced != null && synced.effectiveConfig() != null && synced.effectiveConfig().ventilation() != null) {
             return synced.effectiveConfig().ventilation();
         }
         return ventilationConfig();
     }
 
+    /**
+     * Resolve global veination config.
+     */
     private VeinationConfig veinationConfig() {
         return MAConfig_Base.getGlobalConfig().veination();
     }
 
+    /**
+     * Resolve per-player effective veination config with sync fallback.
+     */
     private VeinationConfig veinationConfig(ServerPlayer player) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (player == null) {
             return veinationConfig();
         }
 
         var synced = core.syncCoreService().getPlayerState(playerId(player));
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (synced != null && synced.effectiveConfig() != null && synced.effectiveConfig().veination() != null) {
             return synced.effectiveConfig().veination();
         }
         return veinationConfig();
     }
 
+    /**
+     * Identify pickaxe tool via item id suffix.
+     */
     private static boolean isPickaxeTool(ItemStack stack) {
         return BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath().endsWith("_pickaxe");
     }
 
+    /**
+     * Identify shovel tool by runtime type.
+     */
     private static boolean isShovelTool(ItemStack stack) {
         return stack.getItem() instanceof ShovelItem;
     }
 
+    /**
+     * Identify axe tool by runtime type.
+     */
     private static boolean isAxeTool(ItemStack stack) {
         return stack.getItem() instanceof AxeItem;
     }
 
+    /**
+     * Identify hoe tool by runtime type.
+     */
     private static boolean isHoeTool(ItemStack stack) {
         return stack.getItem() instanceof HoeItem;
     }
 
+    /**
+     * Check whether a feature component exists and is enabled.
+     */
     private boolean isFeatureEnabled(FeatureId featureId) {
         var component = core.components().get(featureId);
         return component != null && component.isEnabled();
     }
 
+    /**
+     * Resolve canonical block id string.
+     */
     private static String blockId(BlockState state) {
         return BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString();
     }
 
+    /**
+     * Build compact player id used by runtime services.
+     */
     private static long playerId(Player player) {
         return player.getUUID().getLeastSignificantBits();
     }

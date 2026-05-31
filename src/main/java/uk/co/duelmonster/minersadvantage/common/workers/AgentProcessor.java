@@ -22,6 +22,7 @@ public final class AgentProcessor {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public void fireAgentTicks(Object worldContext) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (Agent agent : List.copyOf(currentAgents)) {
             agent.tick(worldContext);
         }
@@ -32,13 +33,16 @@ public final class AgentProcessor {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public void setCurrentAgent(UUID playerId, Agent agent) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (playerId == null) {
             return;
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (agent == null) {
             perPlayerCurrentAgent.remove(playerId);
         } else {
             perPlayerCurrentAgent.put(playerId, agent);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (!currentAgents.contains(agent)) {
                 currentAgents.add(agent);
             }
@@ -50,6 +54,7 @@ public final class AgentProcessor {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public Agent getCurrentAgent(UUID playerId) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (playerId == null) {
             return null;
         }

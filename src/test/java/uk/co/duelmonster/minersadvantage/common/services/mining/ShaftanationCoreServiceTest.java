@@ -11,6 +11,9 @@ import org.junit.jupiter.api.Test;
  */
 class ShaftanationCoreServiceTest {
     @Test
+    /**
+     * b ui ld sd ep th ba tc hw it ht or ch ca de nc e exists so this path stays predictable and easier to debug when things get weird.
+     */
     void buildsDepthBatchWithTorchCadence() {
         ShaftanationCoreService service = new ShaftanationCoreService();
         ShaftanationCoreService.ShaftBatch batch = service.buildBatch(3, 10, 4);

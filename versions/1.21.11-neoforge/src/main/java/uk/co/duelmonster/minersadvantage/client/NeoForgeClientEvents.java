@@ -44,6 +44,7 @@ public final class NeoForgeClientEvents {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public static void onRegisterKeyMappings(RegisterKeyMappingsEvent event) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (KeyBindings.KeyBindingSpec spec : KeyBindings.all()) {
             String translationKey = "key.minersadvantage." + spec.action().name().toLowerCase();
             InputConstants.Key key = parseKeyToken(spec.defaultKey());
@@ -68,10 +69,12 @@ public final class NeoForgeClientEvents {
         );
         inputState = result.state();
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (ComponentTogglePacket packet : result.togglePackets()) {
             ClientPacketDistributor.sendToServer(packet);
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (result.abortRequested()) {
             long playerId = ClientActionInputSupport.resolveLocalPlayerId();
             ClientPacketDistributor.sendToServer(new AbortWorkersPacket(playerId, "client:keybind"));
@@ -79,6 +82,7 @@ public final class NeoForgeClientEvents {
 
         boolean activationStateChanged = ClientActionInputSupport.hasActivationStateChanged(lastSyncedState, result.state());
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (activationStateChanged && (result.shouldSyncConfig() || result.shouldSyncVariables())) {
             syncStateToServer(result.state());
         }
@@ -88,12 +92,17 @@ public final class NeoForgeClientEvents {
         return inputState;
     }
 
+    /**
+     * Human-friendly guardrail: o nm ou se sc ro ll exists so this path stays predictable and easier to debug when things get weird.
+     */
     public static boolean onMouseScroll(double scrollY) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (scrollY == 0.0d) {
             return false;
         }
 
         Set<KeyBindings.ClientAction> actions = ClientActionInputSupport.collectScrollActions(inputState, scrollY);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (actions.isEmpty()) {
             return false;
         }
@@ -104,6 +113,9 @@ public final class NeoForgeClientEvents {
         return true;
     }
 
+    /**
+     * Human-friendly guardrail: s yn cs ta te to se rv er exists so this path stays predictable and easier to debug when things get weird.
+     */
     private static void syncStateToServer(ClientInputService.ClientInputState state) {
         ClientPacketDistributor.sendToServer(ClientActionInputSupport.createPlayerStateSyncPacket(state));
         lastSyncedState = state;

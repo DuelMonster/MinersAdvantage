@@ -15,6 +15,9 @@ import uk.co.duelmonster.minersadvantage.common.services.substitution.Substituti
  */
 class SubstitutionCoreServiceTest {
     @Test
+    /**
+     * s el ec ts hi gh es ts co ri ng to ol wi th pr ef er en ce s exists so this path stays predictable and easier to debug when things get weird.
+     */
     void selectsHighestScoringToolWithPreferences() {
         SubstitutionCoreService service = new SubstitutionCoreService();
         ToolCandidate best = service.selectBest(
@@ -31,6 +34,9 @@ class SubstitutionCoreServiceTest {
     }
 
     @Test
+    /**
+     * p re fe rs co mb at to ol an dc an sw it ch ba ck exists so this path stays predictable and easier to debug when things get weird.
+     */
     void prefersCombatToolAndCanSwitchBack() {
         SubstitutionCoreService service = new SubstitutionCoreService();
 

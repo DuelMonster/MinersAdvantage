@@ -65,6 +65,9 @@ public final class WorkerRuntimeService {
     private final List<DropSpawn> pendingSpawns = new ArrayList<>();
     private final PlayerStateService playerStateService;
 
+    /**
+     * w or ke rr un ti me se rv ic e exists so this path stays predictable and easier to debug when things get weird.
+     */
     public WorkerRuntimeService(PlayerStateService playerStateService) {
         this.playerStateService = playerStateService;
     }
@@ -85,6 +88,7 @@ public final class WorkerRuntimeService {
      */
     public boolean enqueueWork(UUID workerId, Runnable action) {
         ActiveWorker worker = workers.get(workerId);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (worker == null) {
             return false;
         }
@@ -97,6 +101,7 @@ public final class WorkerRuntimeService {
      */
     public void captureDrop(UUID workerId, String type, int amount) {
         ActiveWorker worker = workers.get(workerId);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (worker == null) {
             return;
         }
@@ -109,10 +114,12 @@ public final class WorkerRuntimeService {
      */
     public DropInterceptionResult interceptLiveDrop(UUID workerId, String type, int amount, boolean gatherDrops) {
         ActiveWorker worker = workers.get(workerId);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (worker == null) {
             return new DropInterceptionResult(false, true);
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (gatherDrops) {
             worker.drops.capture(type, amount);
             return new DropInterceptionResult(true, false);
@@ -128,10 +135,12 @@ public final class WorkerRuntimeService {
      */
     public DropInterceptionResult interceptLiveDropForPlayer(long playerId, String type, int amount, boolean gatherDrops) {
         ActiveWorker worker = findFirstWorkerForPlayer(playerId);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (worker == null) {
             return new DropInterceptionResult(false, true);
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (gatherDrops) {
             worker.drops.capture(type, amount);
             return new DropInterceptionResult(true, false);
@@ -147,6 +156,7 @@ public final class WorkerRuntimeService {
      */
     public List<DropCoreService.CapturedDrop> abortWorker(UUID workerId) {
         ActiveWorker worker = workers.remove(workerId);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (worker == null) {
             return List.of();
         }
@@ -161,13 +171,16 @@ public final class WorkerRuntimeService {
      */
     public List<DropCoreService.CapturedDrop> abortAllForPlayer(long playerId) {
         List<UUID> toAbort = new ArrayList<>();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (ActiveWorker worker : workers.values()) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (worker.handle.playerId() == playerId) {
                 toAbort.add(worker.handle.workerId());
             }
         }
 
         List<DropCoreService.CapturedDrop> flushed = new ArrayList<>();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (UUID workerId : toAbort) {
             flushed.addAll(abortWorker(workerId));
         }
@@ -180,7 +193,9 @@ public final class WorkerRuntimeService {
      */
     public AbortResult abortAllForPlayerWithStats(long playerId) {
         int cancelledWorkers = 0;
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (ActiveWorker worker : workers.values()) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (worker.handle.playerId() == playerId) {
                 cancelledWorkers++;
             }
@@ -200,7 +215,9 @@ public final class WorkerRuntimeService {
         int flushedDrops = 0;
         List<UUID> completed = new ArrayList<>();
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (ActiveWorker worker : workers.values()) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (tpsGuardActive || playerStateService.getPlayerState(worker.handle.playerId()).hungerGuardActive()) {
                 pausedWorkers++;
                 continue;
@@ -208,6 +225,7 @@ public final class WorkerRuntimeService {
 
             processedActions += worker.queue.processTick(Runnable::run);
 
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (worker.queue.size() == 0) {
                 List<DropCoreService.CapturedDrop> flushed = worker.drops.flush();
                 flushedDrops += flushed.size();
@@ -217,6 +235,7 @@ public final class WorkerRuntimeService {
             }
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (UUID workerId : completed) {
             workers.remove(workerId);
         }
@@ -255,6 +274,7 @@ public final class WorkerRuntimeService {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     private void queueSpawnDrops(long playerId, List<DropCoreService.CapturedDrop> flushed) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (DropCoreService.CapturedDrop drop : flushed) {
             pendingSpawns.add(new DropSpawn(playerId, drop.type(), drop.amount()));
         }
@@ -265,7 +285,9 @@ public final class WorkerRuntimeService {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     private ActiveWorker findFirstWorkerForPlayer(long playerId) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (ActiveWorker worker : workers.values()) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (worker.handle.playerId() == playerId) {
                 return worker;
             }

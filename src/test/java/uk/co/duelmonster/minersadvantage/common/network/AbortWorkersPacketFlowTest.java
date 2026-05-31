@@ -14,6 +14,9 @@ import uk.co.duelmonster.minersadvantage.common.services.processing.WorkerRuntim
  */
 class AbortWorkersPacketFlowTest {
     @Test
+    /**
+     * a bo rt pa ck et ca nc el sp la ye rw or ke rs an df lu sh es dr op s exists so this path stays predictable and easier to debug when things get weird.
+     */
     void abortPacketCancelsPlayerWorkersAndFlushesDrops() {
         MinersAdvantageCore core = new MinersAdvantageCore();
         WorkerRuntimeService runtime = core.workerRuntimeService();
@@ -36,6 +39,9 @@ class AbortWorkersPacketFlowTest {
     }
 
     @Test
+    /**
+     * r eg is tr ye xp os es ab or tp ac ke tn am e exists so this path stays predictable and easier to debug when things get weird.
+     */
     void registryExposesAbortPacketName() {
         assertEquals("AbortWorkersPacket", PacketRegistry.getPacketName(PacketRegistry.ABORT_WORKERS));
     }

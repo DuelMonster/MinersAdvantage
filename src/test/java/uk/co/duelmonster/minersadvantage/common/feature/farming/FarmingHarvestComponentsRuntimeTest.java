@@ -22,11 +22,17 @@ import uk.co.duelmonster.minersadvantage.common.orchestration.FeatureDispatchCon
  */
 class FarmingHarvestComponentsRuntimeTest {
     @AfterEach
+    /**
+     * Clear shared dispatch context after each test.
+     */
     void clearDispatchContext() {
         FeatureDispatchBus.clearContext();
     }
 
     @Test
+    /**
+     * Verify cropination harvests and replants mature crops.
+     */
     void cropinationProducesHarvestActionForMatureCrop() {
         CropinationComponent component = new CropinationComponent(new CropinationConfig(true, true));
         component.register();
@@ -40,6 +46,9 @@ class FarmingHarvestComponentsRuntimeTest {
     }
 
     @Test
+    /**
+     * Verify cultivation creates soil plan using configured radius.
+     */
     void cultivationBuildsPlanForSoilTargets() {
         CultivationComponent component = new CultivationComponent(new CultivationConfig(true, 3));
         component.register();
@@ -52,6 +61,9 @@ class FarmingHarvestComponentsRuntimeTest {
     }
 
     @Test
+    /**
+     * Verify lumbination plan includes logs and sapling replant intent.
+     */
     void lumbinationBuildsTreePlanWhenLogTriggered() {
         LumbinationComponent component = new LumbinationComponent(new LumbinationConfig(true, 5, 4, 4));
         component.register();
@@ -65,6 +77,9 @@ class FarmingHarvestComponentsRuntimeTest {
     }
 
     @Test
+    /**
+     * Verify captivation decision allows item capture in valid context.
+     */
     void captivationEvaluatesItemCaptureDecision() {
         CaptivationComponent component = new CaptivationComponent(new CaptivationConfig(true, false, 8, 4, false, false));
         component.register();

@@ -92,6 +92,7 @@ public final class IlluminationComponent implements ComponentLifecycle {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public void tick() {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!ComponentTickHelper.shouldExecute(isEnabled())) {
             return;
         }

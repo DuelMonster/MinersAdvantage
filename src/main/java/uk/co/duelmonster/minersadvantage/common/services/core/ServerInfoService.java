@@ -33,6 +33,7 @@ public final class ServerInfoService {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public static String getWorldUid() {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (worldUid == null) {
             worldUid = DEFAULT_WORLD_UID;
         }
@@ -44,8 +45,10 @@ public final class ServerInfoService {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public static String getWorldUid(boolean localChannel, String localWorldName, String serverAddress, String serverName) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (worldUid == null) {
             String source;
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (localChannel) {
                 source = localWorldName;
             } else {
@@ -54,6 +57,7 @@ public final class ServerInfoService {
                 source = (address + " " + name).trim();
             }
 
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (source == null || source.isBlank()) {
                 source = "default";
             }

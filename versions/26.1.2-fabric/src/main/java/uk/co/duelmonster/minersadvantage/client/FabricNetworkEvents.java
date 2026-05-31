@@ -40,6 +40,7 @@ public final class FabricNetworkEvents {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public static void registerPayloadTypes() {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (payloadTypesRegistered) {
             return;
         }
@@ -57,8 +58,10 @@ public final class FabricNetworkEvents {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     private static <T extends net.minecraft.network.protocol.common.custom.CustomPacketPayload> void registerPlayToServer(net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type<T> type, Object codec) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             Method registryMethod;
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             try {
                 registryMethod = PayloadTypeRegistry.class.getMethod("playC2S");
             } catch (NoSuchMethodException missingModernApi) {
@@ -66,12 +69,15 @@ public final class FabricNetworkEvents {
             }
             Object registry = registryMethod.invoke(null);
             Method registerMethod = null;
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             for (Method candidate : registry.getClass().getMethods()) {
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (candidate.getName().equals("register") && candidate.getParameterCount() == 2) {
                     registerMethod = candidate;
                     break;
                 }
             }
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (registerMethod == null) {
                 throw new NoSuchMethodException("Payload registry register(type, codec) method not found");
             }
@@ -86,6 +92,7 @@ public final class FabricNetworkEvents {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public static void registerServerHandlers() {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (serverHandlersRegistered) {
             return;
         }

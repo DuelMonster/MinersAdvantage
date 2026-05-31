@@ -24,6 +24,7 @@ final class NetworkPayloadReflection {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     static <T extends CustomPacketPayload> CustomPacketPayload.Type<T> payloadId(String path, String errorMessage) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             Object identifier = createIdentifier(path);
             Constructor<CustomPacketPayload.Type> constructor =
@@ -39,6 +40,7 @@ final class NetworkPayloadReflection {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     static Object createIdentifier(String path) throws ReflectiveOperationException {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             Class<?> identifierClass = Class.forName("net.minecraft.resources.Identifier");
             Method factory = identifierClass.getMethod("fromNamespaceAndPath", String.class, String.class);

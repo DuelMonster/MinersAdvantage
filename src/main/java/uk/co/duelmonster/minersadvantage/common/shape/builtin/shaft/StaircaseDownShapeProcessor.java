@@ -9,10 +9,20 @@ import uk.co.duelmonster.minersadvantage.common.shape.builtin.ShapeGeometryUtils
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+/**
+ * Downward staircase processor that advances forward while dropping one level per step.
+ */
 public final class StaircaseDownShapeProcessor implements MAShapeProcessor {
+    /**
+     * Compute descending staircase volume with centered width and configurable stair height thickness.
+     */
     @Override
+    /**
+     * c om pu te exists so this path stays predictable and easier to debug when things get weird.
+     */
     public Set<BlockPos> compute(MAShapeContext context) {
         LinkedHashSet<BlockPos> out = new LinkedHashSet<>();
+        // If user clicked vertical faces, we fall back to player facing so stairs still have a direction.
         Direction forward = context.hitFace().getAxis().isVertical()
             ? ShapeGeometryUtils.horizontalOrNorth(context.playerFacing())
             : ShapeGeometryUtils.forwardFromContext(context);
@@ -22,10 +32,14 @@ public final class StaircaseDownShapeProcessor implements MAShapeProcessor {
         int minW = ShapeGeometryUtils.minCenteredOffset(context.width());
         int maxW = ShapeGeometryUtils.maxCenteredOffset(context.width());
 
+        // Each depth step drops one Y level, which is the whole point of a down staircase.
         for (int d = 0; d < context.depth(); d++) {
             BlockPos depthBase = origin.relative(forward, d).offset(0, -d, 0);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             for (int h = 0; h < context.height(); h++) {
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 for (int w = minW; w <= maxW; w++) {
+                    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                     if (!ShaftShapePlacement.addIfCapacity(out, context, depthBase, right, w, -h)) {
                         return out;
                     }

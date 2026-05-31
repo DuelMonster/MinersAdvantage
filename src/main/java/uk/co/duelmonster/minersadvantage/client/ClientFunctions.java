@@ -48,6 +48,7 @@ public final class ClientFunctions {
      */
     public static void DebugNotifyClient(String message) {
         LocalPlayer player = getPlayer();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (player != null) {
             Functions.DebugNotifyClient(player, message);
         }
@@ -59,6 +60,7 @@ public final class ClientFunctions {
      */
     public static void DebugNotifyClient(boolean enabled, String featureName) {
         LocalPlayer player = getPlayer();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (player != null) {
             Functions.DebugNotifyClient(player, enabled, featureName);
         }
@@ -70,6 +72,7 @@ public final class ClientFunctions {
      */
     public static void NotifyClient(String message) {
         LocalPlayer player = getPlayer();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (player != null) {
             Functions.NotifyClient(player, message);
         }
@@ -81,6 +84,7 @@ public final class ClientFunctions {
      */
     public static void NotifyClient(boolean enabled, String featureName) {
         LocalPlayer player = getPlayer();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (player != null) {
             Functions.NotifyClient(player, enabled, featureName);
         }
@@ -109,13 +113,16 @@ public final class ClientFunctions {
      */
     public static void syncCurrentPlayItem(int slotIndex) {
         LocalPlayer player = getPlayer();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (player == null) {
             return;
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             Method setter = player.getInventory().getClass().getMethod("setSelectedSlot", int.class);
             setter.invoke(player.getInventory(), slotIndex);
         } catch (Exception noSetter) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             try {
                 Field selected = player.getInventory().getClass().getDeclaredField("selected");
                 selected.setAccessible(true);
@@ -124,6 +131,7 @@ public final class ClientFunctions {
                 return;
             }
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (mc.gameMode != null) {
             mc.gameMode.tick();
         }

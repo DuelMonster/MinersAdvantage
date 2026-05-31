@@ -73,6 +73,9 @@ public final class ShapePreviewRenderer {
         VoxelShape combinedShape;
         long updatedAt;
 
+        /**
+         * Check whether cached outline still matches current preview request.
+         */
         boolean isValid(FeatureId feature, BlockPos origin, int shapeIndex, int width, int height, int depth) {
             return this.feature == feature
                 && Objects.equals(this.origin, origin)
@@ -84,6 +87,9 @@ public final class ShapePreviewRenderer {
                 && (System.currentTimeMillis() - this.updatedAt) < 250L;
         }
 
+        /**
+         * Store freshly computed outline and cache metadata.
+         */
         void store(FeatureId feature, BlockPos origin, int shapeIndex, int width, int height, int depth, VoxelShape combinedShape) {
             this.feature = feature;
             this.origin = origin;
@@ -96,9 +102,15 @@ public final class ShapePreviewRenderer {
         }
     }
 
+    /**
+     * Utility class only.
+     */
     private ShapePreviewRenderer() {
     }
 
+    /**
+     * Build no-depth translucent line render type used for occluded preview edges.
+     */
     private static RenderType createLinesTranslucentNoDepthTestRenderType() {
         //? if mc1 {
         RenderPipeline.Snippet snippet = RenderPipeline.builder(RenderPipelines.MATRICES_FOG_SNIPPET, RenderPipelines.GLOBALS_SNIPPET)
@@ -143,11 +155,16 @@ public final class ShapePreviewRenderer {
         */ //?}
     }
 
+    /**
+     * Render active held-key preview outlines for excavation/shaft/ventilation contexts.
+     */
     public static void renderHeldPreview(ClientInputState state, PoseStack poseStack, double cameraX, double cameraY, double cameraZ) {
         Minecraft minecraft = Minecraft.getInstance();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (minecraft.level == null || minecraft.player == null) {
             return;
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!(minecraft.hitResult instanceof BlockHitResult blockHit)) {
             return;
         }
@@ -161,6 +178,7 @@ public final class ShapePreviewRenderer {
         boolean shaftPreview = shaftVentPreview && blockHit.getDirection().getAxis().isHorizontal();
         boolean ventilationPreview = shaftVentPreview && blockHit.getDirection().getAxis().isVertical();
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!excavationPreview && !shaftPreview && !ventilationPreview) {
             return;
         }
@@ -170,6 +188,7 @@ public final class ShapePreviewRenderer {
         BlockPos origin = blockHit.getBlockPos();
         Direction hitFace = blockHit.getDirection();
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (excavationPreview) {
             var excavation = MAServerRootConfig.defaults().excavation();
             MAShapeDimensions.Dimensions dimensions = MAShapeDimensions.excavationFromConfig(
@@ -202,6 +221,7 @@ public final class ShapePreviewRenderer {
                 ));
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (shaftPreview) {
             var shaft = MAServerRootConfig.defaults().shaftanation();
             MAShapeDimensions.Dimensions dimensions = MAShapeDimensions.shaftFromConfig(shaft.width(), shaft.height(), shaft.depth());
@@ -230,11 +250,13 @@ public final class ShapePreviewRenderer {
                 ));
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (ventilationPreview) {
             var ventilation = MAServerRootConfig.defaults().ventilation();
             int ventDepth = Math.max(1, ventilation.height());
             Direction ventDirection = hitFace == Direction.UP ? Direction.DOWN : Direction.UP;
             Set<BlockPos> positions = new LinkedHashSet<>();
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             for (int depth = 0; depth < ventDepth && positions.size() < MAX_PREVIEW_BLOCKS; depth++) {
                 positions.add(origin.relative(ventDirection, depth).immutable());
             }
@@ -264,11 +286,13 @@ public final class ShapePreviewRenderer {
         double cameraY,
         double cameraZ
     ) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (positions.isEmpty()) {
             return;
         }
 
         VoxelShape combinedShape;
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (CACHE.isValid(feature, origin, shapeIndex, dimensions.width(), dimensions.height(), dimensions.depth())) {
             combinedShape = CACHE.combinedShape;
         } else {
@@ -276,6 +300,7 @@ public final class ShapePreviewRenderer {
             CACHE.store(feature, origin.immutable(), shapeIndex, dimensions.width(), dimensions.height(), dimensions.depth(), combinedShape);
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (combinedShape.isEmpty()) {
             return;
         }
@@ -305,9 +330,13 @@ public final class ShapePreviewRenderer {
         poseStack.popPose();
     }
 
+    /**
+     * Combine per-block AABBs into one optimized voxel outline shape.
+     */
     private static VoxelShape combineToVoxelShape(Set<BlockPos> positions, BlockPos origin) {
         VoxelShape combinedShape = Shapes.empty();
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (BlockPos position : positions) {
             BlockPos relative = position.subtract(origin);
             AABB inflatedBox = new AABB(

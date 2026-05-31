@@ -12,6 +12,9 @@ import uk.co.duelmonster.minersadvantage.client.KeyBindings.ClientAction;
  */
 class KeyBindingsTest {
     @Test
+    /**
+     * e xp os es le ga cy pa ri ty de fa ul tb in di ng s exists so this path stays predictable and easier to debug when things get weird.
+     */
     void exposesLegacyParityDefaultBindings() {
         assertEquals(17, KeyBindings.all().size());
         assertTrue(KeyBindings.all().stream().anyMatch(spec -> spec.action() == ClientAction.CAPTIVATION_TOGGLE && spec.defaultKey().equals("KP_1")));

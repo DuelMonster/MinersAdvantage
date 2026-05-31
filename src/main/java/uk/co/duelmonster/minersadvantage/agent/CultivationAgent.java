@@ -17,7 +17,8 @@ import java.util.Queue;
 import java.util.Set;
 
 /**
- * CultivationAgent: tills and plants farmland in a radius.
+ * Cultivation worker that expands a hydrated farm patch, converts dirt-like blocks to farmland,
+ * and nudges block updates so plants above freshly tilled soil behave correctly.
  */
 public class CultivationAgent extends Agent {
     private static final int FLOATING_UPDATE_DELAY_TICKS = 2;
@@ -33,10 +34,16 @@ public class CultivationAgent extends Agent {
     private final Set<BlockPos> visited = new HashSet<>();
     private final int blocksPerTick;
 
+    /**
+     * Convenience constructor using default server/common config values.
+     */
     public CultivationAgent(ServerPlayer player, BlockPos origin, int radius) {
         this(player, origin, radius, MAServerRootConfig.defaults().cultivation(), new CommonConfig());
     }
 
+    /**
+     * Build cultivation patch bounds around nearest water source and initialize traversal queue.
+     */
     public CultivationAgent(ServerPlayer player, BlockPos origin, int radius, CultivationConfig config, CommonConfig commonConfig) {
         super(player);
         this.origin = origin;
@@ -54,18 +61,29 @@ public class CultivationAgent extends Agent {
         queue.add(origin);
     }
 
+    /**
+     * Per-tick cultivation loop with bounded queue processing and delayed update flushing.
+     */
     @Override
+    /**
+     * t ic k exists so this path stays predictable and easier to debug when things get weird.
+     */
     public boolean tick() {
         int count = 0;
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         while (!queue.isEmpty() && count < blocksPerTick) {
             BlockPos pos = queue.poll();
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (pos == null || !visited.add(pos) || !withinFarmPatch(pos)) {
                 continue;
             }
 
             BlockState state = world.getBlockState(pos);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (RegistryPredicates.isDirtLike(state)) {
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (isAirOrReplaceableAbove(pos)) {
+                    // Clear floating replaceables, till the block, then schedule follow-up updates for stability.
                     clearReplaceableBlockAbove(pos);
                     world.setBlockAndUpdate(pos, Blocks.FARMLAND.defaultBlockState());
                     scheduleFloatingUpdate(pos.above());
@@ -73,6 +91,7 @@ public class CultivationAgent extends Agent {
                 count++;
                 // Add neighbors in a 3x3 area
                 for (int dx = -1; dx <= 1; dx++)
+                    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                     for (int dz = -1; dz <= 1; dz++)
                         queue.add(pos.offset(dx, 0, dz));
             }
@@ -80,23 +99,33 @@ public class CultivationAgent extends Agent {
 
         processDelayedUpdates();
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (queue.isEmpty() && delayedUpdates.isEmpty()) {
             return finish("cultivation queue exhausted");
         }
         return false;
     }
 
+    /**
+     * Queue delayed update for one position so neighbor state settles after tilling.
+     */
     private void scheduleFloatingUpdate(BlockPos pos) {
         delayedUpdates.add(new DelayedUpdate(pos.immutable(), FLOATING_UPDATE_DELAY_TICKS));
     }
 
+    /**
+     * Process delayed block updates and trigger neighbor notifications once countdown expires.
+     */
     private void processDelayedUpdates() {
         int pending = delayedUpdates.size();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (int i = 0; i < pending; i++) {
             DelayedUpdate update = delayedUpdates.poll();
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (update == null) {
                 continue;
             }
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (update.ticksRemaining() > 0) {
                 delayedUpdates.add(new DelayedUpdate(update.pos(), update.ticksRemaining() - 1));
                 continue;
@@ -112,12 +141,16 @@ public class CultivationAgent extends Agent {
             world.sendBlockUpdated(belowPos, belowState, belowState, 3);
             world.updateNeighborsAt(belowPos, belowState.getBlock());
 
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (!state.isAir()) {
                 world.scheduleTick(pos, state.getBlock(), 1);
             }
         }
     }
 
+    /**
+     * Keep cultivation traversal constrained to the selected farm patch at origin Y.
+     */
     private boolean withinFarmPatch(BlockPos pos) {
         return pos.getY() == origin.getY()
             && pos.getX() >= minX
@@ -126,20 +159,31 @@ public class CultivationAgent extends Agent {
             && pos.getZ() <= maxZ;
     }
 
+    /**
+     * Break replaceable block above target soil so farmland conversion has breathing room.
+     */
     private void clearReplaceableBlockAbove(BlockPos pos) {
         BlockPos abovePos = pos.above();
         BlockState above = world.getBlockState(abovePos);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!above.isAir() && above.canBeReplaced()) {
             world.destroyBlock(abovePos, true, player);
         }
     }
 
+    /**
+     * Search outward in square rings for nearest water (or waterlogged) block.
+     */
     private BlockPos findClosestWaterSource(BlockPos start, int maxDistance) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (int offset = 1; offset <= maxDistance; offset++) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             for (int x = start.getX() - offset; x <= start.getX() + offset; x++) {
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 for (int z = start.getZ() - offset; z <= start.getZ() + offset; z++) {
                     BlockPos candidate = new BlockPos(x, start.getY(), z);
                     BlockState state = world.getBlockState(candidate);
+                    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                     if (state.getFluidState().is(Fluids.WATER)
                         || (state.hasProperty(BlockStateProperties.WATERLOGGED) && state.getValue(BlockStateProperties.WATERLOGGED))) {
                         return candidate;
@@ -150,6 +194,9 @@ public class CultivationAgent extends Agent {
         return null;
     }
 
+    /**
+     * Small delayed-update payload for post-till block/neighbor refresh scheduling.
+     */
     private record DelayedUpdate(BlockPos pos, int ticksRemaining) {
     }
 }

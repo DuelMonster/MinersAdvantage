@@ -27,6 +27,7 @@ public final class ProcessingCoreService<T> {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public boolean offer(T value) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (queue.size() >= blockLimit) {
             return false;
         }
@@ -40,6 +41,7 @@ public final class ProcessingCoreService<T> {
      */
     public int processTick(Consumer<T> consumer) {
         int processed = 0;
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         while (processed < blocksPerTick && !queue.isEmpty()) {
             consumer.accept(queue.removeFirst());
             processed++;

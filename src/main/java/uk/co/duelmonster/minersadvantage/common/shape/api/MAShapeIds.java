@@ -15,6 +15,9 @@ public final class MAShapeIds {
     public static final String SHAFTANATION_STAIRCASE_UP = "minersadvantage:staircase_up";
     public static final String SHAFTANATION_STAIRCASE_DOWN = "minersadvantage:staircase_down";
 
+    /**
+     * m as ha pe id s exists so this path stays predictable and easier to debug when things get weird.
+     */
     private MAShapeIds() {
     }
 }

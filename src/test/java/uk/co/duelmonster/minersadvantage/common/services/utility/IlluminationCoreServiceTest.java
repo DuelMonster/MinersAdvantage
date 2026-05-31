@@ -12,6 +12,9 @@ import org.junit.jupiter.api.Test;
  */
 class IlluminationCoreServiceTest {
     @Test
+    /**
+     * Verify dark-threshold placement gate behavior.
+     */
     void determinesLightLevelThreshold() {
         IlluminationCoreService service = new IlluminationCoreService();
         assertTrue(service.shouldPlaceTorch(0));
@@ -21,6 +24,9 @@ class IlluminationCoreServiceTest {
     }
 
     @Test
+    /**
+     * Verify wall/floor placement strategy selection.
+     */
     void selectsBestTorchPlacement() {
         IlluminationCoreService service = new IlluminationCoreService();
         assertEquals(TorchPlacement.BOTH_WALLS, service.selectPlacement(true, true));
@@ -30,6 +36,9 @@ class IlluminationCoreServiceTest {
     }
 
     @Test
+    /**
+     * Verify planned placement count estimation.
+     */
     void estimatesPlacementsInRadius() {
         IlluminationCoreService service = new IlluminationCoreService();
         assertEquals(9, service.expectedPlacementsInRadius(1, 1));
@@ -37,6 +46,9 @@ class IlluminationCoreServiceTest {
     }
 
     @Test
+    /**
+     * Verify decision payload for dark areas.
+     */
     void createsDecisionForDarkAreas() {
         IlluminationCoreService service = new IlluminationCoreService();
         IlluminationCoreService.IlluminationDecision decision =
@@ -49,6 +61,9 @@ class IlluminationCoreServiceTest {
     }
 
     @Test
+    /**
+     * Verify no placement decision in bright conditions.
+     */
     void skipsPlacementWhenBrightEnough() {
         IlluminationCoreService service = new IlluminationCoreService();
         IlluminationCoreService.IlluminationDecision decision =
@@ -59,6 +74,9 @@ class IlluminationCoreServiceTest {
     }
 
     @Test
+    /**
+     * Verify depletion flag when manual mode has no torch supply.
+     */
     void flagsInventoryDepletionWhenTorchSupplyRunsOut() {
         IlluminationCoreService service = new IlluminationCoreService();
         IlluminationCoreService.IlluminationDecision decision =

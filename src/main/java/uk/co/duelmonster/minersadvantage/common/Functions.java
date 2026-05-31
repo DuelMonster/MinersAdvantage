@@ -60,6 +60,7 @@ public class Functions {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public static void DebugNotifyClient(Player player, String message) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (isDebug()) {
             NotifyClient(player, message);
         }
@@ -70,6 +71,7 @@ public class Functions {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public static void DebugNotifyClient(Player player, boolean isOn, String featureName) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (isDebug()) {
             NotifyClient(player, isOn, featureName);
         }
@@ -98,11 +100,13 @@ public class Functions {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     private static void sendPlayerMessage(Player player, Component component) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             Method displayClientMessage = Arrays.stream(player.getClass().getMethods())
                 .filter(method -> method.getName().equals("displayClientMessage") && method.getParameterCount() == 2)
                 .findFirst()
                 .orElse(null);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (displayClientMessage != null) {
                 displayClientMessage.invoke(player, component, false);
                 return;
@@ -112,6 +116,7 @@ public class Functions {
                 .filter(method -> method.getName().equals("sendSystemMessage") && method.getParameterCount() == 1)
                 .findFirst()
                 .orElse(null);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (sendSystemMessage != null) {
                 sendSystemMessage.invoke(player, component);
                 return;
@@ -121,6 +126,7 @@ public class Functions {
                 .filter(method -> method.getName().equals("sendMessage") && method.getParameterCount() == 2)
                 .findFirst()
                 .orElse(null);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (sendMessage != null) {
                 sendMessage.invoke(player, component, UUID.randomUUID());
             }
@@ -153,6 +159,7 @@ public class Functions {
      */
     public static boolean IsPlayerStarving(Player player) {
         Variables vars = Variables.get(player.getUUID());
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!vars.HungerNotified && player.getFoodData().getFoodLevel() <= Constants.MIN_HUNGER) {
             NotifyClient(player, ChatFormatting.RED + localize("minersadvantage.hungery") + Constants.MOD_NAME);
             vars.HungerNotified = true;
@@ -175,6 +182,7 @@ public class Functions {
     public static String getStackTrace() {
         StringBuilder result = new StringBuilder();
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (int i = 2; i < stackTrace.length; i++) {
             result.append(System.lineSeparator()).append("\tat ").append(stackTrace[i]);
         }
@@ -232,8 +240,11 @@ public class Functions {
      */
     public static List<BlockPos> getAllPositionsInArea(AABB area) {
         List<BlockPos> positions = new ArrayList<>();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (int y = (int) area.minY; y <= area.maxY; y++) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             for (int x = (int) area.minX; x <= area.maxX; x++) {
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 for (int z = (int) area.minZ; z <= area.maxZ; z++) {
                     positions.add(new BlockPos(x, y, z));
                 }
@@ -247,12 +258,15 @@ public class Functions {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public static boolean isPosConnected(List<BlockPos> posList, BlockPos checkPos) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (BlockPos neighbor : connectedNeighbors(checkPos)) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (posList.contains(neighbor)) {
                 return true;
             }
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (posList.contains(checkPos)) {
             return true;
         }
@@ -266,9 +280,13 @@ public class Functions {
      */
     public static List<BlockPos> connectedNeighbors(BlockPos origin) {
         List<BlockPos> neighbors = new ArrayList<>(26);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (int yOffset = -1; yOffset <= 1; yOffset++) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             for (int xOffset = -1; xOffset <= 1; xOffset++) {
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 for (int zOffset = -1; zOffset <= 1; zOffset++) {
+                    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                     if (xOffset == 0 && yOffset == 0 && zOffset == 0) {
                         continue;
                     }
@@ -286,9 +304,12 @@ public class Functions {
      */
     public static List<Entity> getNearbyEntities(Level world, AABB area) {
         List<Entity> result = new ArrayList<>();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             List<Entity> entities = new ArrayList<>(world.getEntitiesOfClass(Entity.class, area));
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             for (Entity entity : entities) {
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (entity != null && entity.isAlive() && (entity instanceof ItemEntity || entity instanceof ExperienceOrb)) {
                     result.add(entity);
                 }
@@ -341,8 +362,10 @@ public class Functions {
      */
     public static int getSlotFromInventory(Player player, ItemStack stack) {
         Inventory inventory = player.getInventory();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (int i = 0; i < inventory.getContainerSize(); ++i) {
             ItemStack compare = inventory.getItem(i);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (!compare.isEmpty() && ItemStack.isSameItem(stack, compare)) {
                 return i;
             }
@@ -371,9 +394,12 @@ public class Functions {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     private static ItemStack getStackOfClassTypeFromInventory(int inventorySize, Inventory inventory, Class<?> classType) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             for (int slot = 0; slot < inventorySize; slot++) {
                 ItemStack itemStack = inventory.getItem(slot);
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (itemStack != null && classType.isInstance(itemStack.getItem())) {
                     return itemStack;
                 }
@@ -390,9 +416,12 @@ public class Functions {
      */
     public static NonNullList<ItemStack> getAllStacksOfClassTypeFromInventory(Inventory inventory, Class<?> classType) {
         NonNullList<ItemStack> result = NonNullList.create();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
                 ItemStack itemStack = inventory.getItem(slot);
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (itemStack != null
                     && itemStack.getItem() instanceof BlockItem blockItem
                     && classType.isInstance(blockItem.getBlock())) {
@@ -458,6 +487,7 @@ public class Functions {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public static void sleep(long millis) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             Thread.sleep(millis);
         } catch (InterruptedException ignored) {
@@ -470,6 +500,7 @@ public class Functions {
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public static boolean canSustainPlant(Level world, BlockPos pos, Object plantable) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             BlockState state = world.getBlockState(pos);
             Method method = state.getClass().getMethod("canSustainPlant", Level.class, BlockPos.class, Direction.class, plantable.getClass().getInterfaces()[0]);

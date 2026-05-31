@@ -12,17 +12,29 @@ import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 import uk.co.duelmonster.minersadvantage.common.network.PlayerStateSyncPacket;
 import uk.co.duelmonster.minersadvantage.common.services.input.ClientInputService;
 
+/**
+ * Shared client-input helper bundle that keeps Fabric and NeoForge input plumbing from duplicating
+ * the same key parsing, action collection, and sync-packet prep logic everywhere.
+ */
 public final class ClientActionInputSupport {
+    /**
+     * Utility class only; no instances needed unless someone enjoys unnecessary object allocation.
+     */
     private ClientActionInputSupport() {
     }
 
+    /**
+     * Collect currently pressed actions from active key mappings, respecting hold vs click semantics.
+     */
     public static Set<KeyBindings.ClientAction> collectPressedActions(Map<KeyBindings.ClientAction, KeyMapping> keyMappings) {
         Set<KeyBindings.ClientAction> pressed = new HashSet<>();
+        // Toggle-style actions stay active while held; others consume click so one tap equals one action.
         for (Map.Entry<KeyBindings.ClientAction, KeyMapping> entry : keyMappings.entrySet()) {
             boolean active = switch (entry.getKey()) {
                 case EXCAVATION_MODE_TOGGLE, SHAFT_VENT_TOGGLE -> entry.getValue().isDown();
                 default -> entry.getValue().consumeClick();
             };
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (active) {
                 pressed.add(entry.getKey());
             }
@@ -30,15 +42,22 @@ public final class ClientActionInputSupport {
         return pressed;
     }
 
+    /**
+     * Resolve local player id for packets; falls back to zero when player is not yet available.
+     */
     public static long resolveLocalPlayerId() {
         long playerId = 0L;
         Minecraft minecraft = Minecraft.getInstance();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (minecraft.player != null) {
             playerId = minecraft.player.getUUID().getLeastSignificantBits();
         }
         return playerId;
     }
 
+    /**
+     * Determine whether shape-related activation state changed enough to require sync.
+     */
     public static boolean hasActivationStateChanged(
         ClientInputService.ClientInputState previousState,
         ClientInputService.ClientInputState currentState
@@ -49,6 +68,9 @@ public final class ClientActionInputSupport {
             || previousState.selectedShaftanationShapeIndex() != currentState.selectedShaftanationShapeIndex();
     }
 
+    /**
+     * Translate mouse-wheel input into shape-cycle actions for whichever feature toggles are currently active.
+     */
     public static Set<KeyBindings.ClientAction> collectScrollActions(
         ClientInputService.ClientInputState inputState,
         double scrollY
@@ -57,20 +79,26 @@ public final class ClientActionInputSupport {
             && inputState.featureEnabled().getOrDefault(FeatureId.EXCAVATION, false);
         boolean shaftActive = inputState.shaftVentToggled()
             && inputState.featureEnabled().getOrDefault(FeatureId.SHAFTANATION, false);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!excavationActive && !shaftActive) {
             return Set.of();
         }
 
         Set<KeyBindings.ClientAction> actions = new HashSet<>();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (excavationActive) {
             actions.add(scrollY > 0.0d ? KeyBindings.ClientAction.EXCAVATION_SHAPE_PREV : KeyBindings.ClientAction.EXCAVATION_SHAPE_NEXT);
         }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (shaftActive) {
             actions.add(scrollY > 0.0d ? KeyBindings.ClientAction.SHAFTANATION_SHAPE_PREV : KeyBindings.ClientAction.SHAFTANATION_SHAPE_NEXT);
         }
         return actions;
     }
 
+    /**
+     * Convert config key tokens into Minecraft key identifiers.
+     */
     public static InputConstants.Key parseKeyToken(String token) {
         String mcKeyName = switch (token) {
             case "KP_1" -> "key.keyboard.keypad.1";
@@ -95,6 +123,9 @@ public final class ClientActionInputSupport {
         return InputConstants.getKey(mcKeyName);
     }
 
+    /**
+     * Build a key mapping consistently across loaders so call sites stay tiny and predictable.
+     */
     public static KeyMapping createKeyMapping(String translationKey, InputConstants.Key key, KeyMapping.Category category) {
         return new KeyMapping(
             translationKey,
@@ -104,6 +135,9 @@ public final class ClientActionInputSupport {
         );
     }
 
+    /**
+     * Build client->server state sync packet using local defaults and current input toggles.
+     */
     public static PlayerStateSyncPacket createPlayerStateSyncPacket(ClientInputService.ClientInputState state) {
         return new PlayerStateSyncPacket(
             resolveLocalPlayerId(),

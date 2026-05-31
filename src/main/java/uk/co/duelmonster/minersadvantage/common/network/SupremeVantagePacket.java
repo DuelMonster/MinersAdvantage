@@ -30,6 +30,7 @@ public record SupremeVantagePacket(
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     private static Type<SupremeVantagePacket> createType() {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             return payloadId("supreme_vantage");
         } catch (Throwable throwable) {
@@ -42,6 +43,7 @@ public record SupremeVantagePacket(
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     private static StreamCodec<RegistryFriendlyByteBuf, SupremeVantagePacket> createStreamCodec() {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             return StreamCodec.composite(
                 ByteBufCodecs.VAR_LONG,

@@ -17,6 +17,7 @@ public final class HarvestCoreService {
      * Optimized adjustedDurabilityCost to improve clarity and performance.
      */
     public int adjustedDurabilityCost(int processedBlocks, int cadence) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (cadence <= 0) {
             throw new IllegalArgumentException("Cadence must be greater than zero.");
         }

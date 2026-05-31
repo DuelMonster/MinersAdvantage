@@ -18,12 +18,18 @@ import uk.co.duelmonster.minersadvantage.common.orchestration.FeatureDispatchCon
  */
 class FeatureEventHandlerTest {
     @AfterEach
+    /**
+     * r es et ob se rv er exists so this path stays predictable and easier to debug when things get weird.
+     */
     void resetObserver() {
         FeatureEventHandler.resetDispatchObserverForTesting();
         FeatureDispatchBus.clearContext();
     }
 
     @Test
+    /**
+     * d is pa tc he sc on te xt an dc le ar sb us exists so this path stays predictable and easier to debug when things get weird.
+     */
     void dispatchesContextAndClearsBus() {
         AtomicReference<FeatureDispatchContext> captured = new AtomicReference<>();
         FeatureEventHandler.setDispatchObserverForTesting(captured::set);
@@ -41,6 +47,9 @@ class FeatureEventHandlerTest {
     }
 
     @Test
+    /**
+     * c le ar sb us wh en ob se rv er fa il s exists so this path stays predictable and easier to debug when things get weird.
+     */
     void clearsBusWhenObserverFails() {
         FeatureEventHandler.setDispatchObserverForTesting(context -> {
             throw new IllegalStateException(context.feature().name());

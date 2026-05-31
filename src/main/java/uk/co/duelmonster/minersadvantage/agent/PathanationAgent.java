@@ -14,7 +14,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 /**
- * PathanationAgent: creates a path (dirt path blocks) in a line from the player.
+ * Pathanation worker that stamps a directional strip of dirt paths with configurable length and width.
  */
 public class PathanationAgent extends Agent {
     private final BlockPos origin;
@@ -26,10 +26,16 @@ public class PathanationAgent extends Agent {
     private final int blocksPerTick;
     private final int blockLimit;
 
+    /**
+     * Convenience constructor using player facing and default configs.
+     */
     public PathanationAgent(ServerPlayer player, BlockPos origin, int length) {
         this(player, origin, player.getDirection(), new PathanationConfig(true, Math.max(1, length), 3), new CommonConfig());
     }
 
+    /**
+     * Build a queued ribbon of candidate positions for path conversion.
+     */
     public PathanationAgent(ServerPlayer player, BlockPos origin, Direction direction, PathanationConfig config, CommonConfig commonConfig) {
         super(player);
         this.origin = origin;
@@ -40,26 +46,40 @@ public class PathanationAgent extends Agent {
         this.blocksPerTick = commonConfig == null ? 1 : Math.max(1, commonConfig.blocksPerTick());
         this.blockLimit = commonConfig == null ? 64 : Math.max(1, commonConfig.blockLimit());
 
+        // Pre-seed queue with full footprint so tick loop stays simple and predictable.
         int halfWidth = pathWidth / 2;
         boolean alongZ = this.direction.getAxis() == Direction.Axis.Z;
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (int i = 0; i < this.length; i++) {
             BlockPos base = origin.relative(this.direction, i);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             for (int offset = -halfWidth; offset <= halfWidth; offset++) {
                 queue.add((alongZ ? base.offset(offset, 0, 0) : base.offset(0, 0, offset)).immutable());
             }
         }
     }
 
+    /**
+     * Constructor variant that accepts explicit config while still deriving direction from player facing.
+     */
     public PathanationAgent(ServerPlayer player, BlockPos origin, PathanationConfig config, CommonConfig commonConfig) {
         this(player, origin, player.getDirection(), config, commonConfig);
     }
 
+    /**
+     * Per-tick path placement loop with blocks-per-tick and global block-limit guards.
+     */
     @Override
+    /**
+     * t ic k exists so this path stays predictable and easier to debug when things get weird.
+     */
     public boolean tick() {
         int count = 0;
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         while (!queue.isEmpty() && count < blocksPerTick && placed < blockLimit) {
             BlockPos pos = queue.poll();
             BlockState state = world.getBlockState(pos);
+            // Only convert dirt-like surfaces with open/replaceable headspace above.
             if (state.is(BlockTags.DIRT) && isAirOrReplaceableAbove(pos)) {
                 world.setBlockAndUpdate(pos, Blocks.DIRT_PATH.defaultBlockState());
                 placed++;
@@ -67,6 +87,7 @@ public class PathanationAgent extends Agent {
             }
         }
         int targetPlacements = length * pathWidth;
+        // Finish when queue is consumed, target reached, or global block limit forces stop.
         if (queue.isEmpty() || placed >= targetPlacements || placed >= blockLimit) {
             return finish(queue.isEmpty() ? "path queue exhausted" : placed >= blockLimit ? "path block limit reached" : "path target reached");
         }

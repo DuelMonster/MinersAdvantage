@@ -33,10 +33,16 @@ public record MAServerRootConfig(
         ventilation = ventilation == null ? defaults.ventilation() : ventilation;
     }
 
+    /**
+     * d ef au lt s exists so this path stays predictable and easier to debug when things get weird.
+     */
     public static MAServerRootConfig defaults() {
         return fromSyncedConfig(SyncedClientConfig.defaults());
     }
 
+    /**
+     * f ro ms yn ce dc on fi g exists so this path stays predictable and easier to debug when things get weird.
+     */
     public static MAServerRootConfig fromSyncedConfig(SyncedClientConfig synced) {
         SyncedClientConfig value = synced == null ? SyncedClientConfig.defaults() : synced;
         return new MAServerRootConfig(
@@ -55,6 +61,9 @@ public record MAServerRootConfig(
         );
     }
 
+    /**
+     * t os yn ce dc on fi g exists so this path stays predictable and easier to debug when things get weird.
+     */
     public SyncedClientConfig toSyncedConfig(ClientConfig clientConfig) {
         ClientConfig clientValue = clientConfig == null ? SyncedClientConfig.defaults().client() : clientConfig;
         return new SyncedClientConfig(
