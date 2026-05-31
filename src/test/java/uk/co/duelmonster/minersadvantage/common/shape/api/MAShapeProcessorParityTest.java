@@ -161,6 +161,11 @@ class MAShapeProcessorParityTest {
         assertEquals(67, ShaftFloorGeometry.resolveFloorY(67, 64, 3));
     }
 
+    @Test
+    void shaftFloorUsesOriginWhenOriginIsBelowFeetLevel() {
+        assertEquals(63, ShaftFloorGeometry.resolveFloorY(63, 64, 3));
+    }
+
     private static Set<String> toOffsetKeys(int[][] offsets) {
         Set<String> keys = new HashSet<>();
         for (int[] offset : offsets) {

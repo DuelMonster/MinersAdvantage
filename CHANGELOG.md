@@ -12,6 +12,7 @@
 - Correct default Excavation dimensions to `3x3x3`.
 - Update mining/config parity tests to validate the migrated `width`/`height`/`depth` signatures and defaults.
 - Adjust Shaftanation shaft-floor anchoring to use the `playerFeetY + height - 1` threshold so high-origin tunnels preserve intended floor alignment.
+- Fix Shaftanation floor anchoring to allow origins below player feet to tunnel below foot level while still anchoring origins inside the shaft-height window.
 
 ## 0.9.0
 
