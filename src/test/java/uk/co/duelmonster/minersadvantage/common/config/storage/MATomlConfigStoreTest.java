@@ -37,10 +37,10 @@ class MATomlConfigStoreTest {
         MATomlConfigStore.save(tempDir, saved);
         SyncedClientConfig loaded = MATomlConfigStore.load(tempDir, SyncedClientConfig.defaults());
 
-        assertEquals(24, loaded.shaftanation().maxDepth());
+        assertEquals(24, loaded.shaftanation().depth());
         assertEquals(6, loaded.shaftanation().processesPerTick());
-        assertEquals(2, loaded.shaftanation().shaftWidth());
-        assertEquals(3, loaded.shaftanation().shaftHeight());
+        assertEquals(2, loaded.shaftanation().width());
+        assertEquals(3, loaded.shaftanation().height());
         assertEquals(TorchPlacement.BOTH_WALLS, loaded.shaftanation().torchPlacement());
         assertEquals(7, loaded.veination().maxVeinDistance());
         assertEquals(0.6D, loaded.veination().increasedHarvestingTimePerOreModifier());

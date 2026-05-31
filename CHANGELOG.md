@@ -10,6 +10,7 @@
 - Migrate Excavation and Ventilation config models, runtime paths, and TOML keys from radius-based fields to explicit `width`/`height`/`depth` dimensions.
 - Rename Shaftanation config dimensions to `width`/`height`/`depth` for naming consistency and align defaults and UI bindings with the new field names.
 - Correct default Excavation dimensions to `3x3x3`.
+- Update mining/config parity tests to validate the migrated `width`/`height`/`depth` signatures and defaults.
 
 ## 0.9.0
 

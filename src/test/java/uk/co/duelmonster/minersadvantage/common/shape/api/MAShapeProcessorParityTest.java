@@ -9,6 +9,7 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
+import uk.co.duelmonster.minersadvantage.common.shape.builtin.excavation.ExcavationFaceGeometry;
 import uk.co.duelmonster.minersadvantage.common.shape.builtin.excavation.ThreeByThreeGeometry;
 
 class MAShapeProcessorParityTest {
@@ -100,12 +101,64 @@ class MAShapeProcessorParityTest {
         assertFalse(offsets.contains(key(-1, 0, 0)));
     }
 
+    @Test
+    void excavationNorthSouthHitsUseXYPlaneAndFlipDepthOnZ() {
+        assertOffset(
+            ExcavationFaceGeometry.offsetFor(ExcavationFaceGeometry.FaceDirection.NORTH, 2, 1, -1),
+            1,
+            -1,
+            2
+        );
+        assertOffset(
+            ExcavationFaceGeometry.offsetFor(ExcavationFaceGeometry.FaceDirection.SOUTH, 2, 1, -1),
+            1,
+            -1,
+            -2
+        );
+    }
+
+    @Test
+    void excavationUpDownHitsUseXZPlaneAndFlipDepthOnY() {
+        assertOffset(
+            ExcavationFaceGeometry.offsetFor(ExcavationFaceGeometry.FaceDirection.UP, 2, 1, -1),
+            1,
+            -2,
+            -1
+        );
+        assertOffset(
+            ExcavationFaceGeometry.offsetFor(ExcavationFaceGeometry.FaceDirection.DOWN, 2, 1, -1),
+            1,
+            2,
+            -1
+        );
+    }
+
+    @Test
+    void excavationEastWestHitsUseZYPlaneAndFlipDepthOnX() {
+        assertOffset(
+            ExcavationFaceGeometry.offsetFor(ExcavationFaceGeometry.FaceDirection.EAST, 2, 1, -1),
+            -2,
+            -1,
+            1
+        );
+        assertOffset(
+            ExcavationFaceGeometry.offsetFor(ExcavationFaceGeometry.FaceDirection.WEST, 2, 1, -1),
+            2,
+            -1,
+            1
+        );
+    }
+
     private static Set<String> toOffsetKeys(int[][] offsets) {
         Set<String> keys = new HashSet<>();
         for (int[] offset : offsets) {
             keys.add(key(offset[0], offset[1], offset[2]));
         }
         return keys;
+    }
+
+    private static void assertOffset(int[] offset, int x, int y, int z) {
+        assertEquals(key(x, y, z), key(offset[0], offset[1], offset[2]));
     }
 
     private static String key(int x, int y, int z) {

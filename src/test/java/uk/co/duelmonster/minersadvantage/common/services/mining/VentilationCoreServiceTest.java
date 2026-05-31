@@ -13,7 +13,7 @@ class VentilationCoreServiceTest {
     @Test
     void buildsVentilationBatchWithLadderCadence() {
         VentilationCoreService service = new VentilationCoreService();
-        VentilationCoreService.VentilationBatch batch = service.buildBatch(1, 2, 1, 4);
+        VentilationCoreService.VentilationBatch batch = service.buildBatch(1, 3, 3, 3, 4);
 
         assertEquals(5, batch.newProgress());
         assertEquals(4, batch.steps().size());

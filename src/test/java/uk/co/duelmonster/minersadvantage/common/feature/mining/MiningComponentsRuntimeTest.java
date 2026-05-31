@@ -24,8 +24,8 @@ class MiningComponentsRuntimeTest {
     }
 
     @Test
-    void excavationUsesConfiguredVerticalRadius() {
-        ExcavationComponent component = new ExcavationComponent(new ExcavationConfig(true, 1, 2, 5));
+    void excavationUsesConfiguredHeight() {
+        ExcavationComponent component = new ExcavationComponent(new ExcavationConfig(true, 1, 5, 1, 5));
         component.register();
         component.enable();
         FeatureDispatchBus.setContext(new FeatureDispatchContext(FeatureId.EXCAVATION, 10, 64, 10, "minecraft:stone", "shovel", 1L));
@@ -52,7 +52,7 @@ class MiningComponentsRuntimeTest {
 
     @Test
     void ventilationOnlyProgressesInCaveDepths() {
-        VentilationComponent component = new VentilationComponent(new VentilationConfig(true, 2, 1, 4));
+        VentilationComponent component = new VentilationComponent(new VentilationConfig(true, 2, 4, 1, 4));
         component.register();
         component.enable();
 

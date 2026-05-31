@@ -6,8 +6,8 @@ import org.junit.jupiter.api.Test;
 
 class MAShapeDimensionsTest {
     @Test
-    void excavationDimensionsAreCenteredAndDepthUsesHorizontalRadius() {
-        MAShapeDimensions.Dimensions dimensions = MAShapeDimensions.excavationFromRadii(3, 2);
+    void excavationDimensionsUseConfiguredWidthHeightDepth() {
+        MAShapeDimensions.Dimensions dimensions = MAShapeDimensions.excavationFromConfig(7, 5, 3);
 
         assertEquals(7, dimensions.width());
         assertEquals(5, dimensions.height());
@@ -16,10 +16,10 @@ class MAShapeDimensionsTest {
 
     @Test
     void excavationDimensionsClampMinimumsToOne() {
-        MAShapeDimensions.Dimensions dimensions = MAShapeDimensions.excavationFromRadii(0, -4);
+        MAShapeDimensions.Dimensions dimensions = MAShapeDimensions.excavationFromConfig(0, -4, 0);
 
-        assertEquals(3, dimensions.width());
-        assertEquals(3, dimensions.height());
+        assertEquals(1, dimensions.width());
+        assertEquals(1, dimensions.height());
         assertEquals(1, dimensions.depth());
     }
 
