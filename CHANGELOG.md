@@ -21,6 +21,7 @@
 - Show selected Excavation/Shaft shape names on the HUD when shapes are cycled and when the corresponding mode keybind becomes active.
 - Add a new default Excavation `Shapeless` shape using connected 18-neighbor flood-fill ordering.
 - Add focused Shapeless helper and registry parity test coverage for default selection and traversal invariants.
+- Refresh README and TECHNICAL notes for shapeless default behavior and shape-system parity guidance.
 
 ## 0.9.0
 
