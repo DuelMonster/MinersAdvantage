@@ -26,10 +26,9 @@ public final class StaircaseUpShapeProcessor implements MAShapeProcessor {
             BlockPos depthBase = origin.relative(forward, d).offset(0, d, 0);
             for (int h = 0; h < context.height(); h++) {
                 for (int w = minW; w <= maxW; w++) {
-                    if (out.size() >= context.maxBlocks()) {
+                    if (!ShaftShapePlacement.addIfCapacity(out, context, depthBase, right, w, h)) {
                         return out;
                     }
-                    out.add(depthBase.relative(right, w).offset(0, h, 0).immutable());
                 }
             }
         }

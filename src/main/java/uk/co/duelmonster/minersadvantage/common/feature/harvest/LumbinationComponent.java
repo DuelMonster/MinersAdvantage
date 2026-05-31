@@ -1,8 +1,8 @@
 package uk.co.duelmonster.minersadvantage.common.feature.harvest;
 
 import uk.co.duelmonster.minersadvantage.common.component.ComponentLifecycle;
-    import uk.co.duelmonster.minersadvantage.common.component.ComponentTickHelper;
-    import uk.co.duelmonster.minersadvantage.common.config.LumbinationConfig;
+import uk.co.duelmonster.minersadvantage.common.component.ComponentTickHelper;
+import uk.co.duelmonster.minersadvantage.common.config.LumbinationConfig;
 import uk.co.duelmonster.minersadvantage.common.services.harvest.LumbinationCoreService;
 import uk.co.duelmonster.minersadvantage.common.services.harvest.LumbinationCoreService.LumbinationPlan;
 

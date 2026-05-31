@@ -3,35 +3,24 @@ package uk.co.duelmonster.minersadvantage.common.shape.builtin.excavation;
 import net.minecraft.core.BlockPos;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeContext;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeProcessor;
-import uk.co.duelmonster.minersadvantage.common.shape.builtin.ShapeGeometryUtils;
 
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 public final class DeepCuboidShapeProcessor implements MAShapeProcessor {
     @Override
     public Set<BlockPos> compute(MAShapeContext context) {
-        LinkedHashSet<BlockPos> out = new LinkedHashSet<>();
-        BlockPos origin = context.origin();
-        ExcavationFaceGeometry.FaceDirection faceDirection = ExcavationFaceGeometry.fromMinecraftDirection(context.hitFace());
-
-        int minW = ShapeGeometryUtils.minCenteredOffset(context.width());
-        int maxW = ShapeGeometryUtils.maxCenteredOffset(context.width());
-        int minH = ShapeGeometryUtils.minCenteredOffset(context.height());
-        int maxH = ShapeGeometryUtils.maxCenteredOffset(context.height());
+        var plan = ExcavationFaceGeometry.beginWithCenteredWidthAndHeight(context);
 
         for (int d = 0; d <= context.depth(); d++) {
-            for (int y = minH; y <= maxH; y++) {
-                for (int w = minW; w <= maxW; w++) {
-                    if (out.size() >= context.maxBlocks()) {
-                        return out;
+            for (int y = plan.heightRange().min(); y <= plan.heightRange().max(); y++) {
+                for (int w = plan.widthRange().min(); w <= plan.widthRange().max(); w++) {
+                    if (!ExcavationFaceGeometry.hasCapacity(plan.state(), context)) {
+                        return plan.state().out();
                     }
-                    int[] offset = ExcavationFaceGeometry.offsetFor(faceDirection, d, w, y);
-                    BlockPos pos = origin.offset(offset[0], offset[1], offset[2]).immutable();
-                    out.add(pos);
+                    ExcavationFaceGeometry.addOffset(plan.state(), d, w, y);
                 }
             }
         }
-        return out;
+        return plan.state().out();
     }
 }

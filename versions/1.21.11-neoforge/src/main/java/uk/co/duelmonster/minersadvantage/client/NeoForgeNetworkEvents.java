@@ -89,6 +89,3 @@ public final class NeoForgeNetworkEvents {
         core.handleSupremeVantagePacket(payload);
     }
 }
-
-
-

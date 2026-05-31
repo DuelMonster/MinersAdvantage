@@ -29,10 +29,9 @@ public final class ShaftShapeProcessor implements MAShapeProcessor {
             BlockPos base = new BlockPos(origin.getX(), floorY, origin.getZ()).relative(forward, d);
             for (int h = 0; h < context.height(); h++) {
                 for (int w = minW; w <= maxW; w++) {
-                    if (out.size() >= context.maxBlocks()) {
+                    if (!ShaftShapePlacement.addIfCapacity(out, context, base, right, w, h)) {
                         return out;
                     }
-                    out.add(base.relative(right, w).offset(0, h, 0).immutable());
                 }
             }
         }

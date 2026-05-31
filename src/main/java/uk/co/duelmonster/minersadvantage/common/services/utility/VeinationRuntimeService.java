@@ -168,8 +168,18 @@ public final class VeinationRuntimeService {
         return digSpeed / (1.0F + (oreCount * (float) config.increasedHarvestingTimePerOreModifier()));
     }
 
+    private static BlockState resolveOriginState(Level level, BlockPos origin, BlockState originStateHint) {
+        if (originStateHint != null) {
+            return originStateHint;
+        }
+        if (level == null || origin == null) {
+            return null;
+        }
+        return level.getBlockState(origin);
+    }
+
     public List<BlockPos> discoverVein(Level level, BlockPos origin, VeinationConfig config) {
-        BlockState originState = level == null || origin == null ? null : level.getBlockState(origin);
+        BlockState originState = resolveOriginState(level, origin, null);
         if (!isOreAllowed(config, originState)) {
             return List.of();
         }
@@ -177,10 +187,7 @@ public final class VeinationRuntimeService {
     }
 
     public List<BlockPos> discoverVein(Level level, BlockPos origin, BlockState originStateHint, VeinationConfig config) {
-        BlockState candidateState = originStateHint;
-        if (candidateState == null && level != null && origin != null) {
-            candidateState = level.getBlockState(origin);
-        }
+        BlockState candidateState = resolveOriginState(level, origin, originStateHint);
         if (!isOreAllowed(config, candidateState)) {
             return List.of();
         }
@@ -191,7 +198,7 @@ public final class VeinationRuntimeService {
         if (maxBlocks <= 0) {
             return discoverVein(level, origin, config);
         }
-        BlockState originState = level == null || origin == null ? null : level.getBlockState(origin);
+        BlockState originState = resolveOriginState(level, origin, null);
         if (!isOreAllowed(config, originState)) {
             return List.of();
         }
@@ -202,10 +209,7 @@ public final class VeinationRuntimeService {
         if (maxBlocks <= 0) {
             return discoverVein(level, origin, originStateHint, config);
         }
-        BlockState candidateState = originStateHint;
-        if (candidateState == null && level != null && origin != null) {
-            candidateState = level.getBlockState(origin);
-        }
+        BlockState candidateState = resolveOriginState(level, origin, originStateHint);
         if (!isOreAllowed(config, candidateState)) {
             return List.of();
         }

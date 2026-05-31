@@ -757,8 +757,31 @@ public final class MinersAdvantageConfigScreen {
         ConfigEntryBuilder entryBuilder,
         String heading
     ) {
-        entries.add(entryBuilder.startTextDescription(Component.literal("[" + heading + "]"))
-            .build());
+        entries.add(textDescriptionEntry(entryBuilder, "[" + heading + "]"));
+    }
+
+    private static me.shedaniel.clothconfig2.api.AbstractConfigListEntry<?> textDescriptionEntry(
+        ConfigEntryBuilder entryBuilder,
+        String text
+    ) {
+        return entryBuilder.startTextDescription(Component.literal(text))
+            .build();
+    }
+
+    private static void addReadOnlyEntry(
+        List<AbstractConfigListEntry<?>> entries,
+        ConfigEntryBuilder entryBuilder,
+        String text
+    ) {
+        entries.add(textDescriptionEntry(entryBuilder, text));
+    }
+
+    private static void addReadOnlyEntry(
+        ConfigCategory category,
+        ConfigEntryBuilder entryBuilder,
+        String text
+    ) {
+        category.addEntry(textDescriptionEntry(entryBuilder, text));
     }
 
     private static void addGameplayBoolean(
@@ -772,10 +795,7 @@ public final class MinersAdvantageConfigScreen {
         Consumer<Boolean> consumer
     ) {
         if (!editable) {
-            entries.add(entryBuilder.startTextDescription(
-                    Component.literal(label + ": " + (currentValue ? "Enabled" : "Disabled"))
-                )
-                .build());
+            addReadOnlyEntry(entries, entryBuilder, label + ": " + (currentValue ? "Enabled" : "Disabled"));
             return;
         }
 
@@ -799,10 +819,7 @@ public final class MinersAdvantageConfigScreen {
         Consumer<Integer> consumer
     ) {
         if (!editable) {
-            entries.add(entryBuilder.startTextDescription(
-                    Component.literal(label + ": " + currentValue)
-                )
-                .build());
+            addReadOnlyEntry(entries, entryBuilder, label + ": " + currentValue);
             return;
         }
 
@@ -828,10 +845,7 @@ public final class MinersAdvantageConfigScreen {
         Consumer<Double> consumer
     ) {
         if (!editable) {
-            entries.add(entryBuilder.startTextDescription(
-                    Component.literal(label + ": " + currentValue)
-                )
-                .build());
+            addReadOnlyEntry(entries, entryBuilder, label + ": " + currentValue);
             return;
         }
 
@@ -856,10 +870,7 @@ public final class MinersAdvantageConfigScreen {
         Consumer<T> consumer
     ) {
         if (!editable) {
-            entries.add(entryBuilder.startTextDescription(
-                    Component.literal(label + ": " + currentValue.name())
-                )
-                .build());
+            addReadOnlyEntry(entries, entryBuilder, label + ": " + currentValue.name());
             return;
         }
 
@@ -881,10 +892,7 @@ public final class MinersAdvantageConfigScreen {
         Consumer<List<String>> consumer
     ) {
         if (!editable) {
-            entries.add(entryBuilder.startTextDescription(
-                    Component.literal(label + ": " + (currentValue.isEmpty() ? "[]" : String.join(", ", currentValue)))
-                )
-                .build());
+            addReadOnlyEntry(entries, entryBuilder, label + ": " + (currentValue.isEmpty() ? "[]" : String.join(", ", currentValue)));
             return;
         }
 
@@ -906,10 +914,7 @@ public final class MinersAdvantageConfigScreen {
         Consumer<Boolean> consumer
     ) {
         if (!editable) {
-            category.addEntry(entryBuilder.startTextDescription(
-                    Component.literal(label + ": " + (currentValue ? "Enabled" : "Disabled"))
-                )
-                .build());
+            addReadOnlyEntry(category, entryBuilder, label + ": " + (currentValue ? "Enabled" : "Disabled"));
             return;
         }
 
@@ -933,10 +938,7 @@ public final class MinersAdvantageConfigScreen {
         Consumer<Integer> consumer
     ) {
         if (!editable) {
-            category.addEntry(entryBuilder.startTextDescription(
-                    Component.literal(label + ": " + currentValue)
-                )
-                .build());
+            addReadOnlyEntry(category, entryBuilder, label + ": " + currentValue);
             return;
         }
 
@@ -950,8 +952,7 @@ public final class MinersAdvantageConfigScreen {
     }
 
     private static me.shedaniel.clothconfig2.api.AbstractConfigListEntry<?> authorityNoticeEntry(ConfigEntryBuilder entryBuilder) {
-        return entryBuilder.startTextDescription(Component.literal("Gameplay settings are controlled by the server while connected to remote multiplayer."))
-            .build();
+        return textDescriptionEntry(entryBuilder, "Gameplay settings are controlled by the server while connected to remote multiplayer.");
     }
 
     private static Component authorityAwareDescription(String baseDescription, boolean gameplayEditable) {

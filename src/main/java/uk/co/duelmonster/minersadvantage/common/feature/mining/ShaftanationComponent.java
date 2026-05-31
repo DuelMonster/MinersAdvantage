@@ -3,8 +3,8 @@ package uk.co.duelmonster.minersadvantage.common.feature.mining;
 import java.util.List;
 
 import uk.co.duelmonster.minersadvantage.common.component.ComponentLifecycle;
-    import uk.co.duelmonster.minersadvantage.common.component.ComponentTickHelper;
-    import uk.co.duelmonster.minersadvantage.common.config.ShaftanationConfig;
+import uk.co.duelmonster.minersadvantage.common.component.ComponentTickHelper;
+import uk.co.duelmonster.minersadvantage.common.config.ShaftanationConfig;
 import uk.co.duelmonster.minersadvantage.common.services.mining.ShaftanationCoreService;
 
 /**

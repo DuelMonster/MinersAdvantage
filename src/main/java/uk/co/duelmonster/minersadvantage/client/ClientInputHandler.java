@@ -1,16 +1,11 @@
 //? if fabric {
 package uk.co.duelmonster.minersadvantage.client;
 
-import java.util.HashSet;
 import java.lang.reflect.Method;
-import java.util.List;
 import java.util.Set;
-import uk.co.duelmonster.minersadvantage.common.config.MAClientRootConfig;
-import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 import uk.co.duelmonster.minersadvantage.common.network.AbortWorkersPacket;
 import uk.co.duelmonster.minersadvantage.common.network.ComponentTogglePacket;
 import uk.co.duelmonster.minersadvantage.common.network.IlluminationActionPacket;
-import uk.co.duelmonster.minersadvantage.common.network.PlayerStateSyncPacket;
 import uk.co.duelmonster.minersadvantage.common.services.input.ClientInputService;
 
 //? if fabric {
@@ -63,27 +58,7 @@ public final class ClientInputHandler {
      */
     private static InputConstants.Key parseKeyToken(String token) {
         // Why this exists: Map token names to Minecraft key format (future-you will thank present-you).
-        String mcKeyName = switch (token) {
-            case "KP_1" -> "key.keyboard.keypad.1";
-            case "KP_2" -> "key.keyboard.keypad.2";
-            case "KP_3" -> "key.keyboard.keypad.3";
-            case "KP_4" -> "key.keyboard.keypad.4";
-            case "KP_5" -> "key.keyboard.keypad.5";
-            case "KP_6" -> "key.keyboard.keypad.6";
-            case "KP_7" -> "key.keyboard.keypad.7";
-            case "KP_8" -> "key.keyboard.keypad.8";
-            case "KP_9" -> "key.keyboard.keypad.9";
-            case "KP_0" -> "key.keyboard.keypad.0";
-            case "DELETE" -> "key.keyboard.delete";
-            case "GRAVE" -> "key.keyboard.grave.accent";
-            case "TAB" -> "key.keyboard.tab";
-            case "LEFT_ALT" -> "key.keyboard.left.alt";
-            case "V" -> "key.keyboard.v";
-            case "F11" -> "key.keyboard.f11";
-            case "F12" -> "key.keyboard.f12";
-            default -> throw new IllegalArgumentException("Unknown key token: " + token);
-        };
-        return InputConstants.getKey(mcKeyName);
+        return ClientActionInputSupport.parseKeyToken(token);
     }
 
     /**
@@ -139,12 +114,7 @@ public final class ClientInputHandler {
             String translationKey = "key." + uk.co.duelmonster.minersadvantage.ModCommon.MOD_ID + "." + spec.action().name().toLowerCase();
 
             InputConstants.Key key = parseKeyToken(spec.defaultKey());
-            KeyMapping keyMapping = new KeyMapping(
-                translationKey,
-                key.getType(),
-                key.getValue(),
-                KEY_CATEGORY
-            );
+            KeyMapping keyMapping = ClientActionInputSupport.createKeyMapping(translationKey, key, KEY_CATEGORY);
             registerKeyMapping(keyMapping);
             keyMappings.put(spec.action(), keyMapping);
         }
@@ -153,18 +123,8 @@ public final class ClientInputHandler {
     /**
      * Collect currently pressed keybindings as a set of actions (Fabric).
      */
-    private static List<KeyBindings.ClientAction> getPressedActions() {
-        List<KeyBindings.ClientAction> pressed = new java.util.ArrayList<>();
-        for (java.util.Map.Entry<KeyBindings.ClientAction, KeyMapping> entry : keyMappings.entrySet()) {
-            boolean active = switch (entry.getKey()) {
-                case EXCAVATION_MODE_TOGGLE, SHAFT_VENT_TOGGLE -> entry.getValue().isDown();
-                default -> entry.getValue().consumeClick();
-            };
-            if (active) {
-                pressed.add(entry.getKey());
-            }
-        }
-        return pressed;
+    private static Set<KeyBindings.ClientAction> getPressedActions() {
+        return ClientActionInputSupport.collectPressedActions(keyMappings);
     }
     //?} else {
     /*
@@ -177,8 +137,7 @@ public final class ClientInputHandler {
      */
     public static void tick() {
         // Why this exists: Collect currently pressed keybindings (future-you will thank present-you).
-        List<KeyBindings.ClientAction> pressed = getPressedActions();
-        Set<KeyBindings.ClientAction> pressedSet = new HashSet<>(pressed);
+        Set<KeyBindings.ClientAction> pressedSet = getPressedActions();
 
         // Why this exists: Process input state machine (future-you will thank present-you).
         // Why this exists: Hold-mode remains the default here until a dedicated local toggle setting is introduced. (future-you will thank present-you).
@@ -203,19 +162,11 @@ public final class ClientInputHandler {
         }
 
         if (result.abortRequested()) {
-            long playerId = 0L;
-            Minecraft playerClient = Minecraft.getInstance();
-            if (playerClient.player != null) {
-                playerId = playerClient.player.getUUID().getLeastSignificantBits();
-            }
+            long playerId = ClientActionInputSupport.resolveLocalPlayerId();
             ClientPlayNetworking.send(new AbortWorkersPacket(playerId, "client:keybind"));
         }
 
-        boolean activationStateChanged =
-            lastSyncedState.excavationToggled() != result.state().excavationToggled()
-                || lastSyncedState.shaftVentToggled() != result.state().shaftVentToggled()
-                || lastSyncedState.selectedExcavationShapeIndex() != result.state().selectedExcavationShapeIndex()
-                || lastSyncedState.selectedShaftanationShapeIndex() != result.state().selectedShaftanationShapeIndex();
+        boolean activationStateChanged = ClientActionInputSupport.hasActivationStateChanged(lastSyncedState, result.state());
 
         if (activationStateChanged && (result.shouldSyncConfig() || result.shouldSyncVariables())) {
             syncStateToServer(result.state());
@@ -231,21 +182,9 @@ public final class ClientInputHandler {
             return false;
         }
 
-        boolean excavationActive = inputState.excavationToggled()
-            && inputState.featureEnabled().getOrDefault(uk.co.duelmonster.minersadvantage.common.feature.FeatureId.EXCAVATION, false);
-        boolean shaftActive = inputState.shaftVentToggled()
-            && inputState.featureEnabled().getOrDefault(uk.co.duelmonster.minersadvantage.common.feature.FeatureId.SHAFTANATION, false);
-
-        if (!excavationActive && !shaftActive) {
+        Set<KeyBindings.ClientAction> actions = ClientActionInputSupport.collectScrollActions(inputState, scrollY);
+        if (actions.isEmpty()) {
             return false;
-        }
-
-        Set<KeyBindings.ClientAction> actions = new HashSet<>();
-        if (excavationActive) {
-            actions.add(scrollY > 0.0d ? KeyBindings.ClientAction.EXCAVATION_SHAPE_PREV : KeyBindings.ClientAction.EXCAVATION_SHAPE_NEXT);
-        }
-        if (shaftActive) {
-            actions.add(scrollY > 0.0d ? KeyBindings.ClientAction.SHAFTANATION_SHAPE_PREV : KeyBindings.ClientAction.SHAFTANATION_SHAPE_NEXT);
         }
 
         ClientInputService.ClientInputResult scrollResult = new ClientInputService().process(inputState, actions, false);
@@ -290,20 +229,7 @@ public final class ClientInputHandler {
     }
 
     private static void syncStateToServer(ClientInputService.ClientInputState state) {
-        long playerId = 0L;
-        Minecraft playerClient = Minecraft.getInstance();
-        if (playerClient.player != null) {
-            playerId = playerClient.player.getUUID().getLeastSignificantBits();
-        }
-        ClientPlayNetworking.send(new PlayerStateSyncPacket(
-            playerId,
-            MAClientRootConfig.defaults(),
-            MAServerRootConfig.defaults(),
-            state.excavationToggled(),
-            state.shaftVentToggled(),
-            state.selectedExcavationShapeIndex(),
-            state.selectedShaftanationShapeIndex()
-        ));
+        ClientPlayNetworking.send(ClientActionInputSupport.createPlayerStateSyncPacket(state));
         lastSyncedState = state;
     }
 

@@ -98,6 +98,3 @@ public final class FabricNetworkEvents {
         serverHandlersRegistered = true;
     }
 }
-
-
-

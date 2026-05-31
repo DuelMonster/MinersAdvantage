@@ -8,6 +8,7 @@ import uk.co.duelmonster.minersadvantage.common.config.MAClientRootConfig;
 import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 import uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig;
 import uk.co.duelmonster.minersadvantage.common.config.SyncedClientConfig;
+import uk.co.duelmonster.minersadvantage.common.services.ConfigTestFixtures;
 import uk.co.duelmonster.minersadvantage.common.services.policy.PolicyCoreService;
 
 /**
@@ -21,20 +22,9 @@ class SyncCoreServiceTest {
         PolicyCoreService policy = new PolicyCoreService();
 
         SyncedClientConfig client = SyncedClientConfig.defaults();
-        SyncedClientConfig server = new SyncedClientConfig(
-            client.client(),
-            client.common(),
-            client.captivation(),
-            client.cropination(),
-            client.cultivation(),
-            client.excavation(),
-            client.pathanation(),
-            client.illumination(),
-            client.lumbination(),
-            client.shaftanation(),
-            new SubstitutionConfig(true, false, false, false, true, false, false, client.substitution().blacklist()),
-            client.veination(),
-            client.ventilation()
+        SyncedClientConfig server = ConfigTestFixtures.withSubstitution(
+            client,
+            new SubstitutionConfig(true, false, false, false, true, false, false, client.substitution().blacklist())
         );
         MAClientRootConfig clientRoot = MAClientRootConfig.fromSyncedConfig(client);
         MAServerRootConfig serverRoot = MAServerRootConfig.fromSyncedConfig(server);

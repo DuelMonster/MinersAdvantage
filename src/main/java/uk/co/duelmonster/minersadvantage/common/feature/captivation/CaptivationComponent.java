@@ -3,8 +3,8 @@ package uk.co.duelmonster.minersadvantage.common.feature.captivation;
 import java.util.Set;
 
 import uk.co.duelmonster.minersadvantage.common.component.ComponentLifecycle;
-    import uk.co.duelmonster.minersadvantage.common.component.ComponentTickHelper;
-    import uk.co.duelmonster.minersadvantage.common.config.CaptivationConfig;
+import uk.co.duelmonster.minersadvantage.common.component.ComponentTickHelper;
+import uk.co.duelmonster.minersadvantage.common.config.CaptivationConfig;
 import uk.co.duelmonster.minersadvantage.common.registry.RegistryPredicates;
 import uk.co.duelmonster.minersadvantage.common.services.captivation.CaptivationCoreService;
 
