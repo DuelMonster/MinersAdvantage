@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 import uk.co.duelmonster.minersadvantage.common.shape.builtin.excavation.ExcavationFaceGeometry;
 import uk.co.duelmonster.minersadvantage.common.shape.builtin.excavation.ThreeByThreeGeometry;
+import uk.co.duelmonster.minersadvantage.common.shape.builtin.shaft.ShaftFloorGeometry;
 
 class MAShapeProcessorParityTest {
     @BeforeAll
@@ -147,6 +148,17 @@ class MAShapeProcessorParityTest {
             -1,
             1
         );
+    }
+
+    @Test
+    void shaftFloorAnchorsToPlayerFeetWhenOriginIsWithinFeetPlusHeightMinusOne() {
+        assertEquals(64, ShaftFloorGeometry.resolveFloorY(66, 64, 3));
+        assertEquals(64, ShaftFloorGeometry.resolveFloorY(64, 64, 3));
+    }
+
+    @Test
+    void shaftFloorUsesOriginWhenOriginIsAboveFeetPlusHeightMinusOne() {
+        assertEquals(67, ShaftFloorGeometry.resolveFloorY(67, 64, 3));
     }
 
     private static Set<String> toOffsetKeys(int[][] offsets) {

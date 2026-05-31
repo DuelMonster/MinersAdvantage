@@ -16,6 +16,7 @@ import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeContext;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeDimensions;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeIds;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeRegistry;
+import uk.co.duelmonster.minersadvantage.common.shape.builtin.shaft.ShaftFloorGeometry;
 import uk.co.duelmonster.minersadvantage.common.services.utility.VeinationRuntimeService;
 
 import java.util.Deque;
@@ -151,6 +152,7 @@ public class ShaftanationAgent extends Agent {
         this.veinationConfig = veinationConfig;
         this.veinationTriggerTool = veinationTriggerTool == null ? ItemStack.EMPTY : veinationTriggerTool.copy();
 
+        int floorY = ShaftFloorGeometry.resolveFloorY(origin.getY(), player.blockPosition().getY(), this.shaftHeight);
         var selectedShape = MAShapeRegistry.byIndex(FeatureId.SHAFTANATION, selectedShapeIndex);
         if (selectedShape.isPresent()) {
             MAShapeDimensions.Dimensions dimensions = MAShapeDimensions.shaftFromConfig(this.shaftWidth, this.shaftHeight, this.targetDepth);
@@ -171,7 +173,7 @@ public class ShaftanationAgent extends Agent {
 
             if (autoIlluminate && MAShapeIds.SHAFTANATION_SHAFT.equals(selectedShape.get().id())) {
                 int halfWidth = shaftWidth / 2;
-                BlockPos floorOrigin = new BlockPos(origin.getX(), player.blockPosition().getY(), origin.getZ());
+                BlockPos floorOrigin = new BlockPos(origin.getX(), floorY, origin.getZ());
                 for (int depth = 1; depth < targetDepth; depth++) {
                     addTorchTargets(floorOrigin.relative(this.direction, depth), halfWidth);
                 }
@@ -181,7 +183,7 @@ public class ShaftanationAgent extends Agent {
 
         int halfWidth = shaftWidth / 2;
         boolean alongZ = this.direction.getAxis() == Direction.Axis.Z;
-        BlockPos floorOrigin = new BlockPos(origin.getX(), player.blockPosition().getY(), origin.getZ());
+        BlockPos floorOrigin = new BlockPos(origin.getX(), floorY, origin.getZ());
         for (int depth = 0; depth < targetDepth; depth++) {
             BlockPos base = floorOrigin.relative(this.direction, depth);
             for (int w = -halfWidth; w <= halfWidth; w++) {

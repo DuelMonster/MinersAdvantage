@@ -21,12 +21,12 @@ public final class ShaftShapeProcessor implements MAShapeProcessor {
         Direction right = ShapeGeometryUtils.rightFromForward(forward);
         BlockPos origin = context.origin();
 
-        int playerFeetY = context.player().blockPosition().getY();
+        int floorY = ShaftFloorGeometry.resolveFloorY(origin.getY(), context.player().blockPosition().getY(), context.height());
         int minW = ShapeGeometryUtils.minCenteredOffset(context.width());
         int maxW = ShapeGeometryUtils.maxCenteredOffset(context.width());
 
         for (int d = 0; d < context.depth(); d++) {
-            BlockPos base = new BlockPos(origin.getX(), playerFeetY, origin.getZ()).relative(forward, d);
+            BlockPos base = new BlockPos(origin.getX(), floorY, origin.getZ()).relative(forward, d);
             for (int h = 0; h < context.height(); h++) {
                 for (int w = minW; w <= maxW; w++) {
                     if (out.size() >= context.maxBlocks()) {

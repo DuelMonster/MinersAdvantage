@@ -11,6 +11,7 @@
 - Rename Shaftanation config dimensions to `width`/`height`/`depth` for naming consistency and align defaults and UI bindings with the new field names.
 - Correct default Excavation dimensions to `3x3x3`.
 - Update mining/config parity tests to validate the migrated `width`/`height`/`depth` signatures and defaults.
+- Adjust Shaftanation shaft-floor anchoring to use the `playerFeetY + height - 1` threshold so high-origin tunnels preserve intended floor alignment.
 
 ## 0.9.0
 
