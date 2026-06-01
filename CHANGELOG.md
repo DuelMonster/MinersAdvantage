@@ -1,5 +1,6 @@
 ## 2.11.0
 
+- Bump mod version to `2.11.0` for the first code/content change day commit.
 - Fix NeoForge config screen feature sub-screens not opening by removing reflective Cloth Config footer-button injection that prevented feature screens from rendering.
 - Add NeoForge outline preview renderer using `ExtractBlockOutlineRenderStateEvent` and `addCustomRenderer`, with reflective camera coordinate extraction for cross-version compatibility.
 - Fix NeoForge shapes (shaft, vent, excavation, veination, lumbination) being triggered on block click rather than block break by moving all carve-agent creation into a block-break listener.
@@ -7,7 +8,6 @@
 - Fix NeoForge event bus rejection of abstract `Event` listener by introducing version-specific `NeoForgeBreakEvents` bridge classes with typed `BlockEvent.BreakEvent` (1.21.11) and `BreakBlockEvent` (26.1.2) handlers.
 - Harden reflective key category identifier resolution with constructor, named-factory, and fallback-category strategies for cross-version robustness.
 - Harden reflective network payload identifier construction with multi-strategy constructor/factory fallback chain for cross-version robustness.
-- Bump mod version to `2.11.0` for the first code/content change day commit.
 - Fix Fabric outline preview compatibility on 26.1.2 by supporting both `LevelRenderEvents` (`poseStack`) and legacy `WorldRenderEvents` (`matrices`) hook paths via a reflective context bridge.
 - Add `scripts/run-gradle-java25.ps1` and route VS Code debug tasks through the wrapper so local Gradle runs consistently resolve with Java 25.
 - Update TECHNICAL notes with Java 25 debug-task behavior and local environment override guidance.

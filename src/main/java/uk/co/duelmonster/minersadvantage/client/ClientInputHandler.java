@@ -87,10 +87,23 @@ public final class ClientInputHandler {
     private static KeyMapping.Category createKeyCategory() {
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
-            Object identifier = createCategoryIdentifier();
-            Method registerCategoryMethod = KeyMapping.Category.class.getMethod("register", identifier.getClass());
-            return (KeyMapping.Category) registerCategoryMethod.invoke(null, identifier);
+            Method registerCategoryMethod = findCategoryFactoryMethod();
+            if (registerCategoryMethod == null) {
+                KeyMapping.Category fallback = resolveFallbackCategory();
+                if (fallback != null) {
+                    return fallback;
+                }
+                throw new NoSuchMethodException("KeyMapping.Category factory method not found");
+            }
+
+            Class<?> parameterType = registerCategoryMethod.getParameterTypes()[0];
+            Object categoryId = createCategoryIdentifier(parameterType);
+            return (KeyMapping.Category) registerCategoryMethod.invoke(null, categoryId);
         } catch (ReflectiveOperationException exception) {
+            KeyMapping.Category fallback = resolveFallbackCategory();
+            if (fallback != null) {
+                return fallback;
+            }
             throw new IllegalStateException("Unable to create key mapping category", exception);
         }
     }
@@ -98,17 +111,100 @@ public final class ClientInputHandler {
     /**
      * Resolve a version-safe identifier object so key category registration works across mapping variants.
      */
-    private static Object createCategoryIdentifier() throws ReflectiveOperationException {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        try {
-            Class<?> identifierClass = Class.forName("net.minecraft.resources.Identifier");
-            Method factory = identifierClass.getMethod("fromNamespaceAndPath", String.class, String.class);
-            return factory.invoke(null, uk.co.duelmonster.minersadvantage.ModCommon.MOD_ID, "keybinds");
-        } catch (ClassNotFoundException missingIdentifierClass) {
-            Class<?> resourceLocationClass = Class.forName("net.minecraft.resources.ResourceLocation");
-            Method factory = resourceLocationClass.getMethod("fromNamespaceAndPath", String.class, String.class);
-            return factory.invoke(null, uk.co.duelmonster.minersadvantage.ModCommon.MOD_ID, "keybinds");
+    private static Object createCategoryIdentifier(Class<?> identifierType) throws ReflectiveOperationException {
+        String namespace = uk.co.duelmonster.minersadvantage.ModCommon.MOD_ID;
+        String path = "keybinds";
+
+        if (identifierType == String.class) {
+            // Some runtimes treat the String overload as a path under minecraft namespace.
+            return namespace + "/" + path;
         }
+
+        ReflectiveOperationException lastException = null;
+
+        try {
+            var constructor = identifierType.getDeclaredConstructor(String.class, String.class);
+            constructor.setAccessible(true);
+            return constructor.newInstance(namespace, path);
+        } catch (ReflectiveOperationException exception) {
+            lastException = exception;
+        }
+
+        try {
+            var constructor = identifierType.getDeclaredConstructor(String.class);
+            constructor.setAccessible(true);
+            return constructor.newInstance(namespace + ":" + path);
+        } catch (ReflectiveOperationException exception) {
+            lastException = exception;
+        }
+
+        for (String methodName : new String[]{"fromNamespaceAndPath", "create", "of", "parse", "tryParse"}) {
+            try {
+                Method twoArgFactory = identifierType.getMethod(methodName, String.class, String.class);
+                Object value = twoArgFactory.invoke(null, namespace, path);
+                if (value != null) {
+                    return value;
+                }
+            } catch (NoSuchMethodException ignored) {
+                try {
+                    Method oneArgFactory = identifierType.getMethod(methodName, String.class);
+                    Object value = oneArgFactory.invoke(null, namespace + ":" + path);
+                    if (value != null) {
+                        return value;
+                    }
+                } catch (ReflectiveOperationException innerException) {
+                    lastException = innerException;
+                }
+            } catch (ReflectiveOperationException exception) {
+                lastException = exception;
+            }
+        }
+
+        throw new IllegalStateException(
+            "Unable to create key category identifier for type " + identifierType.getName(),
+            lastException
+        );
+    }
+
+    private static Method findCategoryFactoryMethod() {
+        for (Method method : KeyMapping.Category.class.getDeclaredMethods()) {
+            if (java.lang.reflect.Modifier.isStatic(method.getModifiers())
+                && method.getParameterCount() == 1
+                && method.getReturnType() == KeyMapping.Category.class) {
+                method.setAccessible(true);
+                return method;
+            }
+        }
+        return null;
+    }
+
+    private static KeyMapping.Category resolveFallbackCategory() {
+        try {
+            for (java.lang.reflect.Field field : KeyMapping.class.getDeclaredFields()) {
+                if (java.lang.reflect.Modifier.isStatic(field.getModifiers())
+                    && field.getType() == KeyMapping.Category.class) {
+                    field.setAccessible(true);
+                    Object value = field.get(null);
+                    if (value instanceof KeyMapping.Category category) {
+                        return category;
+                    }
+                }
+            }
+
+            for (java.lang.reflect.Field field : KeyMapping.Category.class.getDeclaredFields()) {
+                if (java.lang.reflect.Modifier.isStatic(field.getModifiers())
+                    && field.getType() == KeyMapping.Category.class) {
+                    field.setAccessible(true);
+                    Object value = field.get(null);
+                    if (value instanceof KeyMapping.Category category) {
+                        return category;
+                    }
+                }
+            }
+        } catch (ReflectiveOperationException ignored) {
+            // Best-effort fallback only.
+        }
+        return null;
     }
 
     //? if fabric {

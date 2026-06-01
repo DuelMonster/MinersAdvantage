@@ -60,6 +60,13 @@ public final class FabricNetworkEvents {
     private static <T extends net.minecraft.network.protocol.common.custom.CustomPacketPayload> void registerPlayToServer(net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type<T> type, Object codec) {
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
+            if (type == null) {
+                throw new IllegalStateException("Cannot register Fabric payload type: packet TYPE is null");
+            }
+            if (codec == null) {
+                throw new IllegalStateException("Cannot register Fabric payload type: packet STREAM_CODEC is null");
+            }
+
             Method registryMethod;
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             try {

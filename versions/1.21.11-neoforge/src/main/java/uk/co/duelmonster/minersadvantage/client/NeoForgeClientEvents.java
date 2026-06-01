@@ -1,6 +1,8 @@
 package uk.co.duelmonster.minersadvantage.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.blaze3d.vertex.PoseStack;
+import java.lang.reflect.Method;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Set;
@@ -9,6 +11,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.ExtractBlockOutlineRenderStateEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import uk.co.duelmonster.minersadvantage.common.network.AbortWorkersPacket;
@@ -88,6 +91,21 @@ public final class NeoForgeClientEvents {
         }
     }
 
+    @SubscribeEvent
+    public static void onExtractBlockOutlineRenderState(ExtractBlockOutlineRenderStateEvent event) {
+        double[] cameraPosition = extractCameraCoordinates(event.getCamera());
+        event.addCustomRenderer((blockOutlineRenderState, bufferSource, poseStack, translucentPass, levelRenderState) -> {
+            ShapePreviewRenderer.renderHeldPreview(
+                inputState,
+                ensurePoseStack(poseStack),
+                cameraPosition[0],
+                cameraPosition[1],
+                cameraPosition[2]
+            );
+            return false;
+        });
+    }
+
     public static ClientInputService.ClientInputState getInputState() {
         return inputState;
     }
@@ -127,5 +145,71 @@ public final class NeoForgeClientEvents {
      */
     private static InputConstants.Key parseKeyToken(String token) {
         return ClientActionInputSupport.parseKeyToken(token);
+    }
+
+    private static PoseStack ensurePoseStack(PoseStack poseStack) {
+        return poseStack == null ? new PoseStack() : poseStack;
+    }
+
+    private static double[] extractCameraCoordinates(Object camera) {
+        if (camera == null) {
+            return new double[]{0.0d, 0.0d, 0.0d};
+        }
+
+        try {
+            Method getX = camera.getClass().getMethod("getX");
+            Method getY = camera.getClass().getMethod("getY");
+            Method getZ = camera.getClass().getMethod("getZ");
+            return new double[]{
+                ((Number) getX.invoke(camera)).doubleValue(),
+                ((Number) getY.invoke(camera)).doubleValue(),
+                ((Number) getZ.invoke(camera)).doubleValue()
+            };
+        } catch (ReflectiveOperationException ignored) {
+            // Fall through to position-object based extraction.
+        }
+
+        try {
+            for (String positionMethodName : new String[]{"getPosition", "getPos", "position"}) {
+                try {
+                    Method positionMethod = camera.getClass().getMethod(positionMethodName);
+                    Object position = positionMethod.invoke(camera);
+                    if (position != null) {
+                        return extractVectorCoordinates(position);
+                    }
+                } catch (NoSuchMethodException ignored) {
+                    // Try next method name.
+                }
+            }
+        } catch (ReflectiveOperationException ignored) {
+            // Use safe fallback below.
+        }
+
+        return new double[]{0.0d, 0.0d, 0.0d};
+    }
+
+    private static double[] extractVectorCoordinates(Object vector) {
+        try {
+            Method xMethod = vector.getClass().getMethod("x");
+            Method yMethod = vector.getClass().getMethod("y");
+            Method zMethod = vector.getClass().getMethod("z");
+            return new double[]{
+                ((Number) xMethod.invoke(vector)).doubleValue(),
+                ((Number) yMethod.invoke(vector)).doubleValue(),
+                ((Number) zMethod.invoke(vector)).doubleValue()
+            };
+        } catch (ReflectiveOperationException ignored) {
+            // Fall through to fields.
+        }
+
+        try {
+            return new double[]{
+                ((Number) vector.getClass().getField("x").get(vector)).doubleValue(),
+                ((Number) vector.getClass().getField("y").get(vector)).doubleValue(),
+                ((Number) vector.getClass().getField("z").get(vector)).doubleValue()
+            };
+        } catch (ReflectiveOperationException ignored) {
+            return new double[]{0.0d, 0.0d, 0.0d};
+        }
     }
 }

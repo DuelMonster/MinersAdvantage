@@ -471,6 +471,13 @@ public final class ModEntry implements ModInitializer {
                 return;
             }
             Class<?> listenerClass = registerMethod.getParameterTypes()[0];
+            if (!listenerClass.isInterface()) {
+                LogUtils.logDebug(
+                    "Collective dig speed callback registration skipped: register listener type is not an interface ({})",
+                    listenerClass.getName()
+                );
+                return;
+            }
             Object callback = createCollectiveDigSpeedCallback(listenerClass);
             registerMethod.invoke(digSpeedEvent, callback);
             LogUtils.logDebug("Registered Collective Fabric dig speed callback for Veination");
@@ -514,14 +521,22 @@ public final class ModEntry implements ModInitializer {
      * Find first public method by name that accepts exactly one argument.
      */
     private Method findSingleArgumentMethod(Class<?> type, String name) {
+        Method fallback = null;
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (Method method : type.getMethods()) {
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (method.getName().equals(name) && method.getParameterCount() == 1) {
-                return method;
+                Class<?> parameterType = method.getParameterTypes()[0];
+                // Prefer concrete callback interfaces over erased Object signatures.
+                if (parameterType.isInterface() && parameterType != Object.class) {
+                    return method;
+                }
+                if (fallback == null) {
+                    fallback = method;
+                }
             }
         }
-        return null;
+        return fallback;
     }
 
     /**
@@ -1106,8 +1121,7 @@ public final class ModEntry implements ModInitializer {
 /*
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.ModContainer;import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
@@ -1141,6 +1155,7 @@ public final class ModEntry {
         NeoForge.EVENT_BUS.addListener(this::onRightClickBlock);
         NeoForge.EVENT_BUS.addListener(this::onRightClickItem);
         NeoForge.EVENT_BUS.addListener(this::onLeftClickBlock);
+        NeoForgeBreakEvents.register(NeoForge.EVENT_BUS, this::handleBlockBreak);
         NeoForge.EVENT_BUS.addListener(this::onBreakSpeed);
         NeoForge.EVENT_BUS.addListener(this::onServerTick);
         NeoForge.EVENT_BUS.addListener(this::onPlayerLogin);
@@ -1240,7 +1255,6 @@ public final class ModEntry {
         BlockPos pos = event.getPos();
         BlockState state = event.getLevel().getBlockState(pos);
         ItemStack stack = event.getItemStack();
-        String itemId = itemId(stack);
 
         if (isHoeTool(stack)) {
             if (RegistryPredicates.isCropBlock(state)) {
@@ -1257,22 +1271,6 @@ public final class ModEntry {
 
         if (isShovelTool(stack) && state.is(BlockTags.DIRT)) {
             AgentManager.get().addAgent(serverPlayer, new PathanationAgent(serverPlayer, pos, serverPlayer.getDirection(), pathanationConfig(serverPlayer), commonConfig(serverPlayer)));
-            return;
-        }
-
-        var playerState = core.playerStateService().getPlayerState(playerId(serverPlayer));
-        if (playerState.shaftVentToggled() && !event.getEntity().isShiftKeyDown()) {
-            Direction face = event.getFace();
-            boolean verticalFace = face == Direction.UP || face == Direction.DOWN;
-            VeinationConfig veinationConfig = veinationConfig(serverPlayer);
-            if (verticalFace) {
-                AgentManager.get().addAgent(serverPlayer, new VentilationAgent(serverPlayer, pos, face.getOpposite(), ventilationConfig(serverPlayer), commonConfig(serverPlayer), veinationRuntime, veinationConfig, stack));
-            } else {
-                AgentManager agentManager = AgentManager.get();
-                if (!agentManager.hasAgentType(serverPlayer, ShaftanationAgent.class)) {
-                    agentManager.addAgent(serverPlayer, new ShaftanationAgent(serverPlayer, pos, serverPlayer.getDirection(), shaftanationConfig(serverPlayer), commonConfig(serverPlayer), illuminationConfig(serverPlayer).lowestLightLevel(), veinationRuntime, veinationConfig, stack, playerState.selectedShaftanationShapeIndex(), face));
-                }
-            }
             return;
         }
 
@@ -1360,62 +1358,7 @@ public final class ModEntry {
         }
 
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
-            ItemStack stack = SubstitutionAgent.effectiveBreakHandStack(serverPlayer, InteractionHand.MAIN_HAND);
-            BlockState state = event.getLevel().getBlockState(event.getPos());
             rememberBreakFace(serverPlayer, event.getPos(), event.getFace());
-            long id = playerId(serverPlayer);
-            var playerState = core.playerStateService().getPlayerState(id);
-            boolean shaftModeActive = isFeatureEnabled(FeatureId.SHAFTANATION) && playerState.shaftVentToggled();
-            boolean excavationActive = isFeatureEnabled(FeatureId.EXCAVATION) && playerState.isExcavationActive();
-            CommonConfig playerCommonConfig = commonConfig(serverPlayer);
-            VeinationConfig config = veinationConfig(serverPlayer);
-            boolean veinationGesture = config.oreHarvestWithoutSneak() ? !event.getEntity().isShiftKeyDown() : event.getEntity().isShiftKeyDown();
-            boolean allowedPickaxe = veinationRuntime.isPickaxeAllowed((Level) event.getLevel(), config, stack);
-            boolean allowedOre = veinationRuntime.isOreAllowed(config, state);
-
-            if (isFeatureEnabled(FeatureId.VEINATION) && playerCommonConfig.mineVeins() && veinationGesture && isPickaxeTool(stack) && allowedPickaxe && allowedOre) {
-                veinationRuntime.registerDropAnchor(serverPlayer, event.getPos(), config);
-                AgentManager agentManager = AgentManager.get();
-                if (!agentManager.hasAgentType(serverPlayer, VeinationAgent.class)) {
-                    agentManager.addAgent(serverPlayer, new VeinationAgent(serverPlayer, event.getPos(), playerCommonConfig, veinationRuntime, config));
-                }
-            } else if (shaftModeActive) {
-                Direction breakFace = event.getFace();
-                boolean verticalFace = breakFace == Direction.UP || breakFace == Direction.DOWN;
-                AgentManager agentManager = AgentManager.get();
-                if (verticalFace) {
-                    agentManager.addAgent(serverPlayer, new VentilationAgent(serverPlayer, event.getPos(), breakFace.getOpposite(), ventilationConfig(serverPlayer), commonConfig(serverPlayer), veinationRuntime, config, stack));
-                } else if (!agentManager.hasAgentType(serverPlayer, ShaftanationAgent.class)) {
-                    agentManager.addAgent(serverPlayer, new ShaftanationAgent(serverPlayer, event.getPos(), serverPlayer.getDirection(), shaftanationConfig(serverPlayer), commonConfig(serverPlayer), illuminationConfig(serverPlayer).lowestLightLevel(), veinationRuntime, config, stack, playerState.selectedShaftanationShapeIndex(), breakFace));
-                }
-            } else if (!shaftModeActive && excavationActive) {
-                ExcavationConfig excavationConfig = excavationConfig(serverPlayer);
-                IlluminationConfig excavationIlluminationConfig = isFeatureEnabled(FeatureId.ILLUMINATION) ? illuminationConfig(serverPlayer) : null;
-                AgentManager.get().addAgent(
-                    serverPlayer,
-                    new ExcavationAgent(
-                        serverPlayer,
-                        event.getPos(),
-                        state,
-                        excavationConfig,
-                        playerCommonConfig,
-                        excavationConfig.width(),
-                        excavationConfig.height(),
-                        excavationConfig.depth(),
-                        veinationRuntime,
-                        config,
-                        stack,
-                        excavationIlluminationConfig,
-                        playerState.selectedExcavationShapeIndex(),
-                        event.getFace()
-                    )
-                );
-            } else if (isFeatureEnabled(FeatureId.LUMBINATION)) {
-                LumbinationConfig lumbinationConfig = lumbinationConfig(serverPlayer);
-                if (isConfiguredAxe(stack, lumbinationConfig) && isConfiguredLog(state, lumbinationConfig)) {
-                    AgentManager.get().addAgent(serverPlayer, new LumbinationAgent(serverPlayer, event.getPos(), state, lumbinationConfig, commonConfig(serverPlayer)));
-                }
-            }
         }
 
         if (event.getEntity() instanceof ServerPlayer serverPlayer && isFeatureEnabled(FeatureId.SUBSTITUTION)) {
@@ -1431,10 +1374,76 @@ public final class ModEntry {
             }
         }
 
-        String blockId = BuiltInRegistries.BLOCK.getKey(event.getLevel().getBlockState(event.getPos()).getBlock()).toString();
-        boolean gatherDrops = event.getEntity() instanceof ServerPlayer serverPlayer ? commonConfig(serverPlayer).gatherDrops() : true;
+    }
+
+    private void handleBlockBreak(net.minecraft.world.entity.player.Player player, Level level, BlockPos pos, BlockState state) {
+        if (player == null || level == null || level.isClientSide()) {
+            return;
+        }
+
+        if (!(player instanceof ServerPlayer serverPlayer)) {
+            return;
+        }
+
+        ItemStack stack = SubstitutionAgent.effectiveBreakHandStack(serverPlayer, InteractionHand.MAIN_HAND);
+        long id = playerId(serverPlayer);
+        var playerState = core.playerStateService().getPlayerState(id);
+        boolean shaftModeActive = isFeatureEnabled(FeatureId.SHAFTANATION) && playerState.shaftVentToggled();
+        boolean excavationActive = isFeatureEnabled(FeatureId.EXCAVATION) && playerState.isExcavationActive();
+        CommonConfig playerCommonConfig = commonConfig(serverPlayer);
+        VeinationConfig config = veinationConfig(serverPlayer);
+        boolean veinationGesture = config.oreHarvestWithoutSneak() ? !serverPlayer.isShiftKeyDown() : serverPlayer.isShiftKeyDown();
+        boolean allowedPickaxe = veinationRuntime.isPickaxeAllowed(level, config, stack);
+        boolean allowedOre = veinationRuntime.isOreAllowed(config, state);
+        Direction breakFace = consumeBreakFace(serverPlayer, pos);
+
+        if (isFeatureEnabled(FeatureId.VEINATION) && playerCommonConfig.mineVeins() && veinationGesture && isPickaxeTool(stack) && allowedPickaxe && allowedOre) {
+            veinationRuntime.registerDropAnchor(serverPlayer, pos, config);
+            AgentManager agentManager = AgentManager.get();
+            if (!agentManager.hasAgentType(serverPlayer, VeinationAgent.class)) {
+                agentManager.addAgent(serverPlayer, new VeinationAgent(serverPlayer, pos, playerCommonConfig, veinationRuntime, config));
+            }
+        } else if (shaftModeActive) {
+            boolean verticalFace = breakFace == Direction.UP || breakFace == Direction.DOWN;
+            AgentManager agentManager = AgentManager.get();
+            if (verticalFace) {
+                agentManager.addAgent(serverPlayer, new VentilationAgent(serverPlayer, pos, breakFace.getOpposite(), ventilationConfig(serverPlayer), commonConfig(serverPlayer), veinationRuntime, config, stack));
+            } else if (!agentManager.hasAgentType(serverPlayer, ShaftanationAgent.class)) {
+                agentManager.addAgent(serverPlayer, new ShaftanationAgent(serverPlayer, pos, serverPlayer.getDirection(), shaftanationConfig(serverPlayer), commonConfig(serverPlayer), illuminationConfig(serverPlayer).lowestLightLevel(), veinationRuntime, config, stack, playerState.selectedShaftanationShapeIndex(), breakFace));
+            }
+        } else if (!shaftModeActive && excavationActive) {
+            ExcavationConfig excavationConfig = excavationConfig(serverPlayer);
+            IlluminationConfig excavationIlluminationConfig = isFeatureEnabled(FeatureId.ILLUMINATION) ? illuminationConfig(serverPlayer) : null;
+            AgentManager.get().addAgent(
+                serverPlayer,
+                new ExcavationAgent(
+                    serverPlayer,
+                    pos,
+                    state,
+                    excavationConfig,
+                    playerCommonConfig,
+                    excavationConfig.width(),
+                    excavationConfig.height(),
+                    excavationConfig.depth(),
+                    veinationRuntime,
+                    config,
+                    stack,
+                    excavationIlluminationConfig,
+                    playerState.selectedExcavationShapeIndex(),
+                    breakFace
+                )
+            );
+        } else if (isFeatureEnabled(FeatureId.LUMBINATION)) {
+            LumbinationConfig lumbinationConfig = lumbinationConfig(serverPlayer);
+            if (isConfiguredAxe(stack, lumbinationConfig) && isConfiguredLog(state, lumbinationConfig)) {
+                AgentManager.get().addAgent(serverPlayer, new LumbinationAgent(serverPlayer, pos, state, lumbinationConfig, commonConfig(serverPlayer)));
+            }
+        }
+
+        String blockId = BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString();
+        boolean gatherDrops = commonConfig(serverPlayer).gatherDrops();
         core.workerRuntimeService().interceptLiveDropForPlayer(
-            event.getEntity().getUUID().getLeastSignificantBits(),
+            serverPlayer.getUUID().getLeastSignificantBits(),
             "item:" + blockId,
             1,
             gatherDrops
