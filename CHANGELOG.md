@@ -1,6 +1,7 @@
 ## 2.11.0
 
 - Bump mod version to `2.11.0` for the first code/content change day commit.
+- Move bundled branding images into `assets/minersadvantage/` and point Fabric/NeoForge mod metadata icon fields to the shared `icon.png` path.
 - Fix NeoForge config screen feature sub-screens not opening by removing reflective Cloth Config footer-button injection that prevented feature screens from rendering.
 - Add NeoForge outline preview renderer using `ExtractBlockOutlineRenderStateEvent` and `addCustomRenderer`, with reflective camera coordinate extraction for cross-version compatibility.
 - Fix NeoForge shapes (shaft, vent, excavation, veination, lumbination) being triggered on block click rather than block break by moving all carve-agent creation into a block-break listener.
