@@ -167,6 +167,8 @@ The repository also provides matrix validation scripts for all Stonecutter nodes
 Notes:
 
 - The build config uses Java 21 for `1.21.11` nodes and Java 25 for `26.1.2` nodes.
+- VS Code debug tasks run through `scripts/run-gradle-java25.ps1`, which sets `JAVA_HOME` to a detected JDK 25 install for Gradle/plugin resolution.
+- Set `JAVA25_HOME` (or `JDK25`) to override auto-detection if your JDK 25 location is custom.
 - CI uses the runner `JAVA_HOME`. For local development, you can optionally uncomment `org.gradle.java.home` in [gradle.properties](gradle.properties) to pin a specific JDK path.
 
 ### Stonecutter Version Matrix

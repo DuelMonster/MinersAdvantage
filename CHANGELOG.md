@@ -3,7 +3,7 @@
 - Bump mod version to `2.11.0` for the first code/content change day commit.
 - Fix Fabric outline preview compatibility on 26.1.2 by supporting both `LevelRenderEvents` (`poseStack`) and legacy `WorldRenderEvents` (`matrices`) hook paths via a reflective context bridge.
 - Add `scripts/run-gradle-java25.ps1` and route VS Code debug tasks through the wrapper so local Gradle runs consistently resolve with Java 25.
-- Update TECHNICAL notes with Java 25 debug-task behavior and environment override guidance.
+- Update TECHNICAL notes with Java 25 debug-task behavior and local environment override guidance.
 
 ## 2.10.0
 
