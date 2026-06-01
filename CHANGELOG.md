@@ -11,6 +11,7 @@
 - Harden reflective network payload identifier construction with multi-strategy constructor/factory fallback chain for cross-version robustness.
 - Fix Fabric outline preview compatibility on 26.1.2 by supporting both `LevelRenderEvents` (`poseStack`) and legacy `WorldRenderEvents` (`matrices`) hook paths via a reflective context bridge.
 - Add `scripts/run-gradle-java25.ps1` and route VS Code debug tasks through the wrapper so local Gradle runs consistently resolve with Java 25.
+- Align VS Code Gradle import and debug-task JVM selection to use the workspace Java 25 setting, preventing local Java 21 plugin-resolution failures.
 - Update TECHNICAL notes with Java 25 debug-task behavior and local environment override guidance.
 
 ## 2.10.0

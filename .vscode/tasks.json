@@ -16,7 +16,9 @@
             "options": {
                 "cwd": "${workspaceFolder}",
                 "env": {
-                    "MINERSADVANTAGE_DEBUG_LOGGING": "true"
+                    "MINERSADVANTAGE_DEBUG_LOGGING": "true",
+                    "JAVA_HOME": "${config:java.import.gradle.java.home}",
+                    "PATH": "${config:java.import.gradle.java.home}/bin;${env:PATH}"
                 }
             },
             "group": "build"
@@ -37,7 +39,9 @@
             "options": {
                 "cwd": "${workspaceFolder}",
                 "env": {
-                    "MINERSADVANTAGE_DEBUG_LOGGING": "true"
+                    "MINERSADVANTAGE_DEBUG_LOGGING": "true",
+                    "JAVA_HOME": "${config:java.import.gradle.java.home}",
+                    "PATH": "${config:java.import.gradle.java.home}/bin;${env:PATH}"
                 }
             },
             "group": "build"
@@ -57,7 +61,9 @@
             "options": {
                 "cwd": "${workspaceFolder}",
                 "env": {
-                    "MINERSADVANTAGE_DEBUG_LOGGING": "true"
+                    "MINERSADVANTAGE_DEBUG_LOGGING": "true",
+                    "JAVA_HOME": "${config:java.import.gradle.java.home}",
+                    "PATH": "${config:java.import.gradle.java.home}/bin;${env:PATH}"
                 }
             },
             "group": "build"
@@ -78,7 +84,9 @@
             "options": {
                 "cwd": "${workspaceFolder}",
                 "env": {
-                    "MINERSADVANTAGE_DEBUG_LOGGING": "true"
+                    "MINERSADVANTAGE_DEBUG_LOGGING": "true",
+                    "JAVA_HOME": "${config:java.import.gradle.java.home}",
+                    "PATH": "${config:java.import.gradle.java.home}/bin;${env:PATH}"
                 }
             },
             "group": "build"
@@ -98,7 +106,9 @@
             "options": {
                 "cwd": "${workspaceFolder}",
                 "env": {
-                    "MINERSADVANTAGE_DEBUG_LOGGING": "true"
+                    "MINERSADVANTAGE_DEBUG_LOGGING": "true",
+                    "JAVA_HOME": "${config:java.import.gradle.java.home}",
+                    "PATH": "${config:java.import.gradle.java.home}/bin;${env:PATH}"
                 }
             },
             "group": "build"
@@ -119,7 +129,9 @@
             "options": {
                 "cwd": "${workspaceFolder}",
                 "env": {
-                    "MINERSADVANTAGE_DEBUG_LOGGING": "true"
+                    "MINERSADVANTAGE_DEBUG_LOGGING": "true",
+                    "JAVA_HOME": "${config:java.import.gradle.java.home}",
+                    "PATH": "${config:java.import.gradle.java.home}/bin;${env:PATH}"
                 }
             },
             "group": "build"
@@ -139,7 +151,9 @@
             "options": {
                 "cwd": "${workspaceFolder}",
                 "env": {
-                    "MINERSADVANTAGE_DEBUG_LOGGING": "true"
+                    "MINERSADVANTAGE_DEBUG_LOGGING": "true",
+                    "JAVA_HOME": "${config:java.import.gradle.java.home}",
+                    "PATH": "${config:java.import.gradle.java.home}/bin;${env:PATH}"
                 }
             },
             "group": "build"
@@ -160,7 +174,9 @@
             "options": {
                 "cwd": "${workspaceFolder}",
                 "env": {
-                    "MINERSADVANTAGE_DEBUG_LOGGING": "true"
+                    "MINERSADVANTAGE_DEBUG_LOGGING": "true",
+                    "JAVA_HOME": "${config:java.import.gradle.java.home}",
+                    "PATH": "${config:java.import.gradle.java.home}/bin;${env:PATH}"
                 }
             },
             "group": "build"
