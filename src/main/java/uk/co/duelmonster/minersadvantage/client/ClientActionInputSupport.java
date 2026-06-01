@@ -1,11 +1,13 @@
 package uk.co.duelmonster.minersadvantage.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import uk.co.duelmonster.minersadvantage.ModCommon;
 import uk.co.duelmonster.minersadvantage.common.config.MAClientRootConfig;
 import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
@@ -133,6 +135,106 @@ public final class ClientActionInputSupport {
             key.getValue(),
             category
         );
+    }
+
+    /**
+     * Register a dedicated MinersAdvantage keybind category that resolves through the standard key.category lang key.
+     */
+    public static KeyMapping.Category createKeyCategory() {
+        try {
+            Method registerCategoryMethod = findCategoryFactoryMethod();
+            if (registerCategoryMethod == null) {
+                throw new NoSuchMethodException("KeyMapping.Category factory method not found");
+            }
+
+            Class<?> parameterType = registerCategoryMethod.getParameterTypes()[0];
+            Object categoryId = createCategoryIdentifier(parameterType);
+            return (KeyMapping.Category) registerCategoryMethod.invoke(null, categoryId);
+        } catch (ReflectiveOperationException exception) {
+            throw new IllegalStateException("Unable to create key mapping category", exception);
+        }
+    }
+
+    private static Object createCategoryIdentifier(Class<?> identifierType) throws ReflectiveOperationException {
+        String namespace = ModCommon.MOD_ID;
+        String path = "keybinds";
+
+        if (identifierType == String.class) {
+            return "key.category." + namespace + "." + path;
+        }
+
+        ReflectiveOperationException lastException = null;
+
+        try {
+            var constructor = identifierType.getConstructor(String.class, String.class);
+            return constructor.newInstance(namespace, path);
+        } catch (ReflectiveOperationException exception) {
+            lastException = exception;
+        }
+
+        try {
+            var constructor = identifierType.getConstructor(String.class);
+            return constructor.newInstance(namespace + ":" + path);
+        } catch (ReflectiveOperationException exception) {
+            lastException = exception;
+        }
+
+        try {
+            var constructor = identifierType.getDeclaredConstructor(String.class, String.class);
+            if (constructor.trySetAccessible()) {
+                return constructor.newInstance(namespace, path);
+            }
+        } catch (ReflectiveOperationException exception) {
+            lastException = exception;
+        }
+
+        try {
+            var constructor = identifierType.getDeclaredConstructor(String.class);
+            if (constructor.trySetAccessible()) {
+                return constructor.newInstance(namespace + ":" + path);
+            }
+        } catch (ReflectiveOperationException exception) {
+            lastException = exception;
+        }
+
+        for (String methodName : new String[]{"fromNamespaceAndPath", "create", "of", "parse", "tryParse"}) {
+            try {
+                Method twoArgFactory = identifierType.getMethod(methodName, String.class, String.class);
+                Object value = twoArgFactory.invoke(null, namespace, path);
+                if (value != null) {
+                    return value;
+                }
+            } catch (NoSuchMethodException ignored) {
+                try {
+                    Method oneArgFactory = identifierType.getMethod(methodName, String.class);
+                    Object value = oneArgFactory.invoke(null, namespace + ":" + path);
+                    if (value != null) {
+                        return value;
+                    }
+                } catch (ReflectiveOperationException innerException) {
+                    lastException = innerException;
+                }
+            } catch (ReflectiveOperationException exception) {
+                lastException = exception;
+            }
+        }
+
+        throw new IllegalStateException(
+            "Unable to create key category identifier for type " + identifierType.getName(),
+            lastException
+        );
+    }
+
+    private static Method findCategoryFactoryMethod() {
+        for (Method method : KeyMapping.Category.class.getDeclaredMethods()) {
+            if (java.lang.reflect.Modifier.isStatic(method.getModifiers())
+                && method.getParameterCount() == 1
+                && method.getReturnType() == KeyMapping.Category.class) {
+                method.setAccessible(true);
+                return method;
+            }
+        }
+        return null;
     }
 
     /**

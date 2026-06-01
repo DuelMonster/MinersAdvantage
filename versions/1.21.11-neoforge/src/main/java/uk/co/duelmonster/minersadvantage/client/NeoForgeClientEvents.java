@@ -31,6 +31,7 @@ import uk.co.duelmonster.minersadvantage.common.services.input.ClientInputServic
  */
 public final class NeoForgeClientEvents {
     private static final Map<KeyBindings.ClientAction, KeyMapping> KEY_MAPPINGS = new EnumMap<>(KeyBindings.ClientAction.class);
+    private static final KeyMapping.Category KEY_CATEGORY = ClientActionInputSupport.createKeyCategory();
     private static ClientInputService.ClientInputState inputState = ClientInputService.ClientInputState.defaults();
     private static ClientInputService.ClientInputState lastSyncedState = ClientInputService.ClientInputState.defaults();
 
@@ -51,7 +52,7 @@ public final class NeoForgeClientEvents {
         for (KeyBindings.KeyBindingSpec spec : KeyBindings.all()) {
             String translationKey = "key.minersadvantage." + spec.action().name().toLowerCase();
             InputConstants.Key key = parseKeyToken(spec.defaultKey());
-            KeyMapping keyMapping = ClientActionInputSupport.createKeyMapping(translationKey, key, KeyMapping.Category.MISC);
+            KeyMapping keyMapping = ClientActionInputSupport.createKeyMapping(translationKey, key, KEY_CATEGORY);
             event.register(keyMapping);
             KEY_MAPPINGS.put(spec.action(), keyMapping);
         }
