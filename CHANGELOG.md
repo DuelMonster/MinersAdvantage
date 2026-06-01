@@ -1,3 +1,10 @@
+## 2.11.0
+
+- Bump mod version to `2.11.0` for the first code/content change day commit.
+- Fix Fabric outline preview compatibility on 26.1.2 by supporting both `LevelRenderEvents` (`poseStack`) and legacy `WorldRenderEvents` (`matrices`) hook paths.
+- Add `scripts/run-gradle-java25.ps1` and route VS Code debug tasks through it so local Gradle runs consistently resolve with Java 25.
+- Update TECHNICAL notes with Java 25 debug-task behavior and environment override guidance.
+
 ## 2.10.0
 
 - Fix CI Gradle startup failure on Linux runners by removing the hardcoded local `org.gradle.java.home` path and relying on runner-provided `JAVA_HOME`.
