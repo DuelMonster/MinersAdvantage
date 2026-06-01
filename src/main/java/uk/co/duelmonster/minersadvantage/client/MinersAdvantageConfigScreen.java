@@ -454,7 +454,6 @@ public final class MinersAdvantageConfigScreen {
         entries.forEach(category::addEntry);
 
         builder.setSavingRunnable(() -> saveMutableConfig(mutable, gameplayEditable));
-        builder.setAfterInitConsumer(screen -> addFeatureFooterButtons(screen, parent, mutable, gameplayEditable));
         return builder.build();
     }
 
@@ -469,8 +468,6 @@ public final class MinersAdvantageConfigScreen {
         int totalWidth = (buttonWidth * 2) + spacing;
         int left = (width - totalWidth) / 2;
         int y = height - 28;
-
-        hideDefaultFooterButtons(screen, y);
 
         Button backButton = Button.builder(Component.literal("Back"), ignored -> Minecraft.getInstance().setScreen(parent))
             .bounds(left, y, buttonWidth, 20)
@@ -488,8 +485,11 @@ public final class MinersAdvantageConfigScreen {
             .bounds(left + buttonWidth + spacing, y, buttonWidth, 20)
             .build();
 
-        addWidgetReflective(screen, backButton);
-        addWidgetReflective(screen, saveButton);
+        boolean backAdded = addWidgetReflective(screen, backButton);
+        boolean saveAdded = addWidgetReflective(screen, saveButton);
+        if (backAdded && saveAdded) {
+            hideDefaultFooterButtons(screen, y);
+        }
     }
 
     /**
@@ -579,32 +579,76 @@ public final class MinersAdvantageConfigScreen {
      * Resolve private screen dimension field (width/height) reflectively.
      */
     private static int getScreenDimension(Screen screen, String fieldName) {
+        // Prefer named accessors when present.
+        try {
+            Method method = screen.getClass().getMethod(fieldName);
+            Object value = method.invoke(screen);
+            if (value instanceof Integer dimension && dimension > 0) {
+                return dimension;
+            }
+        } catch (ReflectiveOperationException ignored) {
+            // Fall through to additional strategies.
+        }
+
+        try {
+            String accessor = "width".equals(fieldName) ? "getWidth" : "getHeight";
+            Method method = screen.getClass().getMethod(accessor);
+            Object value = method.invoke(screen);
+            if (value instanceof Integer dimension && dimension > 0) {
+                return dimension;
+            }
+        } catch (ReflectiveOperationException ignored) {
+            // Fall through to field lookup.
+        }
+
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
-            java.lang.reflect.Field field = Screen.class.getDeclaredField(fieldName);
-            field.setAccessible(true);
-            return field.getInt(screen);
-        } catch (ReflectiveOperationException exception) {
-            throw new IllegalStateException("Unable to read screen field: " + fieldName, exception);
+            Class<?> current = screen.getClass();
+            while (current != null) {
+                try {
+                    java.lang.reflect.Field field = current.getDeclaredField(fieldName);
+                    field.setAccessible(true);
+                    int dimension = field.getInt(screen);
+                    if (dimension > 0) {
+                        return dimension;
+                    }
+                    break;
+                } catch (NoSuchFieldException ignored) {
+                    current = current.getSuperclass();
+                }
+            }
+        } catch (ReflectiveOperationException ignored) {
+            // Fall through to window fallback.
         }
+
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.getWindow() != null) {
+            return "width".equals(fieldName)
+                ? minecraft.getWindow().getGuiScaledWidth()
+                : minecraft.getWindow().getGuiScaledHeight();
+        }
+
+        // Last resort conservative defaults to keep UI code alive instead of crashing.
+        return "width".equals(fieldName) ? 320 : 240;
     }
 
     /**
      * Add widget through whichever add-method exists for this runtime.
      */
-    private static void addWidgetReflective(Screen screen, Button button) {
+    private static boolean addWidgetReflective(Screen screen, Button button) {
         Method addMethod = findCompatibleWidgetAddMethod(screen.getClass(), button.getClass());
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (addMethod == null) {
-            throw new IllegalStateException("Unable to add config footer button");
+            return false;
         }
 
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             addMethod.setAccessible(true);
             addMethod.invoke(screen, button);
-        } catch (ReflectiveOperationException exception) {
-            throw new IllegalStateException("Unable to add config footer button", exception);
+            return true;
+        } catch (ReflectiveOperationException | RuntimeException exception) {
+            return false;
         }
     }
 
@@ -638,6 +682,23 @@ public final class MinersAdvantageConfigScreen {
                     }
                 }
             }
+
+            // Mapping-safe fallback: locate any one-arg instance method that can accept the widget.
+            for (Method method : methods) {
+                if (java.lang.reflect.Modifier.isStatic(method.getModifiers())) {
+                    continue;
+                }
+                Class<?>[] parameterTypes = method.getParameterTypes();
+                if (parameterTypes.length != 1 || !parameterTypes[0].isAssignableFrom(widgetClass)) {
+                    continue;
+                }
+
+                Class<?> returnType = method.getReturnType();
+                if (returnType == Void.TYPE || returnType == Object.class || returnType.isAssignableFrom(widgetClass)) {
+                    return method;
+                }
+            }
+
             current = current.getSuperclass();
         }
         return null;
