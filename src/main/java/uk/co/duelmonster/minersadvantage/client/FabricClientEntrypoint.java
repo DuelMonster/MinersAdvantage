@@ -48,11 +48,11 @@ public final class FabricClientEntrypoint implements ClientModInitializer {
                 FabricClientEntrypoint.class.getClassLoader(),
                 new Class<?>[]{listenerInterface},
                 (proxy, method, args) -> {
+                    // Context moved from WorldRenderContext to LevelRenderContext in newer Fabric API.
                     Object context = args[0];
-                    Object consumers = context.getClass().getMethod("consumers").invoke(context);
-                    PoseStack matrices = (PoseStack) context.getClass().getMethod("matrices").invoke(context);
+                    PoseStack matrices = extractPoseStack(context);
                     // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-                    if (consumers == null || matrices == null) {
+                    if (matrices == null) {
                         return true;
                     }
 
@@ -84,9 +84,25 @@ public final class FabricClientEntrypoint implements ClientModInitializer {
     private static Class<?> findWorldRenderEventsClass() throws ClassNotFoundException {
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
+            return Class.forName("net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents");
+        } catch (ClassNotFoundException ignored) {
+        }
+
+        try {
             return Class.forName("net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents");
         } catch (ClassNotFoundException ignored) {
             return Class.forName("net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents");
+        }
+    }
+
+    /**
+     * Extract pose stack from either legacy WorldRenderContext or new LevelRenderContext.
+     */
+    private static PoseStack extractPoseStack(Object context) throws ReflectiveOperationException {
+        try {
+            return (PoseStack) context.getClass().getMethod("poseStack").invoke(context);
+        } catch (NoSuchMethodException ignored) {
+            return (PoseStack) context.getClass().getMethod("matrices").invoke(context);
         }
     }
 
