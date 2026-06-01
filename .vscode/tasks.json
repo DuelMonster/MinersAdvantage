@@ -4,8 +4,13 @@
         {
             "label": "debug fabric client",
             "type": "shell",
-            "command": ".\\gradlew.bat",
+            "command": "pwsh",
             "args": [
+                "-NoProfile",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "${workspaceFolder}\\scripts\\run-gradle-java25.ps1",
                 ":${input:mcVersion}-fabric:runClient"
             ],
             "options": {
@@ -19,8 +24,13 @@
         {
             "label": "debug fabric client (no related mods)",
             "type": "shell",
-            "command": ".\\gradlew.bat",
+            "command": "pwsh",
             "args": [
+                "-NoProfile",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "${workspaceFolder}\\scripts\\run-gradle-java25.ps1",
                 "-PdmNoRelatedMods=true",
                 ":${input:mcVersion}-fabric:runClient"
             ],
@@ -35,8 +45,13 @@
         {
             "label": "debug neoforge client",
             "type": "shell",
-            "command": ".\\gradlew.bat",
+            "command": "pwsh",
             "args": [
+                "-NoProfile",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "${workspaceFolder}\\scripts\\run-gradle-java25.ps1",
                 ":${input:mcVersion}-neoforge:runClient"
             ],
             "options": {
@@ -50,8 +65,13 @@
         {
             "label": "debug neoforge client (no related mods)",
             "type": "shell",
-            "command": ".\\gradlew.bat",
+            "command": "pwsh",
             "args": [
+                "-NoProfile",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "${workspaceFolder}\\scripts\\run-gradle-java25.ps1",
                 "-PdmNoRelatedMods=true",
                 ":${input:mcVersion}-neoforge:runClient"
             ],
@@ -66,8 +86,13 @@
         {
             "label": "debug fabric server",
             "type": "shell",
-            "command": ".\\gradlew.bat",
+            "command": "pwsh",
             "args": [
+                "-NoProfile",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "${workspaceFolder}\\scripts\\run-gradle-java25.ps1",
                 ":${input:mcVersion}-fabric:runServer"
             ],
             "options": {
@@ -81,8 +106,13 @@
         {
             "label": "debug fabric server (no related mods)",
             "type": "shell",
-            "command": ".\\gradlew.bat",
+            "command": "pwsh",
             "args": [
+                "-NoProfile",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "${workspaceFolder}\\scripts\\run-gradle-java25.ps1",
                 "-PdmNoRelatedMods=true",
                 ":${input:mcVersion}-fabric:runServer"
             ],
@@ -97,8 +127,13 @@
         {
             "label": "debug neoforge server",
             "type": "shell",
-            "command": ".\\gradlew.bat",
+            "command": "pwsh",
             "args": [
+                "-NoProfile",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "${workspaceFolder}\\scripts\\run-gradle-java25.ps1",
                 ":${input:mcVersion}-neoforge:runServer"
             ],
             "options": {
@@ -112,8 +147,13 @@
         {
             "label": "debug neoforge server (no related mods)",
             "type": "shell",
-            "command": ".\\gradlew.bat",
+            "command": "pwsh",
             "args": [
+                "-NoProfile",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "${workspaceFolder}\\scripts\\run-gradle-java25.ps1",
                 "-PdmNoRelatedMods=true",
                 ":${input:mcVersion}-neoforge:runServer"
             ],
