@@ -110,6 +110,7 @@ Client options stay local. Gameplay options are server-authoritative in multipla
 | Option                           | Type    | Default        | Description                                             |
 | -------------------------------- | ------- | -------------- | ------------------------------------------------------- |
 | disable_particle_effects         | boolean | false          | Disables feature particle effects when true.            |
+| debug_logging                    | boolean | false          | Enables verbose MinersAdvantage debug logging.          |
 | outline_foreground_color_argb    | color   | 0xFF40D9C0     | ARGB color used for foreground outlines.                |
 | outline_see_through_color_argb   | color   | 0x4B40D9C0     | ARGB color used for see-through outlines.               |
 

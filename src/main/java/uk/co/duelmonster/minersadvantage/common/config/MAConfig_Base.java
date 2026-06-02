@@ -74,6 +74,7 @@ public class MAConfig_Base {
      */
     public static void setClientRootConfig(MAClientRootConfig clientConfig) {
         clientRootConfig = clientConfig == null ? MAClientRootConfig.defaults() : clientConfig;
+        LogUtils.setConfigDebugLoggingEnabled(clientRootConfig.client().debugLogging());
         saveGlobalConfig(getGlobalConfig());
     }
 
@@ -153,5 +154,6 @@ public class MAConfig_Base {
         SyncedClientConfig value = config == null ? SyncedClientConfig.defaults() : config;
         clientRootConfig = MAClientRootConfig.fromSyncedConfig(value);
         serverRootConfig = MAServerRootConfig.fromSyncedConfig(value);
+        LogUtils.setConfigDebugLoggingEnabled(clientRootConfig.client().debugLogging());
     }
 }

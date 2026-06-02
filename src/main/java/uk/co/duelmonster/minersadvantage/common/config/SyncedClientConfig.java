@@ -29,6 +29,7 @@ public record SyncedClientConfig(
         return new SyncedClientConfig(
             new ClientConfig(
                 MAConfig_Defaults.Client.disableParticleEffects,
+                MAConfig_Defaults.Client.debugLogging,
                 MAConfig_Defaults.Client.outlineForegroundColorArgb,
                 MAConfig_Defaults.Client.outlineSeeThroughColorArgb
             ),

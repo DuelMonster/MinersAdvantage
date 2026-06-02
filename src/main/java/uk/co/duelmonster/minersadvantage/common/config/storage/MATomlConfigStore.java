@@ -50,6 +50,7 @@ public final class MATomlConfigStore {
         return new SyncedClientConfig(
             new ClientConfig(
                 boolValue(clientValues, "disable_particle_effects", fallback.client().disableParticleEffects()),
+                boolValue(clientValues, "debug_logging", fallback.client().debugLogging()),
                 argbColorValue(clientValues, "outline_foreground_color_argb", fallback.client().outlineForegroundColor()),
                 argbColorValue(clientValues, "outline_see_through_color_argb", fallback.client().outlineSeeThroughColor())
             ),
@@ -169,6 +170,7 @@ public final class MATomlConfigStore {
 
         Map<String, String> clientValues = new LinkedHashMap<>();
         clientValues.put("disable_particle_effects", formatTomlValue(value.client().disableParticleEffects()));
+        clientValues.put("debug_logging", formatTomlValue(value.client().debugLogging()));
         clientValues.put("outline_foreground_color_argb", formatArgbColor(value.client().outlineForegroundColor()));
         clientValues.put("outline_see_through_color_argb", formatArgbColor(value.client().outlineSeeThroughColor()));
 

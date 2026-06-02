@@ -15,11 +15,21 @@ public final class LogUtils {
     public static final Logger LOG = LoggerFactory.getLogger(ModCommon.MOD_NAME);
     private static final String DEBUG_PROPERTY = "minersadvantage.debugLogging";
     private static final String DEBUG_ENV = "MINERSADVANTAGE_DEBUG_LOGGING";
+    private static volatile boolean configDebugLoggingEnabled;
+    private static volatile boolean configDebugLoggingConfigured;
 
     /**
      * Utility class only; all functionality is static on purpose.
      */
     private LogUtils() {
+    }
+
+    /**
+     * Update runtime debug logging preference from persisted config.
+     */
+    public static void setConfigDebugLoggingEnabled(boolean enabled) {
+        configDebugLoggingEnabled = enabled;
+        configDebugLoggingConfigured = true;
     }
 
     /**
@@ -40,6 +50,10 @@ public final class LogUtils {
      * Debug mode is enabled by property, env var, or attached debugger detection.
      */
     public static boolean isDebugLoggingEnabled() {
+        // Use persisted config once available to match in-game toggle behavior.
+        if (configDebugLoggingConfigured) {
+            return configDebugLoggingEnabled;
+        }
         return propertyEnabled(System.getProperty(DEBUG_PROPERTY))
             || propertyEnabled(System.getenv(DEBUG_ENV))
             || ManagementFactory.getRuntimeMXBean().getInputArguments().stream().anyMatch(argument -> argument.contains("jdwp"));

@@ -2,6 +2,9 @@
 
 - Bump mod version to `2.12.0` for the first code/content change day commit and advance daily bump tracking state.
 - Refine substitution trigger/runtime behavior by removing interaction-trigger substitution paths, simplifying hotbar slot sync to stable APIs, and expanding substitution diagnostics.
+- Add client-configurable debug logging, persist it in client TOML config, and route runtime logging checks through the persisted setting.
+- Update default gameplay tuning for excavation dimensions, path width, substitution preference toggles, and max veination distance.
+- Update README and TECHNICAL docs for the new client debug logging option.
 
 ## 2.11.0
 

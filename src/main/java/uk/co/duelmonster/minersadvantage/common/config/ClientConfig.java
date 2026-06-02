@@ -8,6 +8,7 @@ import uk.co.duelmonster.minersadvantage.common.config.defaults.MAConfig_Default
  */
 public record ClientConfig(
     boolean disableParticleEffects,
+    boolean debugLogging,
     int outlineForegroundColor,
     int outlineSeeThroughColor
 ) {
@@ -18,6 +19,7 @@ public record ClientConfig(
     public ClientConfig() {
         this(
             MAConfig_Defaults.Client.disableParticleEffects,
+            MAConfig_Defaults.Client.debugLogging,
             MAConfig_Defaults.Client.outlineForegroundColorArgb,
             MAConfig_Defaults.Client.outlineSeeThroughColorArgb
         );

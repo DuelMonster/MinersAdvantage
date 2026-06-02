@@ -18,6 +18,7 @@ public final class MAConfig_Defaults {
      */
     public static final class Client {
         public static final boolean disableParticleEffects = false;
+        public static final boolean debugLogging = false;
         public static final int outlineForegroundColorArgb = 0xFF40D9C0;
         public static final int outlineSeeThroughColorArgb = 0x4B40D9C0;
     }
@@ -95,10 +96,10 @@ public final class MAConfig_Defaults {
      */
     public static final class Excavation {
         public static final boolean enabled = true;
-        public static final int width = 3;
-        public static final int height = 3;
-        public static final int depth = 3;
-        public static final int processesPerTick = 10;
+    public static final int width = 6;
+        public static final int height = 6;
+        public static final int depth = 6;
+            public static final int processesPerTick = 10;
         public static final boolean toggleMode = false;
         public static final boolean ignoreBlockVariants = false;
         public static final boolean isBlockWhitelist = false;
@@ -112,7 +113,7 @@ public final class MAConfig_Defaults {
     public static final class Pathanation {
         public static final boolean enabled = true;
         public static final int targetBlockRange = 6;
-        public static final int pathWidth = 3;
+        public static final int pathWidth = 1;
     }
 
     /**
@@ -166,8 +167,8 @@ public final class MAConfig_Defaults {
      */
     public static final class Substitution {
         public static final boolean enabled = true;
-        public static final boolean allowMending = false;
-        public static final boolean prioritizeSilkTouch = false;
+        public static final boolean allowMending = true;
+        public static final boolean prioritizeSilkTouch = true;
         public static final boolean switchBack = true;
         public static final boolean favourFortune = true;
         public static final boolean ignoreIfValidTool = true;
@@ -182,7 +183,7 @@ public final class MAConfig_Defaults {
      */
     public static final class Veination {
         public static final boolean enabled = true;
-        public static final int maxVeinDistance = 12;
+        public static final int maxVeinDistance = 16;
         public static final List<String> ores = List.of();
         public static final boolean oreHarvestWithoutSneak = true;
         public static final boolean dropOresAtFirstBrokenBlock = true;

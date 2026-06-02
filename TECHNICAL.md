@@ -63,7 +63,7 @@ The rewrite extracts behavior into reusable service modules to avoid loader-spec
 
 Configuration is stored as split TOML roots:
 
-- `minersadvantage-client-config.toml`: client-only presentation and UX options
+- `minersadvantage-client-config.toml`: client-only presentation, UX options, and debug logging toggle
 - `minersadvantage-server-config.toml`: gameplay options that can be server-authoritative
 
 Persistence and parsing are implemented through `MATomlConfigStore`, which reads/writes flattened key-value TOML and applies parsing fallback + clamping rules.

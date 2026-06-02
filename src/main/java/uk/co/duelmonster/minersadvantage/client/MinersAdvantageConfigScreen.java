@@ -25,6 +25,7 @@ import uk.co.duelmonster.minersadvantage.common.config.MAClientRootConfig;
 import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 import uk.co.duelmonster.minersadvantage.common.config.CommonConfig;
 import uk.co.duelmonster.minersadvantage.common.config.MAConfig_Base;
+import uk.co.duelmonster.minersadvantage.common.log.LogUtils;
 import uk.co.duelmonster.minersadvantage.common.network.PlayerStateSyncPacket;
 import uk.co.duelmonster.minersadvantage.common.services.utility.TorchPlacement;
 
@@ -67,6 +68,15 @@ public final class MinersAdvantageConfigScreen {
             .setTooltip(Component.literal("Disable MinersAdvantage particle effects on this client only."))
             .setSaveConsumer(value -> mutable.disableParticleEffects = value)
             .build());
+
+            clientCategory.addEntry(entryBuilder.startBooleanToggle(
+                Component.literal("Debug Logging"),
+                mutable.debugLogging
+                )
+                .setDefaultValue(currentClientConfig.client().debugLogging())
+                .setTooltip(Component.literal("Enable verbose MinersAdvantage debug logs for troubleshooting."))
+                .setSaveConsumer(value -> mutable.debugLogging = value)
+                .build());
 
         clientCategory.addEntry(entryBuilder.startAlphaColorField(
                 Component.literal("Preview Outline Foreground Color"),
@@ -383,6 +393,15 @@ public final class MinersAdvantageConfigScreen {
             .setTooltip(Component.literal("Disable MinersAdvantage particle effects on this client only."))
             .setSaveConsumer(value -> mutable.disableParticleEffects = value)
             .build());
+
+            clientCategory.addEntry(entryBuilder.startBooleanToggle(
+                Component.literal("Debug Logging"),
+                mutable.debugLogging
+                )
+                .setDefaultValue(currentClientConfig.client().debugLogging())
+                .setTooltip(Component.literal("Enable verbose MinersAdvantage debug logs for troubleshooting."))
+                .setSaveConsumer(value -> mutable.debugLogging = value)
+                .build());
 
         clientCategory.addEntry(entryBuilder.startAlphaColorField(
                 Component.literal("Preview Outline Foreground Color"),
@@ -710,6 +729,7 @@ public final class MinersAdvantageConfigScreen {
     private static void saveMutableConfig(MutableConfig mutable, boolean gameplayEditable) {
         currentClientConfig = mutable.toClientRootConfig(currentClientConfig);
         MAConfig_Base.setClientRootConfig(currentClientConfig);
+        LogUtils.applyConfiguredLogging();
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (gameplayEditable) {
             currentServerConfig = mutable.toServerRootConfig(currentServerConfig);
@@ -1241,6 +1261,7 @@ public final class MinersAdvantageConfigScreen {
      */
     private static final class MutableConfig {
         private boolean disableParticleEffects;
+        private boolean debugLogging;
         private int outlineForegroundColor;
         private int outlineSeeThroughColor;
 
@@ -1340,6 +1361,7 @@ public final class MinersAdvantageConfigScreen {
          */
         private MutableConfig(MAClientRootConfig clientConfig, MAServerRootConfig serverConfig) {
             this.disableParticleEffects = clientConfig.client().disableParticleEffects();
+            this.debugLogging = clientConfig.client().debugLogging();
             this.outlineForegroundColor = clientConfig.client().outlineForegroundColor();
             this.outlineSeeThroughColor = clientConfig.client().outlineSeeThroughColor();
 
@@ -1734,6 +1756,7 @@ public final class MinersAdvantageConfigScreen {
             return new MAClientRootConfig(
                 new ClientConfig(
                     disableParticleEffects,
+                    debugLogging,
                     outlineForegroundColor,
                     outlineSeeThroughColor
                 )
