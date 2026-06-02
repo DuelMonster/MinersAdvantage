@@ -5,6 +5,7 @@
 - Add client-configurable debug logging, persist it in client TOML config, and route runtime logging checks through the persisted setting.
 - Update default gameplay tuning for excavation dimensions, path width, substitution preference toggles, and max veination distance.
 - Update README and TECHNICAL docs for the new client debug logging option.
+- Remove default key assignments and labels for shape-cycling actions while keeping keybinding action definitions available.
 
 ## 2.11.0
 

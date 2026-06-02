@@ -13,23 +13,24 @@ public final class KeyBindings {
      * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
      */
     public enum ClientAction {
-        CAPTIVATION_TOGGLE,
-        EXCAVATION_TOGGLE,
         EXCAVATION_MODE_TOGGLE,
+        SHAFT_VENT_TOGGLE,
         EXCAVATION_SHAPE_NEXT,
         EXCAVATION_SHAPE_PREV,
-        ILLUMINATION_TOGGLE,
-        ILLUMINATION_PLACE,
-        ILLUMINATION_AREA,
-        LUMBINATION_TOGGLE,
-        SHAFTANATION_TOGGLE,
-        SHAFT_VENT_TOGGLE,
         SHAFTANATION_SHAPE_NEXT,
         SHAFTANATION_SHAPE_PREV,
-        SUBSTITUTION_TOGGLE,
-        VEINATION_TOGGLE,
+        ILLUMINATION_PLACE,
+        ILLUMINATION_AREA,
+        ABORT_WORKERS,
+
+        CAPTIVATION_TOGGLE,
         CROPINATION_TOGGLE,
-        ABORT_WORKERS
+        EXCAVATION_TOGGLE,
+        ILLUMINATION_TOGGLE,
+        SUBSTITUTION_TOGGLE,
+        LUMBINATION_TOGGLE,
+        SHAFTANATION_TOGGLE,
+        VEINATION_TOGGLE
     }
 
     /**
@@ -39,27 +40,24 @@ public final class KeyBindings {
     public record KeyBindingSpec(ClientAction action, String defaultKey, FeatureId feature, String translationKey) {}
 
     private static final List<KeyBindingSpec> ALL = List.of(
-        new KeyBindingSpec(ClientAction.CAPTIVATION_TOGGLE, "KP_1", FeatureId.CAPTIVATION, "minersadvantage.captivation.enabled.comment"),
-        new KeyBindingSpec(ClientAction.EXCAVATION_TOGGLE, "KP_2", FeatureId.EXCAVATION, "minersadvantage.excavation.enabled.comment"),
         new KeyBindingSpec(ClientAction.EXCAVATION_MODE_TOGGLE, "GRAVE", FeatureId.EXCAVATION, "minersadvantage.excavation.toggle"),
-        new KeyBindingSpec(ClientAction.EXCAVATION_SHAPE_NEXT, "KP_9", FeatureId.EXCAVATION, "minersadvantage.excavation.shape.next"),
-        new KeyBindingSpec(ClientAction.EXCAVATION_SHAPE_PREV, "KP_0", FeatureId.EXCAVATION, "minersadvantage.excavation.shape.prev"),
-        new KeyBindingSpec(ClientAction.ILLUMINATION_TOGGLE, "KP_3", FeatureId.ILLUMINATION, "minersadvantage.illumination.enabled.comment"),
+        new KeyBindingSpec(ClientAction.SHAFT_VENT_TOGGLE, "LEFT_ALT", FeatureId.SHAFTANATION, "minersadvantage.shaft.vent.toggle"),
         new KeyBindingSpec(ClientAction.ILLUMINATION_PLACE, "V", FeatureId.ILLUMINATION, "minersadvantage.illumination.place"),
         new KeyBindingSpec(ClientAction.ILLUMINATION_AREA, "F12", FeatureId.ILLUMINATION, "minersadvantage.illumination.area"),
-        new KeyBindingSpec(ClientAction.LUMBINATION_TOGGLE, "KP_4", FeatureId.LUMBINATION, "minersadvantage.lumbination.enabled.comment"),
-        new KeyBindingSpec(ClientAction.SHAFTANATION_TOGGLE, "KP_5", FeatureId.SHAFTANATION, "minersadvantage.shaftanation.enabled.comment"),
-        new KeyBindingSpec(ClientAction.SHAFT_VENT_TOGGLE, "LEFT_ALT", FeatureId.SHAFTANATION, "minersadvantage.shaft.vent.toggle"),
-        new KeyBindingSpec(ClientAction.SHAFTANATION_SHAPE_NEXT, "TAB", FeatureId.SHAFTANATION, "minersadvantage.shaftanation.shape.next"),
-        new KeyBindingSpec(ClientAction.SHAFTANATION_SHAPE_PREV, "F11", FeatureId.SHAFTANATION, "minersadvantage.shaftanation.shape.prev"),
-        new KeyBindingSpec(ClientAction.SUBSTITUTION_TOGGLE, "KP_6", FeatureId.SUBSTITUTION, "minersadvantage.substitution.enabled.comment"),
-        new KeyBindingSpec(ClientAction.VEINATION_TOGGLE, "KP_7", FeatureId.VEINATION, "minersadvantage.veination.enabled.comment"),
-        new KeyBindingSpec(ClientAction.CROPINATION_TOGGLE, "KP_8", FeatureId.CROPINATION, "minersadvantage.cropination.enabled.comment"),
-        new KeyBindingSpec(ClientAction.ABORT_WORKERS, "DELETE", null, "minersadvantage.abort.agents")
+        new KeyBindingSpec(ClientAction.ABORT_WORKERS, "DELETE", null, "minersadvantage.abort.agents"),
+        // Feature toggles - no default keys, but still need translation keys and feature associations for the config screen.
+        new KeyBindingSpec(ClientAction.CAPTIVATION_TOGGLE, null, FeatureId.CAPTIVATION, "minersadvantage.captivation.enabled.comment"),
+        new KeyBindingSpec(ClientAction.EXCAVATION_TOGGLE, null, FeatureId.EXCAVATION, "minersadvantage.excavation.enabled.comment"),
+        new KeyBindingSpec(ClientAction.ILLUMINATION_TOGGLE, null, FeatureId.ILLUMINATION, "minersadvantage.illumination.enabled.comment"),
+        new KeyBindingSpec(ClientAction.LUMBINATION_TOGGLE, null, FeatureId.LUMBINATION, "minersadvantage.lumbination.enabled.comment"),
+        new KeyBindingSpec(ClientAction.SHAFTANATION_TOGGLE, null, FeatureId.SHAFTANATION, "minersadvantage.shaftanation.enabled.comment"),
+        new KeyBindingSpec(ClientAction.SUBSTITUTION_TOGGLE, null, FeatureId.SUBSTITUTION, "minersadvantage.substitution.enabled.comment"),
+        new KeyBindingSpec(ClientAction.VEINATION_TOGGLE, null, FeatureId.VEINATION, "minersadvantage.veination.enabled.comment"),
+        new KeyBindingSpec(ClientAction.CROPINATION_TOGGLE, null, FeatureId.CROPINATION, "minersadvantage.cropination.enabled.comment")
     );
 
     /**
-     * k ey bi nd in gs exists so this path stays predictable and easier to debug when things get weird.
+     * KeyBindings exists so this path stays predictable and easier to debug when things get weird.
      */
     private KeyBindings() {
     }
