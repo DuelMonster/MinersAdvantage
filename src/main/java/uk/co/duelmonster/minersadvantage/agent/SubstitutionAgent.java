@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.protocol.game.ClientboundSetHeldSlotPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
@@ -40,6 +41,7 @@ public class SubstitutionAgent extends Agent {
      */
     private static final int HOTBAR_TOOL_SLOTS = 9;
     private static final int RESTORE_IDLE_TICKS = 3;
+    private static final int BREAK_FALLBACK_ACTIVE_TICKS = 10;
     private static final double TARGET_RANGE_SQ = 36.0;
     private static final int QUEUE_DEDUPE_TICKS = 1;
     private static final ConcurrentMap<RestoreKey, RestoreState> RESTORE_STATES = new ConcurrentHashMap<>();
@@ -56,7 +58,7 @@ public class SubstitutionAgent extends Agent {
     /**
      * Determine whether player is actively breaking a valid target block.
      */
-    private static boolean hasActiveBreakTarget(ServerPlayer player, QueueState queueState) {
+    private static boolean hasActiveBreakTarget(ServerPlayer player, QueueState queueState, long now) {
         Object gameMode = resolvePlayerGameMode(player);
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (gameMode != null) {
@@ -72,7 +74,26 @@ public class SubstitutionAgent extends Agent {
             }
         }
 
-        return queueState != null && isTargetInRangeAndSolid(player, queueState.lastTargetPos());
+        // Why this branch exists: allow quick tap tests to switch back once queued activity ages out.
+        if (queueState == null || !isTargetInRangeAndSolid(player, queueState.lastTargetPos())) {
+            return false;
+        }
+
+        long queueAge = now - queueState.lastSeenTick();
+        if (queueAge > BREAK_FALLBACK_ACTIVE_TICKS) {
+            if (queueAge == BREAK_FALLBACK_ACTIVE_TICKS + 1L) {
+                LogUtils.logDebug(
+                    "Substitution restore active-break fallback expired player={} pos={} queueAge={} fallbackTicks={}",
+                    player.getScoreboardName(),
+                    queueState.lastTargetPos(),
+                    queueAge,
+                    BREAK_FALLBACK_ACTIVE_TICKS
+                );
+            }
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -343,6 +364,21 @@ public class SubstitutionAgent extends Agent {
      * t ic k exists so this path stays predictable and easier to debug when things get weird.
      */
     public boolean tick() {
+        ItemStack held = player.getItemInHand(hand);
+        LogUtils.logDebug(
+            "Substitution tick start player={} action={} hand={} held={} targetBlock={} targetEntity={} config[enabled={},ignoreIfValidTool={},allowMending={},switchBack={}]",
+            player.getScoreboardName(),
+            action,
+            hand,
+            itemId(held),
+            targetState == null || targetState.isAir() ? "air" : BuiltInRegistries.BLOCK.getKey(targetState.getBlock()),
+            targetEntityTypeId,
+            config.enabled(),
+            config.ignoreIfValidTool(),
+            config.allowMending(),
+            config.switchBack()
+        );
+
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (targetState == null || targetState.isAir()) {
             return finish("no substitution target state");
@@ -353,8 +389,24 @@ public class SubstitutionAgent extends Agent {
             return finish("substitution disabled");
         }
 
-        ItemStack held = player.getItemInHand(hand);
         RuleResolution rule = resolveRule(held);
+        LogUtils.logDebug(
+            "Substitution rule resolved player={} action={} source={} requiredKind={} allowAnyTool={} targetPriority={} toolPriority={} preferSilkTouch={} preferFortune={} minSilkTouch={} minFortune={} requireMending={} denyMending={} toolExpression='{}'",
+            player.getScoreboardName(),
+            action,
+            rule.source(),
+            rule.requiredKind(),
+            rule.allowAnyTool(),
+            rule.targetPriority(),
+            rule.toolPriority(),
+            rule.preferSilkTouch(),
+            rule.preferFortune(),
+            rule.minSilkTouch(),
+            rule.minFortune(),
+            rule.requireMending(),
+            rule.denyMending(),
+            rule.toolExpression()
+        );
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (rule.allowAnyTool()) {
             return finish("selection rule allows current tool");
@@ -419,27 +471,44 @@ public class SubstitutionAgent extends Agent {
         MatchRating targetMatch = targetMatch(requiredKind, held);
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!targetMatch.matches()) {
+            LogUtils.logDebug(
+                "Substitution candidate scan aborted player={} action={} hand={} reason=target-no-match requiredKind={} held={} target={}",
+                player.getScoreboardName(),
+                action,
+                hand,
+                requiredKind,
+                itemId(held),
+                BuiltInRegistries.BLOCK.getKey(targetState.getBlock())
+            );
             return candidates;
         }
 
+        int scanned = 0;
+        int emptySlots = 0;
+        int blacklisted = 0;
+        int toolMismatches = 0;
         int selectedHotbarSlot = selectedHotbarSlot();
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (int slot = 0; slot < Math.min(HOTBAR_TOOL_SLOTS, player.getInventory().getContainerSize()); slot++) {
+            scanned++;
             ItemStack stack = player.getInventory().getItem(slot);
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (stack.isEmpty()) {
+                emptySlots++;
                 continue;
             }
 
             String itemId = itemId(stack);
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (blacklist.contains(itemId)) {
+                blacklisted++;
                 continue;
             }
 
             MatchRating toolMatch = toolMatch(stack, requiredKind, rule);
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (!toolMatch.matches()) {
+                toolMismatches++;
                 continue;
             }
 
@@ -467,6 +536,23 @@ public class SubstitutionAgent extends Agent {
             }
         }
 
+        LogUtils.logDebug(
+            "Substitution candidate scan result player={} action={} hand={} requiredKind={} scannedSlots={} emptySlots={} blacklisted={} rejectedByMatch={} candidates={} selectedSlot={} blacklistSize={} target={} ruleSource={}",
+            player.getScoreboardName(),
+            action,
+            hand,
+            requiredKind,
+            scanned,
+            emptySlots,
+            blacklisted,
+            toolMismatches,
+            candidates.size(),
+            selectedHotbarSlot,
+            blacklist.size(),
+            BuiltInRegistries.BLOCK.getKey(targetState.getBlock()),
+            rule.source()
+        );
+
         return candidates;
     }
 
@@ -484,6 +570,15 @@ public class SubstitutionAgent extends Agent {
         boolean inferredFromHeld = !tagMatch && matchesToolKind(held, requiredKind);
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!tagMatch && !inferredFromHeld) {
+            LogUtils.logDebug(
+                "Substitution target mismatch player={} action={} requiredKind={} held={} target={} requiresCorrectTool={}",
+                player.getScoreboardName(),
+                action,
+                requiredKind,
+                itemId(held),
+                BuiltInRegistries.BLOCK.getKey(targetState.getBlock()),
+                targetState.requiresCorrectToolForDrops()
+            );
             return MatchRating.noMatch();
         }
 
@@ -594,6 +689,13 @@ public class SubstitutionAgent extends Agent {
 
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (bestRule.isEmpty()) {
+            LogUtils.logDebug(
+                "Substitution rule fallback player={} action={} targetBlock={} targetEntity={} reason=no-specific-rule",
+                player.getScoreboardName(),
+                action,
+                BuiltInRegistries.BLOCK.getKey(targetState.getBlock()),
+                targetEntityTypeId
+            );
             return new RuleResolution(
                 null,
                 100,
@@ -612,6 +714,15 @@ public class SubstitutionAgent extends Agent {
 
         SelectionRule rule = bestRule.get();
         Optional<ToolKind> parsedRequiredKind = parseRequiredToolKind(rule.requiredToolKind());
+        if (parsedRequiredKind.isEmpty() && rule.requiredToolKind() != null && !rule.requiredToolKind().isBlank()) {
+            LogUtils.logWarn(
+                "Invalid substitution requiredToolKind '{}' for player={} action={} rule={} - falling back to inferred tool kind",
+                rule.requiredToolKind(),
+                player.getScoreboardName(),
+                action,
+                rule.targetKind() + ":" + rule.targetId()
+            );
+        }
         ToolKind requiredKind = parsedRequiredKind.orElseGet(() -> inferRequiredToolKind(held, targetState));
         return new RuleResolution(
             requiredKind,
@@ -900,12 +1011,30 @@ public class SubstitutionAgent extends Agent {
             if (sameTarget && now - previous.lastQueuedTick() <= QUEUE_DEDUPE_TICKS) {
                 QUEUE_STATES.put(key, previous.withLastSeenTick(now));
                 touchRestoreState(player, hand);
+                LogUtils.logDebug(
+                    "Substitution queue deduped player={} hand={} action={} pos={} queuedTick={} now={} dedupeTicks={}",
+                    player.getScoreboardName(),
+                    hand,
+                    action,
+                    targetPos,
+                    previous.lastQueuedTick(),
+                    now,
+                    QUEUE_DEDUPE_TICKS
+                );
                 return false;
             }
         }
 
         QUEUE_STATES.put(key, new QueueState(targetPos.immutable(), now, now));
         touchRestoreState(player, hand);
+        LogUtils.logDebug(
+            "Substitution queue accepted player={} hand={} action={} pos={} tick={}",
+            player.getScoreboardName(),
+            hand,
+            action,
+            targetPos,
+            now
+        );
         return true;
     }
 
@@ -928,6 +1057,15 @@ public class SubstitutionAgent extends Agent {
             QUEUE_STATES.put(key, previous.withTargetAndSeen(targetPos.immutable(), now));
         }
         touchRestoreState(player, hand);
+        LogUtils.logDebug(
+            "Substitution activity marked player={} hand={} action={} pos={} tick={} hadPreviousQueueState={}",
+            player.getScoreboardName(),
+            hand,
+            action,
+            targetPos,
+            now,
+            previous != null
+        );
     }
 
     /**
@@ -985,25 +1123,55 @@ public class SubstitutionAgent extends Agent {
         long now = player.level().getGameTime();
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (now - state.lastActivityTick() <= RESTORE_IDLE_TICKS) {
+            LogUtils.logDebug(
+                "Substitution restore deferred player={} hand={} reason=idle-window action={} lastActivity={} now={}",
+                player.getScoreboardName(),
+                hand,
+                state.action(),
+                state.lastActivityTick(),
+                now
+            );
             return;
         }
 
         QueueState queueState = QUEUE_STATES.get(new QueueKey(player.getUUID(), hand, state.action()));
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (state.action() == SubstitutionAction.BREAK && hasActiveBreakTarget(player, queueState)) {
+        if (state.action() == SubstitutionAction.BREAK && hasActiveBreakTarget(player, queueState, now)) {
             RESTORE_STATES.put(key, state.withLastActivityTick(now));
+            LogUtils.logDebug(
+                "Substitution restore deferred player={} hand={} reason=active-break-target action={} pos={}",
+                player.getScoreboardName(),
+                hand,
+                state.action(),
+                queueState == null ? null : queueState.lastTargetPos()
+            );
             return;
         }
 
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (queueState != null && now - queueState.lastSeenTick() <= RESTORE_IDLE_TICKS) {
             RESTORE_STATES.put(key, state.withLastActivityTick(now));
+            LogUtils.logDebug(
+                "Substitution restore deferred player={} hand={} reason=recent-queue-activity action={} lastSeen={} now={} pos={}",
+                player.getScoreboardName(),
+                hand,
+                state.action(),
+                queueState.lastSeenTick(),
+                now,
+                queueState.lastTargetPos()
+            );
             return;
         }
 
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (isStillUsingTool(player)) {
             RESTORE_STATES.put(key, state.withLastActivityTick(now));
+            LogUtils.logDebug(
+                "Substitution restore deferred player={} hand={} reason=still-using-tool action={}",
+                player.getScoreboardName(),
+                hand,
+                state.action()
+            );
             return;
         }
 
@@ -1027,12 +1195,27 @@ public class SubstitutionAgent extends Agent {
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (state.previousSelectedSlot() < 0 || state.previousSelectedSlot() >= Math.min(HOTBAR_TOOL_SLOTS, player.getInventory().getContainerSize())) {
             RESTORE_STATES.remove(key);
+            LogUtils.logDebug(
+                "Substitution restore aborted player={} hand={} reason=invalid-previous-slot previousSlot={} switchedTo={} action={}",
+                player.getScoreboardName(),
+                hand,
+                state.previousSelectedSlot(),
+                state.switchedToSlot(),
+                state.action()
+            );
             return;
         }
 
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!setSelectedHotbarSlot(player, state.previousSelectedSlot())) {
             RESTORE_STATES.remove(key);
+            LogUtils.logDebug(
+                "Substitution restore aborted player={} hand={} reason=set-selected-slot-failed previousSlot={} action={}",
+                player.getScoreboardName(),
+                hand,
+                state.previousSelectedSlot(),
+                state.action()
+            );
             return;
         }
         RESTORE_STATES.remove(key);
@@ -1127,27 +1310,7 @@ public class SubstitutionAgent extends Agent {
      * Resolve selected hotbar slot via method/field fallbacks.
      */
     private static int selectedHotbarSlot(ServerPlayer player) {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        try {
-            Method getSelectedSlot = player.getInventory().getClass().getMethod("getSelectedSlot");
-            Object value = getSelectedSlot.invoke(player.getInventory());
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            if (value instanceof Integer slot) {
-                return slot;
-            }
-        } catch (ReflectiveOperationException ignored) {
-            // Why this exists: fall through to a safe default for mixed mappings.
-        }
-
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        try {
-            Field selectedField = player.getInventory().getClass().getDeclaredField("selected");
-            selectedField.setAccessible(true);
-            return selectedField.getInt(player.getInventory());
-        } catch (ReflectiveOperationException ignored) {
-            // Why this exists: mixed mappings may expose selected slot as a field.
-        }
-        return 0;
+        return player.getInventory().getSelectedSlot();
     }
 
     /**
@@ -1156,128 +1319,46 @@ public class SubstitutionAgent extends Agent {
     private static boolean setSelectedHotbarSlot(ServerPlayer player, int slot) {
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (slot < 0 || slot >= HOTBAR_TOOL_SLOTS) {
+            LogUtils.logDebug(
+                "Substitution slot set rejected player={} reason=invalid-slot slot={}",
+                player.getScoreboardName(),
+                slot
+            );
             return false;
         }
 
-        Object inventory = player.getInventory();
-        boolean selected = false;
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
-            Method method = inventory.getClass().getMethod("setSelectedSlot", int.class);
-            method.invoke(inventory, slot);
-            selected = true;
-        } catch (ReflectiveOperationException ignored) {
-            // Why this exists: try alternate names/field for mixed mappings.
-        }
-
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (!selected) {
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            try {
-                Method method = inventory.getClass().getMethod("setSelected", int.class);
-                method.invoke(inventory, slot);
-                selected = true;
-            } catch (ReflectiveOperationException ignored) {
-                // Why this exists: try alternate names/field for mixed mappings.
-            }
-        }
-
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (!selected) {
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            try {
-                Field selectedField = inventory.getClass().getDeclaredField("selected");
-                selectedField.setAccessible(true);
-                selectedField.setInt(inventory, slot);
-                selected = true;
-            } catch (ReflectiveOperationException ignored) {
-                // Why this exists: mixed mappings may expose selected slot as a field.
-            }
-        }
-
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (selected) {
+            // Mirror Autoswitch's production-safe approach: direct inventory API call.
+            player.getInventory().setSelectedSlot(slot);
             syncSelectedSlotToClient(player, slot);
+            return true;
+        } catch (RuntimeException exception) {
+            LogUtils.logDebug(
+                "Substitution slot set failed player={} slot={} reason=inventory-setSelectedSlot-threw:{}",
+                player.getScoreboardName(),
+                slot,
+                exception.getMessage()
+            );
+            return false;
         }
-        return selected;
     }
 
     /**
      * Send selected-slot update packet through resolved connection.
      */
     private static void syncSelectedSlotToClient(ServerPlayer player, int slot) {
-        Object connection = null;
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        try {
-            Field connectionField = player.getClass().getField("connection");
-            connection = connectionField.get(player);
-        } catch (ReflectiveOperationException ignored) {
-            // Why this exists: mappings differ; try accessor method next.
-        }
-
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (connection == null) {
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            for (Method method : player.getClass().getMethods()) {
-                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-                if (method.getParameterCount() == 0 && method.getName().toLowerCase(Locale.ROOT).contains("connection")) {
-                    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-                    try {
-                        connection = method.invoke(player);
-                        break;
-                    } catch (ReflectiveOperationException ignored) {
-                        // Why this exists: continue probing compatible accessors.
-                    }
-                }
-            }
-        }
-
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (connection == null) {
+        if (player.connection == null) {
+            LogUtils.logDebug(
+                "Substitution slot sync skipped player={} slot={} reason=no-connection-handle",
+                player.getScoreboardName(),
+                slot
+            );
             return;
         }
 
-        Object packet = tryCreateHeldSlotPacket(slot);
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (packet == null) {
-            return;
-        }
-
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        for (Method method : connection.getClass().getMethods()) {
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            if (!"send".equals(method.getName()) || method.getParameterCount() != 1) {
-                continue;
-            }
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            try {
-                method.invoke(connection, packet);
-                return;
-            } catch (ReflectiveOperationException ignored) {
-                // Why this exists: method signatures differ by target; try next overload.
-            }
-        }
-    }
-
-    /**
-     * Try to instantiate compatible held-slot packet class.
-     */
-    private static Object tryCreateHeldSlotPacket(int slot) {
-        String[] packetTypes = new String[] {
-            "net.minecraft.network.protocol.game.ClientboundSetHeldSlotPacket",
-            "net.minecraft.network.protocol.game.ClientboundSetCarriedItemPacket"
-        };
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        for (String packetType : packetTypes) {
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            try {
-                Class<?> type = Class.forName(packetType);
-                return type.getConstructor(int.class).newInstance(slot);
-            } catch (ReflectiveOperationException ignored) {
-                // Why this exists: class names differ across versions/mappings.
-            }
-        }
-        return null;
+        player.connection.send(new ClientboundSetHeldSlotPacket(slot));
     }
 
     /**

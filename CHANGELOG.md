@@ -1,3 +1,8 @@
+## 2.12.0
+
+- Bump mod version to `2.12.0` for the first code/content change day commit and advance daily bump tracking state.
+- Refine substitution trigger/runtime behavior by removing interaction-trigger substitution paths, simplifying hotbar slot sync to stable APIs, and expanding substitution diagnostics.
+
 ## 2.11.0
 
 - Bump mod version to `2.11.0` for the first code/content change day commit.

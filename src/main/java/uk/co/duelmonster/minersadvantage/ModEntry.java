@@ -80,7 +80,6 @@ import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
-import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import uk.co.duelmonster.minersadvantage.client.FabricNetworkEvents;
 
@@ -124,6 +123,7 @@ public final class ModEntry implements ModInitializer {
 
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (!isFeatureEnabled(FeatureId.SUBSTITUTION)) {
+                LogUtils.logDebug("Substitution skipped trigger=AttackBlock player={} hand={} pos={} reason=feature-disabled", serverPlayer.getScoreboardName(), hand, pos);
                 return InteractionResult.PASS;
             }
 
@@ -132,6 +132,7 @@ public final class ModEntry implements ModInitializer {
 
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (!SubstitutionAgent.shouldQueueStartSubstitution(serverPlayer, hand, SubstitutionAction.BREAK, pos)) {
+                LogUtils.logDebug("Substitution skipped trigger=AttackBlock player={} hand={} pos={} reason=queue-deduped", serverPlayer.getScoreboardName(), hand, pos);
                 return InteractionResult.PASS;
             }
 
@@ -152,12 +153,20 @@ public final class ModEntry implements ModInitializer {
 
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (!isFeatureEnabled(FeatureId.SUBSTITUTION)) {
+                LogUtils.logDebug("Substitution skipped trigger=AttackEntity player={} hand={} reason=feature-disabled", serverPlayer.getScoreboardName(), hand);
                 return InteractionResult.PASS;
             }
 
             SubstitutionConfig config = substitutionConfig(serverPlayer);
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (config.ignorePassiveMobs() && entity.getType().getCategory().isFriendly()) {
+                LogUtils.logDebug(
+                    "Substitution skipped trigger=AttackEntity player={} hand={} targetEntity={} pos={} reason=ignore-passive-mobs",
+                    serverPlayer.getScoreboardName(),
+                    hand,
+                    BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType()),
+                    entity.blockPosition()
+                );
                 return InteractionResult.PASS;
             }
 
@@ -165,6 +174,13 @@ public final class ModEntry implements ModInitializer {
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (!SubstitutionAgent.shouldQueueStartSubstitution(serverPlayer, hand, SubstitutionAction.ATTACK, targetPos)) {
                 SubstitutionAgent.markSubstitutionActivity(serverPlayer, hand, SubstitutionAction.ATTACK, targetPos);
+                LogUtils.logDebug(
+                    "Substitution skipped trigger=AttackEntity player={} hand={} targetEntity={} pos={} reason=queue-deduped",
+                    serverPlayer.getScoreboardName(),
+                    hand,
+                    BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType()),
+                    targetPos
+                );
                 return InteractionResult.PASS;
             }
 
@@ -273,20 +289,6 @@ public final class ModEntry implements ModInitializer {
 
         registerCollectiveDigSpeedCallback();
 
-        UseItemCallback.EVENT.register((player, world, hand) -> {
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            if (world.isClientSide() || !(player instanceof ServerPlayer serverPlayer)) {
-                return InteractionResult.PASS;
-            }
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            if (player.isShiftKeyDown()) {
-                LogUtils.logDebug("Use item trigger feature=Captivation player={} hand={} item={}", serverPlayer.getScoreboardName(), hand, itemId(player.getMainHandItem()));
-                AgentManager.get().addAgent(serverPlayer, new CaptivationAgent(serverPlayer, captivationConfig(serverPlayer)));
-                return InteractionResult.SUCCESS;
-            }
-            return InteractionResult.PASS;
-        });
-
         UseBlockCallback.EVENT.register((player, world, hand, hitResult) -> {
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (world.isClientSide() || !(player instanceof ServerPlayer serverPlayer)) {
@@ -298,8 +300,6 @@ public final class ModEntry implements ModInitializer {
             ItemStack stack = player.getItemInHand(hand);
             String itemId = itemId(stack);
             String targetBlockId = blockId(state);
-
-            routeToolUse(stack, pos, state);
 
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (isHoeTool(stack)) {
@@ -323,52 +323,6 @@ public final class ModEntry implements ModInitializer {
             if (isShovelTool(stack) && state.is(BlockTags.DIRT)) {
                 LogUtils.logDebug("Use block trigger feature=Pathanation player={} item={} block={} pos={}", serverPlayer.getScoreboardName(), itemId, targetBlockId, pos);
                 AgentManager.get().addAgent(serverPlayer, new PathanationAgent(serverPlayer, pos, serverPlayer.getDirection(), pathanationConfig(serverPlayer), commonConfig(serverPlayer)));
-                return InteractionResult.SUCCESS;
-            }
-
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            if (isPickaxeTool(stack) && player.isShiftKeyDown()) {
-                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-                if (RegistryPredicates.isOreLike(state)) {
-                    return InteractionResult.PASS;
-                }
-            }
-
-            var playerState = core.playerStateService().getPlayerState(playerId(serverPlayer));
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            if (playerState.shaftVentToggled() && !player.isShiftKeyDown()) {
-                Direction face = hitResult.getDirection();
-                boolean verticalFace = face == Direction.UP || face == Direction.DOWN;
-                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-                if (verticalFace) {
-                    LogUtils.logDebug("Use block trigger feature=Ventilation player={} item={} block={} pos={} face={}", serverPlayer.getScoreboardName(), itemId, targetBlockId, pos, face);
-                    VeinationConfig veinationConfig = veinationConfig(serverPlayer);
-                    AgentManager.get().addAgent(serverPlayer, new VentilationAgent(serverPlayer, pos, face.getOpposite(), ventilationConfig(serverPlayer), commonConfig(serverPlayer), veinationRuntime, veinationConfig, stack));
-                } else {
-                    LogUtils.logDebug("Use block trigger feature=Shaftanation player={} item={} block={} pos={} face={}", serverPlayer.getScoreboardName(), itemId, targetBlockId, pos, face);
-                    AgentManager agentManager = AgentManager.get();
-                    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-                    if (!agentManager.hasAgentType(serverPlayer, ShaftanationAgent.class)) {
-                        VeinationConfig veinationConfig = veinationConfig(serverPlayer);
-                        agentManager.addAgent(serverPlayer, new ShaftanationAgent(serverPlayer, pos, serverPlayer.getDirection(), shaftanationConfig(serverPlayer), commonConfig(serverPlayer), illuminationConfig(serverPlayer).lowestLightLevel(), veinationRuntime, veinationConfig, stack, playerState.selectedShaftanationShapeIndex(), face));
-                    }
-                }
-                return InteractionResult.SUCCESS;
-            }
-
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            if (isFeatureEnabled(FeatureId.SUBSTITUTION) && player.isShiftKeyDown()) {
-                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-                if (!SubstitutionAgent.shouldQueueStartSubstitution(serverPlayer, hand, SubstitutionAction.INTERACT, pos)) {
-                    SubstitutionAgent.markSubstitutionActivity(serverPlayer, hand, SubstitutionAction.INTERACT, pos);
-                    return InteractionResult.SUCCESS;
-                }
-                LogUtils.logDebug("Use block trigger feature=Substitution player={} item={} pos={}", serverPlayer.getScoreboardName(), itemId, pos);
-                SubstitutionAgent agent = new SubstitutionAgent(serverPlayer, state, SubstitutionAction.INTERACT, hand, substitutionConfig(serverPlayer));
-                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-                if (!agent.tick()) {
-                    AgentManager.get().addAgent(serverPlayer, agent);
-                }
                 return InteractionResult.SUCCESS;
             }
 
@@ -1153,7 +1107,6 @@ public final class ModEntry {
             );
         }
         NeoForge.EVENT_BUS.addListener(this::onRightClickBlock);
-        NeoForge.EVENT_BUS.addListener(this::onRightClickItem);
         NeoForge.EVENT_BUS.addListener(this::onLeftClickBlock);
         NeoForgeBreakEvents.register(NeoForge.EVENT_BUS, this::handleBlockBreak);
         NeoForge.EVENT_BUS.addListener(this::onBreakSpeed);
@@ -1246,7 +1199,6 @@ public final class ModEntry {
         }
 
         LogUtils.logDebug("NeoForge right click player={} item={} block={} pos={}", event.getEntity().getScoreboardName(), itemId(event.getItemStack()), blockId(event.getLevel().getBlockState(event.getPos())), event.getPos());
-        routeToolUse(event.getItemStack(), event.getPos(), event.getLevel().getBlockState(event.getPos()));
 
         if (!(event.getEntity() instanceof ServerPlayer serverPlayer)) {
             return;
@@ -1273,39 +1225,6 @@ public final class ModEntry {
             AgentManager.get().addAgent(serverPlayer, new PathanationAgent(serverPlayer, pos, serverPlayer.getDirection(), pathanationConfig(serverPlayer), commonConfig(serverPlayer)));
             return;
         }
-
-        if (!isFeatureEnabled(FeatureId.SUBSTITUTION)) {
-            return;
-        }
-
-        if (event.getEntity().isShiftKeyDown()) {
-            if (!SubstitutionAgent.shouldQueueStartSubstitution(serverPlayer, event.getHand(), SubstitutionAction.INTERACT, pos)) {
-                SubstitutionAgent.markSubstitutionActivity(serverPlayer, event.getHand(), SubstitutionAction.INTERACT, pos);
-                return;
-            }
-            SubstitutionAgent agent = new SubstitutionAgent(serverPlayer, state, SubstitutionAction.INTERACT, event.getHand(), substitutionConfig(serverPlayer));
-            if (!agent.tick()) {
-                AgentManager.get().addAgent(serverPlayer, agent);
-            }
-        }
-    }
-
-    private void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
-        if (event.getEntity() == null || event.getLevel().isClientSide()) {
-            return;
-        }
-
-        if (!(event.getEntity() instanceof ServerPlayer serverPlayer)) {
-            return;
-        }
-
-        if (!isFeatureEnabled(FeatureId.CAPTIVATION)) {
-            return;
-        }
-
-        if (event.getEntity().isShiftKeyDown()) {
-            AgentManager.get().addAgent(serverPlayer, new CaptivationAgent(serverPlayer, captivationConfig(serverPlayer)));
-        }
     }
 
     private void onAttackEntity(AttackEntityEvent event) {
@@ -1318,6 +1237,7 @@ public final class ModEntry {
         }
 
         if (!isFeatureEnabled(FeatureId.SUBSTITUTION)) {
+            LogUtils.logDebug("Substitution skipped trigger=NeoAttackEntity player={} hand={} reason=feature-disabled", serverPlayer.getScoreboardName(), InteractionHand.MAIN_HAND);
             return;
         }
 
@@ -1328,12 +1248,26 @@ public final class ModEntry {
 
         SubstitutionConfig config = substitutionConfig(serverPlayer);
         if (config.ignorePassiveMobs() && target.getType().getCategory().isFriendly()) {
+            LogUtils.logDebug(
+                "Substitution skipped trigger=NeoAttackEntity player={} hand={} targetEntity={} pos={} reason=ignore-passive-mobs",
+                serverPlayer.getScoreboardName(),
+                InteractionHand.MAIN_HAND,
+                BuiltInRegistries.ENTITY_TYPE.getKey(target.getType()),
+                target.blockPosition()
+            );
             return;
         }
 
         BlockPos targetPos = target.blockPosition();
         if (!SubstitutionAgent.shouldQueueStartSubstitution(serverPlayer, InteractionHand.MAIN_HAND, SubstitutionAction.ATTACK, targetPos)) {
             SubstitutionAgent.markSubstitutionActivity(serverPlayer, InteractionHand.MAIN_HAND, SubstitutionAction.ATTACK, targetPos);
+            LogUtils.logDebug(
+                "Substitution skipped trigger=NeoAttackEntity player={} hand={} targetEntity={} pos={} reason=queue-deduped",
+                serverPlayer.getScoreboardName(),
+                InteractionHand.MAIN_HAND,
+                BuiltInRegistries.ENTITY_TYPE.getKey(target.getType()),
+                targetPos
+            );
             return;
         }
 
@@ -1366,6 +1300,7 @@ public final class ModEntry {
             BlockState state = event.getLevel().getBlockState(event.getPos());
             if (!SubstitutionAgent.shouldQueueStartSubstitution(serverPlayer, event.getHand(), SubstitutionAction.BREAK, event.getPos())) {
                 SubstitutionAgent.markSubstitutionActivity(serverPlayer, event.getHand(), SubstitutionAction.BREAK, event.getPos());
+                LogUtils.logDebug("Substitution skipped trigger=NeoLeftClickBlock player={} hand={} item={} pos={} reason=queue-deduped", serverPlayer.getScoreboardName(), event.getHand(), itemId(stack), event.getPos());
             } else {
                 SubstitutionAgent agent = new SubstitutionAgent(serverPlayer, state, SubstitutionAction.BREAK, event.getHand(), substitutionConfig(serverPlayer));
                 if (!agent.tick()) {

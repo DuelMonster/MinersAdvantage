@@ -66,11 +66,7 @@ public record SubstitutionConfig(
             new SelectionRule(SubstitutionAction.BREAK, TargetKind.BLOCK_TAG, "minecraft:mineable/pickaxe", "pickaxe", 100, 10, false, true, "", "tool_kind:pickaxe AND correct_tool", 0, 0, false, false),
             new SelectionRule(SubstitutionAction.BREAK, TargetKind.BLOCK_TAG, "minecraft:mineable/axe", "axe", 100, 10, false, false, "", "tool_kind:axe AND correct_tool", 0, 0, false, false),
             new SelectionRule(SubstitutionAction.BREAK, TargetKind.BLOCK_TAG, "minecraft:mineable/shovel", "shovel", 100, 10, false, false, "", "tool_kind:shovel AND correct_tool", 0, 0, false, false),
-            new SelectionRule(SubstitutionAction.BREAK, TargetKind.BLOCK_TAG, "minecraft:mineable/hoe", "hoe", 100, 10, false, false, "", "tool_kind:hoe AND correct_tool", 0, 0, false, false),
-            new SelectionRule(SubstitutionAction.INTERACT, TargetKind.BLOCK_TAG, "minecraft:mineable/pickaxe", "pickaxe", 90, 8, false, true, "", "tool_kind:pickaxe", 0, 0, false, false),
-            new SelectionRule(SubstitutionAction.INTERACT, TargetKind.BLOCK_TAG, "minecraft:mineable/axe", "axe", 90, 8, false, false, "", "tool_kind:axe", 0, 0, false, false),
-            new SelectionRule(SubstitutionAction.INTERACT, TargetKind.BLOCK_TAG, "minecraft:mineable/shovel", "shovel", 90, 8, false, false, "", "tool_kind:shovel", 0, 0, false, false),
-            new SelectionRule(SubstitutionAction.INTERACT, TargetKind.BLOCK_TAG, "minecraft:mineable/hoe", "hoe", 90, 8, false, false, "", "tool_kind:hoe", 0, 0, false, false)
+            new SelectionRule(SubstitutionAction.BREAK, TargetKind.BLOCK_TAG, "minecraft:mineable/hoe", "hoe", 100, 10, false, false, "", "tool_kind:hoe AND correct_tool", 0, 0, false, false)
         );
     }
 
