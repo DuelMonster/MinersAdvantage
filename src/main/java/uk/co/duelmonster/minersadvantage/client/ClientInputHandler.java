@@ -91,6 +91,10 @@ public final class ClientInputHandler {
     public static void registerKeybindings() {
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (KeyBindings.KeyBindingSpec spec : KeyBindings.all()) {
+            if (spec.defaultKey() == null) {
+                continue;
+            }
+
             String translationKey = "key." + uk.co.duelmonster.minersadvantage.ModCommon.MOD_ID + "." + spec.action().name().toLowerCase();
 
             InputConstants.Key key = parseKeyToken(spec.defaultKey());

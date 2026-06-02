@@ -1,3 +1,8 @@
+## 2.13.0
+
+- Bump mod version to `2.13.0` for the first code/content change day commit and advance daily bump tracking state.
+- Fix client keybind registration by skipping specs with no default key so unbound toggle actions do not trigger key-token parsing failures.
+
 ## 2.12.0
 
 - Bump mod version to `2.12.0` for the first code/content change day commit and advance daily bump tracking state.
