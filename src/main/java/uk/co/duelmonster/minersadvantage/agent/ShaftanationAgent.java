@@ -22,6 +22,7 @@ import uk.co.duelmonster.minersadvantage.common.shape.builtin.shaft.ShaftFloorGe
 import uk.co.duelmonster.minersadvantage.common.services.utility.VeinationRuntimeService;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
@@ -223,12 +224,17 @@ public class ShaftanationAgent extends Agent {
             );
 
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            if (autoIlluminate && MAShapeIds.SHAFTANATION_SHAFT.equals(selectedShape.get().id())) {
+            if (autoIlluminate) {
                 int halfWidth = shaftWidth / 2;
                 BlockPos floorOrigin = new BlockPos(origin.getX(), floorY, origin.getZ());
+                BlockPos[] floorByDepth = collectDepthFloorBases(shapePositions, floorOrigin, this.direction, this.targetDepth);
                 // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 for (int depth = 1; depth < targetDepth; depth++) {
-                    addTorchTargets(floorOrigin.relative(this.direction, depth), halfWidth);
+                    BlockPos torchBase = floorByDepth[depth];
+                    if (torchBase == null) {
+                        continue;
+                    }
+                    addTorchTargets(torchBase, halfWidth);
                 }
             }
             return;
@@ -300,8 +306,8 @@ public class ShaftanationAgent extends Agent {
             localByPos.put(pos, new ShaftLocal(localDepth, localWidth, localHeight));
         }
 
-        int minWidth = ShapeGeometryUtils.minCenteredOffset(width);
-        int maxWidth = ShapeGeometryUtils.maxCenteredOffset(width);
+        int minWidth = ShapeGeometryUtils.minRightBiasedCenteredOffset(width);
+        int maxWidth = ShapeGeometryUtils.maxRightBiasedCenteredOffset(width);
         int minHeight = 0;
         int maxHeight = Math.max(0, height - 1);
         Map<Long, Integer> spiralIndex = clockwiseSpiralIndex(minWidth, maxWidth, minHeight, maxHeight, startWidth, startHeight);
@@ -338,6 +344,39 @@ public class ShaftanationAgent extends Agent {
             return -1;
         }
         return 0;
+    }
+
+    private static BlockPos[] collectDepthFloorBases(Set<BlockPos> positions, BlockPos floorOrigin, Direction forward, int maxDepth) {
+        BlockPos[] floors = new BlockPos[Math.max(0, maxDepth)];
+        if (positions == null || positions.isEmpty() || maxDepth <= 0) {
+            return floors;
+        }
+
+        Direction shaftForward = ShapeGeometryUtils.horizontalOrNorth(forward);
+        int[] minYByDepth = new int[maxDepth];
+        Arrays.fill(minYByDepth, Integer.MAX_VALUE);
+
+        for (BlockPos pos : positions) {
+            int relX = pos.getX() - floorOrigin.getX();
+            int relZ = pos.getZ() - floorOrigin.getZ();
+            int depth = relX * shaftForward.getStepX() + relZ * shaftForward.getStepZ();
+            if (depth < 0 || depth >= maxDepth) {
+                continue;
+            }
+            if (pos.getY() < minYByDepth[depth]) {
+                minYByDepth[depth] = pos.getY();
+            }
+        }
+
+        for (int depth = 0; depth < maxDepth; depth++) {
+            if (minYByDepth[depth] == Integer.MAX_VALUE) {
+                continue;
+            }
+            BlockPos depthBase = floorOrigin.relative(shaftForward, depth);
+            floors[depth] = new BlockPos(depthBase.getX(), minYByDepth[depth], depthBase.getZ());
+        }
+
+        return floors;
     }
 
     private static int clampDepth(int localDepth, int maxDepth) {

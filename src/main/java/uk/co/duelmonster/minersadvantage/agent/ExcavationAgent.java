@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -60,6 +61,7 @@ public class ExcavationAgent extends Agent {
     private int carvedMaxX;
     private int carvedMaxY;
     private int carvedMaxZ;
+    private final Set<BlockPos> carvedPositions = new LinkedHashSet<>();
     private final Set<BlockPos> allowedShapePositions;
     private final boolean useOrderedShapeQueue;
     private int processed = 0;
@@ -379,7 +381,7 @@ public class ExcavationAgent extends Agent {
         AgentManager manager = AgentManager.get();
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!manager.hasAgentType(player, IlluminationAgent.class)) {
-            manager.addAgent(player, new IlluminationAgent(player, carvedArea(), illuminationConfig, commonConfig));
+            manager.addAgent(player, new IlluminationAgent(player, carvedPositions, illuminationConfig, commonConfig));
         }
     }
 
@@ -388,6 +390,7 @@ public class ExcavationAgent extends Agent {
      */
     private void resetCarvedBounds() {
         carvedAnyBlock = false;
+        carvedPositions.clear();
         carvedMinX = Integer.MAX_VALUE;
         carvedMinY = Integer.MAX_VALUE;
         carvedMinZ = Integer.MAX_VALUE;
@@ -401,6 +404,7 @@ public class ExcavationAgent extends Agent {
      */
     private void recordCarvedBlock(BlockPos pos) {
         carvedAnyBlock = true;
+        carvedPositions.add(pos.immutable());
         carvedMinX = Math.min(carvedMinX, pos.getX());
         carvedMinY = Math.min(carvedMinY, pos.getY());
         carvedMinZ = Math.min(carvedMinZ, pos.getZ());

@@ -9,6 +9,7 @@ import uk.co.duelmonster.minersadvantage.common.config.IlluminationConfig;
 import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 import uk.co.duelmonster.minersadvantage.common.Functions;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -42,6 +43,26 @@ public class IlluminationAgent extends Agent {
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (BlockPos pos : Functions.getAllPositionsInArea(area)) {
             queue.add(pos.immutable());
+        }
+    }
+
+    /**
+     * Constructor variant that enqueues an explicit position set (e.g. carved shape blocks).
+     */
+    public IlluminationAgent(ServerPlayer player, Collection<BlockPos> positions, IlluminationConfig config, CommonConfig commonConfig) {
+        super(player);
+        BlockPos first = (positions == null || positions.isEmpty()) ? player.blockPosition() : positions.iterator().next();
+        this.origin = first.immutable();
+        this.config = config == null ? MAServerRootConfig.defaults().illumination() : config;
+        int globalBlocksPerTick = commonConfig == null ? 1 : Math.max(1, commonConfig.blocksPerTick());
+        this.blocksPerTick = globalBlocksPerTick;
+
+        if (positions != null) {
+            for (BlockPos pos : positions) {
+                if (pos != null) {
+                    queue.add(pos.immutable());
+                }
+            }
         }
     }
 
