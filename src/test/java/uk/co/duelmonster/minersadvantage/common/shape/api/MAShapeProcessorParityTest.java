@@ -227,6 +227,30 @@ class MAShapeProcessorParityTest {
             -1,
             1
         );
+        assertOffset(
+            ExcavationFaceGeometry.offsetFor(
+                ExcavationFaceGeometry.FaceDirection.UP,
+                ExcavationFaceGeometry.FaceDirection.SOUTH,
+                2,
+                1,
+                -1
+            ),
+            -1,
+            -1,
+            2
+        );
+        assertOffset(
+            ExcavationFaceGeometry.offsetFor(
+                ExcavationFaceGeometry.FaceDirection.DOWN,
+                ExcavationFaceGeometry.FaceDirection.WEST,
+                2,
+                1,
+                -1
+            ),
+            -2,
+            -1,
+            -1
+        );
     }
 
     /**
