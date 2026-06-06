@@ -52,7 +52,6 @@ public class IlluminationPlaceAgent extends Agent {
         if (!placeTorchWithInventory(target, faceDirection)) {
             return finish("illumination-place skipped: torch placement rejected pos=" + target + " face=" + faceDirection);
         }
-        world.playSound(null, target, net.minecraft.sounds.SoundEvents.WOOD_PLACE, net.minecraft.sounds.SoundSource.BLOCKS, 1.0F, 0.8F + world.getRandom().nextFloat() * 0.4F);
         LogUtils.logDebug("IlluminationPlaceAgent placed torch at pos={} face={}", target, faceDirection);
         return finish("illumination-place complete pos=" + target);
     }

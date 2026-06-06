@@ -11,6 +11,7 @@ import java.util.function.Consumer;
 public final class ProcessingCoreService<T> {
     private final Deque<T> queue = new ArrayDeque<>();
     private final int blocksPerTick;
+    private final int maxQueuedEntries;
 
     /**
      * ProcessingCoreService exists so this code path does one job clearly instead of spreading chaos across callers.
@@ -18,6 +19,7 @@ public final class ProcessingCoreService<T> {
      */
     public ProcessingCoreService(int blocksPerTick) {
         this.blocksPerTick = blocksPerTick;
+        this.maxQueuedEntries = Math.max(1, blocksPerTick + 1);
     }
 
     /**
@@ -25,6 +27,9 @@ public final class ProcessingCoreService<T> {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public boolean offer(T value) {
+        if (queue.size() >= maxQueuedEntries) {
+            return false;
+        }
         queue.add(value);
         return true;
     }

@@ -212,12 +212,11 @@ public final class ExcavationFaceGeometry {
      */
     public static int[] offsetFor(FaceDirection hitFace, FaceDirection playerFacing, int depth, int width, int height) {
         if (hitFace == FaceDirection.UP || hitFace == FaceDirection.DOWN) {
-            int verticalDepth = hitFace == FaceDirection.UP ? -depth : depth;
             return switch (horizontalOrNorth(playerFacing)) {
-                case NORTH -> new int[] {width, verticalDepth, -height};
-                case SOUTH -> new int[] {-width, verticalDepth, height};
-                case EAST -> new int[] {height, verticalDepth, width};
-                case WEST -> new int[] {-height, verticalDepth, -width};
+                case NORTH -> new int[] {width, height, -depth};
+                case SOUTH -> new int[] {-width, height, depth};
+                case EAST -> new int[] {depth, height, width};
+                case WEST -> new int[] {-depth, height, -width};
                 case UP, DOWN -> throw new IllegalStateException("horizontalOrNorth returned vertical direction");
             };
         }
