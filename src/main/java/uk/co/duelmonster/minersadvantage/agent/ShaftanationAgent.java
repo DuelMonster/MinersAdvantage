@@ -15,13 +15,21 @@ import uk.co.duelmonster.minersadvantage.common.log.LogUtils;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeContext;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeDimensions;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeIds;
+import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapePrecomputeCache;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeRegistry;
+import uk.co.duelmonster.minersadvantage.common.shape.builtin.ShapeGeometryUtils;
 import uk.co.duelmonster.minersadvantage.common.shape.builtin.shaft.ShaftFloorGeometry;
 import uk.co.duelmonster.minersadvantage.common.services.utility.VeinationRuntimeService;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 
 /**
  * Shaft-digging worker that carves a directional tunnel and optionally places torches afterward.
@@ -37,7 +45,6 @@ public class ShaftanationAgent extends Agent {
     private final int shaftWidth;
     private final int shaftHeight;
     private final int blocksPerTick;
-    private final int blockLimit;
     private final boolean autoIlluminate;
     private final int torchLowestLightLevel;
     private final boolean mineVeins;
@@ -176,7 +183,6 @@ public class ShaftanationAgent extends Agent {
 
         int globalBlocksPerTick = commonConfig == null ? 1 : Math.max(1, commonConfig.blocksPerTick());
         this.blocksPerTick = Math.max(1, Math.min(globalBlocksPerTick, this.config.processesPerTick()));
-        this.blockLimit = commonConfig == null ? 64 : Math.max(1, commonConfig.blockLimit());
         this.autoIlluminate = commonConfig == null || commonConfig.autoIlluminate();
         this.torchLowestLightLevel = Math.max(0, torchLowestLightLevel);
         this.mineVeins = commonConfig == null || commonConfig.mineVeins();
@@ -199,13 +205,22 @@ public class ShaftanationAgent extends Agent {
                 this.direction,
                 dimensions.width(),
                 dimensions.height(),
-                dimensions.depth(),
-                this.blockLimit
+                dimensions.depth()
             );
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            for (BlockPos shapePos : selectedShape.get().compute(context)) {
-                queue.add(shapePos.immutable());
-            }
+            Set<BlockPos> shapePositions = MAShapePrecomputeCache.compute(selectedShape.get(), context);
+            queue.addAll(
+                orderShaftPositions(
+                    shapePositions,
+                    new BlockPos(origin.getX(), floorY, origin.getZ()),
+                    this.direction,
+                    this.shaftWidth,
+                    this.shaftHeight,
+                    this.targetDepth,
+                    0,
+                    origin.getY() - floorY,
+                    staircaseLayerRisePerDepth(selectedShape.get().id())
+                )
+            );
 
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (autoIlluminate && MAShapeIds.SHAFTANATION_SHAFT.equals(selectedShape.get().id())) {
@@ -222,6 +237,7 @@ public class ShaftanationAgent extends Agent {
         int halfWidth = shaftWidth / 2;
         boolean alongZ = this.direction.getAxis() == Direction.Axis.Z;
         BlockPos floorOrigin = new BlockPos(origin.getX(), floorY, origin.getZ());
+        ArrayList<BlockPos> fallbackPositions = new ArrayList<>();
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (int depth = 0; depth < targetDepth; depth++) {
             BlockPos base = floorOrigin.relative(this.direction, depth);
@@ -229,7 +245,7 @@ public class ShaftanationAgent extends Agent {
             for (int w = -halfWidth; w <= halfWidth; w++) {
                 // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 for (int h = 0; h < shaftHeight; h++) {
-                    queue.add((alongZ ? base.offset(w, h, 0) : base.offset(0, h, w)).immutable());
+                    fallbackPositions.add((alongZ ? base.offset(w, h, 0) : base.offset(0, h, w)).immutable());
                 }
             }
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
@@ -237,6 +253,165 @@ public class ShaftanationAgent extends Agent {
                 addTorchTargets(base, halfWidth);
             }
         }
+        queue.addAll(
+            orderShaftPositions(
+                new java.util.LinkedHashSet<>(fallbackPositions),
+                floorOrigin,
+                this.direction,
+                this.shaftWidth,
+                this.shaftHeight,
+                this.targetDepth,
+                0,
+                origin.getY() - floorY,
+                0
+            )
+        );
+    }
+
+    private record ShaftLocal(int depth, int width, int height) {
+    }
+
+    private static List<BlockPos> orderShaftPositions(
+        Set<BlockPos> positions,
+        BlockPos floorOrigin,
+        Direction forward,
+        int width,
+        int height,
+        int depth,
+        int startWidth,
+        int startHeight,
+        int layerRisePerDepth
+    ) {
+        if (positions == null || positions.isEmpty()) {
+            return List.of();
+        }
+
+        Direction shaftForward = ShapeGeometryUtils.horizontalOrNorth(forward);
+        Direction shaftRight = ShapeGeometryUtils.rightFromForward(shaftForward);
+
+        Map<BlockPos, ShaftLocal> localByPos = new HashMap<>(positions.size());
+        for (BlockPos pos : positions) {
+            int relX = pos.getX() - floorOrigin.getX();
+            int relY = pos.getY() - floorOrigin.getY();
+            int relZ = pos.getZ() - floorOrigin.getZ();
+            int localDepth = relX * shaftForward.getStepX() + relZ * shaftForward.getStepZ();
+            int localWidth = relX * shaftRight.getStepX() + relZ * shaftRight.getStepZ();
+            int localHeight = normalizedLayerHeight(relY, localDepth, layerRisePerDepth);
+            localByPos.put(pos, new ShaftLocal(localDepth, localWidth, localHeight));
+        }
+
+        int minWidth = ShapeGeometryUtils.minCenteredOffset(width);
+        int maxWidth = ShapeGeometryUtils.maxCenteredOffset(width);
+        int minHeight = 0;
+        int maxHeight = Math.max(0, height - 1);
+        Map<Long, Integer> spiralIndex = clockwiseSpiralIndex(minWidth, maxWidth, minHeight, maxHeight, startWidth, startHeight);
+
+        ArrayList<BlockPos> ordered = new ArrayList<>(positions.size());
+        for (BlockPos pos : positions) {
+            ordered.add(pos.immutable());
+        }
+
+        ordered.sort(
+            Comparator
+                .comparingInt((BlockPos pos) -> clampDepth(localByPos.get(pos).depth(), depth))
+                .thenComparingInt(pos -> spiralIndex.getOrDefault(pairKey(localByPos.get(pos).width(), localByPos.get(pos).height()), Integer.MAX_VALUE))
+                .thenComparingInt(BlockPos::getY)
+                .thenComparingInt(BlockPos::getX)
+                .thenComparingInt(BlockPos::getZ)
+        );
+        return ordered;
+    }
+
+    private static int normalizedLayerHeight(int relY, int localDepth, int layerRisePerDepth) {
+        int baseLayerY = layerRisePerDepth * localDepth;
+        if (layerRisePerDepth < 0) {
+            return baseLayerY - relY;
+        }
+        return relY - baseLayerY;
+    }
+
+    private static int staircaseLayerRisePerDepth(String shapeId) {
+        if (MAShapeIds.SHAFTANATION_STAIRCASE_UP.equals(shapeId)) {
+            return 1;
+        }
+        if (MAShapeIds.SHAFTANATION_STAIRCASE_DOWN.equals(shapeId)) {
+            return -1;
+        }
+        return 0;
+    }
+
+    private static int clampDepth(int localDepth, int maxDepth) {
+        if (localDepth < 0) {
+            return Integer.MAX_VALUE - 1;
+        }
+        if (localDepth >= maxDepth) {
+            return Integer.MAX_VALUE;
+        }
+        return localDepth;
+    }
+
+    private static Map<Long, Integer> clockwiseSpiralIndex(
+        int minW,
+        int maxW,
+        int minH,
+        int maxH,
+        int startW,
+        int startH
+    ) {
+        HashMap<Long, Integer> index = new HashMap<>();
+        int total = Math.max(0, (maxW - minW + 1) * (maxH - minH + 1));
+        if (total == 0) {
+            return index;
+        }
+
+        int[][] directions = new int[][] {
+            { 1, 0 },
+            { 0, -1 },
+            { -1, 0 },
+            { 0, 1 }
+        };
+
+        int w = Math.max(minW, Math.min(maxW, startW));
+        int h = Math.max(minH, Math.min(maxH, startH));
+        int dirIndex = 0;
+        int stepLength = 1;
+
+        addSpiralPoint(index, minW, maxW, minH, maxH, w, h);
+        while (index.size() < total) {
+            for (int side = 0; side < 2; side++) {
+                int[] direction = directions[dirIndex % directions.length];
+                for (int step = 0; step < stepLength; step++) {
+                    w += direction[0];
+                    h += direction[1];
+                    addSpiralPoint(index, minW, maxW, minH, maxH, w, h);
+                    if (index.size() >= total) {
+                        return index;
+                    }
+                }
+                dirIndex++;
+            }
+            stepLength++;
+        }
+        return index;
+    }
+
+    private static void addSpiralPoint(
+        Map<Long, Integer> index,
+        int minW,
+        int maxW,
+        int minH,
+        int maxH,
+        int w,
+        int h
+    ) {
+        if (w < minW || w > maxW || h < minH || h > maxH) {
+            return;
+        }
+        index.putIfAbsent(pairKey(w, h), index.size());
+    }
+
+    private static long pairKey(int a, int b) {
+        return (((long) a) << 32) ^ (b & 0xffffffffL);
     }
 
     /**
@@ -249,7 +424,7 @@ public class ShaftanationAgent extends Agent {
     public boolean tick() {
         int count = 0;
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        while (!queue.isEmpty() && count < blocksPerTick && dug < blockLimit) {
+        while (!queue.isEmpty() && count < blocksPerTick) {
             BlockPos pos = queue.poll();
             BlockState state = world.getBlockState(pos);
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
@@ -319,8 +494,8 @@ public class ShaftanationAgent extends Agent {
         }
 
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if ((queue.isEmpty() && torchQueue.isEmpty()) || dug >= blockLimit) {
-            return finish(queue.isEmpty() && torchQueue.isEmpty() ? "shaft queue exhausted" : "shaft target reached");
+        if (queue.isEmpty() && torchQueue.isEmpty()) {
+            return finish("shaft queue exhausted");
         }
         return false;
     }

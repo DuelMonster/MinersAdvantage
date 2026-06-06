@@ -3,6 +3,7 @@ package uk.co.duelmonster.minersadvantage.common.shape.builtin.excavation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeContext;
+import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapePrecomputeCache;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeProcessor;
 
 import java.util.ArrayDeque;
@@ -32,39 +33,40 @@ public final class ShapelessShapeProcessor implements MAShapeProcessor {
             return out;
         }
 
+        Set<BlockPos> envelope = MAShapePrecomputeCache.excavationEnvelopeAt(
+            context.origin(),
+            context.width(),
+            context.height(),
+            context.depth(),
+            context.hitFace(),
+            context.playerFacing()
+        );
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+        if (envelope.isEmpty()) {
+            return out;
+        }
+
         HashSet<BlockPos> visited = new HashSet<>();
         ArrayDeque<BlockPos> stack = new ArrayDeque<>();
         int[] neighborOrder = new int[NEIGHBOR_OFFSETS.length];
         int[] neighborDistances = new int[NEIGHBOR_OFFSETS.length];
-        int originX = context.origin().getX();
-        int originY = context.origin().getY();
-        int originZ = context.origin().getZ();
-        stack.push(context.origin());
+        boolean originAirSeeded = false;
+        stack.push(context.origin().immutable());
 
         // Depth-first expansion mirrors LiteMiner traversal and keeps shape growth local-first.
-        while (!stack.isEmpty() && out.size() < context.maxBlocks()) {
+        while (!stack.isEmpty()) {
             BlockPos current = stack.pop();
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            if (visited.contains(current)) {
+            if (!envelope.contains(current) || visited.contains(current)) {
                 continue;
             }
 
             BlockState state = context.level().getBlockState(current);
             boolean matchesOriginFamily = isMatchingOriginFamily(originState, state);
-            // If the trigger block has already been broken, still seed traversal from origin.
-            if (
-                !matchesOriginFamily
-                    && shouldTreatBrokenOriginAsMatch(
-                        current.getX(),
-                        current.getY(),
-                        current.getZ(),
-                        originX,
-                        originY,
-                        originZ,
-                        state.isAir()
-                    )
-            ) {
+            // If the trigger block is already gone by the time shapeless computes, seed traversal from origin anyway.
+            if (!matchesOriginFamily && current.equals(context.origin()) && state.isAir()) {
                 matchesOriginFamily = true;
+                originAirSeeded = true;
             }
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (!matchesOriginFamily) {
@@ -78,16 +80,19 @@ public final class ShapelessShapeProcessor implements MAShapeProcessor {
                 current.getX(),
                 current.getY(),
                 current.getZ(),
-                originX,
-                originY,
-                originZ,
+                context.origin().getX(),
+                context.origin().getY(),
+                context.origin().getZ(),
                 neighborOrder,
                 neighborDistances
             );
 
             for (int i = neighborOrder.length - 1; i >= 0; i--) {
                 int[] offset = NEIGHBOR_OFFSETS[neighborOrder[i]];
-                stack.push(current.offset(offset[0], offset[1], offset[2]));
+                BlockPos neighbor = current.offset(offset[0], offset[1], offset[2]);
+                if (envelope.contains(neighbor) && !visited.contains(neighbor)) {
+                    stack.push(neighbor);
+                }
             }
         }
 

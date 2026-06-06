@@ -19,14 +19,12 @@ public record MAShapeContext(
     Direction playerFacing,
     int width,
     int height,
-    int depth,
-    int maxBlocks
+    int depth
 ) {
     public MAShapeContext {
         width = Math.max(1, width);
         height = Math.max(1, height);
         depth = Math.max(1, depth);
-        maxBlocks = Math.max(1, maxBlocks);
         hitFace = hitFace == null ? Direction.NORTH : hitFace;
         playerFacing = playerFacing == null ? Direction.NORTH : playerFacing;
         originState = originState == null

@@ -42,20 +42,19 @@ public final class VeinationCoreService {
     /**
      * Overload that discovers connected vein blocks without an origin-state hint.
      */
-    public List<BlockPos> discoverConnectedVein(Level world, BlockPos origin, int maxVeinDistance, int maxBlocks) {
-        return discoverConnectedVein(world, origin, null, maxVeinDistance, maxBlocks);
+    public List<BlockPos> discoverConnectedVein(Level world, BlockPos origin, int maxVeinDistance) {
+        return discoverConnectedVein(world, origin, null, maxVeinDistance);
     }
 
     /**
-     * Discover connected ore blocks using BFS with optional origin hint, distance bound, and block-count cap.
+     * Discover connected ore blocks using BFS with optional origin hint and distance bound.
      */
-    public List<BlockPos> discoverConnectedVein(Level world, BlockPos origin, BlockState originHint, int maxVeinDistance, int maxBlocks) {
+    public List<BlockPos> discoverConnectedVein(Level world, BlockPos origin, BlockState originHint, int maxVeinDistance) {
         List<BlockPos> vein = new ArrayList<>();
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (world == null || origin == null || maxVeinDistance < 0) {
             return vein;
         }
-        int effectiveMaxBlocks = maxBlocks <= 0 ? Integer.MAX_VALUE : maxBlocks;
 
         BlockState originState = world.getBlockState(origin);
         BlockState effectiveOriginState = RegistryPredicates.isOreLike(originState) ? originState : originHint;
@@ -87,8 +86,8 @@ public final class VeinationCoreService {
         }
 
         int maxDistanceSquared = maxVeinDistance * maxVeinDistance;
-        // Standard BFS loop with early exits for distance and max-block budget.
-        while (!queue.isEmpty() && vein.size() < effectiveMaxBlocks) {
+        // Standard BFS loop with early exits for distance.
+        while (!queue.isEmpty()) {
             BlockPos current = queue.removeFirst();
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (current.distSqr(origin) > maxDistanceSquared) {

@@ -30,7 +30,6 @@ public class VentilationAgent extends Agent {
     private final Deque<BlockPos> ladderQueue = new LinkedList<>();
     private int dug = 0;
     private final int blocksPerTick;
-    private final int blockLimit;
     private final boolean mineVeins;
     private final CommonConfig commonConfig;
     private final VeinationRuntimeService veinationRuntime;
@@ -97,7 +96,6 @@ public class VentilationAgent extends Agent {
 
         int globalBlocksPerTick = commonConfig == null ? 1 : Math.max(1, commonConfig.blocksPerTick());
         this.blocksPerTick = Math.max(1, Math.min(globalBlocksPerTick, this.config.processesPerTick()));
-        this.blockLimit = commonConfig == null ? 64 : Math.max(1, commonConfig.blockLimit());
         this.mineVeins = commonConfig == null || commonConfig.mineVeins();
         this.commonConfig = commonConfig;
         this.veinationRuntime = veinationRuntime;
@@ -125,7 +123,7 @@ public class VentilationAgent extends Agent {
     public boolean tick() {
         int count = 0;
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        while (!queue.isEmpty() && count < blocksPerTick && dug < blockLimit) {
+        while (!queue.isEmpty() && count < blocksPerTick) {
             BlockPos pos = queue.poll();
             BlockState state = world.getBlockState(pos);
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
@@ -147,7 +145,7 @@ public class VentilationAgent extends Agent {
             }
         }
 
-        boolean diggingComplete = queue.isEmpty() || dug >= blockLimit;
+        boolean diggingComplete = queue.isEmpty();
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (diggingComplete) {
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.

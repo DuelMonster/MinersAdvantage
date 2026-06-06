@@ -62,8 +62,7 @@ public final class MATomlConfigStore {
                 intValue(serverValues, "common.blocks_per_tick", fallback.common().blocksPerTick(), 1, 1024),
                 boolValue(serverValues, "common.enable_tick_delay", fallback.common().enableTickDelay()),
                 intValue(serverValues, "common.tick_delay", fallback.common().tickDelay(), 0, 200),
-                intValue(serverValues, "common.block_radius", fallback.common().blockRadius(), 1, 128),
-                intValue(serverValues, "common.block_limit", fallback.common().blockLimit(), 1, 8192)
+                intValue(serverValues, "common.block_radius", fallback.common().blockRadius(), 1, 128)
             ),
             new CaptivationConfig(
                 boolValue(serverValues, "captivation.enabled", fallback.captivation().enabled()),
@@ -183,7 +182,6 @@ public final class MATomlConfigStore {
         serverValues.put("common.enable_tick_delay", formatTomlValue(value.common().enableTickDelay()));
         serverValues.put("common.tick_delay", formatTomlValue(value.common().tickDelay()));
         serverValues.put("common.block_radius", formatTomlValue(value.common().blockRadius()));
-        serverValues.put("common.block_limit", formatTomlValue(value.common().blockLimit()));
 
         serverValues.put("captivation.enabled", formatTomlValue(value.captivation().enabled()));
         serverValues.put("captivation.allow_in_gui", formatTomlValue(value.captivation().allowInGUI()));

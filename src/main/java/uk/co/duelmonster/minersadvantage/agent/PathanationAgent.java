@@ -24,7 +24,6 @@ public class PathanationAgent extends Agent {
     private final Queue<BlockPos> queue = new LinkedList<>();
     private int placed = 0;
     private final int blocksPerTick;
-    private final int blockLimit;
 
     /**
      * Convenience constructor using player facing and default configs.
@@ -44,7 +43,6 @@ public class PathanationAgent extends Agent {
         this.length = Math.max(1, effectiveConfig.targetBlockRange());
         this.pathWidth = Math.max(1, effectiveConfig.pathWidth());
         this.blocksPerTick = commonConfig == null ? 1 : Math.max(1, commonConfig.blocksPerTick());
-        this.blockLimit = commonConfig == null ? 64 : Math.max(1, commonConfig.blockLimit());
 
         // Pre-seed queue with full footprint so tick loop stays simple and predictable.
         int halfWidth = pathWidth / 2;
@@ -76,7 +74,7 @@ public class PathanationAgent extends Agent {
     public boolean tick() {
         int count = 0;
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        while (!queue.isEmpty() && count < blocksPerTick && placed < blockLimit) {
+        while (!queue.isEmpty() && count < blocksPerTick) {
             BlockPos pos = queue.poll();
             BlockState state = world.getBlockState(pos);
             // Only convert dirt-like surfaces with open/replaceable headspace above.
@@ -87,9 +85,9 @@ public class PathanationAgent extends Agent {
             }
         }
         int targetPlacements = length * pathWidth;
-        // Finish when queue is consumed, target reached, or global block limit forces stop.
-        if (queue.isEmpty() || placed >= targetPlacements || placed >= blockLimit) {
-            return finish(queue.isEmpty() ? "path queue exhausted" : placed >= blockLimit ? "path block limit reached" : "path target reached");
+        // Finish when queue is consumed or target reached.
+        if (queue.isEmpty() || placed >= targetPlacements) {
+            return finish(queue.isEmpty() ? "path queue exhausted" : "path target reached");
         }
         return false;
     }

@@ -12,14 +12,13 @@ public record CommonConfig(
     int blocksPerTick,
     boolean enableTickDelay,
     int tickDelay,
-    int blockRadius,
-    int blockLimit
+    int blockRadius
 ) {
     /**
      * CommonConfig exists so this code path does one job clearly instead of spreading chaos across callers.
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public CommonConfig() {
-        this(true, false, true, true, 1, true, 5, 3, 64);
+        this(true, false, true, true, 1, true, 5, 3);
     }
 }

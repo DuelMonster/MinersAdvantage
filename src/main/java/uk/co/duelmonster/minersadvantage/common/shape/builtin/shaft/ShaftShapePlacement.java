@@ -27,10 +27,6 @@ public final class ShaftShapePlacement {
         int lateralOffset,
         int verticalOffset
     ) {
-        // Hard stop keeps shape computation from quietly ignoring configured block limits.
-        if (out.size() >= context.maxBlocks()) {
-            return false;
-        }
         out.add(base.relative(right, lateralOffset).offset(0, verticalOffset, 0).immutable());
         return true;
     }

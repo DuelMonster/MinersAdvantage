@@ -19,4 +19,11 @@ public final class ShaftFloorGeometry {
         int maxAnchoredY = playerFeetY + clampedHeight - 1;
         return originY >= playerFeetY && originY <= maxAnchoredY ? playerFeetY : originY;
     }
+
+    /**
+     * Resolve the relative floor offset (floorY - originY) used by shaft geometry.
+     */
+    public static int resolveFloorOffset(int originY, int playerFeetY, int shaftHeight) {
+        return resolveFloorY(originY, playerFeetY, shaftHeight) - originY;
+    }
 }

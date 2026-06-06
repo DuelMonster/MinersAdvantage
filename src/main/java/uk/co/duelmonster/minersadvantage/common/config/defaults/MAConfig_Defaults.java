@@ -55,7 +55,6 @@ public final class MAConfig_Defaults {
         public static final boolean enableTickDelay = true;
         public static final int tickDelay = 5;
         public static final int blockRadius = Constants.DEFAULT_BLOCKRADIUS;
-        public static final int blockLimit = Constants.DEFAULT_BLOCKLIMIT;
     }
 
     /**

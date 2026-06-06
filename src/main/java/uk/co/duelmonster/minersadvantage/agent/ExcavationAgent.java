@@ -15,13 +15,22 @@ import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 import uk.co.duelmonster.minersadvantage.common.config.VeinationConfig;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 import uk.co.duelmonster.minersadvantage.common.Functions;
+import uk.co.duelmonster.minersadvantage.common.log.LogUtils;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeContext;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeDimensions;
+import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeDefinition;
+import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapePrecomputeCache;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeRegistry;
+import uk.co.duelmonster.minersadvantage.common.shape.builtin.excavation.ExcavationFaceGeometry;
 import uk.co.duelmonster.minersadvantage.common.services.utility.VeinationRuntimeService;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
@@ -38,7 +47,6 @@ public class ExcavationAgent extends Agent {
     private final Queue<BlockPos> queue = new LinkedList<>();
     private final Set<BlockPos> visited = new HashSet<>();
     private final int blocksPerTick;
-    private final int blockLimit;
     private final CommonConfig commonConfig;
     private final IlluminationConfig illuminationConfig;
     private final boolean mineVeins;
@@ -53,6 +61,7 @@ public class ExcavationAgent extends Agent {
     private int carvedMaxY;
     private int carvedMaxZ;
     private final Set<BlockPos> allowedShapePositions;
+    private final boolean useOrderedShapeQueue;
     private int processed = 0;
 
     /**
@@ -205,13 +214,22 @@ public class ExcavationAgent extends Agent {
         this.depth = Math.max(1, depth);
         int globalBlocksPerTick = Math.max(1, this.commonConfig.blocksPerTick());
         this.blocksPerTick = Math.max(1, Math.min(globalBlocksPerTick, this.config.processesPerTick()));
-        this.blockLimit = Math.max(1, this.commonConfig.blockLimit());
         this.mineVeins = this.commonConfig.mineVeins();
         this.veinationRuntime = veinationRuntime;
         this.veinationConfig = veinationConfig;
         this.veinationTriggerTool = veinationTriggerTool == null ? ItemStack.EMPTY : veinationTriggerTool.copy();
 
-        this.allowedShapePositions = MAShapeRegistry.byIndex(FeatureId.EXCAVATION, selectedShapeIndex)
+        var selectedShape = MAShapeRegistry.byIndex(FeatureId.EXCAVATION, selectedShapeIndex);
+        net.minecraft.core.Direction effectiveHitFace = hitFace == null ? player.getDirection() : hitFace;
+        LogUtils.logDebug(
+            "Excavation break trigger player={} selectedIndex={} shapeId={} shapeName={} hitFace={}",
+            player.getScoreboardName(),
+            selectedShapeIndex,
+            selectedShape.map(MAShapeDefinition::id).orElse("none"),
+            selectedShape.map(MAShapeDefinition::displayName).orElse("none"),
+            hitFace == null ? "null" : hitFace
+        );
+        this.allowedShapePositions = selectedShape
             .map(shapeDefinition -> {
                 MAShapeDimensions.Dimensions dimensions = MAShapeDimensions.excavationFromConfig(this.width, this.height, this.depth);
                 MAShapeContext context = new MAShapeContext(
@@ -219,14 +237,22 @@ public class ExcavationAgent extends Agent {
                     player,
                     origin,
                     this.originState,
-                    hitFace == null ? player.getDirection() : hitFace,
+                    effectiveHitFace,
                     player.getDirection(),
                     dimensions.width(),
                     dimensions.height(),
-                    dimensions.depth(),
-                    this.blockLimit
+                    dimensions.depth()
                 );
-                Set<BlockPos> computed = shapeDefinition.compute(context);
+                Set<BlockPos> computed = MAShapePrecomputeCache.compute(shapeDefinition, context);
+                computed = clampToConfiguredExcavationBounds(
+                    computed,
+                    origin,
+                    effectiveHitFace,
+                    player.getDirection(),
+                    dimensions.width(),
+                    dimensions.height(),
+                    dimensions.depth()
+                );
                 // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (!computed.contains(origin)) {
                     computed = new java.util.LinkedHashSet<>(computed);
@@ -235,6 +261,28 @@ public class ExcavationAgent extends Agent {
                 return computed;
             })
             .orElse(null);
+        this.useOrderedShapeQueue = this.allowedShapePositions != null;
+        if (selectedShape.isPresent()) {
+            MAShapeDefinition shape = selectedShape.get();
+            LogUtils.logDebug(
+                "Excavation shape resolved player={} selectedIndex={} shapeId={} shapeName={} hitFace={} width={} height={} depth={} computedPositions={}",
+                player.getScoreboardName(),
+                selectedShapeIndex,
+                shape.id(),
+                shape.displayName(),
+                hitFace == null ? "null" : hitFace,
+                this.width,
+                this.height,
+                this.depth,
+                this.allowedShapePositions == null ? 0 : this.allowedShapePositions.size()
+            );
+        } else {
+            LogUtils.logDebug(
+                "Excavation shape resolution failed player={} selectedIndex={} reason=no-shape-registered",
+                player.getScoreboardName(),
+                selectedShapeIndex
+            );
+        }
 
         String originBlockId = BuiltInRegistries.BLOCK.getKey(this.originState.getBlock()).toString();
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
@@ -244,7 +292,24 @@ public class ExcavationAgent extends Agent {
 
         resetCarvedBounds();
 
-        queue.add(origin);
+        if (useOrderedShapeQueue) {
+            queue.addAll(
+                orderExcavationPositions(
+                    allowedShapePositions,
+                    origin,
+                    effectiveHitFace,
+                    player.getDirection(),
+                    this.width,
+                    this.height,
+                    this.depth
+                )
+            );
+            if (queue.isEmpty()) {
+                queue.add(origin);
+            }
+        } else {
+            queue.add(origin);
+        }
     }
 
     /**
@@ -257,7 +322,7 @@ public class ExcavationAgent extends Agent {
     public boolean tick() {
         int count = 0;
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        while (!queue.isEmpty() && count < blocksPerTick && processed < blockLimit) {
+        while (!queue.isEmpty() && count < blocksPerTick) {
             BlockPos pos = queue.poll();
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (pos == null || !visited.add(pos)) {
@@ -271,7 +336,7 @@ public class ExcavationAgent extends Agent {
 
             BlockState state = world.getBlockState(pos);
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            if (pos.equals(origin) && state.getBlock() == Blocks.AIR) {
+            if (!useOrderedShapeQueue && pos.equals(origin) && state.getBlock() == Blocks.AIR) {
                 enqueueNeighbors(pos);
                 continue;
             }
@@ -279,18 +344,20 @@ public class ExcavationAgent extends Agent {
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (state.getBlock() != Blocks.AIR && isTargetState(state)) {
                 world.destroyBlock(pos, true, player);
-                recordCarvedBlock(pos);
                 maybeFanOutVeinationFromConnectedOre(pos, state);
+                recordCarvedBlock(pos);
                 processed++;
                 count++;
-                enqueueNeighbors(pos);
+                if (!useOrderedShapeQueue) {
+                    enqueueNeighbors(pos);
+                }
             }
         }
 
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (queue.isEmpty() || processed >= blockLimit) {
+        if (queue.isEmpty()) {
             maybeQueueIllumination();
-            return finish(queue.isEmpty() ? "excavation queue exhausted" : "excavation block limit reached");
+            return finish("excavation queue exhausted");
         }
         return false;
     }
@@ -388,6 +455,171 @@ public class ExcavationAgent extends Agent {
             return state.getBlock() == originState.getBlock();
         }
         return state.equals(originState);
+    }
+
+    /**
+     * Intersect computed shape positions with the configured excavation volume envelope.
+     */
+    private static Set<BlockPos> clampToConfiguredExcavationBounds(
+        Set<BlockPos> computed,
+        BlockPos origin,
+        net.minecraft.core.Direction hitFace,
+        net.minecraft.core.Direction playerFacing,
+        int width,
+        int height,
+        int depth
+    ) {
+        java.util.LinkedHashSet<BlockPos> bounded = new java.util.LinkedHashSet<>();
+        if (computed == null || computed.isEmpty()) {
+            return bounded;
+        }
+
+        Set<BlockPos> envelope = MAShapePrecomputeCache.excavationEnvelopeAt(
+            origin,
+            width,
+            height,
+            depth,
+            hitFace,
+            playerFacing
+        );
+
+        for (BlockPos pos : computed) {
+            if (envelope.contains(pos)) {
+                bounded.add(pos.immutable());
+            }
+        }
+        return bounded;
+    }
+
+    private record ExcavationLocal(int depth, int width, int height) {
+    }
+
+    private static List<BlockPos> orderExcavationPositions(
+        Set<BlockPos> positions,
+        BlockPos origin,
+        net.minecraft.core.Direction hitFace,
+        net.minecraft.core.Direction playerFacing,
+        int width,
+        int height,
+        int depth
+    ) {
+        if (positions == null || positions.isEmpty()) {
+            return List.of();
+        }
+
+        ExcavationFaceGeometry.FaceDirection face = ExcavationFaceGeometry.fromMinecraftDirection(hitFace);
+        ExcavationFaceGeometry.FaceDirection facing = ExcavationFaceGeometry.fromMinecraftDirection(playerFacing);
+        ExcavationFaceGeometry.IntRange widthRange = ExcavationFaceGeometry.rightBiasedCenteredRange(width);
+        ExcavationFaceGeometry.IntRange heightRange = ExcavationFaceGeometry.rightBiasedCenteredRange(height);
+
+        Map<BlockPos, ExcavationLocal> localByPos = new HashMap<>(positions.size());
+        for (int d = 0; d < depth; d++) {
+            for (int h = heightRange.min(); h <= heightRange.max(); h++) {
+                for (int w = widthRange.min(); w <= widthRange.max(); w++) {
+                    int[] offset = ExcavationFaceGeometry.offsetFor(face, facing, d, w, h);
+                    BlockPos absolute = origin.offset(offset[0], offset[1], offset[2]).immutable();
+                    if (positions.contains(absolute)) {
+                        localByPos.put(absolute, new ExcavationLocal(d, w, h));
+                    }
+                }
+            }
+        }
+
+        Map<Long, Integer> spiralIndex = clockwiseSpiralIndex(
+            widthRange.min(),
+            widthRange.max(),
+            heightRange.min(),
+            heightRange.max(),
+            0,
+            0
+        );
+
+        ArrayList<BlockPos> ordered = new ArrayList<>(positions.size());
+        ArrayList<BlockPos> overflow = new ArrayList<>();
+        for (BlockPos pos : positions) {
+            if (localByPos.containsKey(pos)) {
+                ordered.add(pos.immutable());
+            } else {
+                overflow.add(pos.immutable());
+            }
+        }
+
+        ordered.sort(
+            Comparator
+                .comparingInt((BlockPos pos) -> localByPos.get(pos).depth())
+                .thenComparingInt(pos -> spiralIndex.getOrDefault(pairKey(localByPos.get(pos).width(), localByPos.get(pos).height()), Integer.MAX_VALUE))
+                .thenComparingInt(BlockPos::getY)
+                .thenComparingInt(BlockPos::getX)
+                .thenComparingInt(BlockPos::getZ)
+        );
+        ordered.addAll(overflow);
+        return ordered;
+    }
+
+    private static Map<Long, Integer> clockwiseSpiralIndex(
+        int minW,
+        int maxW,
+        int minH,
+        int maxH,
+        int startW,
+        int startH
+    ) {
+        HashMap<Long, Integer> index = new HashMap<>();
+        int total = Math.max(0, (maxW - minW + 1) * (maxH - minH + 1));
+        if (total == 0) {
+            return index;
+        }
+
+        int[][] directions = new int[][] {
+            { 1, 0 },
+            { 0, -1 },
+            { -1, 0 },
+            { 0, 1 }
+        };
+
+        int w = Math.max(minW, Math.min(maxW, startW));
+        int h = Math.max(minH, Math.min(maxH, startH));
+        int dirIndex = 0;
+        int stepLength = 1;
+
+        addSpiralPoint(index, minW, maxW, minH, maxH, w, h);
+        while (index.size() < total) {
+            for (int side = 0; side < 2; side++) {
+                int[] direction = directions[dirIndex % directions.length];
+                for (int step = 0; step < stepLength; step++) {
+                    w += direction[0];
+                    h += direction[1];
+                    addSpiralPoint(index, minW, maxW, minH, maxH, w, h);
+                    if (index.size() >= total) {
+                        return index;
+                    }
+                }
+                dirIndex++;
+            }
+            stepLength++;
+        }
+
+        return index;
+    }
+
+    private static void addSpiralPoint(
+        Map<Long, Integer> index,
+        int minW,
+        int maxW,
+        int minH,
+        int maxH,
+        int w,
+        int h
+    ) {
+        if (w < minW || w > maxW || h < minH || h > maxH) {
+            return;
+        }
+        long key = pairKey(w, h);
+        index.putIfAbsent(key, index.size());
+    }
+
+    private static long pairKey(int a, int b) {
+        return (((long) a) << 32) ^ (b & 0xffffffffL);
     }
 
     /**

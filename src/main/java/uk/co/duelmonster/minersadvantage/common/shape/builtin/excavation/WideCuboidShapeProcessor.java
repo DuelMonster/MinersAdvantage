@@ -19,11 +19,34 @@ public final class WideCuboidShapeProcessor implements MAShapeProcessor {
      */
     public Set<BlockPos> compute(MAShapeContext context) {
         ExcavationFaceGeometry.ComputeState state = ExcavationFaceGeometry.begin(context);
-        var sideRange = ExcavationFaceGeometry.centeredRange(context.depth());
-        var heightRange = ExcavationFaceGeometry.centeredRange(context.height());
+        var sideRange = ExcavationFaceGeometry.rightBiasedCenteredRange(context.depth());
+        var verticalForwardRange = ExcavationFaceGeometry.rightBiasedCenteredRange(context.width());
 
-        // Forward-first traversal keeps this shape intuitive for players aiming into space ahead.
-        for (int forwardStep = 0; forwardStep <= context.width(); forwardStep++) {
+        if (state.hitFace() == ExcavationFaceGeometry.FaceDirection.UP || state.hitFace() == ExcavationFaceGeometry.FaceDirection.DOWN) {
+            for (int verticalStep = 0; verticalStep < context.height(); verticalStep++) {
+                for (int forward = verticalForwardRange.min(); forward <= verticalForwardRange.max(); forward++) {
+                    for (int side = sideRange.min(); side <= sideRange.max(); side++) {
+                        if (!ExcavationFaceGeometry.hasCapacity(state, context)) {
+                            return state.out();
+                        }
+                        int[] offset = ExcavationFaceGeometry.wideCuboidOffset(
+                            state.hitFace(),
+                            state.playerFacing(),
+                            forward,
+                            side,
+                            verticalStep
+                        );
+                        state.out().add(state.origin().offset(offset[0], offset[1], offset[2]).immutable());
+                    }
+                }
+            }
+            return state.out();
+        }
+
+        var heightRange = ExcavationFaceGeometry.rightBiasedCenteredRange(context.height());
+
+        // Horizontal hits start at the target face and project width forward from origin.
+        for (int forward = 0; forward < context.width(); forward++) {
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             for (int y = heightRange.min(); y <= heightRange.max(); y++) {
                 // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
@@ -32,7 +55,14 @@ public final class WideCuboidShapeProcessor implements MAShapeProcessor {
                     if (!ExcavationFaceGeometry.hasCapacity(state, context)) {
                         return state.out();
                     }
-                    ExcavationFaceGeometry.addOffset(state, forwardStep, side, y);
+                    int[] offset = ExcavationFaceGeometry.wideCuboidOffset(
+                        state.hitFace(),
+                        state.playerFacing(),
+                        forward,
+                        side,
+                        y
+                    );
+                    state.out().add(state.origin().offset(offset[0], offset[1], offset[2]).immutable());
                 }
             }
         }

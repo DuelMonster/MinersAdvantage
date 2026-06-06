@@ -8,7 +8,7 @@ import java.util.Set;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import uk.co.duelmonster.minersadvantage.ModCommon;
-import uk.co.duelmonster.minersadvantage.common.config.MAClientRootConfig;
+import uk.co.duelmonster.minersadvantage.common.config.MAConfig_Base;
 import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 import uk.co.duelmonster.minersadvantage.common.network.PlayerStateSyncPacket;
@@ -243,7 +243,7 @@ public final class ClientActionInputSupport {
     public static PlayerStateSyncPacket createPlayerStateSyncPacket(ClientInputService.ClientInputState state) {
         return new PlayerStateSyncPacket(
             resolveLocalPlayerId(),
-            MAClientRootConfig.defaults(),
+            MAConfig_Base.getClientRootConfig(),
             MAServerRootConfig.defaults(),
             state.excavationToggled(),
             state.shaftVentToggled(),

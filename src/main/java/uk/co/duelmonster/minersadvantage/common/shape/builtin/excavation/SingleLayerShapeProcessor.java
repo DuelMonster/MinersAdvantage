@@ -38,10 +38,6 @@ public final class SingleLayerShapeProcessor implements MAShapeProcessor {
             for (int depthOffset = minD; depthOffset <= maxD; depthOffset++) {
                 // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 for (int w = minW; w <= maxW; w++) {
-                    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-                    if (out.size() >= context.maxBlocks()) {
-                        return out;
-                    }
                     BlockPos pos = origin.offset(w, 0, depthOffset).immutable();
                     out.add(pos);
                 }
@@ -54,10 +50,6 @@ public final class SingleLayerShapeProcessor implements MAShapeProcessor {
         for (int d = 0; d <= context.depth(); d++) {
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             for (int w = minW; w <= maxW; w++) {
-                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-                if (out.size() >= context.maxBlocks()) {
-                    return out;
-                }
                 int[] offset = ExcavationFaceGeometry.offsetFor(faceDirection, d, w, 0);
                 BlockPos pos = origin.offset(offset[0], offset[1], offset[2]).immutable();
                 out.add(pos);

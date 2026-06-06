@@ -41,8 +41,7 @@ public record SyncedClientConfig(
                 MAConfig_Defaults.Common.blocksPerTick,
                 MAConfig_Defaults.Common.enableTickDelay,
                 MAConfig_Defaults.Common.tickDelay,
-                MAConfig_Defaults.Common.blockRadius,
-                MAConfig_Defaults.Common.blockLimit
+                MAConfig_Defaults.Common.blockRadius
             ),
             new CaptivationConfig(
                 MAConfig_Defaults.Captivation.enabled,

@@ -18,22 +18,40 @@ public final class DeepCuboidShapeProcessor implements MAShapeProcessor {
      * c om pu te exists so this path stays predictable and easier to debug when things get weird.
      */
     public Set<BlockPos> compute(MAShapeContext context) {
-        var plan = ExcavationFaceGeometry.beginWithCenteredWidthAndHeight(context);
+        ExcavationFaceGeometry.ComputeState state = ExcavationFaceGeometry.begin(context);
+        var widthRange = ExcavationFaceGeometry.rightBiasedCenteredRange(context.width());
 
-        // Triple loop on purpose: depth first, then vertical, then lateral fill for stable shape ordering.
-        for (int d = 0; d <= context.depth(); d++) {
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            for (int y = plan.heightRange().min(); y <= plan.heightRange().max(); y++) {
-                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-                for (int w = plan.widthRange().min(); w <= plan.widthRange().max(); w++) {
-                    // Hard stop once we hit block budget, because server ticks are not infinite.
-                    if (!ExcavationFaceGeometry.hasCapacity(plan.state(), context)) {
-                        return plan.state().out();
+        // Vertical hits intentionally use width on both lateral axes to match the configured target-face equations.
+        if (state.hitFace() == ExcavationFaceGeometry.FaceDirection.UP || state.hitFace() == ExcavationFaceGeometry.FaceDirection.DOWN) {
+            var depthLateralRange = ExcavationFaceGeometry.rightBiasedCenteredRange(context.height());
+            for (int d = 0; d < context.depth(); d++) {
+                for (int z = depthLateralRange.min(); z <= depthLateralRange.max(); z++) {
+                    for (int x = widthRange.min(); x <= widthRange.max(); x++) {
+                        if (!ExcavationFaceGeometry.hasCapacity(state, context)) {
+                            return state.out();
+                        }
+                        int[] offset = ExcavationFaceGeometry.deepCuboidOffset(state.hitFace(), d, x, z);
+                        state.out().add(state.origin().offset(offset[0], offset[1], offset[2]).immutable());
                     }
-                    ExcavationFaceGeometry.addOffset(plan.state(), d, w, y);
+                }
+            }
+            return state.out();
+        }
+
+        var heightRange = ExcavationFaceGeometry.rightBiasedCenteredRange(context.height());
+
+        // Horizontal hits keep width x height cross-sections while marching depth-forward.
+        for (int d = 0; d < context.depth(); d++) {
+            for (int y = heightRange.min(); y <= heightRange.max(); y++) {
+                for (int w = widthRange.min(); w <= widthRange.max(); w++) {
+                    if (!ExcavationFaceGeometry.hasCapacity(state, context)) {
+                        return state.out();
+                    }
+                    int[] offset = ExcavationFaceGeometry.deepCuboidOffset(state.hitFace(), d, w, y);
+                    state.out().add(state.origin().offset(offset[0], offset[1], offset[2]).immutable());
                 }
             }
         }
-        return plan.state().out();
+        return state.out();
     }
 }

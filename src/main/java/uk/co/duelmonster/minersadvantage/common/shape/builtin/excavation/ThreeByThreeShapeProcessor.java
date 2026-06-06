@@ -26,10 +26,6 @@ public final class ThreeByThreeShapeProcessor implements MAShapeProcessor {
 
         // Offset table already encodes the shape, so this loop is basically "stamp and go".
         for (int[] offset : ThreeByThreeGeometry.offsetsForFaceAxis(faceAxis)) {
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            if (out.size() >= context.maxBlocks()) {
-                return out;
-            }
             BlockPos pos = origin.offset(offset[0], offset[1], offset[2]).immutable();
             out.add(pos);
         }

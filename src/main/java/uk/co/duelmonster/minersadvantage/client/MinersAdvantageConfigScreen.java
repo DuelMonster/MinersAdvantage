@@ -178,7 +178,6 @@ public final class MinersAdvantageConfigScreen {
         addGameplayBoolean(generalCategory, entryBuilder, "Enable Tick Delay", "Enable an additional delay between processing steps.", mutable.enableTickDelay, currentServerConfig.common().enableTickDelay(), gameplayEditable, value -> mutable.enableTickDelay = value);
         addGameplayInt(generalCategory, entryBuilder, "Tick Delay", "Delay in ticks used when tick delay is enabled.", mutable.tickDelay, currentServerConfig.common().tickDelay(), 0, 40, gameplayEditable, value -> mutable.tickDelay = value);
         addGameplayInt(generalCategory, entryBuilder, "Block Radius", "Configured radius used by radius-limited operations.", mutable.blockRadius, currentServerConfig.common().blockRadius(), 1, 16, gameplayEditable, value -> mutable.blockRadius = value);
-        addGameplayInt(generalCategory, entryBuilder, "Block Limit", "Hard cap for an operation size.", mutable.blockLimit, currentServerConfig.common().blockLimit(), 1, 256, gameplayEditable, value -> mutable.blockLimit = value);
 
         builder.setSavingRunnable(() -> saveMutableConfig(mutable, gameplayEditable));
         return builder.build();
@@ -448,7 +447,6 @@ public final class MinersAdvantageConfigScreen {
         addGameplayBoolean(generalCategory, entryBuilder, "Enable Tick Delay", "Enable an additional delay between processing steps.", mutable.enableTickDelay, currentServerConfig.common().enableTickDelay(), gameplayEditable, value -> mutable.enableTickDelay = value);
         addGameplayInt(generalCategory, entryBuilder, "Tick Delay", "Delay in ticks used when tick delay is enabled.", mutable.tickDelay, currentServerConfig.common().tickDelay(), 0, 40, gameplayEditable, value -> mutable.tickDelay = value);
         addGameplayInt(generalCategory, entryBuilder, "Block Radius", "Configured radius used by radius-limited operations.", mutable.blockRadius, currentServerConfig.common().blockRadius(), 1, 16, gameplayEditable, value -> mutable.blockRadius = value);
-        addGameplayInt(generalCategory, entryBuilder, "Block Limit", "Hard cap for an operation size.", mutable.blockLimit, currentServerConfig.common().blockLimit(), 1, 256, gameplayEditable, value -> mutable.blockLimit = value);
 
         builder.setSavingRunnable(() -> saveMutableConfig(mutable, gameplayEditable));
         return builder.build();
@@ -1273,7 +1271,6 @@ public final class MinersAdvantageConfigScreen {
         private boolean enableTickDelay;
         private int tickDelay;
         private int blockRadius;
-        private int blockLimit;
 
         private boolean captivationEnabled;
         private boolean captivationAllowInGui;
@@ -1374,7 +1371,6 @@ public final class MinersAdvantageConfigScreen {
             this.enableTickDelay = config.common().enableTickDelay();
             this.tickDelay = config.common().tickDelay();
             this.blockRadius = config.common().blockRadius();
-            this.blockLimit = config.common().blockLimit();
 
             this.captivationEnabled = config.captivation().enabled();
             this.captivationAllowInGui = config.captivation().allowInGUI();
@@ -1776,8 +1772,7 @@ public final class MinersAdvantageConfigScreen {
                 blocksPerTick,
                 enableTickDelay,
                 tickDelay,
-                blockRadius,
-                blockLimit
+                blockRadius
             );
 
             return new MAServerRootConfig(

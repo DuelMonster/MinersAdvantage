@@ -7,6 +7,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import uk.co.duelmonster.minersadvantage.common.config.storage.MATomlConfigStore;
 import uk.co.duelmonster.minersadvantage.common.log.LogUtils;
+import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapePrecomputeCache;
 
 /**
  * Central facade for per-player and global config snapshots.
@@ -73,8 +74,18 @@ public class MAConfig_Base {
      * Set client-root config and persist merged global snapshot.
      */
     public static void setClientRootConfig(MAClientRootConfig clientConfig) {
+        boolean previousDebugLogging = LogUtils.isDebugLoggingEnabled();
         clientRootConfig = clientConfig == null ? MAClientRootConfig.defaults() : clientConfig;
         LogUtils.setConfigDebugLoggingEnabled(clientRootConfig.client().debugLogging());
+        boolean currentDebugLogging = LogUtils.isDebugLoggingEnabled();
+        if (previousDebugLogging != currentDebugLogging) {
+            LogUtils.logInfo(
+                "Debug logging toggled source=config oldValue={} newValue={}",
+                previousDebugLogging,
+                currentDebugLogging
+            );
+        }
+        MAShapePrecomputeCache.warmupFromConfig(getGlobalConfig());
         saveGlobalConfig(getGlobalConfig());
     }
 
@@ -83,6 +94,7 @@ public class MAConfig_Base {
      */
     public static void setServerRootConfig(MAServerRootConfig serverConfig) {
         serverRootConfig = serverConfig == null ? MAServerRootConfig.defaults() : serverConfig;
+        MAShapePrecomputeCache.warmupFromConfig(getGlobalConfig());
         saveGlobalConfig(getGlobalConfig());
     }
 
@@ -155,5 +167,6 @@ public class MAConfig_Base {
         clientRootConfig = MAClientRootConfig.fromSyncedConfig(value);
         serverRootConfig = MAServerRootConfig.fromSyncedConfig(value);
         LogUtils.setConfigDebugLoggingEnabled(clientRootConfig.client().debugLogging());
+        MAShapePrecomputeCache.warmupFromConfig(getGlobalConfig());
     }
 }

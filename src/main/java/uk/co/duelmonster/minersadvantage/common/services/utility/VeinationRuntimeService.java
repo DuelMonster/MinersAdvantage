@@ -201,7 +201,7 @@ public final class VeinationRuntimeService {
                 return digSpeed;
             }
 
-            List<BlockPos> vein = coreService.discoverConnectedVein(level, hitPos, config.maxVeinDistance(), 512);
+            List<BlockPos> vein = coreService.discoverConnectedVein(level, hitPos, config.maxVeinDistance());
             oreCount = vein.size();
             cachedVeinCounts.put(key, new CachedVeinCount(now, oreCount));
         }
@@ -238,7 +238,7 @@ public final class VeinationRuntimeService {
         if (!isOreAllowed(config, originState)) {
             return List.of();
         }
-        return new ArrayList<>(coreService.discoverConnectedVein(level, origin, config.maxVeinDistance(), 0));
+        return new ArrayList<>(coreService.discoverConnectedVein(level, origin, config.maxVeinDistance()));
     }
 
     /**
@@ -250,39 +250,7 @@ public final class VeinationRuntimeService {
         if (!isOreAllowed(config, candidateState)) {
             return List.of();
         }
-        return new ArrayList<>(coreService.discoverConnectedVein(level, origin, originStateHint, config.maxVeinDistance(), 0));
-    }
-
-    /**
-     * Discover vein with explicit max-block cap for callers that want bounded traversal.
-     */
-    public List<BlockPos> discoverVein(Level level, BlockPos origin, VeinationConfig config, int maxBlocks) {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (maxBlocks <= 0) {
-            return discoverVein(level, origin, config);
-        }
-        BlockState originState = resolveOriginState(level, origin, null);
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (!isOreAllowed(config, originState)) {
-            return List.of();
-        }
-        return new ArrayList<>(coreService.discoverConnectedVein(level, origin, config.maxVeinDistance(), maxBlocks));
-    }
-
-    /**
-     * Discover capped vein with origin-state hint support for callers already carrying initial state data.
-     */
-    public List<BlockPos> discoverVein(Level level, BlockPos origin, BlockState originStateHint, VeinationConfig config, int maxBlocks) {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (maxBlocks <= 0) {
-            return discoverVein(level, origin, originStateHint, config);
-        }
-        BlockState candidateState = resolveOriginState(level, origin, originStateHint);
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (!isOreAllowed(config, candidateState)) {
-            return List.of();
-        }
-        return new ArrayList<>(coreService.discoverConnectedVein(level, origin, originStateHint, config.maxVeinDistance(), maxBlocks));
+        return new ArrayList<>(coreService.discoverConnectedVein(level, origin, originStateHint, config.maxVeinDistance()));
     }
 
     /**

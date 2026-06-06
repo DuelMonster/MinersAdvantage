@@ -26,24 +26,51 @@ public final class ShaftShapeProcessor implements MAShapeProcessor {
             return Set.of();
         }
 
-        LinkedHashSet<BlockPos> out = new LinkedHashSet<>();
-        Direction forward = ShapeGeometryUtils.forwardFromContext(context);
-        Direction right = ShapeGeometryUtils.rightFromForward(forward);
-        BlockPos origin = context.origin();
+        int playerFeetY = context.player() == null ? context.origin().getY() : context.player().blockPosition().getY();
+        int floorOffset = ShaftFloorGeometry.resolveFloorOffset(context.origin().getY(), playerFeetY, context.height());
+        return computeAtOrigin(
+            context.hitFace(),
+            context.playerFacing(),
+            context.width(),
+            context.height(),
+            context.depth(),
+            floorOffset
+        );
+    }
 
-        int floorY = ShaftFloorGeometry.resolveFloorY(origin.getY(), context.player().blockPosition().getY(), context.height());
-        int minW = ShapeGeometryUtils.minCenteredOffset(context.width());
-        int maxW = ShapeGeometryUtils.maxCenteredOffset(context.width());
+    /**
+     * Compute shaft geometry relative to origin so it can be precomputed and reused.
+     */
+    public static Set<BlockPos> computeAtOrigin(
+        Direction hitFace,
+        Direction playerFacing,
+        int width,
+        int height,
+        int depth,
+        int floorOffset
+    ) {
+        if (hitFace.getAxis().isVertical()) {
+            return Set.of();
+        }
+
+        LinkedHashSet<BlockPos> out = new LinkedHashSet<>();
+        Direction forward = hitFace.getOpposite();
+        Direction right = ShapeGeometryUtils.rightFromForward(forward);
+        BlockPos origin = BlockPos.ZERO;
+
+        int floorY = floorOffset;
+        int minW = ShapeGeometryUtils.minCenteredOffset(width);
+        int maxW = ShapeGeometryUtils.maxCenteredOffset(width);
 
         // Depth-first traversal gives predictable forward growth for both visuals and behavior parity.
-        for (int d = 0; d < context.depth(); d++) {
+        for (int d = 0; d < depth; d++) {
             BlockPos base = new BlockPos(origin.getX(), floorY, origin.getZ()).relative(forward, d);
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            for (int h = 0; h < context.height(); h++) {
+            for (int h = 0; h < height; h++) {
                 // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 for (int w = minW; w <= maxW; w++) {
                     // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-                    if (!ShaftShapePlacement.addIfCapacity(out, context, base, right, w, h)) {
+                    if (!ShaftShapePlacement.addIfCapacity(out, null, base, right, w, h)) {
                         return out;
                     }
                 }

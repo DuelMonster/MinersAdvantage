@@ -21,7 +21,6 @@ public class IlluminationAgent extends Agent {
     private final Queue<BlockPos> queue = new LinkedList<>();
     private int placed = 0;
     private final int blocksPerTick;
-    private final int blockLimit;
 
     /**
      * Convenience constructor that delegates to default illumination config.
@@ -39,7 +38,6 @@ public class IlluminationAgent extends Agent {
         this.config = config == null ? MAServerRootConfig.defaults().illumination() : config;
         int globalBlocksPerTick = commonConfig == null ? 1 : Math.max(1, commonConfig.blocksPerTick());
         this.blocksPerTick = globalBlocksPerTick;
-        this.blockLimit = commonConfig == null ? 64 : Math.max(1, commonConfig.blockLimit());
 
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (BlockPos pos : Functions.getAllPositionsInArea(area)) {
@@ -56,7 +54,6 @@ public class IlluminationAgent extends Agent {
         this.config = config == null ? MAServerRootConfig.defaults().illumination() : config;
         int globalBlocksPerTick = commonConfig == null ? 1 : Math.max(1, commonConfig.blocksPerTick());
         this.blocksPerTick = globalBlocksPerTick;
-        this.blockLimit = commonConfig == null ? 64 : Math.max(1, commonConfig.blockLimit());
 
         int horizontal = Math.max(0, this.config.radiusHorizontal());
         int vertical = Math.max(0, this.config.radiusVertical());
@@ -86,7 +83,7 @@ public class IlluminationAgent extends Agent {
     public boolean tick() {
         int count = 0;
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        while (!queue.isEmpty() && count < blocksPerTick && placed < blockLimit) {
+        while (!queue.isEmpty() && count < blocksPerTick) {
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (!playerHasTorches()) {
                 return finish("illumination area stopped: no torches in inventory");
@@ -104,8 +101,8 @@ public class IlluminationAgent extends Agent {
         }
 
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (queue.isEmpty() || placed >= blockLimit) {
-            return finish(queue.isEmpty() ? "illumination queue exhausted" : "illumination target reached");
+        if (queue.isEmpty()) {
+            return finish("illumination queue exhausted");
         }
         return false;
     }

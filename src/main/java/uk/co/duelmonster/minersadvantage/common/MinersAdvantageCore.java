@@ -204,8 +204,19 @@ public final class MinersAdvantageCore {
      */
     public SyncCoreService.PlayerSyncState handlePlayerStateSyncPacket(PlayerStateSyncPacket packet) {
         MAServerRootConfig authoritativeServerConfig = MAConfig_Base.getServerRootConfig();
-        LogUtils.logDebug("Synchronizing player state playerId={} commonConfig={}", packet.playerId(), authoritativeServerConfig.common());
         PlayerStateService.PlayerState current = playerStateService.getPlayerState(packet.playerId());
+        SyncCoreService.PlayerSyncState previousSyncState = syncCoreService.getPlayerState(packet.playerId());
+        boolean unchangedState = current.excavationToggled() == packet.excavationToggled()
+            && current.shaftVentToggled() == packet.shaftVentToggled()
+            && current.selectedExcavationShapeIndex() == packet.selectedExcavationShapeIndex()
+            && current.selectedShaftanationShapeIndex() == packet.selectedShaftanationShapeIndex();
+        boolean unchangedClientConfig = previousSyncState.clientConfig().equals(packet.clientConfig());
+        boolean unchangedServerConfig = previousSyncState.serverConfig().equals(authoritativeServerConfig);
+        if (unchangedState && unchangedClientConfig && unchangedServerConfig) {
+            return previousSyncState;
+        }
+
+        LogUtils.logDebug("Synchronizing player state playerId={} commonConfig={}", packet.playerId(), authoritativeServerConfig.common());
         playerStateService.updatePlayerState(
             packet.playerId(),
             new PlayerStateService.PlayerState(
