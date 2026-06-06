@@ -23,7 +23,7 @@ public final class ModCommon {
     /**
      * The mod's version. Always know what flavor of MinersAdvantage you're running.
      */
-    public static final String MOD_VERSION = "1.0.0";
+    public static final String MOD_VERSION = GeneratedModMetadata.MOD_VERSION;
 
     /**
      * Private constructor: No one gets to make an instance of this class. It's too cool for that.

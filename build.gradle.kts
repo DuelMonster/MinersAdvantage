@@ -113,8 +113,43 @@ java {
     }
 }
 
+val generatedModMetadataDir = layout.buildDirectory.dir("generated/sources/maVersionConstants/java/main")
+val modVersionForGeneratedMetadata = providers.gradleProperty("mod_version").get()
+
+val generateModMetadataSource = tasks.register("generateModMetadataSource") {
+    val outDir = generatedModMetadataDir.get().asFile
+    outputs.dir(outDir)
+    doLast {
+        val packageDir = File(outDir, "uk/co/duelmonster/minersadvantage")
+        packageDir.mkdirs()
+        val generatedFile = File(packageDir, "GeneratedModMetadata.java")
+        generatedFile.writeText(
+            """
+            package uk.co.duelmonster.minersadvantage;
+
+            /**
+             * Build-generated metadata constants sourced from Gradle properties.
+             */
+            public final class GeneratedModMetadata {
+                public static final String MOD_VERSION = "$modVersionForGeneratedMetadata";
+
+                private GeneratedModMetadata() {
+                }
+            }
+            """.trimIndent() + "\n"
+        )
+    }
+}
+
+sourceSets {
+    named("main") {
+        java.srcDir(generatedModMetadataDir)
+    }
+}
+
 tasks.withType<JavaCompile> {
     options.release.set(javaRelease)
+    dependsOn(generateModMetadataSource)
     dependsOn("stonecutterGenerate")
 }
 
