@@ -11,7 +11,7 @@ public final class TestRuntimeAssumptions {
         try {
             Class.forName("net.minecraft.sounds.SoundEvents");
             return true;
-        } catch (ClassNotFoundException | ExceptionInInitializerError | LinkageError exception) {
+        } catch (ClassNotFoundException | LinkageError exception) {
             return false;
         }
     }
