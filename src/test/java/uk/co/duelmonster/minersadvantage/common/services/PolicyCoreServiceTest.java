@@ -51,7 +51,7 @@ class PolicyCoreServiceTest {
         SyncedClientConfig client = SyncedClientConfig.defaults();
         SyncedClientConfig server = ConfigTestFixtures.withCommon(
             client,
-            new uk.co.duelmonster.minersadvantage.common.config.CommonConfig(false, true, false, false, 6, false, 0, 7, 128)
+            new uk.co.duelmonster.minersadvantage.common.config.CommonConfig(false, true, false, false, 6, false, 0, 7)
         );
 
         SyncedClientConfig effective = service.applyServerAuthoritative(client, server);
@@ -72,7 +72,7 @@ class PolicyCoreServiceTest {
         SyncedClientConfig server = ConfigTestFixtures.withSubstitution(
             ConfigTestFixtures.withCommon(
                 client,
-                new uk.co.duelmonster.minersadvantage.common.config.CommonConfig(true, false, true, true, 2, true, 5, 3, 64)
+                new uk.co.duelmonster.minersadvantage.common.config.CommonConfig(true, false, true, true, 2, true, 5, 3)
             ),
             new SubstitutionConfig(false, true, false, true, true, true, true, client.substitution().blacklist())
         );

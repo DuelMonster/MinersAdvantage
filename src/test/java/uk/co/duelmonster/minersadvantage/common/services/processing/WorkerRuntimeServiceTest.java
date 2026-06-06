@@ -23,7 +23,7 @@ class WorkerRuntimeServiceTest {
         PlayerStateService playerStates = new PlayerStateService();
         WorkerRuntimeService service = new WorkerRuntimeService(playerStates);
 
-        WorkerRuntimeService.WorkerHandle worker = service.startWorker(42L, FeatureId.EXCAVATION, 2, 4);
+        WorkerRuntimeService.WorkerHandle worker = service.startWorker(42L, FeatureId.EXCAVATION, 2);
         AtomicInteger processed = new AtomicInteger();
 
         assertTrue(service.enqueueWork(worker.workerId(), processed::incrementAndGet));
@@ -49,7 +49,7 @@ class WorkerRuntimeServiceTest {
         playerStates.updatePlayerState(7L, new PlayerStateService.PlayerState(7L, true, 0L, 0, false, false));
         WorkerRuntimeService service = new WorkerRuntimeService(playerStates);
 
-        WorkerRuntimeService.WorkerHandle worker = service.startWorker(7L, FeatureId.SHAFTANATION, 3, 8);
+        WorkerRuntimeService.WorkerHandle worker = service.startWorker(7L, FeatureId.SHAFTANATION, 3);
         AtomicInteger processed = new AtomicInteger();
         assertTrue(service.enqueueWork(worker.workerId(), processed::incrementAndGet));
 
@@ -69,9 +69,9 @@ class WorkerRuntimeServiceTest {
         PlayerStateService playerStates = new PlayerStateService();
         WorkerRuntimeService service = new WorkerRuntimeService(playerStates);
 
-        WorkerRuntimeService.WorkerHandle first = service.startWorker(9L, FeatureId.VENTILATION, 1, 4);
-        WorkerRuntimeService.WorkerHandle second = service.startWorker(9L, FeatureId.VEINATION, 1, 4);
-        WorkerRuntimeService.WorkerHandle other = service.startWorker(10L, FeatureId.CROPINATION, 1, 4);
+        WorkerRuntimeService.WorkerHandle first = service.startWorker(9L, FeatureId.VENTILATION, 1);
+        WorkerRuntimeService.WorkerHandle second = service.startWorker(9L, FeatureId.VEINATION, 1);
+        WorkerRuntimeService.WorkerHandle other = service.startWorker(10L, FeatureId.CROPINATION, 1);
 
         service.captureDrop(first.workerId(), "item", 1);
         service.captureDrop(second.workerId(), "xp", 5);
@@ -95,8 +95,8 @@ class WorkerRuntimeServiceTest {
         PlayerStateService playerStates = new PlayerStateService();
         WorkerRuntimeService service = new WorkerRuntimeService(playerStates);
 
-        WorkerRuntimeService.WorkerHandle gathered = service.startWorker(50L, FeatureId.EXCAVATION, 1, 4);
-        WorkerRuntimeService.WorkerHandle immediate = service.startWorker(51L, FeatureId.SHAFTANATION, 1, 4);
+        WorkerRuntimeService.WorkerHandle gathered = service.startWorker(50L, FeatureId.EXCAVATION, 1);
+        WorkerRuntimeService.WorkerHandle immediate = service.startWorker(51L, FeatureId.SHAFTANATION, 1);
 
         WorkerRuntimeService.DropInterceptionResult gatheredResult =
             service.interceptLiveDrop(gathered.workerId(), "item", 2, true);
@@ -123,7 +123,7 @@ class WorkerRuntimeServiceTest {
         PlayerStateService playerStates = new PlayerStateService();
         WorkerRuntimeService service = new WorkerRuntimeService(playerStates);
 
-        WorkerRuntimeService.WorkerHandle worker = service.startWorker(60L, FeatureId.EXCAVATION, 1, 4);
+        WorkerRuntimeService.WorkerHandle worker = service.startWorker(60L, FeatureId.EXCAVATION, 1);
         WorkerRuntimeService.DropInterceptionResult result =
             service.interceptLiveDropForPlayer(60L, "item:minecraft:stone", 1, true);
 

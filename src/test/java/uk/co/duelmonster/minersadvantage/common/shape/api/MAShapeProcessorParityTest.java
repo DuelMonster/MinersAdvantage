@@ -196,24 +196,36 @@ class MAShapeProcessorParityTest {
     }
 
     /**
-     * Up/Down excavation offsets should flip depth direction on Y while preserving XZ plane semantics.
+     * Up/Down excavation offsets should keep Y for height and project depth from player-facing heading.
      */
     @Test
     /**
      * Validate up/down excavation mapping.
      */
-    void excavationUpDownHitsUseXZPlaneAndFlipDepthOnY() {
+    void excavationUpDownHitsUsePlayerFacingForDepth() {
         assertOffset(
-            ExcavationFaceGeometry.offsetFor(ExcavationFaceGeometry.FaceDirection.UP, 2, 1, -1),
+            ExcavationFaceGeometry.offsetFor(
+                ExcavationFaceGeometry.FaceDirection.UP,
+                ExcavationFaceGeometry.FaceDirection.NORTH,
+                2,
+                1,
+                -1
+            ),
             1,
-            -2,
-            -1
+            -1,
+            -2
         );
         assertOffset(
-            ExcavationFaceGeometry.offsetFor(ExcavationFaceGeometry.FaceDirection.DOWN, 2, 1, -1),
-            1,
+            ExcavationFaceGeometry.offsetFor(
+                ExcavationFaceGeometry.FaceDirection.DOWN,
+                ExcavationFaceGeometry.FaceDirection.EAST,
+                2,
+                1,
+                -1
+            ),
             2,
-            -1
+            -1,
+            1
         );
     }
 
@@ -236,6 +248,207 @@ class MAShapeProcessorParityTest {
             2,
             -1,
             1
+        );
+    }
+
+    /**
+     * Deep Cuboid offsets should match face-forward formulas exactly.
+     */
+    @Test
+    /**
+     * Validate Deep Cuboid mapping formulas.
+     */
+    void deepCuboidOffsetsMatchFaceForwardFormulas() {
+        assertOffset(
+            ExcavationFaceGeometry.deepCuboidOffset(ExcavationFaceGeometry.FaceDirection.NORTH, 2, 1, -1),
+            1,
+            -1,
+            2
+        );
+        assertOffset(
+            ExcavationFaceGeometry.deepCuboidOffset(ExcavationFaceGeometry.FaceDirection.SOUTH, 2, 1, -1),
+            1,
+            -1,
+            -2
+        );
+        assertOffset(
+            ExcavationFaceGeometry.deepCuboidOffset(ExcavationFaceGeometry.FaceDirection.EAST, 2, 1, -1),
+            -2,
+            -1,
+            1
+        );
+        assertOffset(
+            ExcavationFaceGeometry.deepCuboidOffset(ExcavationFaceGeometry.FaceDirection.WEST, 2, 1, -1),
+            2,
+            -1,
+            1
+        );
+        assertOffset(
+            ExcavationFaceGeometry.deepCuboidOffset(ExcavationFaceGeometry.FaceDirection.UP, 2, 1, -1),
+            1,
+            -2,
+            -1
+        );
+        assertOffset(
+            ExcavationFaceGeometry.deepCuboidOffset(ExcavationFaceGeometry.FaceDirection.DOWN, 2, 1, -1),
+            1,
+            2,
+            -1
+        );
+    }
+
+    /**
+     * Wide Cuboid offsets should match face/player-facing formulas exactly.
+     */
+    @Test
+    /**
+     * Validate Wide Cuboid mapping formulas.
+     */
+    void wideCuboidOffsetsMatchConfiguredFormulas() {
+        assertOffset(
+            ExcavationFaceGeometry.wideCuboidOffset(
+                ExcavationFaceGeometry.FaceDirection.NORTH,
+                ExcavationFaceGeometry.FaceDirection.NORTH,
+                2,
+                1,
+                -1
+            ),
+            1,
+            -1,
+            2
+        );
+        assertOffset(
+            ExcavationFaceGeometry.wideCuboidOffset(
+                ExcavationFaceGeometry.FaceDirection.SOUTH,
+                ExcavationFaceGeometry.FaceDirection.NORTH,
+                2,
+                1,
+                -1
+            ),
+            -1,
+            -1,
+            -2
+        );
+        assertOffset(
+            ExcavationFaceGeometry.wideCuboidOffset(
+                ExcavationFaceGeometry.FaceDirection.EAST,
+                ExcavationFaceGeometry.FaceDirection.NORTH,
+                2,
+                1,
+                -1
+            ),
+            -2,
+            -1,
+            1
+        );
+        assertOffset(
+            ExcavationFaceGeometry.wideCuboidOffset(
+                ExcavationFaceGeometry.FaceDirection.WEST,
+                ExcavationFaceGeometry.FaceDirection.NORTH,
+                2,
+                1,
+                -1
+            ),
+            2,
+            -1,
+            -1
+        );
+
+        assertOffset(
+            ExcavationFaceGeometry.wideCuboidOffset(
+                ExcavationFaceGeometry.FaceDirection.UP,
+                ExcavationFaceGeometry.FaceDirection.NORTH,
+                2,
+                1,
+                -1
+            ),
+            1,
+            1,
+            2
+        );
+        assertOffset(
+            ExcavationFaceGeometry.wideCuboidOffset(
+                ExcavationFaceGeometry.FaceDirection.UP,
+                ExcavationFaceGeometry.FaceDirection.SOUTH,
+                2,
+                1,
+                -1
+            ),
+            -1,
+            1,
+            2
+        );
+        assertOffset(
+            ExcavationFaceGeometry.wideCuboidOffset(
+                ExcavationFaceGeometry.FaceDirection.UP,
+                ExcavationFaceGeometry.FaceDirection.EAST,
+                2,
+                1,
+                -1
+            ),
+            2,
+            1,
+            1
+        );
+        assertOffset(
+            ExcavationFaceGeometry.wideCuboidOffset(
+                ExcavationFaceGeometry.FaceDirection.UP,
+                ExcavationFaceGeometry.FaceDirection.WEST,
+                2,
+                1,
+                -1
+            ),
+            2,
+            1,
+            -1
+        );
+        assertOffset(
+            ExcavationFaceGeometry.wideCuboidOffset(
+                ExcavationFaceGeometry.FaceDirection.DOWN,
+                ExcavationFaceGeometry.FaceDirection.NORTH,
+                2,
+                1,
+                -1
+            ),
+            1,
+            -1,
+            2
+        );
+        assertOffset(
+            ExcavationFaceGeometry.wideCuboidOffset(
+                ExcavationFaceGeometry.FaceDirection.DOWN,
+                ExcavationFaceGeometry.FaceDirection.SOUTH,
+                2,
+                1,
+                -1
+            ),
+            -1,
+            -1,
+            2
+        );
+        assertOffset(
+            ExcavationFaceGeometry.wideCuboidOffset(
+                ExcavationFaceGeometry.FaceDirection.DOWN,
+                ExcavationFaceGeometry.FaceDirection.EAST,
+                2,
+                1,
+                -1
+            ),
+            2,
+            -1,
+            1
+        );
+        assertOffset(
+            ExcavationFaceGeometry.wideCuboidOffset(
+                ExcavationFaceGeometry.FaceDirection.DOWN,
+                ExcavationFaceGeometry.FaceDirection.WEST,
+                2,
+                1,
+                -1
+            ),
+            2,
+            -1,
+            -1
         );
     }
 

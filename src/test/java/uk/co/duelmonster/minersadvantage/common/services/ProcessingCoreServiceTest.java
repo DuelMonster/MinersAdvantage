@@ -19,7 +19,7 @@ class ProcessingCoreServiceTest {
      * l im it sq ue ue an dr es pe ct sp er ti ck bu dg et exists so this path stays predictable and easier to debug when things get weird.
      */
     void limitsQueueAndRespectsPerTickBudget() {
-        ProcessingCoreService<Integer> service = new ProcessingCoreService<>(2, 3);
+        ProcessingCoreService<Integer> service = new ProcessingCoreService<>(2);
 
         assertTrue(service.offer(1));
         assertTrue(service.offer(2));

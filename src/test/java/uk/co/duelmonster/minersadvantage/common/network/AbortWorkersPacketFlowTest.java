@@ -21,9 +21,9 @@ class AbortWorkersPacketFlowTest {
         MinersAdvantageCore core = new MinersAdvantageCore();
         WorkerRuntimeService runtime = core.workerRuntimeService();
 
-        WorkerRuntimeService.WorkerHandle first = runtime.startWorker(101L, FeatureId.EXCAVATION, 2, 8);
-        WorkerRuntimeService.WorkerHandle second = runtime.startWorker(101L, FeatureId.SHAFTANATION, 2, 8);
-        WorkerRuntimeService.WorkerHandle other = runtime.startWorker(202L, FeatureId.CROPINATION, 2, 8);
+        WorkerRuntimeService.WorkerHandle first = runtime.startWorker(101L, FeatureId.EXCAVATION, 2);
+        WorkerRuntimeService.WorkerHandle second = runtime.startWorker(101L, FeatureId.SHAFTANATION, 2);
+        WorkerRuntimeService.WorkerHandle other = runtime.startWorker(202L, FeatureId.CROPINATION, 2);
 
         runtime.captureDrop(first.workerId(), "item", 2);
         runtime.captureDrop(second.workerId(), "xp", 4);
