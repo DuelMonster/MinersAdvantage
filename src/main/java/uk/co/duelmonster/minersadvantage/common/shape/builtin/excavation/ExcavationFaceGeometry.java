@@ -314,8 +314,8 @@ public final class ExcavationFaceGeometry {
      */
     public static IntRange centeredRange(int size) {
         return new IntRange(
-            ShapeGeometryUtils.minCenteredOffset(size),
-            ShapeGeometryUtils.maxCenteredOffset(size)
+            ShapeGeometryUtils.minRightBiasedCenteredOffset(size),
+            ShapeGeometryUtils.maxRightBiasedCenteredOffset(size)
         );
     }
 

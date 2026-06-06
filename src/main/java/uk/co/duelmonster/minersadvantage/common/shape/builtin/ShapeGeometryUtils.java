@@ -68,6 +68,23 @@ public final class ShapeGeometryUtils {
     }
 
     /**
+     * Compute centered minimum offset that biases even-size extras toward positive/right/top space.
+     */
+    public static int minRightBiasedCenteredOffset(int size) {
+        int normalized = Math.max(1, size);
+        return -Math.floorDiv(normalized, 2) + ((normalized & 1) == 0 ? 1 : 0);
+    }
+
+    /**
+     * Compute centered maximum offset that biases even-size extras toward positive/right/top space.
+     */
+    public static int maxRightBiasedCenteredOffset(int size) {
+        int normalized = Math.max(1, size);
+        int min = minRightBiasedCenteredOffset(normalized);
+        return min + normalized - 1;
+    }
+
+    /**
      * Return remaining placement capacity for output set against global limit.
      */
     public static int clampToLimit(LinkedHashSet<BlockPos> out, int limit) {

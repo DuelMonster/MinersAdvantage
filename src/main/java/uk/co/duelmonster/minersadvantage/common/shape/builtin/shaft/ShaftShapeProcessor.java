@@ -59,8 +59,8 @@ public final class ShaftShapeProcessor implements MAShapeProcessor {
         BlockPos origin = BlockPos.ZERO;
 
         int floorY = floorOffset;
-        int minW = ShapeGeometryUtils.minCenteredOffset(width);
-        int maxW = ShapeGeometryUtils.maxCenteredOffset(width);
+        int minW = ShapeGeometryUtils.minRightBiasedCenteredOffset(width);
+        int maxW = ShapeGeometryUtils.maxRightBiasedCenteredOffset(width);
 
         // Depth-first traversal gives predictable forward growth for both visuals and behavior parity.
         for (int d = 0; d < depth; d++) {

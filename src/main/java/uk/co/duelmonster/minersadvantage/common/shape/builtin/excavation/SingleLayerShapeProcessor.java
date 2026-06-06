@@ -26,13 +26,13 @@ public final class SingleLayerShapeProcessor implements MAShapeProcessor {
         Direction hitFace = context.hitFace();
         ExcavationFaceGeometry.FaceDirection faceDirection = ExcavationFaceGeometry.fromMinecraftDirection(context.hitFace());
 
-        int minW = ShapeGeometryUtils.minCenteredOffset(context.width());
-        int maxW = ShapeGeometryUtils.maxCenteredOffset(context.width());
+        int minW = ShapeGeometryUtils.minRightBiasedCenteredOffset(context.width());
+        int maxW = ShapeGeometryUtils.maxRightBiasedCenteredOffset(context.width());
 
         // Vertical faces map to a flat XZ plane around origin.
         if (hitFace.getAxis().isVertical()) {
-            int minD = ShapeGeometryUtils.minCenteredOffset(context.depth());
-            int maxD = ShapeGeometryUtils.maxCenteredOffset(context.depth());
+            int minD = ShapeGeometryUtils.minRightBiasedCenteredOffset(context.depth());
+            int maxD = ShapeGeometryUtils.maxRightBiasedCenteredOffset(context.depth());
 
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             for (int depthOffset = minD; depthOffset <= maxD; depthOffset++) {

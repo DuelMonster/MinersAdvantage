@@ -4,6 +4,7 @@
 - Source `ModCommon.MOD_VERSION` from Gradle-generated metadata constants wired to `gradle.properties`.
 - Generate `GeneratedModMetadata` during Java compile setup and wire the generated source directory into the main source set.
 - Add shape precompute cache integration and bounded runtime shape processing for excavation and shaft flows.
+- Harmonize even-size excavation and shaft shape centering with a shared top/right bias across built-in processors and face geometry helpers.
 - Enforce deterministic excavation and shaft traversal ordering by depth-first layer progression with clockwise per-layer spiral processing.
 - Fix shapeless runtime origin-air seeding so connected excavation traversal starts correctly after trigger block break.
 - Correct staircase shaft ordering by normalizing vertical layer indices per depth step before clockwise spiral ranking.

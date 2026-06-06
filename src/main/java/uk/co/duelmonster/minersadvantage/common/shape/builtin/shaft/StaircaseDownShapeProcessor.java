@@ -29,14 +29,16 @@ public final class StaircaseDownShapeProcessor implements MAShapeProcessor {
         Direction right = ShapeGeometryUtils.rightFromForward(forward);
         BlockPos origin = context.origin();
 
-        int minW = ShapeGeometryUtils.minCenteredOffset(context.width());
-        int maxW = ShapeGeometryUtils.maxCenteredOffset(context.width());
+        int minW = ShapeGeometryUtils.minRightBiasedCenteredOffset(context.width());
+        int maxW = ShapeGeometryUtils.maxRightBiasedCenteredOffset(context.width());
+        int minH = ShapeGeometryUtils.minRightBiasedCenteredOffset(context.height());
+        int maxH = ShapeGeometryUtils.maxRightBiasedCenteredOffset(context.height());
 
         // Each depth step drops one Y level, which is the whole point of a down staircase.
         for (int d = 0; d < context.depth(); d++) {
             BlockPos depthBase = origin.relative(forward, d).offset(0, -d, 0);
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            for (int h = 0; h < context.height(); h++) {
+            for (int h = minH; h <= maxH; h++) {
                 // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 for (int w = minW; w <= maxW; w++) {
                     // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
