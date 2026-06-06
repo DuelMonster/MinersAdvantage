@@ -18,9 +18,15 @@ class KeyBindingsTest {
     /**
      * e xp os es le ga cy pa ri ty de fa ul tb in di ng s exists so this path stays predictable and easier to debug when things get weird.
      */
-    void exposesLegacyParityDefaultBindings() {
+    void exposesFeatureToggleSpecsWithoutDefaultBindings() {
+        var featureToggleSpecs = KeyBindings.all().stream()
+            .filter(spec -> spec.defaultKey() == null)
+            .toList();
+
         assertEquals(13, KeyBindings.all().size());
-        assertTrue(KeyBindings.all().stream().anyMatch(spec -> spec.action() == ClientAction.CAPTIVATION_TOGGLE && spec.defaultKey().equals("KP_1")));
+        assertEquals(8, featureToggleSpecs.size());
+        assertTrue(featureToggleSpecs.stream().anyMatch(spec -> spec.action() == ClientAction.CAPTIVATION_TOGGLE));
+        assertTrue(featureToggleSpecs.stream().allMatch(spec -> spec.translationKey().endsWith(".enabled.comment")));
         assertTrue(KeyBindings.all().stream().anyMatch(spec -> spec.action() == ClientAction.ABORT_WORKERS && spec.defaultKey().equals("DELETE")));
     }
 

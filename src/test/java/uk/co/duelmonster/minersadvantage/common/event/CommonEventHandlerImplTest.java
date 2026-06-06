@@ -4,10 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import uk.co.duelmonster.minersadvantage.common.MinersAdvantageCore;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 import uk.co.duelmonster.minersadvantage.common.orchestration.FeatureDispatchContext;
+import uk.co.duelmonster.minersadvantage.testutil.TestRuntimeAssumptions;
 
 /**
  * CommonEventHandlerImplTest keeps this part of MinersAdvantage running without turning server ticks into confetti.
@@ -27,6 +29,7 @@ class CommonEventHandlerImplTest {
      * r ou te sp ic ka xe st on et os ha ft an at io n exists so this path stays predictable and easier to debug when things get weird.
      */
     void routesPickaxeStoneToShaftanation() {
+        Assumptions.assumeTrue(TestRuntimeAssumptions.canInitializeSoundEvents());
         CommonEventHandlerImpl handler = new CommonEventHandlerImpl(new MinersAdvantageCore());
         AtomicReference<FeatureDispatchContext> captured = new AtomicReference<>();
         FeatureEventHandler.setDispatchObserverForTesting(captured::set);
@@ -41,6 +44,7 @@ class CommonEventHandlerImplTest {
      * r ou te sh oe cr op to cr op in at io n exists so this path stays predictable and easier to debug when things get weird.
      */
     void routesHoeCropToCropination() {
+        Assumptions.assumeTrue(TestRuntimeAssumptions.canInitializeSoundEvents());
         CommonEventHandlerImpl handler = new CommonEventHandlerImpl(new MinersAdvantageCore());
         AtomicReference<FeatureDispatchContext> captured = new AtomicReference<>();
         FeatureEventHandler.setDispatchObserverForTesting(captured::set);

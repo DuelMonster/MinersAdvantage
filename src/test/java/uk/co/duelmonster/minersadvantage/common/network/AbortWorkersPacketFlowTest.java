@@ -3,10 +3,12 @@ package uk.co.duelmonster.minersadvantage.common.network;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import uk.co.duelmonster.minersadvantage.common.MinersAdvantageCore;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 import uk.co.duelmonster.minersadvantage.common.services.processing.WorkerRuntimeService;
+import uk.co.duelmonster.minersadvantage.testutil.TestRuntimeAssumptions;
 
 /**
  * AbortWorkersPacketFlowTest keeps this part of MinersAdvantage running without turning server ticks into confetti.
@@ -18,6 +20,7 @@ class AbortWorkersPacketFlowTest {
      * a bo rt pa ck et ca nc el sp la ye rw or ke rs an df lu sh es dr op s exists so this path stays predictable and easier to debug when things get weird.
      */
     void abortPacketCancelsPlayerWorkersAndFlushesDrops() {
+        Assumptions.assumeTrue(TestRuntimeAssumptions.canInitializeSoundEvents());
         MinersAdvantageCore core = new MinersAdvantageCore();
         WorkerRuntimeService runtime = core.workerRuntimeService();
 
