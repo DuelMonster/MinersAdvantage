@@ -1,3 +1,11 @@
+## 2.14.0
+
+- Bump mod version to `2.14.0` for the first code/content change day commit and advance daily bump tracking state.
+- Source `ModCommon.MOD_VERSION` from Gradle-generated metadata constants wired to `gradle.properties`.
+- Add shape precompute cache integration and bounded runtime shape processing for excavation and shaft flows.
+- Enforce deterministic excavation and shaft traversal ordering by depth-first layer progression with clockwise per-layer spiral processing.
+- Fix shapeless runtime origin-air seeding so connected excavation traversal starts correctly after trigger block break.
+
 ## 2.13.0
 
 - Bump mod version to `2.13.0` for the first code/content change day commit and advance daily bump tracking state.
