@@ -3,8 +3,10 @@ package uk.co.duelmonster.minersadvantage.common;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
+import uk.co.duelmonster.minersadvantage.testutil.TestRuntimeAssumptions;
 
 /**
  * MinersAdvantageCoreTest keeps this part of MinersAdvantage running without turning server ticks into confetti.
@@ -16,6 +18,7 @@ class MinersAdvantageCoreTest {
      * b oo ts tr ap sa ll pl an ne df ea tu re s exists so this path stays predictable and easier to debug when things get weird.
      */
     void bootstrapsAllPlannedFeatures() {
+        Assumptions.assumeTrue(TestRuntimeAssumptions.canInitializeSoundEvents());
         MinersAdvantageCore core = new MinersAdvantageCore();
         core.bootstrap();
 

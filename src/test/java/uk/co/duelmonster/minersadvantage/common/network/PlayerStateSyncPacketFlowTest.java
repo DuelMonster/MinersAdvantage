@@ -12,6 +12,7 @@ import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 import uk.co.duelmonster.minersadvantage.common.config.SyncedClientConfig;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 import uk.co.duelmonster.minersadvantage.common.services.utility.SupremeVantageService;
+import uk.co.duelmonster.minersadvantage.testutil.TestRuntimeAssumptions;
 
 /**
  * PlayerStateSyncPacketFlowTest keeps this part of MinersAdvantage running without turning server ticks into confetti.
@@ -24,6 +25,7 @@ class PlayerStateSyncPacketFlowTest {
      */
     void playerStateSyncPacketAppliesServerAuthoritativeConfig() {
         Assumptions.assumeTrue(isSlf4jAvailable());
+        Assumptions.assumeTrue(TestRuntimeAssumptions.canInitializeSoundEvents());
         MinersAdvantageCore core = new MinersAdvantageCore();
         SyncedClientConfig client = core.defaultConfig();
         SyncedClientConfig server = SyncedClientConfig.defaults();
@@ -42,6 +44,7 @@ class PlayerStateSyncPacketFlowTest {
      */
     void componentTogglePacketEnablesAndDisablesRegisteredFeatures() {
         Assumptions.assumeTrue(isSlf4jAvailable());
+        Assumptions.assumeTrue(TestRuntimeAssumptions.canInitializeSoundEvents());
         MinersAdvantageCore core = new MinersAdvantageCore();
         core.bootstrap();
 
@@ -56,6 +59,7 @@ class PlayerStateSyncPacketFlowTest {
      */
     void supremeVantagePacketReturnsRewardGrant() {
         Assumptions.assumeTrue(isSlf4jAvailable());
+        Assumptions.assumeTrue(TestRuntimeAssumptions.canInitializeSoundEvents());
         MinersAdvantageCore core = new MinersAdvantageCore();
 
         SupremeVantageService.RewardGrant reward = core.handleSupremeVantagePacket(
