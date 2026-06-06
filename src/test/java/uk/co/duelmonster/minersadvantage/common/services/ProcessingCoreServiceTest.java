@@ -15,7 +15,7 @@ import uk.co.duelmonster.minersadvantage.common.services.processing.ProcessingCo
 class ProcessingCoreServiceTest {
     @Test
     /**
-     * l im it sq ue ue an dr es pe ct sp er ti ck bu dg et exists so this path stays predictable and easier to debug when things get weird.
+     * Verify queued work stays unbounded while per-tick processing still honors the configured budget.
      */
     void acceptsAdditionalQueuedWorkAndRespectsPerTickBudget() {
         ProcessingCoreService<Integer> service = new ProcessingCoreService<>(2);

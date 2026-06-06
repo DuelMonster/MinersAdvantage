@@ -16,7 +16,7 @@ import uk.co.duelmonster.minersadvantage.client.KeyBindings.ClientAction;
 class KeyBindingsTest {
     @Test
     /**
-     * e xp os es le ga cy pa ri ty de fa ul tb in di ng s exists so this path stays predictable and easier to debug when things get weird.
+     * Verify feature-toggle specs stay unbound by default while preserving config-comment translations.
      */
     void exposesFeatureToggleSpecsWithoutDefaultBindings() {
         var featureToggleSpecs = KeyBindings.all().stream()
