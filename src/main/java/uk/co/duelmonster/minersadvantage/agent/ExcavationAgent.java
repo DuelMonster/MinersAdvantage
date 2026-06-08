@@ -19,6 +19,7 @@ import uk.co.duelmonster.minersadvantage.common.log.LogUtils;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeContext;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeDimensions;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeDefinition;
+import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeIds;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapePrecomputeCache;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeRegistry;
 import uk.co.duelmonster.minersadvantage.common.shape.builtin.excavation.ExcavationFaceGeometry;
@@ -53,7 +54,7 @@ public class ExcavationAgent extends Agent {
     private final boolean mineVeins;
     private final VeinationRuntimeService veinationRuntime;
     private final VeinationConfig veinationConfig;
-    private final ItemStack veinationTriggerTool;
+    private ItemStack veinationTriggerTool;
     private boolean carvedAnyBlock = false;
     private int carvedMinX;
     private int carvedMinY;
@@ -247,6 +248,7 @@ public class ExcavationAgent extends Agent {
                 );
                 Set<BlockPos> computed = MAShapePrecomputeCache.compute(shapeDefinition, context);
                 computed = clampToConfiguredExcavationBounds(
+                    shapeDefinition.id(),
                     computed,
                     origin,
                     effectiveHitFace,
@@ -297,6 +299,7 @@ public class ExcavationAgent extends Agent {
         if (useOrderedShapeQueue) {
             queue.addAll(
                 orderExcavationPositions(
+                    selectedShape.map(MAShapeDefinition::id).orElse(MAShapeIds.EXCAVATION_SHAPELESS),
                     allowedShapePositions,
                     origin,
                     effectiveHitFace,
@@ -345,13 +348,16 @@ public class ExcavationAgent extends Agent {
 
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (state.getBlock() != Blocks.AIR && isTargetState(state)) {
-                world.destroyBlock(pos, true, player);
-                maybeFanOutVeinationFromConnectedOre(pos, state);
-                recordCarvedBlock(pos);
-                processed++;
-                count++;
-                if (!useOrderedShapeQueue) {
-                    enqueueNeighbors(pos);
+                BreakOutcome breakOutcome = breakBlockWithTool(pos, veinationTriggerTool);
+                if (breakOutcome.broken()) {
+                    veinationTriggerTool = breakOutcome.toolAfterBreak().copy();
+                    maybeFanOutVeinationFromConnectedOre(pos, state);
+                    recordCarvedBlock(pos);
+                    processed++;
+                    count++;
+                    if (!useOrderedShapeQueue) {
+                        enqueueNeighbors(pos);
+                    }
                 }
             }
         }
@@ -465,6 +471,7 @@ public class ExcavationAgent extends Agent {
      * Intersect computed shape positions with the configured excavation volume envelope.
      */
     private static Set<BlockPos> clampToConfiguredExcavationBounds(
+        String shapeId,
         Set<BlockPos> computed,
         BlockPos origin,
         net.minecraft.core.Direction hitFace,
@@ -478,14 +485,16 @@ public class ExcavationAgent extends Agent {
             return bounded;
         }
 
-        Set<BlockPos> envelope = MAShapePrecomputeCache.excavationEnvelopeAt(
-            origin,
-            width,
-            height,
-            depth,
-            hitFace,
-            playerFacing
-        );
+        Set<BlockPos> envelope = MAShapeIds.EXCAVATION_WIDE_CUBOID.equals(shapeId)
+            ? wideCuboidEnvelopeAt(origin, hitFace, playerFacing, width, height, depth)
+            : MAShapePrecomputeCache.excavationEnvelopeAt(
+                origin,
+                width,
+                height,
+                depth,
+                hitFace,
+                playerFacing
+            );
 
         for (BlockPos pos : computed) {
             if (envelope.contains(pos)) {
@@ -495,10 +504,49 @@ public class ExcavationAgent extends Agent {
         return bounded;
     }
 
-    private record ExcavationLocal(int depth, int width, int height) {
+    private static Set<BlockPos> wideCuboidEnvelopeAt(
+        BlockPos origin,
+        net.minecraft.core.Direction hitFace,
+        net.minecraft.core.Direction playerFacing,
+        int width,
+        int height,
+        int depth
+    ) {
+        java.util.LinkedHashSet<BlockPos> envelope = new java.util.LinkedHashSet<>();
+        ExcavationFaceGeometry.FaceDirection face = ExcavationFaceGeometry.fromMinecraftDirection(hitFace);
+        ExcavationFaceGeometry.FaceDirection facing = ExcavationFaceGeometry.fromMinecraftDirection(playerFacing);
+        ExcavationFaceGeometry.IntRange sideRange = ExcavationFaceGeometry.rightBiasedCenteredRange(depth);
+
+        if (face == ExcavationFaceGeometry.FaceDirection.UP || face == ExcavationFaceGeometry.FaceDirection.DOWN) {
+            ExcavationFaceGeometry.IntRange forwardRange = ExcavationFaceGeometry.rightBiasedCenteredRange(width);
+            for (int verticalStep = 0; verticalStep < height; verticalStep++) {
+                for (int forward = forwardRange.min(); forward <= forwardRange.max(); forward++) {
+                    for (int side = sideRange.min(); side <= sideRange.max(); side++) {
+                        int[] offset = ExcavationFaceGeometry.wideCuboidOffset(face, facing, forward, side, verticalStep);
+                        envelope.add(origin.offset(offset[0], offset[1], offset[2]).immutable());
+                    }
+                }
+            }
+            return envelope;
+        }
+
+        ExcavationFaceGeometry.IntRange heightRange = ExcavationFaceGeometry.rightBiasedCenteredRange(height);
+        for (int forward = 0; forward < width; forward++) {
+            for (int y = heightRange.min(); y <= heightRange.max(); y++) {
+                for (int side = sideRange.min(); side <= sideRange.max(); side++) {
+                    int[] offset = ExcavationFaceGeometry.wideCuboidOffset(face, facing, forward, side, y);
+                    envelope.add(origin.offset(offset[0], offset[1], offset[2]).immutable());
+                }
+            }
+        }
+        return envelope;
+    }
+
+    private record ExcavationLocal(int layer, int axisA, int axisB) {
     }
 
     private static List<BlockPos> orderExcavationPositions(
+        String shapeId,
         Set<BlockPos> positions,
         BlockPos origin,
         net.minecraft.core.Direction hitFace,
@@ -515,25 +563,61 @@ public class ExcavationAgent extends Agent {
         ExcavationFaceGeometry.FaceDirection facing = ExcavationFaceGeometry.fromMinecraftDirection(playerFacing);
         ExcavationFaceGeometry.IntRange widthRange = ExcavationFaceGeometry.rightBiasedCenteredRange(width);
         ExcavationFaceGeometry.IntRange heightRange = ExcavationFaceGeometry.rightBiasedCenteredRange(height);
+        ExcavationFaceGeometry.IntRange sideRange = ExcavationFaceGeometry.rightBiasedCenteredRange(depth);
+        boolean wideCuboid = MAShapeIds.EXCAVATION_WIDE_CUBOID.equals(shapeId);
+        boolean verticalFace = face == ExcavationFaceGeometry.FaceDirection.UP || face == ExcavationFaceGeometry.FaceDirection.DOWN;
 
         Map<BlockPos, ExcavationLocal> localByPos = new HashMap<>(positions.size());
-        for (int d = 0; d < depth; d++) {
-            for (int h = heightRange.min(); h <= heightRange.max(); h++) {
-                for (int w = widthRange.min(); w <= widthRange.max(); w++) {
-                    int[] offset = ExcavationFaceGeometry.offsetFor(face, facing, d, w, h);
-                    BlockPos absolute = origin.offset(offset[0], offset[1], offset[2]).immutable();
-                    if (positions.contains(absolute)) {
-                        localByPos.put(absolute, new ExcavationLocal(d, w, h));
+        if (wideCuboid) {
+            if (verticalFace) {
+                for (int layer = 0; layer < height; layer++) {
+                    for (int axisB = widthRange.min(); axisB <= widthRange.max(); axisB++) {
+                        for (int axisA = sideRange.min(); axisA <= sideRange.max(); axisA++) {
+                            int[] offset = ExcavationFaceGeometry.wideCuboidOffset(face, facing, axisB, axisA, layer);
+                            BlockPos absolute = origin.offset(offset[0], offset[1], offset[2]).immutable();
+                            if (positions.contains(absolute)) {
+                                localByPos.put(absolute, new ExcavationLocal(layer, axisA, axisB));
+                            }
+                        }
+                    }
+                }
+            } else {
+                for (int layer = 0; layer < width; layer++) {
+                    for (int axisB = heightRange.min(); axisB <= heightRange.max(); axisB++) {
+                        for (int axisA = sideRange.min(); axisA <= sideRange.max(); axisA++) {
+                            int[] offset = ExcavationFaceGeometry.wideCuboidOffset(face, facing, layer, axisA, axisB);
+                            BlockPos absolute = origin.offset(offset[0], offset[1], offset[2]).immutable();
+                            if (positions.contains(absolute)) {
+                                localByPos.put(absolute, new ExcavationLocal(layer, axisA, axisB));
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            for (int layer = 0; layer < depth; layer++) {
+                for (int axisB = heightRange.min(); axisB <= heightRange.max(); axisB++) {
+                    for (int axisA = widthRange.min(); axisA <= widthRange.max(); axisA++) {
+                        int[] offset = ExcavationFaceGeometry.offsetFor(face, facing, layer, axisA, axisB);
+                        BlockPos absolute = origin.offset(offset[0], offset[1], offset[2]).immutable();
+                        if (positions.contains(absolute)) {
+                            localByPos.put(absolute, new ExcavationLocal(layer, axisA, axisB));
+                        }
                     }
                 }
             }
         }
 
+        int spiralMinA = wideCuboid ? sideRange.min() : widthRange.min();
+        int spiralMaxA = wideCuboid ? sideRange.max() : widthRange.max();
+        int spiralMinB = wideCuboid && verticalFace ? widthRange.min() : heightRange.min();
+        int spiralMaxB = wideCuboid && verticalFace ? widthRange.max() : heightRange.max();
+
         Map<Long, Integer> spiralIndex = clockwiseSpiralIndex(
-            widthRange.min(),
-            widthRange.max(),
-            heightRange.min(),
-            heightRange.max(),
+            spiralMinA,
+            spiralMaxA,
+            spiralMinB,
+            spiralMaxB,
             0,
             0
         );
@@ -550,8 +634,8 @@ public class ExcavationAgent extends Agent {
 
         ordered.sort(
             Comparator
-                .comparingInt((BlockPos pos) -> localByPos.get(pos).depth())
-                .thenComparingInt(pos -> spiralIndex.getOrDefault(pairKey(localByPos.get(pos).width(), localByPos.get(pos).height()), Integer.MAX_VALUE))
+                .comparingInt((BlockPos pos) -> localByPos.get(pos).layer())
+                .thenComparingInt(pos -> spiralIndex.getOrDefault(pairKey(localByPos.get(pos).axisA(), localByPos.get(pos).axisB()), Integer.MAX_VALUE))
                 .thenComparingInt(BlockPos::getY)
                 .thenComparingInt(BlockPos::getX)
                 .thenComparingInt(BlockPos::getZ)

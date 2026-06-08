@@ -7,6 +7,7 @@
 - Replace stale internal guide wording that referenced YACL with Cloth Config terminology and remove stale YACL-related crash-report artifacts from local run outputs.
 - Update internal changelog rule guide wording to reference Cloth Config instead of YACL.
 - Respect tool context and enchant behavior across queued/programmatic block breaks by routing agent break paths through a shared tool-aware break helper, and prevent duplicate excavation worker spawning from retriggered break events.
+- Fix Wide Cuboid excavation shaping to preserve configured side depth and apply full-volume per-layer spiral ordering instead of collapsing traversal to a width-limited cube subset.
 
 ## 2.14.0
 
