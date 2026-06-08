@@ -10,6 +10,7 @@
 - Fix Wide Cuboid excavation shaping to preserve configured side depth and apply full-volume per-layer spiral ordering instead of collapsing traversal to a width-limited cube subset.
 - Stop excavation, shaft, and ventilation traversal when a whole ordered depth layer is already air, so workers abort cleanly instead of iterating empty downstream layers.
 - Guard runtime tests behind block-registry availability assumptions and refresh synthetic context assertions for farming, mining, utility, excavation, and illumination coverage.
+- Add a dedicated full-test-suite pre-commit validator and wire hook setup scripts to install and report the new test gate alongside existing validators.
 
 ## 2.14.0
 

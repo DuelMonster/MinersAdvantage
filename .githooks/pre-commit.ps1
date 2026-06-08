@@ -5,6 +5,7 @@ $docsScript = Join-Path $repoRoot 'scripts/validate-docs.ps1'
 $versionScript = Join-Path $repoRoot 'scripts/validate-version-bump.ps1'
 $optScript = Join-Path $repoRoot 'scripts/validate-optimization-pass.ps1'
 $changelogScript = Join-Path $repoRoot 'scripts/validate-changelog.ps1'
+$testScript = Join-Path $repoRoot 'scripts/validate-test-suite.ps1'
 $compileScript = Join-Path $repoRoot 'scripts/validate-compile-matrix.ps1'
 
 if (-not (Test-Path $docsScript)) {
@@ -27,6 +28,11 @@ if (-not (Test-Path $changelogScript)) {
     exit 1
 }
 
+if (-not (Test-Path $testScript)) {
+    Write-Host 'Missing test validator: scripts/validate-test-suite.ps1' -ForegroundColor Red
+    exit 1
+}
+
 if (-not (Test-Path $compileScript)) {
     Write-Host 'Missing compile validator: scripts/validate-compile-matrix.ps1' -ForegroundColor Red
     exit 1
@@ -39,6 +45,9 @@ if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 & $docsScript
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+& $testScript
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 & $compileScript

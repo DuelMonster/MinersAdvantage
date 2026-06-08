@@ -7,9 +7,15 @@ version_script="$repo_root/scripts/validate-version-bump.sh"
 opt_script="$repo_root/scripts/validate-optimization-pass.sh"
 changelog_script="$repo_root/scripts/validate-changelog.sh"
 compile_script="$repo_root/scripts/validate-compile-matrix.sh"
+test_script="$repo_root/scripts/validate-test-suite.sh"
 
 if [[ ! -f "$docs_script" ]]; then
   echo "Missing docs validator: scripts/validate-docs.sh"
+  exit 1
+fi
+
+if [[ ! -f "$test_script" ]]; then
+  echo "Missing test validator: scripts/validate-test-suite.sh"
   exit 1
 fi
 
@@ -56,5 +62,6 @@ fi
 "$version_script"
 "$opt_script"
 "$docs_script"
+"$test_script"
 "$compile_script"
 "$changelog_script"
