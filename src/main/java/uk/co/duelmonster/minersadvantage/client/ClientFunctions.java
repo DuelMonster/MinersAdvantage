@@ -119,22 +119,64 @@ public final class ClientFunctions {
         }
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
-            Method setter = player.getInventory().getClass().getMethod("setSelectedSlot", int.class);
-            setter.invoke(player.getInventory(), slotIndex);
-        } catch (Exception noSetter) {
+            Object inventory = player.getInventory();
+            Method setter = findSelectedSlotSetter(inventory.getClass());
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            try {
-                Field selected = player.getInventory().getClass().getDeclaredField("selected");
+            if (setter != null) {
+                setter.invoke(inventory, slotIndex);
+            } else {
+                Field selected = findSelectedSlotField(inventory.getClass());
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+                if (selected == null) {
+                    return;
+                }
                 selected.setAccessible(true);
-                selected.setInt(player.getInventory(), slotIndex);
-            } catch (Exception ignored) {
-                return;
+                selected.setInt(inventory, slotIndex);
             }
+        } catch (Exception noSetter) {
+            return;
         }
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (mc.gameMode != null) {
             mc.gameMode.tick();
         }
         Functions.sleep(100);
+    }
+
+    private static Method findSelectedSlotSetter(Class<?> inventoryType) {
+        for (Method method : inventoryType.getMethods()) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+            if (method.getParameterCount() != 1 || method.getParameterTypes()[0] != int.class || method.getReturnType() != void.class) {
+                continue;
+            }
+
+            String lowered = method.getName().toLowerCase(java.util.Locale.ROOT);
+            // Prefer semantic candidates but keep signature-based filtering as the primary compatibility gate.
+            if (lowered.contains("select") || lowered.contains("slot") || lowered.contains("held")) {
+                return method;
+            }
+        }
+
+        for (Method method : inventoryType.getMethods()) {
+            if (method.getParameterCount() == 1 && method.getParameterTypes()[0] == int.class && method.getReturnType() == void.class) {
+                return method;
+            }
+        }
+        return null;
+    }
+
+    private static Field findSelectedSlotField(Class<?> inventoryType) {
+        for (Field field : inventoryType.getDeclaredFields()) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+            if (field.getType() != int.class) {
+                continue;
+            }
+
+            String lowered = field.getName().toLowerCase(java.util.Locale.ROOT);
+            if (lowered.contains("select") || lowered.contains("slot") || lowered.contains("held")) {
+                return field;
+            }
+        }
+        return null;
     }
 }

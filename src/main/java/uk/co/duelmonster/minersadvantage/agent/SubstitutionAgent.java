@@ -20,12 +20,15 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.HoeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 import uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig;
 import uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig.SelectionRule;
 import uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig.SubstitutionAction;
@@ -100,39 +103,31 @@ public class SubstitutionAgent extends Agent {
      * Resolve game mode object across mappings by trying fields then accessors.
      */
     private static Object resolvePlayerGameMode(ServerPlayer player) {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        try {
-            Field gameModeField = player.getClass().getField("gameMode");
-            return gameModeField.get(player);
-        } catch (ReflectiveOperationException ignored) {
-            // Why this exists: mappings can hide this member; try declared field then methods.
+        for (Field field : player.getClass().getFields()) {
+            Object value = readField(player, field);
+            if (value != null && isLikelyGameModeCarrier(value.getClass())) {
+                return value;
+            }
         }
 
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        try {
-            Field gameModeField = player.getClass().getDeclaredField("gameMode");
-            gameModeField.setAccessible(true);
-            return gameModeField.get(player);
-        } catch (ReflectiveOperationException ignored) {
-            // Why this exists: mappings can expose accessors instead of fields.
+        for (Field field : player.getClass().getDeclaredFields()) {
+            field.setAccessible(true);
+            Object value = readField(player, field);
+            if (value != null && isLikelyGameModeCarrier(value.getClass())) {
+                return value;
+            }
         }
 
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (Method method : player.getClass().getMethods()) {
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (method.getParameterCount() != 0) {
-                continue;
-            }
-            String lowered = method.getName().toLowerCase(Locale.ROOT);
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            if (!lowered.contains("gamemode")) {
                 continue;
             }
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             try {
                 Object value = method.invoke(player);
                 // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-                if (value != null) {
+                if (value != null && isLikelyGameModeCarrier(value.getClass())) {
                     return value;
                 }
             } catch (ReflectiveOperationException ignored) {
@@ -140,6 +135,41 @@ public class SubstitutionAgent extends Agent {
             }
         }
         return null;
+    }
+
+    private static Object readField(Object owner, Field field) {
+        try {
+            return field.get(owner);
+        } catch (ReflectiveOperationException ignored) {
+            return null;
+        }
+    }
+
+    private static boolean isLikelyGameModeCarrier(Class<?> candidateType) {
+        for (Method method : candidateType.getMethods()) {
+            if (method.getReturnType() != InteractionResult.class) {
+                continue;
+            }
+
+            Class<?>[] parameterTypes = method.getParameterTypes();
+            if (parameterTypes.length == 4
+                && parameterTypes[0].isAssignableFrom(ServerPlayer.class)
+                && parameterTypes[1].isAssignableFrom(Level.class)
+                && parameterTypes[2].isAssignableFrom(InteractionHand.class)
+                && parameterTypes[3].isAssignableFrom(BlockHitResult.class)) {
+                return true;
+            }
+
+            if (parameterTypes.length == 5
+                && parameterTypes[0].isAssignableFrom(ServerPlayer.class)
+                && parameterTypes[1].isAssignableFrom(Level.class)
+                && parameterTypes[2].isAssignableFrom(ItemStack.class)
+                && parameterTypes[3].isAssignableFrom(InteractionHand.class)
+                && parameterTypes[4].isAssignableFrom(BlockHitResult.class)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

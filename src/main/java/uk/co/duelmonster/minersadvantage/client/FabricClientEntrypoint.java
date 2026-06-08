@@ -99,11 +99,18 @@ public final class FabricClientEntrypoint implements ClientModInitializer {
      * Extract pose stack from either legacy WorldRenderContext or new LevelRenderContext.
      */
     private static PoseStack extractPoseStack(Object context) throws ReflectiveOperationException {
-        try {
-            return (PoseStack) context.getClass().getMethod("poseStack").invoke(context);
-        } catch (NoSuchMethodException ignored) {
-            return (PoseStack) context.getClass().getMethod("matrices").invoke(context);
+        for (java.lang.reflect.Method method : context.getClass().getMethods()) {
+            if (method.getParameterCount() != 0 || !PoseStack.class.isAssignableFrom(method.getReturnType())) {
+                continue;
+            }
+
+            Object value = method.invoke(context);
+            if (value instanceof PoseStack poseStack) {
+                return poseStack;
+            }
         }
+
+        throw new NoSuchMethodException("No zero-arg PoseStack accessor on " + context.getClass().getName());
     }
 
 }

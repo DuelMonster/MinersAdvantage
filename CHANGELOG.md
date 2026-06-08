@@ -1,3 +1,10 @@
+## 2.15.0
+
+- Bump mod version to `2.15.0` for the first code/content change day commit and advance daily bump tracking state.
+- Fix production runtime keybind torch placement regressions by replacing mapping-name method reflection with signature-based game mode interaction lookup.
+- Harden additional reflection paths across client and common utility flows (input handling, packet support, substitution/captivation helpers, and config-screen runtime fallbacks) to reduce dev-vs-production mapping break risk.
+- Replace stale internal guide wording that referenced YACL with Cloth Config terminology and remove stale YACL-related crash-report artifacts from local run outputs.
+
 ## 2.14.0
 
 - Bump mod version to `2.14.0` for the first code/content change day commit and advance daily bump tracking state.

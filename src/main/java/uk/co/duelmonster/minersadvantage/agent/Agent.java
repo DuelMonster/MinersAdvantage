@@ -29,6 +29,8 @@ import java.lang.reflect.Method;
  * Think of it as the shared survival kit: lifecycle flags, torch placement helpers, and veination fan-out glue.
  */
 public abstract class Agent {
+    private static volatile boolean useItemOnLookupWarned = false;
+
     protected final ServerPlayer player;
     protected final Level world;
     protected boolean complete = false;
@@ -211,44 +213,95 @@ public abstract class Agent {
      * Invoke whichever useItemOn signature exists under current mappings/runtime.
      */
     private InteractionResult useItemOnAsPlayer(InteractionHand hand, BlockHitResult hitResult) {
+        Method fourArgMethod = findGameModeInteractionMethod(
+            ServerPlayer.class,
+            Level.class,
+            InteractionHand.class,
+            BlockHitResult.class
+        );
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        try {
-            Method method = player.gameMode.getClass().getMethod(
-                "useItemOn",
-                ServerPlayer.class,
-                Level.class,
-                InteractionHand.class,
-                BlockHitResult.class
-            );
-            Object result = method.invoke(player.gameMode, player, world, hand, hitResult);
+        if (fourArgMethod != null) {
+            Object result = invokeGameModeMethod(fourArgMethod, player, world, hand, hitResult);
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (result instanceof InteractionResult interactionResult) {
                 return interactionResult;
             }
-        } catch (ReflectiveOperationException ignored) {
-            // Why this exists: mixed mappings expose different useItemOn overloads.
         }
 
+        Method fiveArgMethod = findGameModeInteractionMethod(
+            ServerPlayer.class,
+            Level.class,
+            ItemStack.class,
+            InteractionHand.class,
+            BlockHitResult.class
+        );
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        try {
-            Method method = player.gameMode.getClass().getMethod(
-                "useItemOn",
-                ServerPlayer.class,
-                Level.class,
-                ItemStack.class,
-                InteractionHand.class,
-                BlockHitResult.class
-            );
-            Object result = method.invoke(player.gameMode, player, world, player.getItemInHand(hand), hand, hitResult);
+        if (fiveArgMethod != null) {
+            Object result = invokeGameModeMethod(fiveArgMethod, player, world, player.getItemInHand(hand), hand, hitResult);
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (result instanceof InteractionResult interactionResult) {
                 return interactionResult;
             }
-        } catch (ReflectiveOperationException ignored) {
-            // Why this exists: mixed mappings expose different useItemOn overloads.
         }
 
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+        if (!useItemOnLookupWarned) {
+            useItemOnLookupWarned = true;
+            LogUtils.logWarn(
+                "Unable to resolve compatible game mode placement method for class={}; illumination placement may fail in this runtime",
+                player.gameMode.getClass().getName()
+            );
+        }
         return InteractionResult.PASS;
+    }
+
+    private Method findGameModeInteractionMethod(Class<?>... expectedParameterTypes) {
+        Class<?> gameModeClass = player.gameMode.getClass();
+
+        for (Method method : gameModeClass.getMethods()) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+            if (isCompatibleInteractionMethod(method, expectedParameterTypes)) {
+                return method;
+            }
+        }
+
+        for (Method method : gameModeClass.getDeclaredMethods()) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+            if (isCompatibleInteractionMethod(method, expectedParameterTypes)) {
+                method.trySetAccessible();
+                return method;
+            }
+        }
+        return null;
+    }
+
+    private static boolean isCompatibleInteractionMethod(Method method, Class<?>... expectedParameterTypes) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+        if (method.getReturnType() != InteractionResult.class) {
+            return false;
+        }
+
+        Class<?>[] actualParameterTypes = method.getParameterTypes();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+        if (actualParameterTypes.length != expectedParameterTypes.length) {
+            return false;
+        }
+
+        for (int i = 0; i < actualParameterTypes.length; i++) {
+            // Allow supertypes in runtime signatures (for example Player instead of ServerPlayer).
+            if (!actualParameterTypes[i].isAssignableFrom(expectedParameterTypes[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private Object invokeGameModeMethod(Method method, Object... args) {
+        try {
+            return method.invoke(player.gameMode, args);
+        } catch (ReflectiveOperationException ignored) {
+            return null;
+        }
     }
 
     /**

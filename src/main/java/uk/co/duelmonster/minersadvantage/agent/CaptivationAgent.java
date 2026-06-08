@@ -13,6 +13,7 @@ import uk.co.duelmonster.minersadvantage.common.services.captivation.Captivation
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -25,10 +26,6 @@ public class CaptivationAgent extends Agent {
     private static final double NO_PULL_RADIUS_SQUARED = 2.0D;
     private static final int PLAYER_DROP_COOLDOWN_TICKS = 160;
     private static final int PLAYER_DROP_PICKUP_DELAY_TICKS = 20;
-    private static final String[] DROPPER_GETTER_CANDIDATES = {"getThrower", "getThrowerId", "getOwner", "getOwnerId", "getTarget"};
-    private static final String[] DROPPER_FIELD_CANDIDATES = {"thrower", "throwerId", "owner", "ownerId", "target"};
-    private static final String[] PICKUP_DELAY_GETTER_CANDIDATES = {"getPickUpDelay", "getPickupDelay"};
-    private static final String[] PICKUP_DELAY_FIELD_CANDIDATES = {"pickupDelay", "pickUpDelay"};
 
     private final int radiusHorizontal;
     private final int radiusVertical;
@@ -207,18 +204,19 @@ public class CaptivationAgent extends Agent {
             return cachedDropperGetter;
         }
 
+        Method method = findFirstCompatibleMethod(item.getClass(), candidate ->
+            candidate.getParameterCount() == 0
+                && !Modifier.isStatic(candidate.getModifiers())
+                && canContainDropperUuid(candidate.getReturnType())
+        );
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        for (String candidate : DROPPER_GETTER_CANDIDATES) {
+        if (method != null) {
+            Object value = invokeReflective(method, item);
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            try {
-                Method method = item.getClass().getMethod(candidate);
-                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-                if (method.getParameterCount() == 0 && canContainDropperUuid(method.getReturnType())) {
-                    cachedDropperGetter = method;
-                    dropperGetterResolved = true;
-                    return cachedDropperGetter;
-                }
-            } catch (NoSuchMethodException ignored) {
+            if (extractDropperUuid(value) != null) {
+                cachedDropperGetter = method;
+                dropperGetterResolved = true;
+                return cachedDropperGetter;
             }
         }
 
@@ -235,19 +233,18 @@ public class CaptivationAgent extends Agent {
             return cachedDropperField;
         }
 
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        for (String candidate : DROPPER_FIELD_CANDIDATES) {
+        for (Field field : item.getClass().getDeclaredFields()) {
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            try {
-                Field field = item.getClass().getDeclaredField(candidate);
-                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-                if (canContainDropperUuid(field.getType())) {
-                    field.setAccessible(true);
-                    cachedDropperField = field;
-                    dropperFieldResolved = true;
-                    return cachedDropperField;
-                }
-            } catch (NoSuchFieldException ignored) {
+            if (Modifier.isStatic(field.getModifiers()) || !canContainDropperUuid(field.getType())) {
+                continue;
+            }
+            field.setAccessible(true);
+            Object value = readFieldValue(field, item);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+            if (extractDropperUuid(value) != null) {
+                cachedDropperField = field;
+                dropperFieldResolved = true;
+                return cachedDropperField;
             }
         }
 
@@ -298,19 +295,19 @@ public class CaptivationAgent extends Agent {
             return cachedPickupDelayGetter;
         }
 
+        Method method = findFirstCompatibleMethod(item.getClass(), candidate ->
+            candidate.getParameterCount() == 0
+                && !Modifier.isStatic(candidate.getModifiers())
+                && (Number.class.isAssignableFrom(candidate.getReturnType()) || candidate.getReturnType() == int.class)
+        );
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        for (String candidate : PICKUP_DELAY_GETTER_CANDIDATES) {
+        if (method != null) {
+            Integer value = numberToInt(invokeReflective(method, item));
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            try {
-                Method method = item.getClass().getMethod(candidate);
-                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-                if (method.getParameterCount() == 0
-                    && (Number.class.isAssignableFrom(method.getReturnType()) || method.getReturnType() == int.class)) {
-                    cachedPickupDelayGetter = method;
-                    pickupDelayGetterResolved = true;
-                    return cachedPickupDelayGetter;
-                }
-            } catch (NoSuchMethodException ignored) {
+            if (isLikelyPickupDelay(value)) {
+                cachedPickupDelayGetter = method;
+                pickupDelayGetterResolved = true;
+                return cachedPickupDelayGetter;
             }
         }
 
@@ -327,19 +324,22 @@ public class CaptivationAgent extends Agent {
             return cachedPickupDelayField;
         }
 
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        for (String candidate : PICKUP_DELAY_FIELD_CANDIDATES) {
+        for (Field field : item.getClass().getDeclaredFields()) {
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            try {
-                Field field = item.getClass().getDeclaredField(candidate);
-                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-                if (Number.class.isAssignableFrom(field.getType()) || field.getType() == int.class) {
-                    field.setAccessible(true);
-                    cachedPickupDelayField = field;
-                    pickupDelayFieldResolved = true;
-                    return cachedPickupDelayField;
-                }
-            } catch (NoSuchFieldException ignored) {
+            if (Modifier.isStatic(field.getModifiers())) {
+                continue;
+            }
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+            if (!Number.class.isAssignableFrom(field.getType()) && field.getType() != int.class) {
+                continue;
+            }
+            field.setAccessible(true);
+            Integer value = numberToInt(readFieldValue(field, item));
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+            if (isLikelyPickupDelay(value)) {
+                cachedPickupDelayField = field;
+                pickupDelayFieldResolved = true;
+                return cachedPickupDelayField;
             }
         }
 
@@ -374,5 +374,51 @@ public class CaptivationAgent extends Agent {
             return entity.getUUID();
         }
         return null;
+    }
+
+    private static Method findFirstCompatibleMethod(Class<?> ownerType, java.util.function.Predicate<Method> predicate) {
+        for (Method method : ownerType.getMethods()) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+            if (method.getDeclaringClass() != ItemEntity.class) {
+                continue;
+            }
+            if (predicate.test(method)) {
+                return method;
+            }
+        }
+
+        for (Method method : ownerType.getMethods()) {
+            if (predicate.test(method)) {
+                return method;
+            }
+        }
+        return null;
+    }
+
+    private static Object invokeReflective(Method method, Object owner) {
+        try {
+            return method.invoke(owner);
+        } catch (ReflectiveOperationException ignored) {
+            return null;
+        }
+    }
+
+    private static Object readFieldValue(Field field, Object owner) {
+        try {
+            return field.get(owner);
+        } catch (ReflectiveOperationException ignored) {
+            return null;
+        }
+    }
+
+    private static Integer numberToInt(Object value) {
+        if (value instanceof Number number) {
+            return number.intValue();
+        }
+        return null;
+    }
+
+    private static boolean isLikelyPickupDelay(Integer value) {
+        return value != null && value >= 0 && value <= 32767;
     }
 }

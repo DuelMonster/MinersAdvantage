@@ -103,7 +103,10 @@ public class Functions {
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             Method displayClientMessage = Arrays.stream(player.getClass().getMethods())
-                .filter(method -> method.getName().equals("displayClientMessage") && method.getParameterCount() == 2)
+                .filter(method -> method.getParameterCount() == 2)
+                .filter(method -> method.getParameterTypes()[0] == Component.class)
+                .filter(method -> method.getParameterTypes()[1] == boolean.class || method.getParameterTypes()[1] == Boolean.class)
+                .filter(method -> method.getReturnType() == void.class)
                 .findFirst()
                 .orElse(null);
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
@@ -113,7 +116,9 @@ public class Functions {
             }
 
             Method sendSystemMessage = Arrays.stream(player.getClass().getMethods())
-                .filter(method -> method.getName().equals("sendSystemMessage") && method.getParameterCount() == 1)
+                .filter(method -> method.getParameterCount() == 1)
+                .filter(method -> method.getParameterTypes()[0] == Component.class)
+                .filter(method -> method.getReturnType() == void.class)
                 .findFirst()
                 .orElse(null);
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
@@ -123,7 +128,10 @@ public class Functions {
             }
 
             Method sendMessage = Arrays.stream(player.getClass().getMethods())
-                .filter(method -> method.getName().equals("sendMessage") && method.getParameterCount() == 2)
+                .filter(method -> method.getParameterCount() == 2)
+                .filter(method -> method.getParameterTypes()[0] == Component.class)
+                .filter(method -> method.getParameterTypes()[1] == UUID.class)
+                .filter(method -> method.getReturnType() == void.class)
                 .findFirst()
                 .orElse(null);
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
@@ -503,7 +511,19 @@ public class Functions {
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
             BlockState state = world.getBlockState(pos);
-            Method method = state.getClass().getMethod("canSustainPlant", Level.class, BlockPos.class, Direction.class, plantable.getClass().getInterfaces()[0]);
+            Method method = Arrays.stream(state.getClass().getMethods())
+                .filter(candidate -> candidate.getParameterCount() == 4)
+                .filter(candidate -> candidate.getParameterTypes()[0].isAssignableFrom(Level.class))
+                .filter(candidate -> candidate.getParameterTypes()[1].isAssignableFrom(BlockPos.class))
+                .filter(candidate -> candidate.getParameterTypes()[2].isAssignableFrom(Direction.class))
+                .filter(candidate -> candidate.getParameterTypes()[3].isInstance(plantable))
+                .filter(candidate -> candidate.getReturnType() == boolean.class || candidate.getReturnType() == Boolean.class)
+                .findFirst()
+                .orElse(null);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+            if (method == null) {
+                return false;
+            }
             Object result = method.invoke(state, world, pos, Direction.UP, plantable);
             return result instanceof Boolean b && b;
         } catch (ReflectiveOperationException | SecurityException ignored) {

@@ -538,18 +538,20 @@ public final class MinersAdvantageConfigScreen {
         while (current != null) {
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             try {
-                Method childrenMethod = current.getDeclaredMethod("children");
-                childrenMethod.setAccessible(true);
-                Object result = childrenMethod.invoke(screen);
-                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-                if (result instanceof List<?> list) {
-                    return list;
+                for (Method method : current.getDeclaredMethods()) {
+                    if (method.getParameterCount() != 0 || !List.class.isAssignableFrom(method.getReturnType())) {
+                        continue;
+                    }
+                    method.setAccessible(true);
+                    Object result = method.invoke(screen);
+                    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+                    if (result instanceof List<?> list) {
+                        return list;
+                    }
                 }
-                return List.of();
-            } catch (NoSuchMethodException ignored) {
                 current = current.getSuperclass();
             } catch (ReflectiveOperationException exception) {
-                return List.of();
+                current = current.getSuperclass();
             }
         }
         return List.of();
@@ -561,11 +563,15 @@ public final class MinersAdvantageConfigScreen {
     private static int getWidgetY(Button button) {
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
-            Method getYMethod = button.getClass().getMethod("getY");
-            Object value = getYMethod.invoke(button);
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            if (value instanceof Integer y) {
-                return y;
+            for (Method method : button.getClass().getMethods()) {
+                if (method.getParameterCount() != 0 || method.getReturnType() != int.class) {
+                    continue;
+                }
+                Object value = method.invoke(button);
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+                if (value instanceof Integer y && y > Integer.MIN_VALUE / 2) {
+                    return y;
+                }
             }
         } catch (ReflectiveOperationException ignored) {
             // fall back to field lookup below
@@ -577,13 +583,17 @@ public final class MinersAdvantageConfigScreen {
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             while (current != null) {
                 // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-                try {
-                    java.lang.reflect.Field yField = current.getDeclaredField("y");
-                    yField.setAccessible(true);
-                    return yField.getInt(button);
-                } catch (NoSuchFieldException ignored) {
-                    current = current.getSuperclass();
+                for (java.lang.reflect.Field field : current.getDeclaredFields()) {
+                    if (field.getType() != int.class) {
+                        continue;
+                    }
+                    field.setAccessible(true);
+                    int value = field.getInt(button);
+                    if (value > Integer.MIN_VALUE / 2) {
+                        return value;
+                    }
                 }
+                current = current.getSuperclass();
             }
         } catch (ReflectiveOperationException ignored) {
             // If we cannot determine position, return a non-matching value.

@@ -72,10 +72,18 @@ public final class ClientInputHandler {
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             try {
                 helperClass = Class.forName("net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper");
-                registerMethod = helperClass.getMethod("registerKeyBinding", KeyMapping.class);
             } catch (ClassNotFoundException oldApiMissing) {
                 helperClass = Class.forName("net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper");
-                registerMethod = helperClass.getMethod("registerKeyMapping", KeyMapping.class);
+            }
+
+            registerMethod = java.util.Arrays.stream(helperClass.getMethods())
+                .filter(method -> java.lang.reflect.Modifier.isStatic(method.getModifiers()))
+                .filter(method -> method.getParameterCount() == 1)
+                .filter(method -> method.getParameterTypes()[0] == KeyMapping.class)
+                .findFirst()
+                .orElse(null);
+            if (registerMethod == null) {
+                throw new NoSuchMethodException("No static KeyMapping registration method on " + helperClass.getName());
             }
             registerMethod.invoke(null, keyMapping);
         } catch (ReflectiveOperationException exception) {

@@ -126,7 +126,7 @@ final class PacketProcessSupport {
 
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
-            Method method = player == null ? null : player.getClass().getMethod("getMainHandItem");
+            Method method = player == null ? null : findZeroArgMethodReturning(player.getClass(), ItemStack.class);
             Object result = method == null ? null : method.invoke(player);
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (result instanceof ItemStack stack) {
@@ -176,7 +176,7 @@ final class PacketProcessSupport {
 
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
-            Method method = player == null ? null : player.getClass().getMethod("getUUID");
+            Method method = player == null ? null : findZeroArgMethodReturning(player.getClass(), UUID.class);
             Object result = method == null ? null : method.invoke(player);
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (result instanceof UUID uuid) {
@@ -186,6 +186,21 @@ final class PacketProcessSupport {
             // Why this exists: Fallback to singleton Variables state for compatibility callers. (future-you will thank present-you).
         }
 
+        return null;
+    }
+
+    private static Method findZeroArgMethodReturning(Class<?> ownerType, Class<?> returnType) {
+        for (Method method : ownerType.getMethods()) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+            if (method.getParameterCount() != 0) {
+                continue;
+            }
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+            if (!returnType.isAssignableFrom(method.getReturnType())) {
+                continue;
+            }
+            return method;
+        }
         return null;
     }
 }
