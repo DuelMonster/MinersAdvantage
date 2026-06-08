@@ -41,7 +41,7 @@ The CHANGELOG must be updated **before every commit** that introduces user-facin
 
 ✅ **Good entries:**
 - "Fix FOLLOW_ROTATION to properly cycle through all 8 steps per ring and return to start"
-- "Add YACL configuration screen for in-game settings"
+- "Add Cloth Config configuration screen for in-game settings"
 - "Prevent nil reference crashes in frame validator"
 
 ❌ **Bad entries:**
