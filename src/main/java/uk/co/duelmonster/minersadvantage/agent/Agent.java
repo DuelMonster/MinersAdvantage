@@ -10,6 +10,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.WallTorchBlock;
@@ -30,6 +31,8 @@ import java.lang.reflect.Method;
  */
 public abstract class Agent {
     private static volatile boolean useItemOnLookupWarned = false;
+
+    protected record BreakOutcome(boolean broken, ItemStack toolAfterBreak) {}
 
     protected final ServerPlayer player;
     protected final Level world;
@@ -312,6 +315,40 @@ public abstract class Agent {
     }
 
     /**
+     * Break a block through player game mode while optionally forcing a tool snapshot for enchant parity.
+     */
+    protected BreakOutcome breakBlockWithTool(BlockPos pos, ItemStack preferredTool) {
+        if (player.gameMode == null) {
+            return new BreakOutcome(false, preferredTool == null ? ItemStack.EMPTY : preferredTool.copy());
+        }
+
+        BlockState beforeBreak = world.getBlockState(pos);
+        int breakEffectData = Block.getId(beforeBreak);
+
+        ItemStack currentMainHand = player.getMainHandItem().copy();
+        ItemStack configuredTool = preferredTool == null ? ItemStack.EMPTY : preferredTool;
+        boolean forceTool = !configuredTool.isEmpty();
+
+        if (forceTool) {
+            player.setItemInHand(InteractionHand.MAIN_HAND, configuredTool.copy());
+        }
+
+        boolean broken = player.gameMode.destroyBlock(pos);
+        ItemStack usedTool = player.getMainHandItem().copy();
+
+        if (forceTool) {
+            player.setItemInHand(InteractionHand.MAIN_HAND, currentMainHand);
+        }
+
+        if (broken && !beforeBreak.isAir()) {
+            // Ensure queued/programmatic breaks keep vanilla break FX feedback for nearby clients.
+            world.levelEvent(2001, pos, breakEffectData);
+        }
+
+        return new BreakOutcome(broken, usedTool);
+    }
+
+    /**
      * Shared gate for veination fan-out so every mining-style agent applies the same rules and checks.
      */
     protected boolean maybeFanOutVeination(
@@ -355,7 +392,7 @@ public abstract class Agent {
 
         // Anchor drops at trigger point then queue veination worker.
         veinationRuntime.registerDropAnchor(player, pos, veinationConfig);
-        agentManager.addAgent(player, new VeinationAgent(player, pos, candidateState, commonConfig, veinationRuntime, veinationConfig));
+        agentManager.addAgent(player, new VeinationAgent(player, pos, candidateState, commonConfig, veinationRuntime, veinationConfig, toolStack));
         return true;
     }
 }

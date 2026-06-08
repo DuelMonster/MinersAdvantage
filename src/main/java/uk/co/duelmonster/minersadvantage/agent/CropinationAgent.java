@@ -156,7 +156,7 @@ public class CropinationAgent extends Agent {
      * Break mature crop and immediately replant base-age state.
      */
     private void harvestAndReplant(BlockPos pos, BlockState state, Block block) {
-        boolean broken = player.gameMode.destroyBlock(pos);
+        boolean broken = breakBlockWithTool(pos, ItemStack.EMPTY).broken();
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!broken) {
             return;

@@ -6,6 +6,7 @@
 - Harden additional reflection paths across client and common utility flows (input handling, packet support, substitution/captivation helpers, and config-screen runtime fallbacks) to reduce dev-vs-production mapping break risk.
 - Replace stale internal guide wording that referenced YACL with Cloth Config terminology and remove stale YACL-related crash-report artifacts from local run outputs.
 - Update internal changelog rule guide wording to reference Cloth Config instead of YACL.
+- Respect tool context and enchant behavior across queued/programmatic block breaks by routing agent break paths through a shared tool-aware break helper, and prevent duplicate excavation worker spawning from retriggered break events.
 
 ## 2.14.0
 

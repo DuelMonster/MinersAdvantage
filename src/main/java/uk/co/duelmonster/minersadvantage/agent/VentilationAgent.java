@@ -34,7 +34,7 @@ public class VentilationAgent extends Agent {
     private final CommonConfig commonConfig;
     private final VeinationRuntimeService veinationRuntime;
     private final VeinationConfig veinationConfig;
-    private final ItemStack veinationTriggerTool;
+    private ItemStack veinationTriggerTool;
     private int ladderPlacements = 0;
     private BlockPos lowestDugPos;
     private boolean bottomTorchProcessed = false;
@@ -128,18 +128,21 @@ public class VentilationAgent extends Agent {
             BlockState state = world.getBlockState(pos);
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (!state.isAir()) {
-                world.destroyBlock(pos, true, player);
-                maybeFanOutVeination(pos, state, mineVeins, this.commonConfig, veinationRuntime, veinationConfig, veinationTriggerTool);
-                dug++;
-                count++;
+                BreakOutcome breakOutcome = breakBlockWithTool(pos, veinationTriggerTool);
+                if (breakOutcome.broken()) {
+                    veinationTriggerTool = breakOutcome.toolAfterBreak().copy();
+                    maybeFanOutVeination(pos, state, mineVeins, this.commonConfig, veinationRuntime, veinationConfig, veinationTriggerTool);
+                    dug++;
+                    count++;
 
-                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-                if (direction == Direction.DOWN) {
-                    lowestDugPos = pos.immutable();
                     // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-                    if (config.placeLadders()) {
-                        // Prepended so ladder placement runs from far-to-near once digging completes.
-                        ladderQueue.addFirst(pos.immutable());
+                    if (direction == Direction.DOWN) {
+                        lowestDugPos = pos.immutable();
+                        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+                        if (config.placeLadders()) {
+                            // Prepended so ladder placement runs from far-to-near once digging completes.
+                            ladderQueue.addFirst(pos.immutable());
+                        }
                     }
                 }
             }

@@ -236,7 +236,7 @@ public final class ModEntry implements ModInitializer {
                 AgentManager agentManager = AgentManager.get();
                 // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (!agentManager.hasAgentType(serverPlayer, VeinationAgent.class)) {
-                    agentManager.addAgent(serverPlayer, new VeinationAgent(serverPlayer, pos, state, playerCommonConfig, veinationRuntime, veinationConfig));
+                    agentManager.addAgent(serverPlayer, new VeinationAgent(serverPlayer, pos, state, playerCommonConfig, veinationRuntime, veinationConfig, stack));
                 }
             } else if (shaftModeActive) {
                 Direction breakFace = consumeBreakFace(serverPlayer, pos);
@@ -258,25 +258,28 @@ public final class ModEntry implements ModInitializer {
                 ExcavationConfig excavationConfig = excavationConfig(serverPlayer);
                 CommonConfig commonConfig = commonConfig(serverPlayer);
                 IlluminationConfig excavationIlluminationConfig = isFeatureEnabled(FeatureId.ILLUMINATION) ? illuminationConfig(serverPlayer) : null;
-                AgentManager.get().addAgent(
-                    serverPlayer,
-                    new ExcavationAgent(
+                AgentManager agentManager = AgentManager.get();
+                if (!agentManager.hasAgentType(serverPlayer, ExcavationAgent.class)) {
+                    agentManager.addAgent(
                         serverPlayer,
-                        pos,
-                        state,
-                        excavationConfig,
-                        commonConfig,
-                        excavationConfig.width(),
-                        excavationConfig.height(),
-                        excavationConfig.depth(),
-                        veinationRuntime,
-                        veinationConfig,
-                        stack,
-                        excavationIlluminationConfig,
-                        playerState.selectedExcavationShapeIndex(),
-                        consumeBreakFace(serverPlayer, pos)
-                    )
-                );
+                        new ExcavationAgent(
+                            serverPlayer,
+                            pos,
+                            state,
+                            excavationConfig,
+                            commonConfig,
+                            excavationConfig.width(),
+                            excavationConfig.height(),
+                            excavationConfig.depth(),
+                            veinationRuntime,
+                            veinationConfig,
+                            stack,
+                            excavationIlluminationConfig,
+                            playerState.selectedExcavationShapeIndex(),
+                            consumeBreakFace(serverPlayer, pos)
+                        )
+                    );
+                }
             } else if (isFeatureEnabled(FeatureId.LUMBINATION)) {
                 LumbinationConfig lumbinationConfig = lumbinationConfig(serverPlayer);
                 // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
@@ -1336,7 +1339,7 @@ public final class ModEntry {
             veinationRuntime.registerDropAnchor(serverPlayer, pos, config);
             AgentManager agentManager = AgentManager.get();
             if (!agentManager.hasAgentType(serverPlayer, VeinationAgent.class)) {
-                agentManager.addAgent(serverPlayer, new VeinationAgent(serverPlayer, pos, playerCommonConfig, veinationRuntime, config));
+                agentManager.addAgent(serverPlayer, new VeinationAgent(serverPlayer, pos, state, playerCommonConfig, veinationRuntime, config, stack));
             }
         } else if (shaftModeActive) {
             boolean verticalFace = breakFace == Direction.UP || breakFace == Direction.DOWN;
@@ -1349,25 +1352,28 @@ public final class ModEntry {
         } else if (!shaftModeActive && excavationActive) {
             ExcavationConfig excavationConfig = excavationConfig(serverPlayer);
             IlluminationConfig excavationIlluminationConfig = isFeatureEnabled(FeatureId.ILLUMINATION) ? illuminationConfig(serverPlayer) : null;
-            AgentManager.get().addAgent(
-                serverPlayer,
-                new ExcavationAgent(
+            AgentManager agentManager = AgentManager.get();
+            if (!agentManager.hasAgentType(serverPlayer, ExcavationAgent.class)) {
+                agentManager.addAgent(
                     serverPlayer,
-                    pos,
-                    state,
-                    excavationConfig,
-                    playerCommonConfig,
-                    excavationConfig.width(),
-                    excavationConfig.height(),
-                    excavationConfig.depth(),
-                    veinationRuntime,
-                    config,
-                    stack,
-                    excavationIlluminationConfig,
-                    playerState.selectedExcavationShapeIndex(),
-                    breakFace
-                )
-            );
+                    new ExcavationAgent(
+                        serverPlayer,
+                        pos,
+                        state,
+                        excavationConfig,
+                        playerCommonConfig,
+                        excavationConfig.width(),
+                        excavationConfig.height(),
+                        excavationConfig.depth(),
+                        veinationRuntime,
+                        config,
+                        stack,
+                        excavationIlluminationConfig,
+                        playerState.selectedExcavationShapeIndex(),
+                        breakFace
+                    )
+                );
+            }
         } else if (isFeatureEnabled(FeatureId.LUMBINATION)) {
             LumbinationConfig lumbinationConfig = lumbinationConfig(serverPlayer);
             if (isConfiguredAxe(stack, lumbinationConfig) && isConfiguredLog(state, lumbinationConfig)) {

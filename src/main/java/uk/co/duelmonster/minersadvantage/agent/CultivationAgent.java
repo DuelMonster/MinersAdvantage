@@ -2,6 +2,7 @@ package uk.co.duelmonster.minersadvantage.agent;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -167,7 +168,7 @@ public class CultivationAgent extends Agent {
         BlockState above = world.getBlockState(abovePos);
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!above.isAir() && above.canBeReplaced()) {
-            world.destroyBlock(abovePos, true, player);
+            breakBlockWithTool(abovePos, ItemStack.EMPTY);
         }
     }
 

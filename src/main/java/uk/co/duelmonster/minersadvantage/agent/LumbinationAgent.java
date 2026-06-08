@@ -181,10 +181,12 @@ public class LumbinationAgent extends Agent {
                 collectSaplingDrops(state, pos);
                 updateTrunkBounds(pos);
                 harvestedLogs.add(pos.immutable());
-                world.destroyBlock(pos, true, player);
-                harvestedLog = true;
-                count++;
-                enqueueNeighbors(pos, false);
+                BreakOutcome breakOutcome = breakBlockWithTool(pos, ItemStack.EMPTY);
+                if (breakOutcome.broken()) {
+                    harvestedLog = true;
+                    count++;
+                    enqueueNeighbors(pos, false);
+                }
             } else if (logsPhaseComplete
                     && config.destroyLeaves()
                     && matchesLeaf(state)
@@ -208,7 +210,7 @@ public class LumbinationAgent extends Agent {
                     restoreMainHand = true;
                 }
 
-                world.destroyBlock(pos, true, player);
+                BreakOutcome breakOutcome = breakBlockWithTool(pos, ItemStack.EMPTY);
 
                 // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (restoreMainHand) {
@@ -216,8 +218,10 @@ public class LumbinationAgent extends Agent {
                     player.setItemInHand(InteractionHand.MAIN_HAND, originalMainHand);
                 }
 
-                collectSaplingDrops(state, pos);
-                count++;
+                if (breakOutcome.broken()) {
+                    collectSaplingDrops(state, pos);
+                    count++;
+                }
             }
         }
 
