@@ -1,6 +1,9 @@
 package uk.co.duelmonster.minersadvantage.common.registry;
 
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.tags.TagKey;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.HoeItem;
@@ -17,6 +20,10 @@ import net.minecraft.world.level.block.state.BlockState;
  * forcing every caller to reinvent the same brittle string and tag logic.
  */
 public final class RegistryPredicates {
+    private static final TagKey<Block> COMMON_ORES = blockTag("c", "ores");
+    private static final TagKey<Block> NEOFORGE_ORES = blockTag("neoforge", "ores");
+    private static final TagKey<Block> FORGE_ORES = blockTag("forge", "ores");
+
     /**
      * Utility class only; no instances, no drama, no accidental state.
      */
@@ -75,7 +82,11 @@ public final class RegistryPredicates {
      * Determine ore-like blocks using vanilla ore tags plus ancient debris.
      */
     public static boolean isOreLike(BlockState state) {
-        return state.is(BlockTags.COAL_ORES)
+        if (state.is(COMMON_ORES) || state.is(NEOFORGE_ORES) || state.is(FORGE_ORES)) {
+            return true;
+        }
+
+        if (state.is(BlockTags.COAL_ORES)
             || state.is(BlockTags.IRON_ORES)
             || state.is(BlockTags.COPPER_ORES)
             || state.is(BlockTags.GOLD_ORES)
@@ -83,7 +94,12 @@ public final class RegistryPredicates {
             || state.is(BlockTags.EMERALD_ORES)
             || state.is(BlockTags.LAPIS_ORES)
             || state.is(BlockTags.DIAMOND_ORES)
-            || state.is(Blocks.ANCIENT_DEBRIS);
+            || state.is(Blocks.ANCIENT_DEBRIS)) {
+            return true;
+        }
+
+        String path = BuiltInRegistries.BLOCK.getKey(state.getBlock()).getPath();
+        return path.endsWith("_ore") || path.equals("ancient_debris");
     }
 
     /**
@@ -255,6 +271,10 @@ public final class RegistryPredicates {
      */
     public static boolean isContextEntity(String blockId) {
         return blockId != null && blockId.startsWith("entity:");
+    }
+
+    private static TagKey<Block> blockTag(String namespace, String path) {
+        return TagKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(namespace, path));
     }
 
     /**

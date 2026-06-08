@@ -1,6 +1,7 @@
 ## 2.15.0
 
 - Bump mod version to `2.15.0` for the first code/content change day commit and advance daily bump tracking state.
+- Fix veination ore classification to check cross-loader ore tags (`c:ores`, `neoforge:ores`, `forge:ores`) before falling back to vanilla ore tags and `_ore`/`ancient_debris` id heuristics.
 - Fix production runtime keybind torch placement regressions by replacing mapping-name method reflection with signature-based game mode interaction lookup.
 - Harden additional reflection paths across client and common utility flows (input handling, packet support, substitution/captivation helpers, and config-screen runtime fallbacks) to reduce dev-vs-production mapping break risk.
 - Replace stale internal guide wording that referenced YACL with Cloth Config terminology and remove stale YACL-related crash-report artifacts from local run outputs.
