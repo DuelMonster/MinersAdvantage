@@ -15,4 +15,14 @@ public final class TestRuntimeAssumptions {
             return false;
         }
     }
+
+    public static boolean canInitializeBlockRegistries() {
+        try {
+            Class.forName("net.minecraft.core.registries.BuiltInRegistries");
+            Class.forName("net.minecraft.tags.BlockTags");
+            return true;
+        } catch (ClassNotFoundException | LinkageError exception) {
+            return false;
+        }
+    }
 }

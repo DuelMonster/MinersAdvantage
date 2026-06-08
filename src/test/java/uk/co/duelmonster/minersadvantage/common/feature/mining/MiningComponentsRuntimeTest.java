@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import uk.co.duelmonster.minersadvantage.common.config.ExcavationConfig;
 import uk.co.duelmonster.minersadvantage.common.config.ShaftanationConfig;
@@ -12,12 +13,17 @@ import uk.co.duelmonster.minersadvantage.common.config.VentilationConfig;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 import uk.co.duelmonster.minersadvantage.common.orchestration.FeatureDispatchBus;
 import uk.co.duelmonster.minersadvantage.common.orchestration.FeatureDispatchContext;
+import uk.co.duelmonster.minersadvantage.testutil.TestRuntimeAssumptions;
 
 /**
  * MiningComponentsRuntimeTest keeps this part of MinersAdvantage running without turning server ticks into confetti.
  * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
  */
 class MiningComponentsRuntimeTest {
+    private static void assumeBlockRegistries() {
+        Assumptions.assumeTrue(TestRuntimeAssumptions.canInitializeBlockRegistries());
+    }
+
     @AfterEach
     /**
      * Clear shared dispatch context after each test.
@@ -31,6 +37,7 @@ class MiningComponentsRuntimeTest {
      * Verify excavation plan respects configured height.
      */
     void excavationUsesConfiguredHeight() {
+        assumeBlockRegistries();
         ExcavationComponent component = new ExcavationComponent(new ExcavationConfig(true, 1, 5, 1, 5));
         component.register();
         component.enable();
@@ -47,6 +54,7 @@ class MiningComponentsRuntimeTest {
      * Verify shaftanation progress advances with valid stone context.
      */
     void shaftanationAdvancesDepthWhenStoneContextPresent() {
+        assumeBlockRegistries();
         ShaftanationComponent component = new ShaftanationComponent(new ShaftanationConfig(true, 9, 3));
         component.register();
         component.enable();

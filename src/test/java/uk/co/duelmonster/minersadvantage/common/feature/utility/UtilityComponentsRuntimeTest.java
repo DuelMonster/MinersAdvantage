@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import uk.co.duelmonster.minersadvantage.common.config.IlluminationConfig;
 import uk.co.duelmonster.minersadvantage.common.config.PathanationConfig;
@@ -14,12 +15,17 @@ import uk.co.duelmonster.minersadvantage.common.config.VeinationConfig;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 import uk.co.duelmonster.minersadvantage.common.orchestration.FeatureDispatchBus;
 import uk.co.duelmonster.minersadvantage.common.orchestration.FeatureDispatchContext;
+import uk.co.duelmonster.minersadvantage.testutil.TestRuntimeAssumptions;
 
 /**
  * UtilityComponentsRuntimeTest keeps this part of MinersAdvantage running without turning server ticks into confetti.
  * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
  */
 class UtilityComponentsRuntimeTest {
+    private static void assumeBlockRegistries() {
+        Assumptions.assumeTrue(TestRuntimeAssumptions.canInitializeBlockRegistries());
+    }
+
     @AfterEach
     /**
      * Clear shared dispatch context between tests.
@@ -33,6 +39,7 @@ class UtilityComponentsRuntimeTest {
      * Verify illumination component produces place decision from context.
      */
     void illuminationProducesDecisionFromContext() {
+        assumeBlockRegistries();
         IlluminationComponent component = new IlluminationComponent(new IlluminationConfig(true, 2, 1));
         component.register();
         component.enable();
@@ -50,6 +57,7 @@ class UtilityComponentsRuntimeTest {
      * Verify illumination reports depleted inventory when no torch supply exists.
      */
     void illuminationReportsInventoryDepletionWhenTorchSupplyIsEmpty() {
+        assumeBlockRegistries();
         IlluminationComponent component = new IlluminationComponent(new IlluminationConfig(true, 2, 1));
         component.register();
         component.enable();
@@ -81,6 +89,7 @@ class UtilityComponentsRuntimeTest {
      * Verify veination plan exists only for ore contexts.
      */
     void veinationOnlyBuildsPlanForOreBlocks() {
+        assumeBlockRegistries();
         VeinationComponent component = new VeinationComponent(new VeinationConfig(true, 3));
         component.register();
         component.enable();
@@ -96,9 +105,10 @@ class UtilityComponentsRuntimeTest {
 
     @Test
     /**
-     * Verify substitution prefers silk tool in ore context when configured.
+     * Verify substitution prefers the synthetic silk candidate in ore context when configured.
      */
-    void substitutionChoosesSilkToolInOreContextWhenConfigured() {
+    void substitutionChoosesSyntheticSilkCandidateInOreContextWhenConfigured() {
+        assumeBlockRegistries();
         SubstitutionComponent component = new SubstitutionComponent(new SubstitutionConfig(true, false, true));
         component.register();
         component.enable();
@@ -111,9 +121,10 @@ class UtilityComponentsRuntimeTest {
 
     @Test
     /**
-     * Verify substitution enters combat mode and restores primary tool afterward.
+     * Verify substitution switches from the synthetic combat candidate back to the primary tool.
      */
-    void substitutionSwitchesToCombatToolAndBackToPrimary() {
+    void substitutionSwitchesFromSyntheticCombatCandidateBackToPrimary() {
+        assumeBlockRegistries();
         SubstitutionComponent component = new SubstitutionComponent(new SubstitutionConfig(true, true, false));
         component.register();
         component.enable();

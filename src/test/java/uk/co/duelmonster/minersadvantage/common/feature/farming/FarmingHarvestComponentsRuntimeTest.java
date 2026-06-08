@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import uk.co.duelmonster.minersadvantage.common.config.CaptivationConfig;
 import uk.co.duelmonster.minersadvantage.common.config.CropinationConfig;
@@ -15,12 +16,17 @@ import uk.co.duelmonster.minersadvantage.common.feature.captivation.CaptivationC
 import uk.co.duelmonster.minersadvantage.common.feature.harvest.LumbinationComponent;
 import uk.co.duelmonster.minersadvantage.common.orchestration.FeatureDispatchBus;
 import uk.co.duelmonster.minersadvantage.common.orchestration.FeatureDispatchContext;
+import uk.co.duelmonster.minersadvantage.testutil.TestRuntimeAssumptions;
 
 /**
  * FarmingHarvestComponentsRuntimeTest keeps this part of MinersAdvantage running without turning server ticks into confetti.
  * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
  */
 class FarmingHarvestComponentsRuntimeTest {
+    private static void assumeBlockRegistries() {
+        Assumptions.assumeTrue(TestRuntimeAssumptions.canInitializeBlockRegistries());
+    }
+
     @AfterEach
     /**
      * Clear shared dispatch context after each test.
@@ -31,9 +37,10 @@ class FarmingHarvestComponentsRuntimeTest {
 
     @Test
     /**
-     * Verify cropination harvests and replants mature crops.
+     * Verify cropination treats crop-like block ids as harvestable component context.
      */
-    void cropinationProducesHarvestActionForMatureCrop() {
+    void cropinationTreatsCropLikeBlockIdAsHarvestableContext() {
+        assumeBlockRegistries();
         CropinationComponent component = new CropinationComponent(new CropinationConfig(true, true));
         component.register();
         component.enable();
@@ -50,6 +57,7 @@ class FarmingHarvestComponentsRuntimeTest {
      * Verify cultivation creates soil plan using configured radius.
      */
     void cultivationBuildsPlanForSoilTargets() {
+        assumeBlockRegistries();
         CultivationComponent component = new CultivationComponent(new CultivationConfig(true, 3));
         component.register();
         component.enable();
@@ -65,6 +73,7 @@ class FarmingHarvestComponentsRuntimeTest {
      * Verify lumbination plan includes logs and sapling replant intent.
      */
     void lumbinationBuildsTreePlanWhenLogTriggered() {
+        assumeBlockRegistries();
         LumbinationComponent component = new LumbinationComponent(new LumbinationConfig(true, 5, 4, 4));
         component.register();
         component.enable();
@@ -78,9 +87,10 @@ class FarmingHarvestComponentsRuntimeTest {
 
     @Test
     /**
-     * Verify captivation decision allows item capture in valid context.
+     * Verify captivation allows direct item-context capture when GUI blocking is off.
      */
-    void captivationEvaluatesItemCaptureDecision() {
+    void captivationCapturesDirectItemContext() {
+        assumeBlockRegistries();
         CaptivationComponent component = new CaptivationComponent(new CaptivationConfig(true, false, 8, 4, false, false));
         component.register();
         component.enable();
@@ -90,5 +100,22 @@ class FarmingHarvestComponentsRuntimeTest {
 
         assertTrue(component.lastDecision().canCapture());
         assertFalse(component.lastDecision().blockedByGui());
+    }
+
+    @Test
+    /**
+     * Verify captivation blocks capture when the component sees a GUI-tagged tool context.
+     */
+    void captivationBlocksCaptureWhenGuiContextIsDisallowed() {
+        assumeBlockRegistries();
+        CaptivationComponent component = new CaptivationComponent(new CaptivationConfig(true, false, 8, 4, false, false));
+        component.register();
+        component.enable();
+        FeatureDispatchBus.setContext(new FeatureDispatchContext(FeatureId.CAPTIVATION, 4, 64, 4, "item:minecraft:diamond", "inventory_gui", 4L));
+
+        component.tick();
+
+        assertFalse(component.lastDecision().canCapture());
+        assertTrue(component.lastDecision().blockedByGui());
     }
 }

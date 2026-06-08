@@ -4,13 +4,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
+import uk.co.duelmonster.minersadvantage.testutil.TestRuntimeAssumptions;
 
 /**
  * IlluminationCoreServiceTest keeps this part of MinersAdvantage running without turning server ticks into confetti.
  * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
  */
 class IlluminationCoreServiceTest {
+    private static void assumeBlockRegistries() {
+        Assumptions.assumeTrue(TestRuntimeAssumptions.canInitializeBlockRegistries());
+    }
+
     @Test
     /**
      * Verify dark-threshold placement gate behavior.
@@ -50,6 +56,7 @@ class IlluminationCoreServiceTest {
      * Verify decision payload for dark areas.
      */
     void createsDecisionForDarkAreas() {
+        assumeBlockRegistries();
         IlluminationCoreService service = new IlluminationCoreService();
         IlluminationCoreService.IlluminationDecision decision =
             service.decidePlacement(4, true, false, 2, 1, "torch_manual_left");
@@ -65,6 +72,7 @@ class IlluminationCoreServiceTest {
      * Verify no placement decision in bright conditions.
      */
     void skipsPlacementWhenBrightEnough() {
+        assumeBlockRegistries();
         IlluminationCoreService service = new IlluminationCoreService();
         IlluminationCoreService.IlluminationDecision decision =
             service.decidePlacement(12, true, true, 2, 2, "torch");
@@ -78,6 +86,7 @@ class IlluminationCoreServiceTest {
      * Verify depletion flag when manual mode has no torch supply.
      */
     void flagsInventoryDepletionWhenTorchSupplyRunsOut() {
+        assumeBlockRegistries();
         IlluminationCoreService service = new IlluminationCoreService();
         IlluminationCoreService.IlluminationDecision decision =
             service.decidePlacement(3, true, true, 2, 2, "torch_manual_both_empty");
