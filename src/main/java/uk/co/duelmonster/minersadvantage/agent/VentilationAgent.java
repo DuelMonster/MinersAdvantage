@@ -23,10 +23,13 @@ import java.util.Queue;
  * Vent-shaft worker that carves vertical columns and optionally ladders/torch support for downward runs.
  */
 public class VentilationAgent extends Agent {
+    private record VentTarget(BlockPos pos, int depth) {
+    }
+
     private final BlockPos origin;
     private final Direction direction;
     private final VentilationConfig config;
-    private final Queue<BlockPos> queue = new LinkedList<>();
+    private final Queue<VentTarget> queue = new LinkedList<>();
     private final Deque<BlockPos> ladderQueue = new LinkedList<>();
     private int dug = 0;
     private final int blocksPerTick;
@@ -38,6 +41,9 @@ public class VentilationAgent extends Agent {
     private int ladderPlacements = 0;
     private BlockPos lowestDugPos;
     private boolean bottomTorchProcessed = false;
+    private int activeVentLayer = Integer.MIN_VALUE;
+    private boolean activeVentLayerHasNonAir = false;
+    private boolean ventEmptyLayerAborted = false;
 
     /**
      * Convenience constructor with downward direction and default config.
@@ -104,7 +110,7 @@ public class VentilationAgent extends Agent {
 
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (int depth = 1; depth <= ventDepth; depth++) {
-            queue.add(origin.relative(this.direction, depth).immutable());
+            queue.add(new VentTarget(origin.relative(this.direction, depth).immutable(), depth));
         }
 
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
@@ -124,10 +130,26 @@ public class VentilationAgent extends Agent {
         int count = 0;
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         while (!queue.isEmpty() && count < blocksPerTick) {
-            BlockPos pos = queue.poll();
+            VentTarget target = queue.poll();
+            BlockPos pos = target == null ? null : target.pos();
+            if (target == null) {
+                continue;
+            }
+
+            if (target.depth() != activeVentLayer) {
+                if (activeVentLayer != Integer.MIN_VALUE && !activeVentLayerHasNonAir) {
+                    ventEmptyLayerAborted = true;
+                    queue.clear();
+                    break;
+                }
+                activeVentLayer = target.depth();
+                activeVentLayerHasNonAir = false;
+            }
+
             BlockState state = world.getBlockState(pos);
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (!state.isAir()) {
+                activeVentLayerHasNonAir = true;
                 BreakOutcome breakOutcome = breakBlockWithTool(pos, veinationTriggerTool);
                 if (breakOutcome.broken()) {
                     veinationTriggerTool = breakOutcome.toolAfterBreak().copy();
@@ -173,7 +195,7 @@ public class VentilationAgent extends Agent {
         boolean placementComplete = ladderQueue.isEmpty() && (direction != Direction.DOWN || bottomTorchProcessed);
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (diggingComplete && placementComplete) {
-            return finish(queue.isEmpty() ? "ventilation queue exhausted" : "ventilation target reached");
+            return finish(ventEmptyLayerAborted ? "ventilation empty layer" : (queue.isEmpty() ? "ventilation queue exhausted" : "ventilation target reached"));
         }
         return false;
     }

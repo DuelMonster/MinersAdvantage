@@ -38,10 +38,13 @@ import java.util.Set;
 public class ShaftanationAgent extends Agent {
     private static final int MAX_TORCH_LIGHT_WAIT_TICKS = 40;
 
+    private record ShaftTarget(BlockPos pos, int depth) {
+    }
+
     private final BlockPos origin;
     private final Direction direction;
     private final ShaftanationConfig config;
-    private final Queue<BlockPos> queue = new LinkedList<>();
+    private final Queue<ShaftTarget> queue = new LinkedList<>();
     private final int targetDepth;
     private final int shaftWidth;
     private final int shaftHeight;
@@ -56,6 +59,9 @@ public class ShaftanationAgent extends Agent {
     private int dug = 0;
     private int torchPlacements = 0;
     private int torchLightWaitTicks = 0;
+    private int activeShaftLayer = Integer.MIN_VALUE;
+    private boolean activeShaftLayerHasNonAir = false;
+    private boolean shaftEmptyLayerAborted = false;
 
     /**
      * Why this exists: TorchJob keeps this path readable and less mysterious when debugging edge-case chaos.
@@ -277,7 +283,7 @@ public class ShaftanationAgent extends Agent {
     private record ShaftLocal(int depth, int width, int height) {
     }
 
-    private static List<BlockPos> orderShaftPositions(
+    private static List<ShaftTarget> orderShaftPositions(
         Set<BlockPos> positions,
         BlockPos floorOrigin,
         Direction forward,
@@ -312,18 +318,18 @@ public class ShaftanationAgent extends Agent {
         int maxHeight = Math.max(0, height - 1);
         Map<Long, Integer> spiralIndex = clockwiseSpiralIndex(minWidth, maxWidth, minHeight, maxHeight, startWidth, startHeight);
 
-        ArrayList<BlockPos> ordered = new ArrayList<>(positions.size());
+        ArrayList<ShaftTarget> ordered = new ArrayList<>(positions.size());
         for (BlockPos pos : positions) {
-            ordered.add(pos.immutable());
+            ordered.add(new ShaftTarget(pos.immutable(), localByPos.get(pos).depth()));
         }
 
         ordered.sort(
             Comparator
-                .comparingInt((BlockPos pos) -> clampDepth(localByPos.get(pos).depth(), depth))
-                .thenComparingInt(pos -> spiralIndex.getOrDefault(pairKey(localByPos.get(pos).width(), localByPos.get(pos).height()), Integer.MAX_VALUE))
-                .thenComparingInt(BlockPos::getY)
-                .thenComparingInt(BlockPos::getX)
-                .thenComparingInt(BlockPos::getZ)
+                .comparingInt((ShaftTarget target) -> clampDepth(target.depth(), depth))
+                .thenComparingInt(target -> spiralIndex.getOrDefault(pairKey(localByPos.get(target.pos()).width(), localByPos.get(target.pos()).height()), Integer.MAX_VALUE))
+                .thenComparingInt(target -> target.pos().getY())
+                .thenComparingInt(target -> target.pos().getX())
+                .thenComparingInt(target -> target.pos().getZ())
         );
         return ordered;
     }
@@ -464,10 +470,26 @@ public class ShaftanationAgent extends Agent {
         int count = 0;
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         while (!queue.isEmpty() && count < blocksPerTick) {
-            BlockPos pos = queue.poll();
+            ShaftTarget target = queue.poll();
+            if (target == null) {
+                continue;
+            }
+
+            if (target.depth() != activeShaftLayer) {
+                if (activeShaftLayer != Integer.MIN_VALUE && !activeShaftLayerHasNonAir) {
+                    shaftEmptyLayerAborted = true;
+                    queue.clear();
+                    break;
+                }
+                activeShaftLayer = target.depth();
+                activeShaftLayerHasNonAir = false;
+            }
+
+            BlockPos pos = target.pos();
             BlockState state = world.getBlockState(pos);
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (!state.isAir()) {
+                activeShaftLayerHasNonAir = true;
                 BreakOutcome breakOutcome = breakBlockWithTool(pos, veinationTriggerTool);
                 if (breakOutcome.broken()) {
                     veinationTriggerTool = breakOutcome.toolAfterBreak().copy();
@@ -537,7 +559,7 @@ public class ShaftanationAgent extends Agent {
 
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (queue.isEmpty() && torchQueue.isEmpty()) {
-            return finish("shaft queue exhausted");
+            return finish(shaftEmptyLayerAborted ? "shaft empty layer" : "shaft queue exhausted");
         }
         return false;
     }

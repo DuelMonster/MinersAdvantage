@@ -40,13 +40,16 @@ import java.util.Set;
  * Excavation worker that carves a bounded region (or selected shape) and can fan out veination.
  */
 public class ExcavationAgent extends Agent {
+    private record ExcavationTarget(BlockPos pos, int layer) {
+    }
+
     private final BlockPos origin;
     private final BlockState originState;
     private final ExcavationConfig config;
     private final int width;
     private final int height;
     private final int depth;
-    private final Queue<BlockPos> queue = new LinkedList<>();
+    private final Queue<ExcavationTarget> queue = new LinkedList<>();
     private final Set<BlockPos> visited = new HashSet<>();
     private final int blocksPerTick;
     private final CommonConfig commonConfig;
@@ -65,6 +68,9 @@ public class ExcavationAgent extends Agent {
     private final Set<BlockPos> carvedPositions = new LinkedHashSet<>();
     private final Set<BlockPos> allowedShapePositions;
     private final boolean useOrderedShapeQueue;
+    private int activeShapeLayer = Integer.MIN_VALUE;
+    private boolean activeShapeLayerHasNonAir = false;
+    private boolean excavationEmptyLayerAborted = false;
     private int processed = 0;
 
     /**
@@ -310,10 +316,10 @@ public class ExcavationAgent extends Agent {
                 )
             );
             if (queue.isEmpty()) {
-                queue.add(origin);
+                queue.add(new ExcavationTarget(origin, 0));
             }
         } else {
-            queue.add(origin);
+            queue.add(new ExcavationTarget(origin, -1));
         }
     }
 
@@ -328,10 +334,23 @@ public class ExcavationAgent extends Agent {
         int count = 0;
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         while (!queue.isEmpty() && count < blocksPerTick) {
-            BlockPos pos = queue.poll();
+            ExcavationTarget target = queue.poll();
+            BlockPos pos = target == null ? null : target.pos();
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (pos == null || !visited.add(pos)) {
                 continue;
+            }
+
+            if (useOrderedShapeQueue) {
+                if (target.layer() != activeShapeLayer) {
+                    if (activeShapeLayer != Integer.MIN_VALUE && !activeShapeLayerHasNonAir) {
+                        excavationEmptyLayerAborted = true;
+                        queue.clear();
+                        break;
+                    }
+                    activeShapeLayer = target.layer();
+                    activeShapeLayerHasNonAir = false;
+                }
             }
 
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
@@ -340,6 +359,9 @@ public class ExcavationAgent extends Agent {
             }
 
             BlockState state = world.getBlockState(pos);
+            if (useOrderedShapeQueue && !state.isAir()) {
+                activeShapeLayerHasNonAir = true;
+            }
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (!useOrderedShapeQueue && pos.equals(origin) && state.getBlock() == Blocks.AIR) {
                 enqueueNeighbors(pos);
@@ -365,7 +387,7 @@ public class ExcavationAgent extends Agent {
         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (queue.isEmpty()) {
             maybeQueueIllumination();
-            return finish("excavation queue exhausted");
+            return finish(excavationEmptyLayerAborted ? "excavation empty layer" : "excavation queue exhausted");
         }
         return false;
     }
@@ -430,7 +452,9 @@ public class ExcavationAgent extends Agent {
      * Queue connected neighbor positions for traversal.
      */
     private void enqueueNeighbors(BlockPos pos) {
-        queue.addAll(Functions.connectedNeighbors(pos));
+        for (BlockPos neighbor : Functions.connectedNeighbors(pos)) {
+            queue.add(new ExcavationTarget(neighbor, -1));
+        }
     }
 
     /**
@@ -545,7 +569,7 @@ public class ExcavationAgent extends Agent {
     private record ExcavationLocal(int layer, int axisA, int axisB) {
     }
 
-    private static List<BlockPos> orderExcavationPositions(
+    private static List<ExcavationTarget> orderExcavationPositions(
         String shapeId,
         Set<BlockPos> positions,
         BlockPos origin,
@@ -622,23 +646,23 @@ public class ExcavationAgent extends Agent {
             0
         );
 
-        ArrayList<BlockPos> ordered = new ArrayList<>(positions.size());
-        ArrayList<BlockPos> overflow = new ArrayList<>();
+        ArrayList<ExcavationTarget> ordered = new ArrayList<>(positions.size());
+        ArrayList<ExcavationTarget> overflow = new ArrayList<>();
         for (BlockPos pos : positions) {
             if (localByPos.containsKey(pos)) {
-                ordered.add(pos.immutable());
+                ordered.add(new ExcavationTarget(pos.immutable(), localByPos.get(pos).layer()));
             } else {
-                overflow.add(pos.immutable());
+                overflow.add(new ExcavationTarget(pos.immutable(), Integer.MAX_VALUE));
             }
         }
 
         ordered.sort(
             Comparator
-                .comparingInt((BlockPos pos) -> localByPos.get(pos).layer())
-                .thenComparingInt(pos -> spiralIndex.getOrDefault(pairKey(localByPos.get(pos).axisA(), localByPos.get(pos).axisB()), Integer.MAX_VALUE))
-                .thenComparingInt(BlockPos::getY)
-                .thenComparingInt(BlockPos::getX)
-                .thenComparingInt(BlockPos::getZ)
+                .comparingInt(ExcavationTarget::layer)
+                .thenComparingInt(target -> spiralIndex.getOrDefault(pairKey(localByPos.get(target.pos()).axisA(), localByPos.get(target.pos()).axisB()), Integer.MAX_VALUE))
+                .thenComparingInt(target -> target.pos().getY())
+                .thenComparingInt(target -> target.pos().getX())
+                .thenComparingInt(target -> target.pos().getZ())
         );
         ordered.addAll(overflow);
         return ordered;
