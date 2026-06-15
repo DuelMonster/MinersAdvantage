@@ -33,9 +33,11 @@ public class AgentManager {
         Map<UUID, List<Agent>> target = ticking.get() ? pendingAdds : agents;
         List<Agent> agentList = target.computeIfAbsent(player.getUUID(), k -> new ArrayList<>());
         agentList.add(agent);
-        int activeCount = agents.getOrDefault(player.getUUID(), List.of()).size();
-        int pendingCount = pendingAdds.getOrDefault(player.getUUID(), List.of()).size();
-        LogUtils.logDebug("Queued {} for player={} activeAgents={} pendingAgents={}", agent.getClass().getSimpleName(), player.getScoreboardName(), activeCount, pendingCount);
+        if (!(agent instanceof CaptivationAgent)) {
+            int activeCount = agents.getOrDefault(player.getUUID(), List.of()).size();
+            int pendingCount = pendingAdds.getOrDefault(player.getUUID(), List.of()).size();
+            LogUtils.logDebug("Queued {} for player={} activeAgents={} pendingAgents={}", agent.getClass().getSimpleName(), player.getScoreboardName(), activeCount, pendingCount);
+        }
     }
 
     /**
@@ -48,12 +50,23 @@ public class AgentManager {
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             for (Map.Entry<UUID, List<Agent>> entry : agents.entrySet()) {
                 List<Agent> agentList = entry.getValue();
-                int before = agentList.size();
-                // Dimension gate prevents cross-dimension ticking weirdness.
-                agentList.removeIf(agent -> world.dimension().equals(agent.world.dimension()) && agent.tick());
-                int removed = before - agentList.size();
+                int removed = 0;
+                int removedNonCaptivation = 0;
+                for (int i = agentList.size() - 1; i >= 0; i--) {
+                    Agent agent = agentList.get(i);
+                    if (!world.dimension().equals(agent.world.dimension()) || !agent.tick()) {
+                        continue;
+                    }
+
+                    removed++;
+                    if (!(agent instanceof CaptivationAgent)) {
+                        removedNonCaptivation++;
+                    }
+                    agentList.remove(i);
+                }
+
                 // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-                if (removed > 0) {
+                if (removed > 0 && removedNonCaptivation > 0) {
                     LogUtils.logDebug("Processed {} completed agents in dimension={} remaining={}", removed, world.dimension(), agentList.size());
                 }
             }

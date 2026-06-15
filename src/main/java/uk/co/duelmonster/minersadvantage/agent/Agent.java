@@ -44,7 +44,9 @@ public abstract class Agent {
     public Agent(ServerPlayer player) {
         this.player = player;
         this.world = player.level();
-        LogUtils.logDebug("Created {} for player={} dimension={}", getClass().getSimpleName(), player.getScoreboardName(), player.level().dimension());
+        if (!(this instanceof CaptivationAgent)) {
+            LogUtils.logDebug("Created {} for player={} dimension={}", getClass().getSimpleName(), player.getScoreboardName(), player.level().dimension());
+        }
     }
 
     /**
@@ -64,7 +66,9 @@ public abstract class Agent {
      */
     protected boolean finish(String reason) {
         complete = true;
-        LogUtils.logDebug("Completed {} for player={} reason={}", getClass().getSimpleName(), player.getScoreboardName(), reason);
+        if (!(this instanceof CaptivationAgent)) {
+            LogUtils.logDebug("Completed {} for player={} reason={}", getClass().getSimpleName(), player.getScoreboardName(), reason);
+        }
         return true;
     }
 

@@ -344,7 +344,6 @@ public final class ModEntry implements ModInitializer {
                         SubstitutionAgent.processSwitchBack(serverPlayer);
                         // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                         if (!AgentManager.get().hasAgentType(serverPlayer, CaptivationAgent.class)) {
-                            LogUtils.logDebug("Server tick trigger feature=Captivation player={} intervalTicks={}", serverPlayer.getScoreboardName(), tickCount);
                             AgentManager.get().addAgent(serverPlayer, new CaptivationAgent(serverPlayer, captivationConfig(serverPlayer)));
                         }
                     }

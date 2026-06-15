@@ -1,3 +1,8 @@
+## 2.16.0
+
+- Bump mod version to `2.16.0` for the first code/content change day commit and advance daily bump tracking state.
+- Reduce Captivation runtime debug spam by suppressing tick/queue/lifecycle logs and only logging entries when Captivation actually picks up items for the player.
+
 ## 2.15.0
 
 - Bump mod version to `2.15.0` for the first code/content change day commit and advance daily bump tracking state.

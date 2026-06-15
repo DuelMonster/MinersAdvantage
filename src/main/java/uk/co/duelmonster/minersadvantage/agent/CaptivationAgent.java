@@ -7,6 +7,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.ExperienceOrb;
+import uk.co.duelmonster.minersadvantage.common.log.LogUtils;
 import uk.co.duelmonster.minersadvantage.common.config.CaptivationConfig;
 import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 import uk.co.duelmonster.minersadvantage.common.services.captivation.CaptivationCoreService;
@@ -107,6 +108,18 @@ public class CaptivationAgent extends Agent {
                 }
                 // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
                 if (item.position().distanceToSqr(player.position()) <= NO_PULL_RADIUS_SQUARED) {
+                    int beforeCount = item.getItem().getCount();
+                    item.playerTouch(player);
+                    int afterCount = item.getItem().getCount();
+                    if (afterCount < beforeCount || !item.isAlive() || item.isRemoved()) {
+                        int pickedUp = Math.max(1, beforeCount - Math.max(0, afterCount));
+                        LogUtils.logDebug(
+                            "Captivation pickup player={} item={} count={}",
+                            player.getScoreboardName(),
+                            itemId,
+                            pickedUp
+                        );
+                    }
                     continue;
                 }
                 double dx = player.getX() - item.getX();
