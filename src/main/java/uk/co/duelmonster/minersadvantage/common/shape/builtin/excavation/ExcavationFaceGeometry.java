@@ -8,12 +8,15 @@ import uk.co.duelmonster.minersadvantage.common.shape.builtin.ShapeGeometryUtils
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Shared excavation geometry helper that keeps direction math and offset wiring in one place,
  * so shape processors can focus on shape logic instead of coordinate acrobatics.
  */
 public final class ExcavationFaceGeometry {
+    private static final AtomicInteger CROSS_SECTION_DEBUG_LOG_BUDGET = new AtomicInteger(4);
+
     /**
      * Debug helper that captures one cross-section summary per depth layer.
      */
@@ -89,6 +92,11 @@ public final class ExcavationFaceGeometry {
                 return;
             }
 
+            // Guardrail: limit noisy startup diagnostics so debug logging does not starve the render thread.
+            if (CROSS_SECTION_DEBUG_LOG_BUDGET.getAndDecrement() <= 0) {
+                return;
+            }
+
             int emittedBlocks = 0;
             for (int depthIndex = 0; depthIndex < totalDepth; depthIndex++) {
                 emittedBlocks += counts[depthIndex];
@@ -109,28 +117,6 @@ public final class ExcavationFaceGeometry {
                 emittedBlocks,
                 debugEnabledNow
             );
-
-            for (int depthIndex = 0; depthIndex < totalDepth; depthIndex++) {
-                int count = counts[depthIndex];
-                if (count == 0) {
-                    LogUtils.logDebug("  slice d={} blocks=0", depthIndex);
-                    continue;
-                }
-
-                int widthSpan = maxWidth[depthIndex] - minWidth[depthIndex] + 1;
-                int heightSpan = maxHeight[depthIndex] - minHeight[depthIndex] + 1;
-                LogUtils.logDebug(
-                    "  slice d={} blocks={} width=[{},{}] span={} height=[{},{}] span={}",
-                    depthIndex,
-                    count,
-                    minWidth[depthIndex],
-                    maxWidth[depthIndex],
-                    widthSpan,
-                    minHeight[depthIndex],
-                    maxHeight[depthIndex],
-                    heightSpan
-                );
-            }
         }
     }
 

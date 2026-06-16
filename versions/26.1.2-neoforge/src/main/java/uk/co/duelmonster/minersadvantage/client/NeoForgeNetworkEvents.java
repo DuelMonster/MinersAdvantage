@@ -5,6 +5,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import net.minecraft.server.level.ServerPlayer;
 import uk.co.duelmonster.minersadvantage.common.MinersAdvantageCore;
 import uk.co.duelmonster.minersadvantage.common.network.AbortWorkersPacket;
 import uk.co.duelmonster.minersadvantage.common.network.ComponentTogglePacket;
@@ -86,6 +87,8 @@ public final class NeoForgeNetworkEvents {
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     private static void handleSupremeVantagePacket(SupremeVantagePacket payload, IPayloadContext context) {
-        core.handleSupremeVantagePacket(payload);
+        if (context.player() instanceof ServerPlayer player) {
+            core.handleSupremeVantagePacket(player, payload);
+        }
     }
 }

@@ -108,7 +108,7 @@ public final class FabricNetworkEvents {
         ServerPlayNetworking.registerGlobalReceiver(PlayerStateSyncPacket.TYPE, (payload, context) -> context.server().execute(() -> core.handlePlayerStateSyncPacket(payload)));
         ServerPlayNetworking.registerGlobalReceiver(FeatureDispatchPacket.TYPE, (payload, context) -> context.server().execute(() -> core.handleFeatureDispatchPacket(payload)));
         ServerPlayNetworking.registerGlobalReceiver(IlluminationActionPacket.TYPE, (payload, context) -> context.server().execute(() -> core.handleIlluminationActionPacket(context.player(), payload)));
-        ServerPlayNetworking.registerGlobalReceiver(SupremeVantagePacket.TYPE, (payload, context) -> context.server().execute(() -> core.handleSupremeVantagePacket(payload)));
+        ServerPlayNetworking.registerGlobalReceiver(SupremeVantagePacket.TYPE, (payload, context) -> context.server().execute(() -> core.handleSupremeVantagePacket(context.player(), payload)));
         serverHandlersRegistered = true;
     }
 }

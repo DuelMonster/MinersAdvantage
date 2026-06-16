@@ -45,6 +45,32 @@ public final class ClientActionInputSupport {
     }
 
     /**
+     * Collect the secret-code digits currently held on either top-row number keys or numpad.
+     */
+    public static Set<Character> collectPressedSupremeDigits() {
+        Set<Character> pressed = new HashSet<>();
+        Minecraft minecraft = Minecraft.getInstance();
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+        if (minecraft.getWindow() == null) {
+            return pressed;
+        }
+
+        com.mojang.blaze3d.platform.Window window = minecraft.getWindow();
+        addPressedDigit(window, pressed, '0', org.lwjgl.glfw.GLFW.GLFW_KEY_0, org.lwjgl.glfw.GLFW.GLFW_KEY_KP_0);
+        addPressedDigit(window, pressed, '2', org.lwjgl.glfw.GLFW.GLFW_KEY_2, org.lwjgl.glfw.GLFW.GLFW_KEY_KP_2);
+        addPressedDigit(window, pressed, '7', org.lwjgl.glfw.GLFW.GLFW_KEY_7, org.lwjgl.glfw.GLFW.GLFW_KEY_KP_7);
+        addPressedDigit(window, pressed, '8', org.lwjgl.glfw.GLFW.GLFW_KEY_8, org.lwjgl.glfw.GLFW.GLFW_KEY_KP_8);
+        return pressed;
+    }
+
+    private static void addPressedDigit(com.mojang.blaze3d.platform.Window window, Set<Character> pressed, char digit, int primaryKey, int keypadKey) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+        if (InputConstants.isKeyDown(window, primaryKey) || InputConstants.isKeyDown(window, keypadKey)) {
+            pressed.add(digit);
+        }
+    }
+
+    /**
      * Resolve local player id for packets; falls back to zero when player is not yet available.
      */
     public static long resolveLocalPlayerId() {

@@ -1,11 +1,20 @@
 package uk.co.duelmonster.minersadvantage.common;
 
 import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.lang.reflect.Method;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import uk.co.duelmonster.minersadvantage.agent.AgentManager;
 import uk.co.duelmonster.minersadvantage.agent.IlluminationAgent;
 import uk.co.duelmonster.minersadvantage.agent.IlluminationPlaceAgent;
@@ -60,6 +69,7 @@ import uk.co.duelmonster.minersadvantage.common.services.utility.SupremeVantageS
  * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
  */
 public final class MinersAdvantageCore {
+    private static final long SUPREME_VANTAGE_GRANT_COOLDOWN_MS = 200L;
     private final ComponentRegistry componentRegistry = new ComponentRegistry();
     private final Map<FeatureId, ComponentLifecycle> components = new EnumMap<>(FeatureId.class);
     private final PlayerStateService playerStateService;
@@ -68,6 +78,7 @@ public final class MinersAdvantageCore {
     private final SyncCoreService syncCoreService;
     private final SupremeVantageService supremeVantageService;
     private final SyncedClientConfig defaultConfig;
+    private final Map<Long, Long> supremeVantageLastGrantAtMs = new HashMap<>();
 
     /**
      * MinersAdvantageCore exists so this code path does one job clearly instead of spreading chaos across callers.
@@ -318,12 +329,598 @@ public final class MinersAdvantageCore {
     }
 
     /**
+     * handleSupremeVantagePacket exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
+    public SupremeVantageService.ItemGrantSpec handleSupremeVantagePacket(ServerPlayer player, SupremeVantagePacket packet) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+        if (player == null || packet == null) {
+            return null;
+        }
+
+        long authoritativePlayerId = player.getUUID().getLeastSignificantBits();
+        long nowMs = System.currentTimeMillis();
+        Long previousGrantAtMs = supremeVantageLastGrantAtMs.get(authoritativePlayerId);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+        if (previousGrantAtMs != null && (nowMs - previousGrantAtMs) < SUPREME_VANTAGE_GRANT_COOLDOWN_MS) {
+            LogUtils.logDebug(
+                "SupremeVantage grant throttled player={} deltaMs={} cooldownMs={}",
+                player.getScoreboardName(),
+                nowMs - previousGrantAtMs,
+                SUPREME_VANTAGE_GRANT_COOLDOWN_MS
+            );
+            return null;
+        }
+
+        SupremeVantageService.RewardGrant grant = supremeVantageService.grantNextReward(authoritativePlayerId, packet.code());
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+        if (grant == null) {
+            LogUtils.logDebug(
+                "SupremeVantage grant skipped player={} code={} reason=sequence-complete-or-invalid",
+                player.getScoreboardName(),
+                packet.code()
+            );
+            return null;
+        }
+
+        supremeVantageLastGrantAtMs.put(authoritativePlayerId, nowMs);
+        SupremeVantageService.ItemGrantSpec spec = supremeVantageService.materializeRewardSpec(grant);
+        LogUtils.logDebug(
+            "SupremeVantage grant player={} sequence={} rewardId={} itemId={} enchantCount={}",
+            player.getScoreboardName(),
+            grant.sequence(),
+            grant.rewardId(),
+            grant.itemId(),
+            spec == null ? 0 : spec.enchantments().size()
+        );
+        grantSupremeVantageReward(player, spec);
+        return spec;
+    }
+
+    /**
      * handleSupremeVantagePacketGrantSpec exists to keep this step focused, predictable, and debuggable.
      * In short: one clear job here beats ten confusing side-effects elsewhere.
      */
     public SupremeVantageService.ItemGrantSpec handleSupremeVantagePacketGrantSpec(SupremeVantagePacket packet) {
         SupremeVantageService.RewardGrant grant = handleSupremeVantagePacket(packet);
         return supremeVantageService.materializeRewardSpec(grant);
+    }
+
+    /**
+     * grantSupremeVantageReward exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
+    private void grantSupremeVantageReward(ServerPlayer player, SupremeVantageService.ItemGrantSpec spec) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+        if (player == null || spec == null || spec.reward() == null) {
+            return;
+        }
+
+        ItemStack rewardStack = materializeSupremeVantageItemStack(player, spec);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+        if (rewardStack == null || rewardStack.isEmpty()) {
+            return;
+        }
+
+        boolean addedToInventory = player.addItem(rewardStack);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+        if (addedToInventory) {
+            return;
+        }
+
+        BlockPos pos = player.blockPosition();
+        player.level().addFreshEntity(new ItemEntity(player.level(), pos.getX(), pos.getY(), pos.getZ(), rewardStack));
+    }
+
+    /**
+     * materializeSupremeVantageItemStack exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
+    private ItemStack materializeSupremeVantageItemStack(ServerPlayer player, SupremeVantageService.ItemGrantSpec spec) {
+        Item item = resolveItem(spec.reward().itemId());
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+        if (item == null) {
+            LogUtils.logWarn("SupremeVantage reward skipped: unknown item id={}", spec.reward().itemId());
+            return ItemStack.EMPTY;
+        }
+
+        int count = Math.max(1, spec.count());
+        ItemStack stack = new ItemStack(item, count);
+        applyDisplayName(stack, spec.reward().displayName());
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+        if (spec.unbreakable()) {
+            applyUnbreakable(stack);
+        }
+
+        applySupremeVantageEnchantments(player, stack, spec.enchantments());
+        return stack;
+    }
+
+    /**
+     * applySupremeVantageEnchantments exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
+    private void applySupremeVantageEnchantments(ServerPlayer player, ItemStack stack, List<SupremeVantageService.EnchantmentGrant> enchantments) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+        if (stack == null || stack.isEmpty() || enchantments == null || enchantments.isEmpty()) {
+            return;
+        }
+
+        Object enchantmentRegistry = resolveSupremeVantageEnchantmentRegistry(player);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+        if (enchantmentRegistry == null) {
+            LogUtils.logWarn("SupremeVantage enchantments skipped: enchantment registry unavailable");
+            return;
+        }
+
+        for (SupremeVantageService.EnchantmentGrant enchantmentGrant : enchantments) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+            if (enchantmentGrant.enchantmentId() == null || enchantmentGrant.enchantmentId().isBlank()) {
+                LogUtils.logWarn("SupremeVantage enchantment skipped: invalid id={}", enchantmentGrant.enchantmentId());
+                continue;
+            }
+
+            Object enchantmentValue = resolveRegistryValue(enchantmentRegistry, enchantmentGrant.enchantmentId());
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+            if (enchantmentValue == null) {
+                LogUtils.logWarn("SupremeVantage enchantment skipped: unknown id={}", enchantmentGrant.enchantmentId());
+                continue;
+            }
+
+            boolean applied = tryApplyEnchantment(stack, enchantmentValue, enchantmentRegistry, enchantmentGrant.level());
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+            if (!applied) {
+                LogUtils.logWarn(
+                    "SupremeVantage enchantment application failed: id={} level={} item={}",
+                    enchantmentGrant.enchantmentId(),
+                    enchantmentGrant.level(),
+                    specItemId(stack)
+                );
+            }
+        }
+    }
+
+    /**
+     * resolveItem exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
+    private Item resolveItem(String itemId) {
+        Object itemRegistry = BuiltInRegistries.ITEM;
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+        if (itemId == null || itemId.isBlank()) {
+            return null;
+        }
+
+        Object value = resolveRegistryValue(itemRegistry, itemId);
+        return value instanceof Item item ? item : null;
+    }
+
+    /**
+     * resolveRegistryByFieldName exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
+    private Object resolveRegistryByFieldName(String fieldName) {
+        return resolveStaticField("net.minecraft.core.registries.BuiltInRegistries", fieldName);
+    }
+
+    /**
+     * resolveSupremeVantageEnchantmentRegistry exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
+    private Object resolveSupremeVantageEnchantmentRegistry(ServerPlayer player) {
+        Object builtInRegistry = resolveRegistryByFieldName("ENCHANTMENT");
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+        if (builtInRegistry != null) {
+            return builtInRegistry;
+        }
+
+        Object enchantmentRegistryKey = resolveStaticField("net.minecraft.core.registries.Registries", "ENCHANTMENT");
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+        if (enchantmentRegistryKey == null || player == null) {
+            return null;
+        }
+
+        Object registryAccess = invokeNoArgMethod(player, "registryAccess");
+        if (registryAccess == null && player.level() != null) {
+            registryAccess = invokeNoArgMethod(player.level(), "registryAccess");
+        }
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+        if (registryAccess == null) {
+            return null;
+        }
+
+        Object registry = invokeSingleArgMethod(registryAccess, "registryOrThrow", enchantmentRegistryKey);
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+        if (registry != null) {
+            return registry;
+        }
+
+        return invokeSingleArgMethod(registryAccess, "lookupOrThrow", enchantmentRegistryKey);
+    }
+
+    /**
+     * resolveRegistryValue exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
+    private Object resolveRegistryValue(Object registry, String id) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+        if (registry == null || id == null) {
+            return null;
+        }
+
+        if (registry instanceof Iterable<?> iterable) {
+            for (Object candidate : iterable) {
+                String candidateId = registryKeyAsString(registry, candidate);
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+                if (id.equals(candidateId)) {
+                    return candidate;
+                }
+            }
+        }
+
+        Object resourceLocation = parseResourceLocation(id);
+        for (Method method : registry.getClass().getMethods()) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+            if (method.getParameterCount() != 1) {
+                continue;
+            }
+
+            String name = method.getName();
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+            if (!"get".equals(name) && !"getValue".equals(name) && !"getOptional".equals(name) && !"byName".equals(name)) {
+                continue;
+            }
+
+            Class<?> parameterType = method.getParameterTypes()[0];
+            Object argument;
+            if (parameterType == String.class) {
+                argument = id;
+            } else if (resourceLocation != null && parameterType.isInstance(resourceLocation)) {
+                argument = resourceLocation;
+            } else {
+                continue;
+            }
+
+            try {
+                Object result = method.invoke(registry, argument);
+                Object unwrapped = unwrapOptional(result);
+                Object value = unwrapHolderValue(unwrapped);
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+                if (value != null) {
+                    return value;
+                }
+            } catch (ReflectiveOperationException ignored) {
+                // Why this exists: mixed mapping signatures are expected across targets.
+            }
+        }
+        return null;
+    }
+
+    /**
+     * registryKeyAsString exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
+    private String registryKeyAsString(Object registry, Object candidate) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+        if (registry == null || candidate == null) {
+            return null;
+        }
+
+        for (Method method : registry.getClass().getMethods()) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+            if (!"getKey".equals(method.getName()) || method.getParameterCount() != 1) {
+                continue;
+            }
+
+            Class<?> parameter = method.getParameterTypes()[0];
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+            if (!parameter.isInstance(candidate)) {
+                continue;
+            }
+
+            try {
+                Object key = method.invoke(registry, candidate);
+                return key == null ? null : key.toString();
+            } catch (ReflectiveOperationException ignored) {
+                // Why this exists: mixed mapping signatures are expected across targets.
+            }
+        }
+        return null;
+    }
+
+    /**
+     * tryApplyEnchantment exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
+    private boolean tryApplyEnchantment(ItemStack stack, Object enchantmentValue, Object enchantmentRegistry, int level) {
+        Object holder = null;
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+        if (enchantmentRegistry != null && enchantmentValue != null) {
+            for (Method method : enchantmentRegistry.getClass().getMethods()) {
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+                if (!"wrapAsHolder".equals(method.getName()) || method.getParameterCount() != 1) {
+                    continue;
+                }
+
+                Class<?> parameter = method.getParameterTypes()[0];
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+                if (!parameter.isInstance(enchantmentValue)) {
+                    continue;
+                }
+
+                try {
+                    holder = method.invoke(enchantmentRegistry, enchantmentValue);
+                    break;
+                } catch (ReflectiveOperationException ignored) {
+                    // Why this exists: mixed mapping signatures are expected across targets.
+                }
+            }
+        }
+
+        for (Method method : ItemStack.class.getMethods()) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+            if (!"enchant".equals(method.getName()) || method.getParameterCount() != 2) {
+                continue;
+            }
+
+            Class<?>[] parameterTypes = method.getParameterTypes();
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+            if (parameterTypes[1] != int.class && parameterTypes[1] != Integer.class) {
+                continue;
+            }
+
+            try {
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+                if (parameterTypes[0].isInstance(enchantmentValue)) {
+                    method.invoke(stack, enchantmentValue, level);
+                    return true;
+                }
+                if (holder != null && parameterTypes[0].isInstance(holder)) {
+                    method.invoke(stack, holder, level);
+                    return true;
+                }
+            } catch (ReflectiveOperationException ignored) {
+                // Why this exists: mixed mapping signatures are expected across targets.
+            }
+        }
+        return false;
+    }
+
+    /**
+     * resolveStaticField exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
+    private Object resolveStaticField(String className, String fieldName) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+        try {
+            Class<?> owner = Class.forName(className);
+            return owner.getField(fieldName).get(null);
+        } catch (ReflectiveOperationException exception) {
+            return null;
+        }
+    }
+
+    /**
+     * invokeNoArgMethod exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
+    private Object invokeNoArgMethod(Object target, String methodName) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+        if (target == null) {
+            return null;
+        }
+
+        for (Method method : target.getClass().getMethods()) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+            if (!methodName.equals(method.getName()) || method.getParameterCount() != 0) {
+                continue;
+            }
+
+            try {
+                return method.invoke(target);
+            } catch (ReflectiveOperationException ignored) {
+                // Why this exists: mixed mapping signatures are expected across targets.
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * invokeSingleArgMethod exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
+    private Object invokeSingleArgMethod(Object target, String methodName, Object argument) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+        if (target == null || argument == null) {
+            return null;
+        }
+
+        for (Method method : target.getClass().getMethods()) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+            if (!methodName.equals(method.getName()) || method.getParameterCount() != 1) {
+                continue;
+            }
+
+            Class<?> parameterType = method.getParameterTypes()[0];
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+            if (!parameterType.isInstance(argument)) {
+                continue;
+            }
+
+            try {
+                return method.invoke(target, argument);
+            } catch (ReflectiveOperationException ignored) {
+                // Why this exists: mixed mapping signatures are expected across targets.
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * parseResourceLocation exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
+    private Object parseResourceLocation(String id) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+        if (id == null || id.isBlank()) {
+            return null;
+        }
+
+        try {
+            Class<?> resourceLocationClass = Class.forName("net.minecraft.resources.ResourceLocation");
+            try {
+                Method parseMethod = resourceLocationClass.getMethod("parse", String.class);
+                return parseMethod.invoke(null, id);
+            } catch (NoSuchMethodException ignored) {
+                Method tryParseMethod = resourceLocationClass.getMethod("tryParse", String.class);
+                return tryParseMethod.invoke(null, id);
+            }
+        } catch (ReflectiveOperationException exception) {
+            return null;
+        }
+    }
+
+    /**
+     * applyDisplayName exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
+    private void applyDisplayName(ItemStack stack, String displayName) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+        if (stack == null || displayName == null || displayName.isBlank()) {
+            return;
+        }
+
+        Component name = Component.literal(displayName);
+        for (Method method : ItemStack.class.getMethods()) {
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+            if (method.getParameterCount() != 1) {
+                continue;
+            }
+            String methodName = method.getName();
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+            if (!"setHoverName".equals(methodName) && !"setCustomName".equals(methodName)) {
+                continue;
+            }
+
+            Class<?> parameter = method.getParameterTypes()[0];
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+            if (!parameter.isInstance(name)) {
+                continue;
+            }
+
+            try {
+                method.invoke(stack, name);
+                return;
+            } catch (ReflectiveOperationException ignored) {
+                // Why this exists: mixed mapping signatures are expected across targets.
+            }
+        }
+    }
+
+    /**
+     * applyUnbreakable exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
+    private void applyUnbreakable(ItemStack stack) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+        if (stack == null || stack.isEmpty()) {
+            return;
+        }
+
+        // Legacy tag path (older targets)
+        try {
+            Method tagMethod = ItemStack.class.getMethod("getOrCreateTag");
+            Object tag = tagMethod.invoke(stack);
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+            if (tag != null) {
+                Method putBoolean = tag.getClass().getMethod("putBoolean", String.class, boolean.class);
+                putBoolean.invoke(tag, "Unbreakable", true);
+                return;
+            }
+        } catch (ReflectiveOperationException ignored) {
+            // Why this exists: mixed mapping signatures are expected across targets.
+        }
+
+        // Component path (newer targets)
+        try {
+            Class<?> dataComponentsClass = Class.forName("net.minecraft.core.component.DataComponents");
+            Object unbreakableType = dataComponentsClass.getField("UNBREAKABLE").get(null);
+
+            Object unbreakableValue = null;
+            try {
+                Class<?> unbreakableClass = Class.forName("net.minecraft.world.item.component.Unbreakable");
+                try {
+                    unbreakableValue = unbreakableClass.getConstructor(boolean.class).newInstance(false);
+                } catch (NoSuchMethodException noBooleanCtor) {
+                    unbreakableValue = unbreakableClass.getDeclaredConstructor().newInstance();
+                }
+            } catch (ClassNotFoundException ignored) {
+                // Why this exists: some mappings encode this component value differently.
+            }
+
+            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+            if (unbreakableValue == null) {
+                return;
+            }
+
+            for (Method method : ItemStack.class.getMethods()) {
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+                if (!"set".equals(method.getName()) || method.getParameterCount() != 2) {
+                    continue;
+                }
+
+                Class<?>[] parameterTypes = method.getParameterTypes();
+                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+                if (!parameterTypes[0].isInstance(unbreakableType) || !parameterTypes[1].isInstance(unbreakableValue)) {
+                    continue;
+                }
+
+                method.invoke(stack, unbreakableType, unbreakableValue);
+                return;
+            }
+        } catch (ReflectiveOperationException ignored) {
+            // Why this exists: mixed mapping signatures are expected across targets.
+        }
+    }
+
+    /**
+     * unwrapOptional exists to keep this step focused, predictable, and debuggable.
+     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     */
+    private Object unwrapOptional(Object value) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+        if (value instanceof Optional<?> optional) {
+            return optional.orElse(null);
+        }
+        return value;
+    }
+
+    /**
+     * unwrapHolderValue exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
+    private Object unwrapHolderValue(Object value) {
+        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+        if (value == null) {
+            return null;
+        }
+
+        try {
+            Method valueMethod = value.getClass().getMethod("value");
+            return valueMethod.invoke(value);
+        } catch (ReflectiveOperationException ignored) {
+            return value;
+        }
+    }
+
+    /**
+     * specItemId exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
+    private String specItemId(ItemStack stack) {
+        return BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
     }
 
     /**
