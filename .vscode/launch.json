@@ -168,6 +168,50 @@
       "env": {},
       "console": "internalConsole",
       "shortenCommandLine": "none"
+    },
+    {
+      "type": "java",
+      "request": "launch",
+      "name": "NeoForge Client (:26.2-neoforge)",
+      "presentation": {
+        "group": "Mod Development - 26.2-neoforge",
+        "order": 0
+      },
+      "projectName": "26.2-neoforge",
+      "mainClass": "net.neoforged.devlaunch.Main",
+      "args": [
+        "@D:\\Mod_Source\\MinersAdvantage\\versions\\26.2-neoforge\\build\\moddev\\clientRunProgramArgs.txt"
+      ],
+      "vmArgs": [
+        "@D:\\Mod_Source\\MinersAdvantage\\versions\\26.2-neoforge\\build\\moddev\\clientRunVmArgs.txt",
+        "-Dfml.modFolders\u003dmod%%D:\\Mod_Source\\MinersAdvantage\\versions\\26.2-neoforge\\bin\\main"
+      ],
+      "cwd": "${workspaceFolder}\\versions\\26.2-neoforge\\runs\\client",
+      "env": {},
+      "console": "internalConsole",
+      "shortenCommandLine": "none"
+    },
+    {
+      "type": "java",
+      "request": "launch",
+      "name": "NeoForge Server (:26.2-neoforge)",
+      "presentation": {
+        "group": "Mod Development - 26.2-neoforge",
+        "order": 1
+      },
+      "projectName": "26.2-neoforge",
+      "mainClass": "net.neoforged.devlaunch.Main",
+      "args": [
+        "@D:\\Mod_Source\\MinersAdvantage\\versions\\26.2-neoforge\\build\\moddev\\serverRunProgramArgs.txt"
+      ],
+      "vmArgs": [
+        "@D:\\Mod_Source\\MinersAdvantage\\versions\\26.2-neoforge\\build\\moddev\\serverRunVmArgs.txt",
+        "-Dfml.modFolders\u003dmod%%D:\\Mod_Source\\MinersAdvantage\\versions\\26.2-neoforge\\bin\\main"
+      ],
+      "cwd": "${workspaceFolder}\\versions\\26.2-neoforge\\runs\\server",
+      "env": {},
+      "console": "internalConsole",
+      "shortenCommandLine": "none"
     }
   ]
 }
