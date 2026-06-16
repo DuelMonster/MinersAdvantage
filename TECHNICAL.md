@@ -41,21 +41,21 @@ Primary gameplay components:
 
 The rewrite extracts behavior into reusable service modules to avoid loader-specific divergence.
 
-| Module              | Responsibility                                                                 |
-| ------------------- | ------------------------------------------------------------------------------ |
-| processing-core     | Tick budgets, queue pacing, cancellation boundaries.                           |
-| world-query         | Spatial helpers, bounds, and neighborhood lookups.                             |
-| harvest-core        | Harvest cadence and maturity/durability decision support.                      |
-| drop-core           | Drop capture/aggregation and flush behavior.                                   |
-| illumination-core   | Torch placement planning and low-light response.                               |
-| inventory-core      | Inventory checks, consumption gates, and availability queries.                 |
-| substitution-core   | Tool ranking, rule matching, and switch-back policy.                           |
-| tree-core           | Trunk/leaf traversal and tree-shape analysis.                                  |
-| farming-core        | Hydration and farmland eligibility logic.                                      |
-| sync-core           | Typed config snapshot sync and effective per-player state.                     |
-| policy-core         | Validation, clamping, and server-authoritative gameplay policy.                |
-| input-core          | Client action state transitions and packet intent routing.                     |
-| supreme-vantage     | Deterministic hidden-code reward progression logic.                            |
+| Module            | Responsibility                                                  |
+| ----------------- | --------------------------------------------------------------- |
+| processing-core   | Tick budgets, queue pacing, cancellation boundaries.            |
+| world-query       | Spatial helpers, bounds, and neighborhood lookups.              |
+| harvest-core      | Harvest cadence and maturity/durability decision support.       |
+| drop-core         | Drop capture/aggregation and flush behavior.                    |
+| illumination-core | Torch placement planning and low-light response.                |
+| inventory-core    | Inventory checks, consumption gates, and availability queries.  |
+| substitution-core | Tool ranking, rule matching, and switch-back policy.            |
+| tree-core         | Trunk/leaf traversal and tree-shape analysis.                   |
+| farming-core      | Hydration and farmland eligibility logic.                       |
+| sync-core         | Typed config snapshot sync and effective per-player state.      |
+| policy-core       | Validation, clamping, and server-authoritative gameplay policy. |
+| input-core        | Client action state transitions and packet intent routing.      |
+| supreme-vantage   | Deterministic hidden-code reward progression logic.             |
 
 ## Configuration System
 
@@ -166,7 +166,7 @@ The repository also provides matrix validation scripts for all Stonecutter nodes
 
 Notes:
 
-- The build config uses Java 21 for `1.21.11` nodes and Java 25 for `26.1.2` nodes.
+- The build config uses Java 21 for `1.21.11` nodes and Java 25 for `26.x` nodes.
 - VS Code debug tasks run through `scripts/run-gradle-java25.ps1`, which sets `JAVA_HOME` to a detected JDK 25 install for Gradle/plugin resolution.
 - Set `JAVA25_HOME` (or `JDK25`) to override auto-detection if your JDK 25 location is custom.
 - CI uses the runner `JAVA_HOME`. For local development, you can optionally uncomment `org.gradle.java.home` in [gradle.properties](gradle.properties) to pin a specific JDK path.
@@ -179,6 +179,8 @@ Configured nodes:
 - `1.21.11-neoforge`
 - `26.1.2-fabric`
 - `26.1.2-neoforge`
+- `26.2-fabric`
+- `26.2-neoforge`
 
 Node-specific properties live under `versions/<node>/gradle.properties`.
 
@@ -201,6 +203,7 @@ Examples:
 ```bash
 ./gradlew :1.21.11-fabric:runClient
 ./gradlew :26.1.2-neoforge:runClient
+./gradlew :26.2-fabric:runClient
 ```
 
 ### Run Tests

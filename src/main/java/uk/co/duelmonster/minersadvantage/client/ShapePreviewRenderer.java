@@ -8,6 +8,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Collections;
+import java.lang.reflect.Method;
 import com.mojang.blaze3d.pipeline.BlendFunction;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 //? if mc1 {
@@ -20,12 +21,9 @@ import com.mojang.blaze3d.platform.CompareOp;
 */ //?}
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.ShapeRenderer;
 //? if mc26 {
 /*
 import net.minecraft.client.renderer.rendertype.LayeringTransform;
@@ -221,27 +219,61 @@ public final class ShapePreviewRenderer {
     return RenderType.create("minersadvantage_lines_translucent_no_depth_test", setup);
     //?} else {
     /*
-    RenderPipeline.Snippet snippet = RenderPipeline.builder(RenderPipelines.MATRICES_FOG_SNIPPET, RenderPipelines.GLOBALS_SNIPPET)
-        .withVertexShader("core/rendertype_lines")
-        .withFragmentShader("core/rendertype_lines")
-        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
-        .withCull(false)
-        .withVertexFormat(DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH, VertexFormat.Mode.LINES)
-        .withDepthStencilState(new DepthStencilState(CompareOp.ALWAYS_PASS, false))
-        .buildSnippet();
-
+    RenderPipeline.Builder builder = RenderPipeline.builder(RenderPipelines.MATRICES_FOG_SNIPPET, RenderPipelines.GLOBALS_SNIPPET)
+      .withVertexShader("core/rendertype_lines")
+      .withFragmentShader("core/rendertype_lines")
+      .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+      .withCull(false);
+    builder = applyMc26LineVertexFormat(builder);
+    RenderPipeline.Snippet snippet = builder
+      .withDepthStencilState(new DepthStencilState(CompareOp.ALWAYS_PASS, false))
+      .buildSnippet();
+    
     RenderPipeline pipeline = RenderPipeline.builder(snippet)
         .withLocation("pipeline/minersadvantage_lines_translucent_no_depth")
         .build();
-
+    
     RenderSetup setup = RenderSetup.builder(pipeline)
         .setLayeringTransform(LayeringTransform.VIEW_OFFSET_Z_LAYERING)
         .setOutputTarget(OutputTarget.ITEM_ENTITY_TARGET)
         .createRenderSetup();
-
+    
     return RenderType.create("minersadvantage_lines_translucent_no_depth_test", setup);
     */ //?}
   }
+
+  //? if mc26 {
+  /*
+  private static RenderPipeline.Builder applyMc26LineVertexFormat(RenderPipeline.Builder builder) {
+    try {
+      Method withVertexBinding = builder.getClass().getMethod("withVertexBinding", int.class, VertexFormat.class);
+      Object boundBuilder = withVertexBinding.invoke(builder, 0, DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH);
+      Class<?> primitiveTopologyClass = Class.forName("com.mojang.blaze3d.PrimitiveTopology");
+      @SuppressWarnings({ "unchecked", "rawtypes" })
+      Object lines = Enum.valueOf((Class<? extends Enum>) primitiveTopologyClass.asSubclass(Enum.class), "LINES");
+      Method withPrimitiveTopology = builder.getClass().getMethod("withPrimitiveTopology", primitiveTopologyClass);
+      Object result = withPrimitiveTopology.invoke(boundBuilder, lines);
+      if (result instanceof RenderPipeline.Builder typedBuilder) {
+        return typedBuilder;
+      }
+    } catch (ReflectiveOperationException ignored) {
+    }
+  
+    try {
+      Class<?> modeClass = Class.forName("com.mojang.blaze3d.vertex.VertexFormat$Mode");
+      @SuppressWarnings({ "unchecked", "rawtypes" })
+      Object lines = Enum.valueOf((Class<? extends Enum>) modeClass.asSubclass(Enum.class), "LINES");
+      Method withVertexFormat = builder.getClass().getMethod("withVertexFormat", VertexFormat.class, modeClass);
+      Object result = withVertexFormat.invoke(builder, DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH, lines);
+      if (result instanceof RenderPipeline.Builder typedBuilder) {
+        return typedBuilder;
+      }
+    } catch (ReflectiveOperationException ignored) {
+    }
+  
+    return builder;
+  }
+  */ //?}
 
   /**
    * Render active held-key preview outlines for excavation/shaft/ventilation contexts.
@@ -583,7 +615,10 @@ public final class ShapePreviewRenderer {
 
     // Use the game's own render buffer source directly, just like LiteMiner does.
     // The event-provided consumers cannot support custom RenderTypes with custom pipelines.
-    MultiBufferSource.BufferSource buffers = Minecraft.getInstance().renderBuffers().bufferSource();
+    Object buffers = ClientRuntimeCompat.getBufferSource(Minecraft.getInstance());
+    if (buffers == null) {
+      return;
+    }
     float lineWidth = Minecraft.getInstance().getWindow().getAppropriateLineWidth();
     ClientConfig clientConfig = MAConfig_Base.getClientRootConfig().client();
     int outlineForegroundColor = clientConfig.outlineForegroundColor();
@@ -594,17 +629,15 @@ public final class ShapePreviewRenderer {
     poseStack.translate(origin.getX() - cameraX, origin.getY() - cameraY, origin.getZ() - cameraZ);
 
     // Pass 1: translucent, NO_DEPTH_TEST -- occluded bounds visible through blocks
-    VertexConsumer translucentBuilder = buffers.getBuffer(LINES_TRANSLUCENT_NO_DEPTH_TEST);
-    ShapeRenderer.renderShape(poseStack, translucentBuilder, combinedShape, 0.0d, 0.0d, 0.0d, outlineSeeThroughColor,
-        lineWidth);
+    Object translucentBuilder = ClientRuntimeCompat.getBuffer(buffers, LINES_TRANSLUCENT_NO_DEPTH_TEST);
+    ClientRuntimeCompat.renderShape(poseStack, translucentBuilder, combinedShape, outlineSeeThroughColor, lineWidth);
 
     // Pass 2: opaque, normal depth test -- foreground edges
-    VertexConsumer opaqueBuilder = buffers.getBuffer(LINES_NORMAL);
-    ShapeRenderer.renderShape(poseStack, opaqueBuilder, combinedShape, 0.0d, 0.0d, 0.0d, outlineForegroundColor,
-        lineWidth);
+    Object opaqueBuilder = ClientRuntimeCompat.getBuffer(buffers, LINES_NORMAL);
+    ClientRuntimeCompat.renderShape(poseStack, opaqueBuilder, combinedShape, outlineForegroundColor, lineWidth);
 
-    buffers.endBatch(LINES_TRANSLUCENT_NO_DEPTH_TEST);
-    buffers.endBatch(LINES_NORMAL);
+    ClientRuntimeCompat.endBatch(buffers, LINES_TRANSLUCENT_NO_DEPTH_TEST);
+    ClientRuntimeCompat.endBatch(buffers, LINES_NORMAL);
 
     poseStack.popPose();
 

@@ -26,6 +26,7 @@ stonecutter {
 
         mc("1.21.11", listOf("fabric", "neoforge"))
         mc("26.1.2", listOf("fabric", "neoforge"))
+        mc("26.2", listOf("fabric", "neoforge"))
 
         vcsVersion = "1.21.11-fabric"
     }

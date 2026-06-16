@@ -173,8 +173,9 @@ public final class ClientInputHandler {
         areAllFeaturesEnabled(inputState));
     supremeVantageState = supremeUpdate.state();
 
-    if (supremeUpdate.notifyWorthy() && Minecraft.getInstance().gui != null) {
-      Minecraft.getInstance().gui.setOverlayMessage(Component.literal("SupremeVantage code accepted"), false);
+    if (supremeUpdate.notifyWorthy()) {
+      ClientRuntimeCompat.showOverlayMessage(Minecraft.getInstance(),
+          Component.literal("SupremeVantage code accepted"));
     }
 
     // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
@@ -278,9 +279,7 @@ public final class ClientInputHandler {
 
     Minecraft minecraft = Minecraft.getInstance();
     // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-    if (minecraft.gui != null) {
-      minecraft.gui.setOverlayMessage(Component.literal(message.toString()), false);
-    }
+    ClientRuntimeCompat.showOverlayMessage(minecraft, Component.literal(message.toString()));
   }
 
   /**

@@ -2,10 +2,11 @@
 
 - Bump mod version to `2.17.0` for the first code/content change day commit and advance daily bump tracking state.
 - Tighten Supreme Vantage reward flow by tracking remaining reward budget client-side, stopping packet emission when exhausted, and enforcing finite per-player reward sequence grants.
-- Wire Supreme Vantage packet handling through explicit server-player context across Fabric and NeoForge network event routes.
+- Wire packet handling through explicit server-player context across Fabric and NeoForge network event routes.
 - Update client input/runtime glue and supporting core/config/shape cache paths needed by the Supreme Vantage and action-key handling flow.
 - Add and keep local workspace/snapshot artifacts for ongoing debugging (`.vscode/settings.json`, `.ollamassist`, and `_tmp_*` source snapshots).
 - Tune workspace editor defaults in `.vscode/settings.json` for 2-space indentation, wider wrapping, and format-on-save/paste consistency during current refactor work.
+- Start MC 26.2 porting
 
 ## 2.15.0
 

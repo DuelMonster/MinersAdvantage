@@ -81,11 +81,12 @@ public final class FabricClientEntrypoint implements ClientModInitializer {
             long now = System.nanoTime();
             if (now - lastOutlineCallbackLogNanos >= 1_000_000_000L) {
               lastOutlineCallbackLogNanos = now;
+              Vec3 cameraPos = ClientRuntimeCompat.getCameraPosition(minecraft);
               LogUtils.logDebug("Fabric outline callback active camera={} hitResultType={}",
-                  minecraft.gameRenderer.getMainCamera().position(),
+                  cameraPos,
                   minecraft.hitResult == null ? "null" : minecraft.hitResult.getClass().getSimpleName());
             }
-            Vec3 cameraPos = minecraft.gameRenderer.getMainCamera().position();
+            Vec3 cameraPos = ClientRuntimeCompat.getCameraPosition(minecraft);
             ShapePreviewRenderer.renderHeldPreview(
                 ClientInputHandler.getInputState(),
                 matrices,
