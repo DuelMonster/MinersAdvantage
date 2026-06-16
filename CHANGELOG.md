@@ -5,6 +5,7 @@
 - Wire Supreme Vantage packet handling through explicit server-player context across Fabric and NeoForge network event routes.
 - Update client input/runtime glue and supporting core/config/shape cache paths needed by the Supreme Vantage and action-key handling flow.
 - Add and keep local workspace/snapshot artifacts for ongoing debugging (`.vscode/settings.json`, `.ollamassist`, and `_tmp_*` source snapshots).
+- Tune workspace editor defaults in `.vscode/settings.json` for 2-space indentation, wider wrapping, and format-on-save/paste consistency during current refactor work.
 
 ## 2.15.0
 

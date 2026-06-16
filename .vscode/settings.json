@@ -1,4 +1,13 @@
 {
     "java.configuration.updateBuildConfiguration": "automatic",
-    "java.import.gradle.java.home": "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot"
+    "java.import.gradle.java.home": "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot",
+    "editor.tabSize": 2,
+    "editor.detectIndentation": false,
+    "editor.wordWrapColumn": 240,
+    "java.inlayHints.parameterTypes.enabled": false,
+    "editor.formatOnSave": true,
+    "prettier.printWidth": 240,
+    "editor.formatOnPaste": true,
+    "html.format.wrapLineLength": 240,
+    "java.format.comments.enabled": false
 }
