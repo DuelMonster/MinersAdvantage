@@ -1,6 +1,11 @@
+## 2.18.0
+
+- Restrict Captivation player-drop cooldown filtering to verifiable player-owned drops by requiring a resolved dropper UUID match and removing pickup-delay fallback heuristics.
+- Harden Captivation dropper reflection member caching so compatible getter/field paths are retained even when first-observed runtime values are null.
+- Add Captivation regression test coverage for player-drop cooldown rules and tick-path item skip decisions.
+
 ## 2.17.0
 
-- Bump mod version to `2.17.0` for the first code/content change day commit and advance daily bump tracking state.
 - Tighten Supreme Vantage reward flow by tracking remaining reward budget client-side, stopping packet emission when exhausted, and enforcing finite per-player reward sequence grants.
 - Wire packet handling through explicit server-player context across Fabric and NeoForge network event routes.
 - Update client input/runtime glue and supporting core/config/shape cache paths needed by the Supreme Vantage and action-key handling flow.
@@ -10,7 +15,6 @@
 
 ## 2.15.0
 
-- Bump mod version to `2.15.0` for the first code/content change day commit and advance daily bump tracking state.
 - Fix veination ore classification to check cross-loader ore tags (`c:ores`, `neoforge:ores`, `forge:ores`) before falling back to vanilla ore tags and `_ore`/`ancient_debris` id heuristics.
 - Fix production runtime keybind torch placement regressions by replacing mapping-name method reflection with signature-based game mode interaction lookup.
 - Harden additional reflection paths across client and common utility flows (input handling, packet support, substitution/captivation helpers, and config-screen runtime fallbacks) to reduce dev-vs-production mapping break risk.
@@ -24,7 +28,6 @@
 
 ## 2.14.0
 
-- Bump mod version to `2.14.0` for the first code/content change day commit and advance daily bump tracking state.
 - Source `ModCommon.MOD_VERSION` from Gradle-generated metadata constants wired to `gradle.properties`.
 - Generate `GeneratedModMetadata` during Java compile setup and wire the generated source directory into the main source set.
 - Add shape precompute cache integration and bounded runtime shape processing for excavation and shaft flows.
@@ -37,12 +40,10 @@
 
 ## 2.13.0
 
-- Bump mod version to `2.13.0` for the first code/content change day commit and advance daily bump tracking state.
 - Fix client keybind registration by skipping specs with no default key so unbound toggle actions do not trigger key-token parsing failures.
 
 ## 2.12.0
 
-- Bump mod version to `2.12.0` for the first code/content change day commit and advance daily bump tracking state.
 - Refine substitution trigger/runtime behavior by removing interaction-trigger substitution paths, simplifying hotbar slot sync to stable APIs, and expanding substitution diagnostics.
 - Add client-configurable debug logging, persist it in client TOML config, and route runtime logging checks through the persisted setting.
 - Update default gameplay tuning for excavation dimensions, path width, substitution preference toggles, and max veination distance.
@@ -51,7 +52,6 @@
 
 ## 2.11.0
 
-- Bump mod version to `2.11.0` for the first code/content change day commit.
 - Move bundled branding images into `assets/minersadvantage/` and point Fabric/NeoForge mod metadata icon fields to the shared `icon.png` path.
 - Fix NeoForge config screen feature sub-screens not opening by removing reflective Cloth Config footer-button injection that prevented feature screens from rendering.
 - Add NeoForge outline preview renderer using `ExtractBlockOutlineRenderStateEvent` and `addCustomRenderer`, with reflective camera coordinate extraction for cross-version compatibility.
@@ -73,7 +73,6 @@
 - Complete full-workspace optimization pass with shared helper extraction across client input, excavation and shaft shape placement, config-screen readonly entries, and test fixture setup; include structural cleanup and duplicate reduction across main/test/versioned source roots.
 - Add client-configurable preview outline foreground and see-through colors, persist them in `client-config.toml`, and expose both settings in the client config UI using alpha color fields.
 - Implement dual-pass shape outline rendering matching LiteMiner: translucent NO_DEPTH_TEST pass (occluded bounds visible through blocks) plus opaque depth-tested foreground pass using `mc.renderBuffers().bufferSource()` directly with Stonecutter-gated mc1/mc26 pipeline API paths.
-- Bump mod version to `2.10.0`, update daily bump metadata, and advance `Next Version` tracking to `2.11.0`.
 - Fix Fabric outline preview startup/runtime compatibility by replacing fragile `LevelRenderer` mixin targeting with a version-tolerant Fabric render event bridge.
 - Refine shape preview outline rendering by combining selected blocks into a merged voxel outline and drawing line passes against the combined shape.
 - Correct Excavation 3x3 targeting to use a strict one-layer plane oriented by the clicked face axis.
@@ -112,7 +111,6 @@
 - Update keybinding parity tests to cover the new shape-cycling default bindings.
 - Refresh README and TECHNICAL documentation with shape-cycling and held-key preview parity notes.
 - Add a Technical manual in-game verification checklist for shape cycling, preview parity, and runtime execution checks.
-- Bump mod version to `2.9.0`, add `Next Version` state tracking, and advance the daily bump metadata.
 - Harden git hook version-bump enforcement to require a real version increase when advancing the daily bump date.
 - Require version bumps to match expected `Next Version` and force state `Next Version` to advance past the bumped version.
 - Reorder pre-commit validators to run in this sequence: version-bump, optimization, docs, compile-matrix, changelog.
@@ -130,7 +128,6 @@
 - Make post-excavation auto-illumination target the carved excavation gap instead of a player-centered area.
 - Share connected-neighbor traversal helpers so excavation, lumbination, and veination all use the same 3x3 connectivity rule.
 - Fix excavation to keep single-layer mode tied only to the single-layer toggle and trigger auto-illumination after completion for any exit reason.
-- Bump mod version to `2.8.0` and advance the tracked daily bump date.
 - Center `ILLUMINATION_AREA` execution on the player's position instead of the targeted block while keeping area mode floor-placement behavior.
 - Centralize synced default construction through `MAConfig_Defaults` so `SyncedClientConfig.defaults()` no longer hard-codes per-feature values.
 - Canonicalize `MAConfig_Defaults` feature field names and expand missing entries (cultivation, excavation, pathanation, lumbination, shaftanation, substitution, ventilation).
@@ -141,7 +138,6 @@
 
 ## 2.7.0
 
-- Bump mod version to `2.7.0` and advance the tracked daily bump date.
 - Fix Cropination harvest execution to use vanilla block-break flow before replanting mature crops.
 - Keep Cropination scan expansion active from immature crop targets while harvesting only mature crop states.
 - Allow Cropination to run without nearby water for water-independent crops such as nether wart while keeping water-required crops gated.

@@ -49,5 +49,10 @@ if ! grep -E "^-" "$changelog_path" > /dev/null 2>&1; then
   exit 1
 fi
 
+if grep -E "Bump mod version" "$changelog_path" > /dev/null 2>&1; then
+  echo "CHANGELOG.md must not include \"Bump mod version\" entries." >&2
+  exit 1
+fi
+
 echo "CHANGELOG validation passed."
 exit 0

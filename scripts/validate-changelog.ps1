@@ -63,5 +63,10 @@ if (-not $hasBulletEntry) {
     exit 1
 }
 
+if ($changelogLines -match 'Bump mod version') {
+    Write-Host 'CHANGELOG.md must not include "Bump mod version" entries.' -ForegroundColor Red
+    exit 1
+}
+
 Write-Host 'CHANGELOG validation passed.' -ForegroundColor Green
 exit 0
