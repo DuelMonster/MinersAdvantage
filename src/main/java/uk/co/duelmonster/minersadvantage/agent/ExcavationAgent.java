@@ -40,721 +40,713 @@ import java.util.Set;
  * Excavation worker that carves a bounded region (or selected shape) and can fan out veination.
  */
 public class ExcavationAgent extends Agent {
-    private record ExcavationTarget(BlockPos pos, int layer) {
+  private record ExcavationTarget(BlockPos pos, int layer) {
+  }
+
+  private final BlockPos origin;
+  private final BlockState originState;
+  private final ExcavationConfig config;
+  private final int width;
+  private final int height;
+  private final int depth;
+  private final Queue<ExcavationTarget> queue = new LinkedList<>();
+  private final Set<BlockPos> visited = new HashSet<>();
+  private final int blocksPerTick;
+  private final CommonConfig commonConfig;
+  private final IlluminationConfig illuminationConfig;
+  private final boolean mineVeins;
+  private final VeinationRuntimeService veinationRuntime;
+  private final VeinationConfig veinationConfig;
+  private ItemStack veinationTriggerTool;
+  private boolean carvedAnyBlock = false;
+  private int carvedMinX;
+  private int carvedMinY;
+  private int carvedMinZ;
+  private int carvedMaxX;
+  private int carvedMaxY;
+  private int carvedMaxZ;
+  private final Set<BlockPos> carvedPositions = new LinkedHashSet<>();
+  private final Set<BlockPos> allowedShapePositions;
+  private final boolean useOrderedShapeQueue;
+  private int activeShapeLayer = Integer.MIN_VALUE;
+  private boolean activeShapeLayerHasNonAir = false;
+  private boolean excavationEmptyLayerAborted = false;
+  private int processed = 0;
+
+  /**
+   * Convenience constructor deriving dimensions from a radius value.
+   */
+  public ExcavationAgent(ServerPlayer player, BlockPos origin, int radius) {
+    this(
+        player,
+        origin,
+        player.level().getBlockState(origin),
+        MAServerRootConfig.defaults().excavation(),
+        new CommonConfig(),
+        (Math.max(1, radius) * 2) + 1,
+        (Math.max(1, radius) * 2) + 1,
+        Math.max(1, radius));
+  }
+
+  /**
+   * Convenience constructor with explicit origin block identity.
+   */
+  public ExcavationAgent(ServerPlayer player, BlockPos origin, int radius, Block originBlock) {
+    this(
+        player,
+        origin,
+        originBlock.defaultBlockState(),
+        MAServerRootConfig.defaults().excavation(),
+        new CommonConfig(),
+        (Math.max(1, radius) * 2) + 1,
+        (Math.max(1, radius) * 2) + 1,
+        Math.max(1, radius));
+  }
+
+  /**
+   * Constructor with explicit config and dimensions.
+   */
+  public ExcavationAgent(
+      ServerPlayer player,
+      BlockPos origin,
+      BlockState originState,
+      ExcavationConfig config,
+      CommonConfig commonConfig,
+      int width,
+      int height,
+      int depth) {
+    this(player, origin, originState, config, commonConfig, width, height, depth, null, null);
+  }
+
+  /**
+   * Constructor with optional veination runtime wiring.
+   */
+  public ExcavationAgent(
+      ServerPlayer player,
+      BlockPos origin,
+      BlockState originState,
+      ExcavationConfig config,
+      CommonConfig commonConfig,
+      int width,
+      int height,
+      int depth,
+      VeinationRuntimeService veinationRuntime,
+      VeinationConfig veinationConfig) {
+    this(player, origin, originState, config, commonConfig, width, height, depth, veinationRuntime, veinationConfig,
+        ItemStack.EMPTY);
+  }
+
+  /**
+   * Constructor with explicit veination trigger tool.
+   */
+  public ExcavationAgent(
+      ServerPlayer player,
+      BlockPos origin,
+      BlockState originState,
+      ExcavationConfig config,
+      CommonConfig commonConfig,
+      int width,
+      int height,
+      int depth,
+      VeinationRuntimeService veinationRuntime,
+      VeinationConfig veinationConfig,
+      ItemStack veinationTriggerTool) {
+    this(player, origin, originState, config, commonConfig, width, height, depth, veinationRuntime, veinationConfig,
+        veinationTriggerTool, null);
+  }
+
+  /**
+   * Constructor with optional illumination config and default shape context.
+   */
+  public ExcavationAgent(
+      ServerPlayer player,
+      BlockPos origin,
+      BlockState originState,
+      ExcavationConfig config,
+      CommonConfig commonConfig,
+      int width,
+      int height,
+      int depth,
+      VeinationRuntimeService veinationRuntime,
+      VeinationConfig veinationConfig,
+      ItemStack veinationTriggerTool,
+      IlluminationConfig illuminationConfig) {
+    this(
+        player,
+        origin,
+        originState,
+        config,
+        commonConfig,
+        width,
+        height,
+        depth,
+        veinationRuntime,
+        veinationConfig,
+        veinationTriggerTool,
+        illuminationConfig,
+        0,
+        player == null ? null : player.getDirection());
+  }
+
+  /**
+   * Full constructor that resolves shape-limited region and seeds traversal queue.
+   */
+  public ExcavationAgent(
+      ServerPlayer player,
+      BlockPos origin,
+      BlockState originState,
+      ExcavationConfig config,
+      CommonConfig commonConfig,
+      int width,
+      int height,
+      int depth,
+      VeinationRuntimeService veinationRuntime,
+      VeinationConfig veinationConfig,
+      ItemStack veinationTriggerTool,
+      IlluminationConfig illuminationConfig,
+      int selectedShapeIndex,
+      net.minecraft.core.Direction hitFace) {
+    super(player);
+    this.origin = origin;
+    this.originState = originState == null ? Blocks.AIR.defaultBlockState() : originState;
+    this.config = config == null ? MAServerRootConfig.defaults().excavation() : config;
+    this.commonConfig = commonConfig == null ? new CommonConfig() : commonConfig;
+    this.illuminationConfig = illuminationConfig;
+    this.width = Math.max(1, width);
+    this.height = Math.max(1, height);
+    this.depth = Math.max(1, depth);
+    int globalBlocksPerTick = Math.max(1, this.commonConfig.blocksPerTick());
+    this.blocksPerTick = Math.max(1, Math.min(globalBlocksPerTick, this.config.processesPerTick()));
+    this.mineVeins = this.commonConfig.mineVeins();
+    this.veinationRuntime = veinationRuntime;
+    this.veinationConfig = veinationConfig;
+    this.veinationTriggerTool = veinationTriggerTool == null ? ItemStack.EMPTY : veinationTriggerTool.copy();
+
+    var selectedShape = MAShapeRegistry.byIndex(FeatureId.EXCAVATION, selectedShapeIndex);
+    net.minecraft.core.Direction effectiveHitFace = hitFace == null ? player.getDirection() : hitFace;
+    LogUtils.logDebug(
+        "Excavation break trigger player={} selectedIndex={} shapeId={} shapeName={} hitFace={}",
+        player.getScoreboardName(),
+        selectedShapeIndex,
+        selectedShape.map(MAShapeDefinition::id).orElse("none"),
+        selectedShape.map(MAShapeDefinition::displayName).orElse("none"),
+        hitFace == null ? "null" : hitFace);
+    String selectedShapeId = selectedShape.map(MAShapeDefinition::id).orElse(MAShapeIds.EXCAVATION_SHAPELESS);
+
+    this.allowedShapePositions = selectedShape
+        .map(shapeDefinition -> {
+          MAShapeDimensions.Dimensions dimensions = MAShapeDimensions.excavationFromConfig(this.width, this.height,
+              this.depth);
+          MAShapeContext context = new MAShapeContext(
+              world,
+              player,
+              origin,
+              this.originState,
+              effectiveHitFace,
+              player.getDirection(),
+              dimensions.width(),
+              dimensions.height(),
+              dimensions.depth());
+          Set<BlockPos> computed = MAShapePrecomputeCache.compute(shapeDefinition, context);
+          computed = clampToConfiguredExcavationBounds(
+              shapeDefinition.id(),
+              computed,
+              origin,
+              effectiveHitFace,
+              player.getDirection(),
+              dimensions.width(),
+              dimensions.height(),
+              dimensions.depth());
+          // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+          if (!computed.contains(origin)) {
+            computed = new java.util.LinkedHashSet<>(computed);
+            computed.add(origin.immutable());
+          }
+          return computed;
+        })
+        .orElse(null);
+    boolean shapelessSelected = MAShapeIds.EXCAVATION_SHAPELESS.equals(selectedShapeId);
+    this.useOrderedShapeQueue = this.allowedShapePositions != null && !shapelessSelected;
+    if (selectedShape.isPresent()) {
+      MAShapeDefinition shape = selectedShape.get();
+      LogUtils.logDebug(
+          "Excavation shape resolved player={} selectedIndex={} shapeId={} shapeName={} hitFace={} width={} height={} depth={} computedPositions={}",
+          player.getScoreboardName(),
+          selectedShapeIndex,
+          shape.id(),
+          shape.displayName(),
+          hitFace == null ? "null" : hitFace,
+          this.width,
+          this.height,
+          this.depth,
+          this.allowedShapePositions == null ? 0 : this.allowedShapePositions.size());
+    } else {
+      LogUtils.logDebug(
+          "Excavation shape resolution failed player={} selectedIndex={} reason=no-shape-registered",
+          player.getScoreboardName(),
+          selectedShapeIndex);
     }
 
-    private final BlockPos origin;
-    private final BlockState originState;
-    private final ExcavationConfig config;
-    private final int width;
-    private final int height;
-    private final int depth;
-    private final Queue<ExcavationTarget> queue = new LinkedList<>();
-    private final Set<BlockPos> visited = new HashSet<>();
-    private final int blocksPerTick;
-    private final CommonConfig commonConfig;
-    private final IlluminationConfig illuminationConfig;
-    private final boolean mineVeins;
-    private final VeinationRuntimeService veinationRuntime;
-    private final VeinationConfig veinationConfig;
-    private ItemStack veinationTriggerTool;
-    private boolean carvedAnyBlock = false;
-    private int carvedMinX;
-    private int carvedMinY;
-    private int carvedMinZ;
-    private int carvedMaxX;
-    private int carvedMaxY;
-    private int carvedMaxZ;
-    private final Set<BlockPos> carvedPositions = new LinkedHashSet<>();
-    private final Set<BlockPos> allowedShapePositions;
-    private final boolean useOrderedShapeQueue;
-    private int activeShapeLayer = Integer.MIN_VALUE;
-    private boolean activeShapeLayerHasNonAir = false;
-    private boolean excavationEmptyLayerAborted = false;
-    private int processed = 0;
+    String originBlockId = BuiltInRegistries.BLOCK.getKey(this.originState.getBlock()).toString();
+    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+    if (this.config.isBlacklisted(originBlockId)) {
+      return;
+    }
 
-    /**
-     * Convenience constructor deriving dimensions from a radius value.
-     */
-    public ExcavationAgent(ServerPlayer player, BlockPos origin, int radius) {
-        this(
-            player,
+    resetCarvedBounds();
+
+    if (useOrderedShapeQueue) {
+      queue.addAll(
+          orderExcavationPositions(
+              selectedShapeId,
+              allowedShapePositions,
+              origin,
+              effectiveHitFace,
+              player.getDirection(),
+              this.width,
+              this.height,
+              this.depth));
+      if (queue.isEmpty()) {
+        queue.add(new ExcavationTarget(origin, 0));
+      }
+    } else {
+      queue.add(new ExcavationTarget(origin, -1));
+    }
+  }
+
+  /**
+   * Per-tick excavation loop with radius/shape guards and optional veination fan-out.
+   */
+  @Override
+  /**
+   * t ic k exists so this path stays predictable and easier to debug when things get weird.
+   */
+  public boolean tick() {
+    int count = 0;
+    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+    while (!queue.isEmpty() && count < blocksPerTick) {
+      ExcavationTarget target = queue.poll();
+      BlockPos pos = target == null ? null : target.pos();
+      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+      if (pos == null || !visited.add(pos)) {
+        continue;
+      }
+
+      if (useOrderedShapeQueue) {
+        if (target.layer() != activeShapeLayer) {
+          if (activeShapeLayer != Integer.MIN_VALUE && !activeShapeLayerHasNonAir) {
+            excavationEmptyLayerAborted = true;
+            queue.clear();
+            break;
+          }
+          activeShapeLayer = target.layer();
+          activeShapeLayerHasNonAir = false;
+        }
+      }
+
+      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+      if (!isWithinConfiguredRadius(pos)) {
+        continue;
+      }
+
+      BlockState state = world.getBlockState(pos);
+      if (useOrderedShapeQueue && !state.isAir()) {
+        activeShapeLayerHasNonAir = true;
+      }
+      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+      if (!useOrderedShapeQueue && pos.equals(origin) && state.getBlock() == Blocks.AIR) {
+        enqueueNeighbors(pos);
+        continue;
+      }
+
+      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+      if (state.getBlock() != Blocks.AIR && isTargetState(state)) {
+        boolean usedTriggerTool = !veinationTriggerTool.isEmpty();
+        BreakOutcome breakOutcome = breakBlockWithTool(pos, veinationTriggerTool);
+        if (breakOutcome.broken()) {
+          veinationTriggerTool = breakOutcome.toolAfterBreak().copy();
+          maybeFanOutVeinationFromConnectedOre(pos, state);
+          recordCarvedBlock(pos);
+          processed++;
+          count++;
+          if (!useOrderedShapeQueue) {
+            enqueueNeighbors(pos);
+          }
+          if (usedTriggerTool && veinationTriggerTool.isEmpty()) {
+            queue.clear();
+            break;
+          }
+        }
+      }
+    }
+
+    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+    if (queue.isEmpty()) {
+      maybeQueueIllumination();
+      return finish(excavationEmptyLayerAborted ? "excavation empty layer" : "excavation queue exhausted");
+    }
+    return false;
+  }
+
+  /**
+   * Optionally enqueue illumination agent for carved area after excavation completes.
+   */
+  private void maybeQueueIllumination() {
+    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+    if (!commonConfig.autoIlluminate() || illuminationConfig == null || !illuminationConfig.enabled()) {
+      return;
+    }
+
+    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+    if (!carvedAnyBlock) {
+      return;
+    }
+
+    AgentManager manager = AgentManager.get();
+    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+    if (!manager.hasAgentType(player, IlluminationAgent.class)) {
+      manager.addAgent(player, new IlluminationAgent(player, carvedPositions, illuminationConfig, commonConfig));
+    }
+  }
+
+  /**
+   * Reset carved bounds accumulator.
+   */
+  private void resetCarvedBounds() {
+    carvedAnyBlock = false;
+    carvedPositions.clear();
+    carvedMinX = Integer.MAX_VALUE;
+    carvedMinY = Integer.MAX_VALUE;
+    carvedMinZ = Integer.MAX_VALUE;
+    carvedMaxX = Integer.MIN_VALUE;
+    carvedMaxY = Integer.MIN_VALUE;
+    carvedMaxZ = Integer.MIN_VALUE;
+  }
+
+  /**
+   * Expand carved bounds accumulator with one carved block.
+   */
+  private void recordCarvedBlock(BlockPos pos) {
+    carvedAnyBlock = true;
+    carvedPositions.add(pos.immutable());
+    carvedMinX = Math.min(carvedMinX, pos.getX());
+    carvedMinY = Math.min(carvedMinY, pos.getY());
+    carvedMinZ = Math.min(carvedMinZ, pos.getZ());
+    carvedMaxX = Math.max(carvedMaxX, pos.getX());
+    carvedMaxY = Math.max(carvedMaxY, pos.getY());
+    carvedMaxZ = Math.max(carvedMaxZ, pos.getZ());
+  }
+
+  /**
+   * Build carved-region AABB for follow-up illumination.
+   */
+  private AABB carvedArea() {
+    return new AABB(carvedMinX, carvedMinY, carvedMinZ, carvedMaxX, carvedMaxY, carvedMaxZ);
+  }
+
+  /**
+   * Queue connected neighbor positions for traversal.
+   */
+  private void enqueueNeighbors(BlockPos pos) {
+    for (BlockPos neighbor : Functions.connectedNeighbors(pos)) {
+      queue.add(new ExcavationTarget(neighbor, -1));
+    }
+  }
+
+  /**
+   * Check whether position is within selected shape or fallback width/height/depth bounds.
+   */
+  private boolean isWithinConfiguredRadius(BlockPos pos) {
+    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+    if (allowedShapePositions != null) {
+      return allowedShapePositions.contains(pos);
+    }
+    int dx = Math.abs(pos.getX() - origin.getX());
+    int dy = Math.abs(pos.getY() - origin.getY());
+    int dz = Math.abs(pos.getZ() - origin.getZ());
+    int halfWidth = width / 2;
+    int halfHeight = height / 2;
+    int halfDepth = depth / 2;
+    return dx <= halfWidth && dz <= halfDepth && dy <= halfHeight;
+  }
+
+  /**
+   * Check whether block state is a valid excavation target under current matching rules.
+   */
+  private boolean isTargetState(BlockState state) {
+    String blockId = BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString();
+    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+    if (config.isBlacklisted(blockId)) {
+      return false;
+    }
+
+    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+    if (config.ignoreBlockVariants()) {
+      return state.getBlock() == originState.getBlock();
+    }
+    return state.equals(originState);
+  }
+
+  /**
+   * Intersect computed shape positions with the configured excavation volume envelope.
+   */
+  private static Set<BlockPos> clampToConfiguredExcavationBounds(
+      String shapeId,
+      Set<BlockPos> computed,
+      BlockPos origin,
+      net.minecraft.core.Direction hitFace,
+      net.minecraft.core.Direction playerFacing,
+      int width,
+      int height,
+      int depth) {
+    java.util.LinkedHashSet<BlockPos> bounded = new java.util.LinkedHashSet<>();
+    if (computed == null || computed.isEmpty()) {
+      return bounded;
+    }
+
+    Set<BlockPos> envelope = MAShapeIds.EXCAVATION_WIDE_CUBOID.equals(shapeId)
+        ? wideCuboidEnvelopeAt(origin, hitFace, playerFacing, width, height, depth)
+        : MAShapePrecomputeCache.excavationEnvelopeAt(
             origin,
-            player.level().getBlockState(origin),
-            MAServerRootConfig.defaults().excavation(),
-            new CommonConfig(),
-            (Math.max(1, radius) * 2) + 1,
-            (Math.max(1, radius) * 2) + 1,
-            Math.max(1, radius)
-        );
-    }
-
-    /**
-     * Convenience constructor with explicit origin block identity.
-     */
-    public ExcavationAgent(ServerPlayer player, BlockPos origin, int radius, Block originBlock) {
-        this(
-            player,
-            origin,
-            originBlock.defaultBlockState(),
-            MAServerRootConfig.defaults().excavation(),
-            new CommonConfig(),
-            (Math.max(1, radius) * 2) + 1,
-            (Math.max(1, radius) * 2) + 1,
-            Math.max(1, radius)
-        );
-    }
-
-    /**
-     * Constructor with explicit config and dimensions.
-     */
-    public ExcavationAgent(
-        ServerPlayer player,
-        BlockPos origin,
-        BlockState originState,
-        ExcavationConfig config,
-        CommonConfig commonConfig,
-        int width,
-        int height,
-        int depth
-    ) {
-        this(player, origin, originState, config, commonConfig, width, height, depth, null, null);
-    }
-
-    /**
-     * Constructor with optional veination runtime wiring.
-     */
-    public ExcavationAgent(
-        ServerPlayer player,
-        BlockPos origin,
-        BlockState originState,
-        ExcavationConfig config,
-        CommonConfig commonConfig,
-        int width,
-        int height,
-        int depth,
-        VeinationRuntimeService veinationRuntime,
-        VeinationConfig veinationConfig
-    ) {
-        this(player, origin, originState, config, commonConfig, width, height, depth, veinationRuntime, veinationConfig, ItemStack.EMPTY);
-    }
-
-    /**
-     * Constructor with explicit veination trigger tool.
-     */
-    public ExcavationAgent(
-        ServerPlayer player,
-        BlockPos origin,
-        BlockState originState,
-        ExcavationConfig config,
-        CommonConfig commonConfig,
-        int width,
-        int height,
-        int depth,
-        VeinationRuntimeService veinationRuntime,
-        VeinationConfig veinationConfig,
-        ItemStack veinationTriggerTool
-    ) {
-        this(player, origin, originState, config, commonConfig, width, height, depth, veinationRuntime, veinationConfig, veinationTriggerTool, null);
-    }
-
-    /**
-     * Constructor with optional illumination config and default shape context.
-     */
-    public ExcavationAgent(
-        ServerPlayer player,
-        BlockPos origin,
-        BlockState originState,
-        ExcavationConfig config,
-        CommonConfig commonConfig,
-        int width,
-        int height,
-        int depth,
-        VeinationRuntimeService veinationRuntime,
-        VeinationConfig veinationConfig,
-        ItemStack veinationTriggerTool,
-        IlluminationConfig illuminationConfig
-    ) {
-        this(
-            player,
-            origin,
-            originState,
-            config,
-            commonConfig,
             width,
             height,
             depth,
-            veinationRuntime,
-            veinationConfig,
-            veinationTriggerTool,
-            illuminationConfig,
-            0,
-            player == null ? null : player.getDirection()
-        );
+            hitFace,
+            playerFacing);
+
+    for (BlockPos pos : computed) {
+      if (envelope.contains(pos)) {
+        bounded.add(pos.immutable());
+      }
+    }
+    return bounded;
+  }
+
+  private static Set<BlockPos> wideCuboidEnvelopeAt(
+      BlockPos origin,
+      net.minecraft.core.Direction hitFace,
+      net.minecraft.core.Direction playerFacing,
+      int width,
+      int height,
+      int depth) {
+    java.util.LinkedHashSet<BlockPos> envelope = new java.util.LinkedHashSet<>();
+    ExcavationFaceGeometry.FaceDirection face = ExcavationFaceGeometry.fromMinecraftDirection(hitFace);
+    ExcavationFaceGeometry.FaceDirection facing = ExcavationFaceGeometry.fromMinecraftDirection(playerFacing);
+    ExcavationFaceGeometry.IntRange sideRange = ExcavationFaceGeometry.rightBiasedCenteredRange(depth);
+
+    if (face == ExcavationFaceGeometry.FaceDirection.UP || face == ExcavationFaceGeometry.FaceDirection.DOWN) {
+      ExcavationFaceGeometry.IntRange forwardRange = ExcavationFaceGeometry.rightBiasedCenteredRange(width);
+      for (int verticalStep = 0; verticalStep < height; verticalStep++) {
+        for (int forward = forwardRange.min(); forward <= forwardRange.max(); forward++) {
+          for (int side = sideRange.min(); side <= sideRange.max(); side++) {
+            int[] offset = ExcavationFaceGeometry.wideCuboidOffset(face, facing, forward, side, verticalStep);
+            envelope.add(origin.offset(offset[0], offset[1], offset[2]).immutable());
+          }
+        }
+      }
+      return envelope;
     }
 
-    /**
-     * Full constructor that resolves shape-limited region and seeds traversal queue.
-     */
-    public ExcavationAgent(
-        ServerPlayer player,
-        BlockPos origin,
-        BlockState originState,
-        ExcavationConfig config,
-        CommonConfig commonConfig,
-        int width,
-        int height,
-        int depth,
-        VeinationRuntimeService veinationRuntime,
-        VeinationConfig veinationConfig,
-        ItemStack veinationTriggerTool,
-        IlluminationConfig illuminationConfig,
-        int selectedShapeIndex,
-        net.minecraft.core.Direction hitFace
-    ) {
-        super(player);
-        this.origin = origin;
-        this.originState = originState == null ? Blocks.AIR.defaultBlockState() : originState;
-        this.config = config == null ? MAServerRootConfig.defaults().excavation() : config;
-        this.commonConfig = commonConfig == null ? new CommonConfig() : commonConfig;
-        this.illuminationConfig = illuminationConfig;
-        this.width = Math.max(1, width);
-        this.height = Math.max(1, height);
-        this.depth = Math.max(1, depth);
-        int globalBlocksPerTick = Math.max(1, this.commonConfig.blocksPerTick());
-        this.blocksPerTick = Math.max(1, Math.min(globalBlocksPerTick, this.config.processesPerTick()));
-        this.mineVeins = this.commonConfig.mineVeins();
-        this.veinationRuntime = veinationRuntime;
-        this.veinationConfig = veinationConfig;
-        this.veinationTriggerTool = veinationTriggerTool == null ? ItemStack.EMPTY : veinationTriggerTool.copy();
-
-        var selectedShape = MAShapeRegistry.byIndex(FeatureId.EXCAVATION, selectedShapeIndex);
-        net.minecraft.core.Direction effectiveHitFace = hitFace == null ? player.getDirection() : hitFace;
-        LogUtils.logDebug(
-            "Excavation break trigger player={} selectedIndex={} shapeId={} shapeName={} hitFace={}",
-            player.getScoreboardName(),
-            selectedShapeIndex,
-            selectedShape.map(MAShapeDefinition::id).orElse("none"),
-            selectedShape.map(MAShapeDefinition::displayName).orElse("none"),
-            hitFace == null ? "null" : hitFace
-        );
-        this.allowedShapePositions = selectedShape
-            .map(shapeDefinition -> {
-                MAShapeDimensions.Dimensions dimensions = MAShapeDimensions.excavationFromConfig(this.width, this.height, this.depth);
-                MAShapeContext context = new MAShapeContext(
-                    world,
-                    player,
-                    origin,
-                    this.originState,
-                    effectiveHitFace,
-                    player.getDirection(),
-                    dimensions.width(),
-                    dimensions.height(),
-                    dimensions.depth()
-                );
-                Set<BlockPos> computed = MAShapePrecomputeCache.compute(shapeDefinition, context);
-                computed = clampToConfiguredExcavationBounds(
-                    shapeDefinition.id(),
-                    computed,
-                    origin,
-                    effectiveHitFace,
-                    player.getDirection(),
-                    dimensions.width(),
-                    dimensions.height(),
-                    dimensions.depth()
-                );
-                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-                if (!computed.contains(origin)) {
-                    computed = new java.util.LinkedHashSet<>(computed);
-                    computed.add(origin.immutable());
-                }
-                return computed;
-            })
-            .orElse(null);
-        this.useOrderedShapeQueue = this.allowedShapePositions != null;
-        if (selectedShape.isPresent()) {
-            MAShapeDefinition shape = selectedShape.get();
-            LogUtils.logDebug(
-                "Excavation shape resolved player={} selectedIndex={} shapeId={} shapeName={} hitFace={} width={} height={} depth={} computedPositions={}",
-                player.getScoreboardName(),
-                selectedShapeIndex,
-                shape.id(),
-                shape.displayName(),
-                hitFace == null ? "null" : hitFace,
-                this.width,
-                this.height,
-                this.depth,
-                this.allowedShapePositions == null ? 0 : this.allowedShapePositions.size()
-            );
-        } else {
-            LogUtils.logDebug(
-                "Excavation shape resolution failed player={} selectedIndex={} reason=no-shape-registered",
-                player.getScoreboardName(),
-                selectedShapeIndex
-            );
+    ExcavationFaceGeometry.IntRange heightRange = ExcavationFaceGeometry.rightBiasedCenteredRange(height);
+    for (int forward = 0; forward < width; forward++) {
+      for (int y = heightRange.min(); y <= heightRange.max(); y++) {
+        for (int side = sideRange.min(); side <= sideRange.max(); side++) {
+          int[] offset = ExcavationFaceGeometry.wideCuboidOffset(face, facing, forward, side, y);
+          envelope.add(origin.offset(offset[0], offset[1], offset[2]).immutable());
         }
+      }
+    }
+    return envelope;
+  }
 
-        String originBlockId = BuiltInRegistries.BLOCK.getKey(this.originState.getBlock()).toString();
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (this.config.isBlacklisted(originBlockId)) {
-            return;
-        }
+  private record ExcavationLocal(int layer, int axisA, int axisB) {
+  }
 
-        resetCarvedBounds();
+  private static List<ExcavationTarget> orderExcavationPositions(
+      String shapeId,
+      Set<BlockPos> positions,
+      BlockPos origin,
+      net.minecraft.core.Direction hitFace,
+      net.minecraft.core.Direction playerFacing,
+      int width,
+      int height,
+      int depth) {
+    if (positions == null || positions.isEmpty()) {
+      return List.of();
+    }
 
-        if (useOrderedShapeQueue) {
-            queue.addAll(
-                orderExcavationPositions(
-                    selectedShape.map(MAShapeDefinition::id).orElse(MAShapeIds.EXCAVATION_SHAPELESS),
-                    allowedShapePositions,
-                    origin,
-                    effectiveHitFace,
-                    player.getDirection(),
-                    this.width,
-                    this.height,
-                    this.depth
-                )
-            );
-            if (queue.isEmpty()) {
-                queue.add(new ExcavationTarget(origin, 0));
+    ExcavationFaceGeometry.FaceDirection face = ExcavationFaceGeometry.fromMinecraftDirection(hitFace);
+    ExcavationFaceGeometry.FaceDirection facing = ExcavationFaceGeometry.fromMinecraftDirection(playerFacing);
+    ExcavationFaceGeometry.IntRange widthRange = ExcavationFaceGeometry.rightBiasedCenteredRange(width);
+    ExcavationFaceGeometry.IntRange heightRange = ExcavationFaceGeometry.rightBiasedCenteredRange(height);
+    ExcavationFaceGeometry.IntRange sideRange = ExcavationFaceGeometry.rightBiasedCenteredRange(depth);
+    boolean wideCuboid = MAShapeIds.EXCAVATION_WIDE_CUBOID.equals(shapeId);
+    boolean verticalFace = face == ExcavationFaceGeometry.FaceDirection.UP
+        || face == ExcavationFaceGeometry.FaceDirection.DOWN;
+
+    Map<BlockPos, ExcavationLocal> localByPos = new HashMap<>(positions.size());
+    if (wideCuboid) {
+      if (verticalFace) {
+        for (int layer = 0; layer < height; layer++) {
+          for (int axisB = widthRange.min(); axisB <= widthRange.max(); axisB++) {
+            for (int axisA = sideRange.min(); axisA <= sideRange.max(); axisA++) {
+              int[] offset = ExcavationFaceGeometry.wideCuboidOffset(face, facing, axisB, axisA, layer);
+              BlockPos absolute = origin.offset(offset[0], offset[1], offset[2]).immutable();
+              if (positions.contains(absolute)) {
+                localByPos.put(absolute, new ExcavationLocal(layer, axisA, axisB));
+              }
             }
-        } else {
-            queue.add(new ExcavationTarget(origin, -1));
+          }
         }
-    }
-
-    /**
-     * Per-tick excavation loop with radius/shape guards and optional veination fan-out.
-     */
-    @Override
-    /**
-     * t ic k exists so this path stays predictable and easier to debug when things get weird.
-     */
-    public boolean tick() {
-        int count = 0;
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        while (!queue.isEmpty() && count < blocksPerTick) {
-            ExcavationTarget target = queue.poll();
-            BlockPos pos = target == null ? null : target.pos();
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            if (pos == null || !visited.add(pos)) {
-                continue;
+      } else {
+        for (int layer = 0; layer < width; layer++) {
+          for (int axisB = heightRange.min(); axisB <= heightRange.max(); axisB++) {
+            for (int axisA = sideRange.min(); axisA <= sideRange.max(); axisA++) {
+              int[] offset = ExcavationFaceGeometry.wideCuboidOffset(face, facing, layer, axisA, axisB);
+              BlockPos absolute = origin.offset(offset[0], offset[1], offset[2]).immutable();
+              if (positions.contains(absolute)) {
+                localByPos.put(absolute, new ExcavationLocal(layer, axisA, axisB));
+              }
             }
-
-            if (useOrderedShapeQueue) {
-                if (target.layer() != activeShapeLayer) {
-                    if (activeShapeLayer != Integer.MIN_VALUE && !activeShapeLayerHasNonAir) {
-                        excavationEmptyLayerAborted = true;
-                        queue.clear();
-                        break;
-                    }
-                    activeShapeLayer = target.layer();
-                    activeShapeLayerHasNonAir = false;
-                }
+          }
+        }
+      }
+    } else {
+      for (int layer = 0; layer < depth; layer++) {
+        for (int axisB = heightRange.min(); axisB <= heightRange.max(); axisB++) {
+          for (int axisA = widthRange.min(); axisA <= widthRange.max(); axisA++) {
+            int[] offset = ExcavationFaceGeometry.offsetFor(face, facing, layer, axisA, axisB);
+            BlockPos absolute = origin.offset(offset[0], offset[1], offset[2]).immutable();
+            if (positions.contains(absolute)) {
+              localByPos.put(absolute, new ExcavationLocal(layer, axisA, axisB));
             }
-
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            if (!isWithinConfiguredRadius(pos)) {
-                continue;
-            }
-
-            BlockState state = world.getBlockState(pos);
-            if (useOrderedShapeQueue && !state.isAir()) {
-                activeShapeLayerHasNonAir = true;
-            }
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            if (!useOrderedShapeQueue && pos.equals(origin) && state.getBlock() == Blocks.AIR) {
-                enqueueNeighbors(pos);
-                continue;
-            }
-
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            if (state.getBlock() != Blocks.AIR && isTargetState(state)) {
-                BreakOutcome breakOutcome = breakBlockWithTool(pos, veinationTriggerTool);
-                if (breakOutcome.broken()) {
-                    veinationTriggerTool = breakOutcome.toolAfterBreak().copy();
-                    maybeFanOutVeinationFromConnectedOre(pos, state);
-                    recordCarvedBlock(pos);
-                    processed++;
-                    count++;
-                    if (!useOrderedShapeQueue) {
-                        enqueueNeighbors(pos);
-                    }
-                }
-            }
+          }
         }
-
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (queue.isEmpty()) {
-            maybeQueueIllumination();
-            return finish(excavationEmptyLayerAborted ? "excavation empty layer" : "excavation queue exhausted");
-        }
-        return false;
+      }
     }
 
-    /**
-     * Optionally enqueue illumination agent for carved area after excavation completes.
-     */
-    private void maybeQueueIllumination() {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (!commonConfig.autoIlluminate() || illuminationConfig == null || !illuminationConfig.enabled()) {
-            return;
-        }
+    int spiralMinA = wideCuboid ? sideRange.min() : widthRange.min();
+    int spiralMaxA = wideCuboid ? sideRange.max() : widthRange.max();
+    int spiralMinB = wideCuboid && verticalFace ? widthRange.min() : heightRange.min();
+    int spiralMaxB = wideCuboid && verticalFace ? widthRange.max() : heightRange.max();
 
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (!carvedAnyBlock) {
-            return;
-        }
+    Map<Long, Integer> spiralIndex = clockwiseSpiralIndex(
+        spiralMinA,
+        spiralMaxA,
+        spiralMinB,
+        spiralMaxB,
+        0,
+        0);
 
-        AgentManager manager = AgentManager.get();
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (!manager.hasAgentType(player, IlluminationAgent.class)) {
-            manager.addAgent(player, new IlluminationAgent(player, carvedPositions, illuminationConfig, commonConfig));
-        }
+    ArrayList<ExcavationTarget> ordered = new ArrayList<>(positions.size());
+    ArrayList<ExcavationTarget> overflow = new ArrayList<>();
+    for (BlockPos pos : positions) {
+      if (localByPos.containsKey(pos)) {
+        ordered.add(new ExcavationTarget(pos.immutable(), localByPos.get(pos).layer()));
+      } else {
+        overflow.add(new ExcavationTarget(pos.immutable(), Integer.MAX_VALUE));
+      }
     }
 
-    /**
-     * Reset carved bounds accumulator.
-     */
-    private void resetCarvedBounds() {
-        carvedAnyBlock = false;
-        carvedPositions.clear();
-        carvedMinX = Integer.MAX_VALUE;
-        carvedMinY = Integer.MAX_VALUE;
-        carvedMinZ = Integer.MAX_VALUE;
-        carvedMaxX = Integer.MIN_VALUE;
-        carvedMaxY = Integer.MIN_VALUE;
-        carvedMaxZ = Integer.MIN_VALUE;
+    ordered.sort(
+        Comparator
+            .comparingInt(ExcavationTarget::layer)
+            .thenComparingInt(target -> spiralIndex.getOrDefault(
+                pairKey(localByPos.get(target.pos()).axisA(), localByPos.get(target.pos()).axisB()), Integer.MAX_VALUE))
+            .thenComparingInt(target -> target.pos().getY())
+            .thenComparingInt(target -> target.pos().getX())
+            .thenComparingInt(target -> target.pos().getZ()));
+    ordered.addAll(overflow);
+    return ordered;
+  }
+
+  private static Map<Long, Integer> clockwiseSpiralIndex(
+      int minW,
+      int maxW,
+      int minH,
+      int maxH,
+      int startW,
+      int startH) {
+    HashMap<Long, Integer> index = new HashMap<>();
+    int total = Math.max(0, (maxW - minW + 1) * (maxH - minH + 1));
+    if (total == 0) {
+      return index;
     }
 
-    /**
-     * Expand carved bounds accumulator with one carved block.
-     */
-    private void recordCarvedBlock(BlockPos pos) {
-        carvedAnyBlock = true;
-        carvedPositions.add(pos.immutable());
-        carvedMinX = Math.min(carvedMinX, pos.getX());
-        carvedMinY = Math.min(carvedMinY, pos.getY());
-        carvedMinZ = Math.min(carvedMinZ, pos.getZ());
-        carvedMaxX = Math.max(carvedMaxX, pos.getX());
-        carvedMaxY = Math.max(carvedMaxY, pos.getY());
-        carvedMaxZ = Math.max(carvedMaxZ, pos.getZ());
-    }
+    int[][] directions = new int[][] {
+        { 1, 0 },
+        { 0, -1 },
+        { -1, 0 },
+        { 0, 1 }
+    };
 
-    /**
-     * Build carved-region AABB for follow-up illumination.
-     */
-    private AABB carvedArea() {
-        return new AABB(carvedMinX, carvedMinY, carvedMinZ, carvedMaxX, carvedMaxY, carvedMaxZ);
-    }
+    int w = Math.max(minW, Math.min(maxW, startW));
+    int h = Math.max(minH, Math.min(maxH, startH));
+    int dirIndex = 0;
+    int stepLength = 1;
 
-    /**
-     * Queue connected neighbor positions for traversal.
-     */
-    private void enqueueNeighbors(BlockPos pos) {
-        for (BlockPos neighbor : Functions.connectedNeighbors(pos)) {
-            queue.add(new ExcavationTarget(neighbor, -1));
-        }
-    }
-
-    /**
-     * Check whether position is within selected shape or fallback width/height/depth bounds.
-     */
-    private boolean isWithinConfiguredRadius(BlockPos pos) {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (allowedShapePositions != null) {
-            return allowedShapePositions.contains(pos);
-        }
-        int dx = Math.abs(pos.getX() - origin.getX());
-        int dy = Math.abs(pos.getY() - origin.getY());
-        int dz = Math.abs(pos.getZ() - origin.getZ());
-        int halfWidth = width / 2;
-        int halfHeight = height / 2;
-        int halfDepth = depth / 2;
-        return dx <= halfWidth && dz <= halfDepth && dy <= halfHeight;
-    }
-
-    /**
-     * Check whether block state is a valid excavation target under current matching rules.
-     */
-    private boolean isTargetState(BlockState state) {
-        String blockId = BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString();
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (config.isBlacklisted(blockId)) {
-            return false;
-        }
-
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (config.ignoreBlockVariants()) {
-            return state.getBlock() == originState.getBlock();
-        }
-        return state.equals(originState);
-    }
-
-    /**
-     * Intersect computed shape positions with the configured excavation volume envelope.
-     */
-    private static Set<BlockPos> clampToConfiguredExcavationBounds(
-        String shapeId,
-        Set<BlockPos> computed,
-        BlockPos origin,
-        net.minecraft.core.Direction hitFace,
-        net.minecraft.core.Direction playerFacing,
-        int width,
-        int height,
-        int depth
-    ) {
-        java.util.LinkedHashSet<BlockPos> bounded = new java.util.LinkedHashSet<>();
-        if (computed == null || computed.isEmpty()) {
-            return bounded;
-        }
-
-        Set<BlockPos> envelope = MAShapeIds.EXCAVATION_WIDE_CUBOID.equals(shapeId)
-            ? wideCuboidEnvelopeAt(origin, hitFace, playerFacing, width, height, depth)
-            : MAShapePrecomputeCache.excavationEnvelopeAt(
-                origin,
-                width,
-                height,
-                depth,
-                hitFace,
-                playerFacing
-            );
-
-        for (BlockPos pos : computed) {
-            if (envelope.contains(pos)) {
-                bounded.add(pos.immutable());
-            }
-        }
-        return bounded;
-    }
-
-    private static Set<BlockPos> wideCuboidEnvelopeAt(
-        BlockPos origin,
-        net.minecraft.core.Direction hitFace,
-        net.minecraft.core.Direction playerFacing,
-        int width,
-        int height,
-        int depth
-    ) {
-        java.util.LinkedHashSet<BlockPos> envelope = new java.util.LinkedHashSet<>();
-        ExcavationFaceGeometry.FaceDirection face = ExcavationFaceGeometry.fromMinecraftDirection(hitFace);
-        ExcavationFaceGeometry.FaceDirection facing = ExcavationFaceGeometry.fromMinecraftDirection(playerFacing);
-        ExcavationFaceGeometry.IntRange sideRange = ExcavationFaceGeometry.rightBiasedCenteredRange(depth);
-
-        if (face == ExcavationFaceGeometry.FaceDirection.UP || face == ExcavationFaceGeometry.FaceDirection.DOWN) {
-            ExcavationFaceGeometry.IntRange forwardRange = ExcavationFaceGeometry.rightBiasedCenteredRange(width);
-            for (int verticalStep = 0; verticalStep < height; verticalStep++) {
-                for (int forward = forwardRange.min(); forward <= forwardRange.max(); forward++) {
-                    for (int side = sideRange.min(); side <= sideRange.max(); side++) {
-                        int[] offset = ExcavationFaceGeometry.wideCuboidOffset(face, facing, forward, side, verticalStep);
-                        envelope.add(origin.offset(offset[0], offset[1], offset[2]).immutable());
-                    }
-                }
-            }
-            return envelope;
-        }
-
-        ExcavationFaceGeometry.IntRange heightRange = ExcavationFaceGeometry.rightBiasedCenteredRange(height);
-        for (int forward = 0; forward < width; forward++) {
-            for (int y = heightRange.min(); y <= heightRange.max(); y++) {
-                for (int side = sideRange.min(); side <= sideRange.max(); side++) {
-                    int[] offset = ExcavationFaceGeometry.wideCuboidOffset(face, facing, forward, side, y);
-                    envelope.add(origin.offset(offset[0], offset[1], offset[2]).immutable());
-                }
-            }
-        }
-        return envelope;
-    }
-
-    private record ExcavationLocal(int layer, int axisA, int axisB) {
-    }
-
-    private static List<ExcavationTarget> orderExcavationPositions(
-        String shapeId,
-        Set<BlockPos> positions,
-        BlockPos origin,
-        net.minecraft.core.Direction hitFace,
-        net.minecraft.core.Direction playerFacing,
-        int width,
-        int height,
-        int depth
-    ) {
-        if (positions == null || positions.isEmpty()) {
-            return List.of();
-        }
-
-        ExcavationFaceGeometry.FaceDirection face = ExcavationFaceGeometry.fromMinecraftDirection(hitFace);
-        ExcavationFaceGeometry.FaceDirection facing = ExcavationFaceGeometry.fromMinecraftDirection(playerFacing);
-        ExcavationFaceGeometry.IntRange widthRange = ExcavationFaceGeometry.rightBiasedCenteredRange(width);
-        ExcavationFaceGeometry.IntRange heightRange = ExcavationFaceGeometry.rightBiasedCenteredRange(height);
-        ExcavationFaceGeometry.IntRange sideRange = ExcavationFaceGeometry.rightBiasedCenteredRange(depth);
-        boolean wideCuboid = MAShapeIds.EXCAVATION_WIDE_CUBOID.equals(shapeId);
-        boolean verticalFace = face == ExcavationFaceGeometry.FaceDirection.UP || face == ExcavationFaceGeometry.FaceDirection.DOWN;
-
-        Map<BlockPos, ExcavationLocal> localByPos = new HashMap<>(positions.size());
-        if (wideCuboid) {
-            if (verticalFace) {
-                for (int layer = 0; layer < height; layer++) {
-                    for (int axisB = widthRange.min(); axisB <= widthRange.max(); axisB++) {
-                        for (int axisA = sideRange.min(); axisA <= sideRange.max(); axisA++) {
-                            int[] offset = ExcavationFaceGeometry.wideCuboidOffset(face, facing, axisB, axisA, layer);
-                            BlockPos absolute = origin.offset(offset[0], offset[1], offset[2]).immutable();
-                            if (positions.contains(absolute)) {
-                                localByPos.put(absolute, new ExcavationLocal(layer, axisA, axisB));
-                            }
-                        }
-                    }
-                }
-            } else {
-                for (int layer = 0; layer < width; layer++) {
-                    for (int axisB = heightRange.min(); axisB <= heightRange.max(); axisB++) {
-                        for (int axisA = sideRange.min(); axisA <= sideRange.max(); axisA++) {
-                            int[] offset = ExcavationFaceGeometry.wideCuboidOffset(face, facing, layer, axisA, axisB);
-                            BlockPos absolute = origin.offset(offset[0], offset[1], offset[2]).immutable();
-                            if (positions.contains(absolute)) {
-                                localByPos.put(absolute, new ExcavationLocal(layer, axisA, axisB));
-                            }
-                        }
-                    }
-                }
-            }
-        } else {
-            for (int layer = 0; layer < depth; layer++) {
-                for (int axisB = heightRange.min(); axisB <= heightRange.max(); axisB++) {
-                    for (int axisA = widthRange.min(); axisA <= widthRange.max(); axisA++) {
-                        int[] offset = ExcavationFaceGeometry.offsetFor(face, facing, layer, axisA, axisB);
-                        BlockPos absolute = origin.offset(offset[0], offset[1], offset[2]).immutable();
-                        if (positions.contains(absolute)) {
-                            localByPos.put(absolute, new ExcavationLocal(layer, axisA, axisB));
-                        }
-                    }
-                }
-            }
-        }
-
-        int spiralMinA = wideCuboid ? sideRange.min() : widthRange.min();
-        int spiralMaxA = wideCuboid ? sideRange.max() : widthRange.max();
-        int spiralMinB = wideCuboid && verticalFace ? widthRange.min() : heightRange.min();
-        int spiralMaxB = wideCuboid && verticalFace ? widthRange.max() : heightRange.max();
-
-        Map<Long, Integer> spiralIndex = clockwiseSpiralIndex(
-            spiralMinA,
-            spiralMaxA,
-            spiralMinB,
-            spiralMaxB,
-            0,
-            0
-        );
-
-        ArrayList<ExcavationTarget> ordered = new ArrayList<>(positions.size());
-        ArrayList<ExcavationTarget> overflow = new ArrayList<>();
-        for (BlockPos pos : positions) {
-            if (localByPos.containsKey(pos)) {
-                ordered.add(new ExcavationTarget(pos.immutable(), localByPos.get(pos).layer()));
-            } else {
-                overflow.add(new ExcavationTarget(pos.immutable(), Integer.MAX_VALUE));
-            }
-        }
-
-        ordered.sort(
-            Comparator
-                .comparingInt(ExcavationTarget::layer)
-                .thenComparingInt(target -> spiralIndex.getOrDefault(pairKey(localByPos.get(target.pos()).axisA(), localByPos.get(target.pos()).axisB()), Integer.MAX_VALUE))
-                .thenComparingInt(target -> target.pos().getY())
-                .thenComparingInt(target -> target.pos().getX())
-                .thenComparingInt(target -> target.pos().getZ())
-        );
-        ordered.addAll(overflow);
-        return ordered;
-    }
-
-    private static Map<Long, Integer> clockwiseSpiralIndex(
-        int minW,
-        int maxW,
-        int minH,
-        int maxH,
-        int startW,
-        int startH
-    ) {
-        HashMap<Long, Integer> index = new HashMap<>();
-        int total = Math.max(0, (maxW - minW + 1) * (maxH - minH + 1));
-        if (total == 0) {
+    addSpiralPoint(index, minW, maxW, minH, maxH, w, h);
+    while (index.size() < total) {
+      for (int side = 0; side < 2; side++) {
+        int[] direction = directions[dirIndex % directions.length];
+        for (int step = 0; step < stepLength; step++) {
+          w += direction[0];
+          h += direction[1];
+          addSpiralPoint(index, minW, maxW, minH, maxH, w, h);
+          if (index.size() >= total) {
             return index;
+          }
         }
-
-        int[][] directions = new int[][] {
-            { 1, 0 },
-            { 0, -1 },
-            { -1, 0 },
-            { 0, 1 }
-        };
-
-        int w = Math.max(minW, Math.min(maxW, startW));
-        int h = Math.max(minH, Math.min(maxH, startH));
-        int dirIndex = 0;
-        int stepLength = 1;
-
-        addSpiralPoint(index, minW, maxW, minH, maxH, w, h);
-        while (index.size() < total) {
-            for (int side = 0; side < 2; side++) {
-                int[] direction = directions[dirIndex % directions.length];
-                for (int step = 0; step < stepLength; step++) {
-                    w += direction[0];
-                    h += direction[1];
-                    addSpiralPoint(index, minW, maxW, minH, maxH, w, h);
-                    if (index.size() >= total) {
-                        return index;
-                    }
-                }
-                dirIndex++;
-            }
-            stepLength++;
-        }
-
-        return index;
+        dirIndex++;
+      }
+      stepLength++;
     }
 
-    private static void addSpiralPoint(
-        Map<Long, Integer> index,
-        int minW,
-        int maxW,
-        int minH,
-        int maxH,
-        int w,
-        int h
-    ) {
-        if (w < minW || w > maxW || h < minH || h > maxH) {
-            return;
-        }
-        long key = pairKey(w, h);
-        index.putIfAbsent(key, index.size());
+    return index;
+  }
+
+  private static void addSpiralPoint(
+      Map<Long, Integer> index,
+      int minW,
+      int maxW,
+      int minH,
+      int maxH,
+      int w,
+      int h) {
+    if (w < minW || w > maxW || h < minH || h > maxH) {
+      return;
+    }
+    long key = pairKey(w, h);
+    index.putIfAbsent(key, index.size());
+  }
+
+  private static long pairKey(int a, int b) {
+    return (((long) a) << 32) ^ (b & 0xffffffffL);
+  }
+
+  /**
+   * Try veination on broken block, then on immediate connected neighbors.
+   */
+  private void maybeFanOutVeinationFromConnectedOre(BlockPos brokenPos, BlockState brokenState) {
+    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+    if (maybeFanOutVeination(brokenPos, brokenState, mineVeins, commonConfig, veinationRuntime, veinationConfig,
+        veinationTriggerTool)) {
+      return;
     }
 
-    private static long pairKey(int a, int b) {
-        return (((long) a) << 32) ^ (b & 0xffffffffL);
+    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+    for (BlockPos neighbor : Functions.connectedNeighbors(brokenPos)) {
+      BlockState neighborState = world.getBlockState(neighbor);
+      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+      if (neighborState.isAir()) {
+        continue;
+      }
+
+      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+      if (maybeFanOutVeination(neighbor, neighborState, mineVeins, commonConfig, veinationRuntime, veinationConfig,
+          veinationTriggerTool)) {
+        return;
+      }
     }
-
-    /**
-     * Try veination on broken block, then on immediate connected neighbors.
-     */
-    private void maybeFanOutVeinationFromConnectedOre(BlockPos brokenPos, BlockState brokenState) {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (maybeFanOutVeination(brokenPos, brokenState, mineVeins, commonConfig, veinationRuntime, veinationConfig, veinationTriggerTool)) {
-            return;
-        }
-
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        for (BlockPos neighbor : Functions.connectedNeighbors(brokenPos)) {
-            BlockState neighborState = world.getBlockState(neighbor);
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            if (neighborState.isAir()) {
-                continue;
-            }
-
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            if (maybeFanOutVeination(neighbor, neighborState, mineVeins, commonConfig, veinationRuntime, veinationConfig, veinationTriggerTool)) {
-                return;
-            }
-        }
-    }
+  }
 }

@@ -1,14 +1,11 @@
 package uk.co.duelmonster.minersadvantage.client;
 
 import java.util.Objects;
-import java.util.ArrayDeque;
 import java.util.HashSet;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.Collections;
-import java.lang.reflect.Method;
 import com.mojang.blaze3d.pipeline.BlendFunction;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 //? if mc1 {
@@ -49,10 +46,10 @@ import uk.co.duelmonster.minersadvantage.common.log.LogUtils;
 import uk.co.duelmonster.minersadvantage.common.services.input.ClientInputService.ClientInputState;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeBootstrap;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeContext;
+import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeDefinition;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeDimensions;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapePrecomputeCache;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeRegistry;
-import uk.co.duelmonster.minersadvantage.common.shape.builtin.excavation.ExcavationFaceGeometry;
 
 /**
  * ShapePreviewRenderer renders lightweight held-key shape previews on the client.
@@ -62,12 +59,24 @@ import uk.co.duelmonster.minersadvantage.common.shape.builtin.excavation.Excavat
  *   Pass 2: opaque lines with normal depth testing for crisp foreground edges.
  */
 public final class ShapePreviewRenderer {
-  private static final int[][] SHAPELESS_NEIGHBOR_OFFSETS = createShapelessNeighborOffsets();
   private static final int SHAPELESS_BUILD_STEPS_PER_FRAME = 24;
   private static final double OUTLINE_INFLATE = 0.005d;
   private static final int OUTLINE_OPTIMIZE_MAX_BLOCKS = 96;
   private static final int OUTLINE_CACHE_MAX_ENTRIES = 64;
   private static final String SHAPE_ID_SHAPELESS = "minersadvantage:shapeless";
+  private static final MAShapeDefinition VENTILATION_PREVIEW_SHAPE = new MAShapeDefinition(
+      "minersadvantage:ventilation_preview",
+      "Ventilation Preview",
+      FeatureId.VENTILATION,
+      context -> {
+        Set<BlockPos> positions = new LinkedHashSet<>();
+        int ventDepth = Math.max(1, context.height());
+        Direction ventDirection = context.hitFace() == Direction.UP ? Direction.DOWN : Direction.UP;
+        for (int depth = 0; depth < ventDepth; depth++) {
+          positions.add(context.origin().relative(ventDirection, depth).immutable());
+        }
+        return positions;
+      });
   private static final long DIAGNOSTIC_SKIP_LOG_INTERVAL_NANOS = 2_000_000_000L;
   private static final long DIAGNOSTIC_ACTIVE_LOG_INTERVAL_NANOS = 500_000_000L;
   private static final double DIAGNOSTIC_SLOW_COMPUTE_MS = 6.0d;
@@ -118,15 +127,6 @@ public final class ShapePreviewRenderer {
 
   private static final class OutlineCache {
     private final Map<OutlineKey, CachedOutline> shapesByKey = new HashMap<>();
-    private final Set<OutlineKey> loggedPreviewDiagnostics = new HashSet<>();
-
-    /**
-     * Deterministic preview shapes are relative to origin, so they stay reusable across target-block movement.
-     * Only per-key diagnostic suppression needs to be reset when explicitly requested.
-     */
-    void resetDiagnostics() {
-      this.loggedPreviewDiagnostics.clear();
-    }
 
     /**
      * Retrieve cached shape for a fully-qualified preview key.
@@ -160,31 +160,10 @@ public final class ShapePreviewRenderer {
         LogUtils.logDebug("Preview cache capacity reached entries={} limit={} clearing cache", shapesByKey.size(),
             OUTLINE_CACHE_MAX_ENTRIES);
         shapesByKey.clear();
-        loggedPreviewDiagnostics.clear();
       }
       shapesByKey.put(new OutlineKey(feature, shapeIndex, width, height, depth, origin, hitFace, playerFacing),
           outline);
     }
-
-    boolean shouldLogPreviewDiagnostics(
-        FeatureId feature,
-        int shapeIndex,
-        int width,
-        int height,
-        int depth,
-        BlockPos origin,
-        Direction hitFace,
-        Direction playerFacing) {
-      OutlineKey key = new OutlineKey(feature, shapeIndex, width, height, depth, origin, hitFace, playerFacing);
-      return loggedPreviewDiagnostics.add(key);
-    }
-  }
-
-  private record ShapelessPreviewComputation(
-      Set<BlockPos> positions,
-      int envelopeSize,
-      boolean originAirSeeded,
-      long elapsedNanos) {
   }
 
   /**
@@ -380,15 +359,7 @@ public final class ShapePreviewRenderer {
                 dimensions,
                 hitFace,
                 playerFacing,
-                () -> SHAPE_ID_SHAPELESS.equals(shape.id())
-                    ? computeAndLogBoundedShapelessPreviewPositions(
-                        context,
-                        origin,
-                        state.selectedExcavationShapeIndex(),
-                        hitFace,
-                        playerFacing,
-                        dimensions)
-                    : MAShapePrecomputeCache.compute(shape, context),
+                () -> MAShapePrecomputeCache.compute(shape, context),
                 poseStack,
                 cameraX,
                 cameraY,
@@ -431,7 +402,16 @@ public final class ShapePreviewRenderer {
     if (ventilationPreview) {
       var ventilation = syncedConfig.ventilation();
       int ventDepth = Math.max(1, ventilation.height());
-      Direction ventDirection = hitFace == Direction.UP ? Direction.DOWN : Direction.UP;
+      MAShapeContext context = new MAShapeContext(
+          minecraft.level,
+          player,
+          origin,
+          minecraft.level.getBlockState(origin),
+          hitFace,
+          playerFacing,
+          1,
+          ventDepth,
+          1);
       renderOutline(
           FeatureId.VENTILATION,
           "minersadvantage:ventilation",
@@ -440,14 +420,7 @@ public final class ShapePreviewRenderer {
           new MAShapeDimensions.Dimensions(1, ventDepth, 1),
           hitFace,
           playerFacing,
-          () -> {
-            Set<BlockPos> positions = new LinkedHashSet<>();
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            for (int depth = 0; depth < ventDepth; depth++) {
-              positions.add(origin.relative(ventDirection, depth).immutable());
-            }
-            return positions;
-          },
+          () -> MAShapePrecomputeCache.compute(VENTILATION_PREVIEW_SHAPE, context),
           poseStack,
           cameraX,
           cameraY,
@@ -512,9 +485,6 @@ public final class ShapePreviewRenderer {
           hitFace,
           playerFacing,
           cacheable);
-      if (feature == FeatureId.EXCAVATION && SHAPE_ID_SHAPELESS.equals(shapeId)) {
-        positions = clampExcavationPreviewPositions(positions, origin, hitFace, playerFacing, dimensions);
-      }
       // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (positions.isEmpty()) {
         LogUtils.logDebug(
@@ -855,163 +825,4 @@ public final class ShapePreviewRenderer {
     }
   }
 
-  /**
-   * Clamp shapeless preview positions to configured excavation dimensions.
-   */
-  private static Set<BlockPos> clampExcavationPreviewPositions(
-      Set<BlockPos> positions,
-      BlockPos origin,
-      Direction hitFace,
-      Direction playerFacing,
-      MAShapeDimensions.Dimensions dimensions) {
-    if (positions == null || positions.isEmpty()) {
-      return Set.of();
-    }
-
-    Set<BlockPos> envelope = MAShapePrecomputeCache.excavationEnvelopeAt(
-        origin,
-        dimensions.width(),
-        dimensions.height(),
-        dimensions.depth(),
-        hitFace,
-        playerFacing);
-
-    java.util.LinkedHashSet<BlockPos> bounded = new java.util.LinkedHashSet<>();
-    for (BlockPos pos : positions) {
-      if (envelope.contains(pos)) {
-        bounded.add(pos.immutable());
-      }
-    }
-    return bounded;
-  }
-
-  /**
-   * Compute shapeless preview positions with strict bounds so preview generation cannot freeze the render thread.
-   */
-  private static Set<BlockPos> computeBoundedShapelessPreviewPositions(
-      MAShapeContext context,
-      BlockPos origin,
-      Direction hitFace,
-      Direction playerFacing,
-      MAShapeDimensions.Dimensions dimensions) {
-    return computeBoundedShapelessPreview(context, origin, hitFace, playerFacing, dimensions).positions();
-  }
-
-  /**
-   * Compute and log shapeless preview summary once per preview key so diagnostics stay readable.
-   */
-  private static Set<BlockPos> computeAndLogBoundedShapelessPreviewPositions(
-      MAShapeContext context,
-      BlockPos origin,
-      int shapeIndex,
-      Direction hitFace,
-      Direction playerFacing,
-      MAShapeDimensions.Dimensions dimensions) {
-    ShapelessPreviewComputation computation = computeBoundedShapelessPreview(context, origin, hitFace, playerFacing,
-        dimensions);
-    if (CACHE.shouldLogPreviewDiagnostics(
-        FeatureId.EXCAVATION,
-        shapeIndex,
-        dimensions.width(),
-        dimensions.height(),
-        dimensions.depth(),
-        origin.immutable(),
-        hitFace,
-        playerFacing)) {
-      LogUtils.logDebug(
-          "Shapeless preview summary origin={} hitFace={} playerFacing={} width={} height={} depth={} envelopeBlocks={} connectedBlocks={} originAirSeeded={} computeMs={}",
-          origin,
-          hitFace,
-          playerFacing,
-          dimensions.width(),
-          dimensions.height(),
-          dimensions.depth(),
-          computation.envelopeSize(),
-          computation.positions().size(),
-          computation.originAirSeeded(),
-          String.format(java.util.Locale.ROOT, "%.3f", computation.elapsedNanos() / 1_000_000.0d));
-    }
-
-    return computation.positions();
-  }
-
-  private static ShapelessPreviewComputation computeBoundedShapelessPreview(
-      MAShapeContext context,
-      BlockPos origin,
-      Direction hitFace,
-      Direction playerFacing,
-      MAShapeDimensions.Dimensions dimensions) {
-    long startNanos = System.nanoTime();
-    Set<BlockPos> envelope = MAShapePrecomputeCache.excavationEnvelopeAt(
-        origin,
-        dimensions.width(),
-        dimensions.height(),
-        dimensions.depth(),
-        hitFace,
-        playerFacing);
-    LinkedHashSet<BlockPos> out = new LinkedHashSet<>();
-    if (envelope.isEmpty()) {
-      return new ShapelessPreviewComputation(Collections.emptySet(), 0, false, System.nanoTime() - startNanos);
-    }
-
-    net.minecraft.world.level.block.state.BlockState originState = context.originState();
-    if (originState == null || originState.isAir()) {
-      return new ShapelessPreviewComputation(Collections.emptySet(), envelope.size(), true,
-          System.nanoTime() - startNanos);
-    }
-
-    HashSet<BlockPos> visited = new HashSet<>();
-    ArrayDeque<BlockPos> stack = new ArrayDeque<>();
-    stack.push(origin.immutable());
-    boolean originAirSeeded = false;
-
-    while (!stack.isEmpty()) {
-      BlockPos current = stack.pop();
-      if (!envelope.contains(current) || !visited.add(current)) {
-        continue;
-      }
-
-      net.minecraft.world.level.block.state.BlockState state = context.level().getBlockState(current);
-      boolean matchesOriginFamily = !state.isAir() && state.getBlock() == originState.getBlock();
-      if (!matchesOriginFamily
-          && current.equals(origin)
-          && state.isAir()) {
-        matchesOriginFamily = true;
-        originAirSeeded = true;
-      }
-      if (!matchesOriginFamily) {
-        continue;
-      }
-
-      out.add(current.immutable());
-
-      for (int[] offset : SHAPELESS_NEIGHBOR_OFFSETS) {
-        BlockPos neighbor = current.offset(offset[0], offset[1], offset[2]);
-        if (envelope.contains(neighbor) && !visited.contains(neighbor)) {
-          stack.push(neighbor);
-        }
-      }
-    }
-
-    return new ShapelessPreviewComputation(out, envelope.size(), originAirSeeded, System.nanoTime() - startNanos);
-  }
-
-  private static int[][] createShapelessNeighborOffsets() {
-    int[][] offsets = new int[18][];
-    int index = 0;
-    for (int y = -1; y <= 1; y++) {
-      for (int x = -1; x <= 1; x++) {
-        for (int z = -1; z <= 1; z++) {
-          if (x == 0 && y == 0 && z == 0) {
-            continue;
-          }
-          if (x != 0 && y != 0 && z != 0) {
-            continue;
-          }
-          offsets[index++] = new int[] { x, y, z };
-        }
-      }
-    }
-    return offsets;
-  }
 }

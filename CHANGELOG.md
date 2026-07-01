@@ -1,3 +1,10 @@
+## 2.19.0
+
+- Fix Excavation shapeless runtime boundaries to bias width away from player heading and preserve origin-seeded traversal when the trigger block is already air.
+- Fix Excavation tool durability application by persisting post-break forced-tool state back to main hand and stopping excavation when the trigger tool breaks.
+- Fix preview/runtime parity by routing Excavation, Shaftanation, and Ventilation outline position generation through `MAShapePrecomputeCache.compute(...)`.
+- Optimize preview and excavation code paths by removing redundant shapeless preview-only helper pipelines and simplifying duplicated queue/shape state logic.
+
 ## 2.18.0
 
 - Restrict Captivation player-drop cooldown filtering to verifiable player-owned drops by requiring a resolved dropper UUID match and removing pickup-delay fallback heuristics.
