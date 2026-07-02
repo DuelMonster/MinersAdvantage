@@ -5,7 +5,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import me.shedaniel.clothconfig2.api.AbstractConfigListEntry;
@@ -206,14 +205,6 @@ public final class MinersAdvantageConfigScreen {
     return builder.build();
   }
 
-  /**
-   * FeatureLaunchAction exists to trigger screen transitions through selector state changes cleanly.
-   */
-  private enum FeatureLaunchAction {
-    OPEN_A,
-    OPEN_B
-  }
-
   private static void addFeatureOpenEntry(
       ConfigCategory category,
       ConfigEntryBuilder entryBuilder,
@@ -222,7 +213,6 @@ public final class MinersAdvantageConfigScreen {
       java.util.function.Function<Screen, Screen> targetScreenFactory,
       BooleanSupplier resetEnabledSupplier,
       Runnable resetRunnable) {
-    AtomicReference<FeatureLaunchAction> lastAction = new AtomicReference<>(FeatureLaunchAction.OPEN_A);
     @SuppressWarnings("unchecked")
     SelectionListEntry<FeatureLaunchAction>[] entryRef = new SelectionListEntry[1];
     SelectionListEntry<FeatureLaunchAction> entry = entryBuilder.startSelector(
@@ -233,37 +223,23 @@ public final class MinersAdvantageConfigScreen {
         .setDefaultValue(FeatureLaunchAction.OPEN_A)
         .setSaveConsumer(ignored -> {
         })
-        .setErrorSupplier(action -> {
-          SelectionListEntry<FeatureLaunchAction> selectorEntry = entryRef[0];
-          // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-          if (selectorEntry != null) {
-            updateFeatureEntryLabelReflective(selectorEntry, featureName, enabledSupplier.getAsBoolean());
-            configureFeatureResetButton(selectorEntry, featureName, resetEnabledSupplier, resetRunnable);
-          }
-
-          FeatureLaunchAction previousAction = lastAction.get();
-          // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-          if (action != previousAction) {
-            lastAction.set(action);
-            Screen activeScreen = ClientRuntimeCompat.getCurrentScreen(Minecraft.getInstance());
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            if (activeScreen != null) {
-              ClientRuntimeCompat.setScreen(Minecraft.getInstance(), targetScreenFactory.apply(activeScreen));
-            }
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            if (selectorEntry != null) {
-              resetSelectorEditedState(selectorEntry);
-            }
-            lastAction.set(FeatureLaunchAction.OPEN_A);
-          }
-          return Optional.empty();
-        })
+        .setErrorSupplier(action -> Optional.empty())
         .setTooltip(Component.literal("Open " + featureName + " settings"))
         .build();
 
     entryRef[0] = entry;
+    updateFeatureEntryLabelReflective(entry, featureName, enabledSupplier.getAsBoolean());
+    configureFeatureOpenButton(entry, targetScreenFactory);
     configureFeatureResetButton(entry, featureName, resetEnabledSupplier, resetRunnable);
     category.addEntry(entry);
+  }
+
+  /**
+   * FeatureLaunchAction exists to keep selector entries stable while using a direct open-button handler.
+   */
+  private enum FeatureLaunchAction {
+    OPEN_A,
+    OPEN_B
   }
 
   /**
@@ -324,6 +300,25 @@ public final class MinersAdvantageConfigScreen {
     });
   }
 
+  private static void configureFeatureOpenButton(
+      SelectionListEntry<FeatureLaunchAction> entry,
+      java.util.function.Function<Screen, Screen> targetScreenFactory) {
+    Button openButton = getSelectionPrimaryButton(entry);
+    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+    if (openButton == null) {
+      return;
+    }
+
+    setButtonOnPressReflective(openButton, ignored -> {
+      Screen activeScreen = ClientRuntimeCompat.getCurrentScreen(Minecraft.getInstance());
+      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+      if (activeScreen != null) {
+        ClientRuntimeCompat.setScreen(Minecraft.getInstance(), targetScreenFactory.apply(activeScreen));
+      }
+      resetSelectorEditedState(entry);
+    });
+  }
+
   /**
    * Resolve the reset button from a selector entry via reflective access.
    */
@@ -336,6 +331,27 @@ public final class MinersAdvantageConfigScreen {
       // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (value instanceof Button button) {
         return button;
+      }
+      return null;
+    } catch (ReflectiveOperationException exception) {
+      return null;
+    }
+  }
+
+  private static Button getSelectionPrimaryButton(SelectionListEntry<?> entry) {
+    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+    try {
+      for (String fieldName : new String[] { "buttonWidget", "button" }) {
+        try {
+          Field field = SelectionListEntry.class.getDeclaredField(fieldName);
+          field.setAccessible(true);
+          Object value = field.get(entry);
+          if (value instanceof Button button) {
+            return button;
+          }
+        } catch (NoSuchFieldException ignored) {
+          // Try next known field name.
+        }
       }
       return null;
     } catch (ReflectiveOperationException exception) {

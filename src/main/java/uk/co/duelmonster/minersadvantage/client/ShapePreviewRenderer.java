@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.lang.reflect.Method;
 import com.mojang.blaze3d.pipeline.BlendFunction;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 //? if mc1 {
@@ -207,16 +208,16 @@ public final class ShapePreviewRenderer {
     RenderPipeline.Snippet snippet = builder
       .withDepthStencilState(new DepthStencilState(CompareOp.ALWAYS_PASS, false))
       .buildSnippet();
-    
+
     RenderPipeline pipeline = RenderPipeline.builder(snippet)
         .withLocation("pipeline/minersadvantage_lines_translucent_no_depth")
         .build();
-    
+
     RenderSetup setup = RenderSetup.builder(pipeline)
         .setLayeringTransform(LayeringTransform.VIEW_OFFSET_Z_LAYERING)
         .setOutputTarget(OutputTarget.ITEM_ENTITY_TARGET)
         .createRenderSetup();
-    
+
     return RenderType.create("minersadvantage_lines_translucent_no_depth_test", setup);
     */ //?}
   }
@@ -237,7 +238,7 @@ public final class ShapePreviewRenderer {
       }
     } catch (ReflectiveOperationException ignored) {
     }
-  
+
     try {
       Class<?> modeClass = Class.forName("com.mojang.blaze3d.vertex.VertexFormat$Mode");
       @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -249,7 +250,7 @@ public final class ShapePreviewRenderer {
       }
     } catch (ReflectiveOperationException ignored) {
     }
-  
+
     return builder;
   }
   */ //?}

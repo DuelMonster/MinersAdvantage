@@ -1,5 +1,8 @@
 ## 2.19.0
 
+- Fix NeoForge Supreme Vantage parity so 1.21.11 and 26.1.2 client tick flow grants rewards and syncs state like Fabric.
+- Fix NeoForge 1.21.11 feature config sub-screen launching by resolving the active GUI screen from `Minecraft.screen` before opening nested screens.
+- Fix shared shape preview renderer cross-version compile output by restoring the missing reflective `Method` import.
 - Fix Excavation shapeless runtime boundaries to bias width away from player heading and preserve origin-seeded traversal when the trigger block is already air.
 - Fix Excavation tool durability application by persisting post-break forced-tool state back to main hand and stopping excavation when the trigger tool breaks.
 - Fix preview/runtime parity by routing Excavation, Shaftanation, and Ventilation outline position generation through `MAShapePrecomputeCache.compute(...)`.

@@ -7,6 +7,8 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.Set;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -16,8 +18,10 @@ import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import uk.co.duelmonster.minersadvantage.common.network.AbortWorkersPacket;
 import uk.co.duelmonster.minersadvantage.common.network.ComponentTogglePacket;
+import uk.co.duelmonster.minersadvantage.common.network.SupremeVantagePacket;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 import uk.co.duelmonster.minersadvantage.common.services.input.ClientInputService;
+import uk.co.duelmonster.minersadvantage.common.services.utility.SupremeVantageService;
 
 /**
  * NeoForge client-side event handlers.
@@ -35,6 +39,8 @@ public final class NeoForgeClientEvents {
   private static final KeyMapping.Category KEY_CATEGORY = ClientActionInputSupport.createKeyCategory();
   private static ClientInputService.ClientInputState inputState = ClientInputService.ClientInputState.defaults();
   private static ClientInputService.ClientInputState lastSyncedState = ClientInputService.ClientInputState.defaults();
+  private static final SupremeVantageService supremeVantageService = new SupremeVantageService();
+  private static SupremeVantageService.ClientState supremeVantageState = SupremeVantageService.ClientState.defaults();
 
   /**
    * NeoForgeClientEvents exists so this code path does one job clearly instead of spreading chaos across callers.
@@ -51,6 +57,9 @@ public final class NeoForgeClientEvents {
   public static void onRegisterKeyMappings(RegisterKeyMappingsEvent event) {
     // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     for (KeyBindings.KeyBindingSpec spec : KeyBindings.all()) {
+      if (spec.defaultKey() == null) {
+        continue;
+      }
       String translationKey = "key.minersadvantage." + spec.action().name().toLowerCase();
       InputConstants.Key key = parseKeyToken(spec.defaultKey());
       KeyMapping keyMapping = ClientActionInputSupport.createKeyMapping(translationKey, key, KEY_CATEGORY);
@@ -65,6 +74,11 @@ public final class NeoForgeClientEvents {
    * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
    */
   public static void onClientTick(ClientTickEvent.Post event) {
+    Minecraft client = Minecraft.getInstance();
+    if (client.player == null || client.level == null) {
+      return;
+    }
+
     Set<KeyBindings.ClientAction> pressedSet = ClientActionInputSupport.collectPressedActions(KEY_MAPPINGS);
 
     ClientInputService.ClientInputResult result = new ClientInputService().process(
@@ -72,6 +86,25 @@ public final class NeoForgeClientEvents {
         pressedSet,
         false);
     inputState = result.state();
+
+    SupremeVantageService.ClientUpdate supremeUpdate = supremeVantageService.processClientTick(
+        supremeVantageState,
+        ClientActionInputSupport.collectPressedSupremeDigits(),
+        inputState.excavationToggled(),
+        areAllFeaturesEnabled(inputState));
+    supremeVantageState = supremeUpdate.state();
+
+    if (supremeUpdate.notifyWorthy()) {
+      ClientRuntimeCompat.showOverlayMessage(Minecraft.getInstance(),
+          Component.literal("SupremeVantage code accepted"));
+    }
+
+    if (supremeUpdate.shouldSendRewardPacket() && !supremeUpdate.packetCode().isEmpty()) {
+      long playerId = ClientActionInputSupport.resolveLocalPlayerId();
+      if (playerId != 0L) {
+        ClientPacketDistributor.sendToServer(new SupremeVantagePacket(playerId, supremeUpdate.packetCode()));
+      }
+    }
 
     // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     for (ComponentTogglePacket packet : result.togglePackets()) {
@@ -95,6 +128,11 @@ public final class NeoForgeClientEvents {
 
   @SubscribeEvent
   public static void onExtractBlockOutlineRenderState(ExtractBlockOutlineRenderStateEvent event) {
+    Minecraft client = Minecraft.getInstance();
+    if (client.level == null || client.player == null || ClientRuntimeCompat.getCurrentScreen(client) != null) {
+      return;
+    }
+
     double[] cameraPosition = extractCameraCoordinates(event.getCamera());
     event.addCustomRenderer((blockOutlineRenderState, bufferSource, poseStack, translucentPass, levelRenderState) -> {
       ShapePreviewRenderer.renderHeldPreview(
@@ -147,6 +185,15 @@ public final class NeoForgeClientEvents {
   private static void syncStateToServer(ClientInputService.ClientInputState state) {
     ClientPacketDistributor.sendToServer(ClientActionInputSupport.createPlayerStateSyncPacket(state));
     lastSyncedState = state;
+  }
+
+  private static boolean areAllFeaturesEnabled(ClientInputService.ClientInputState state) {
+    for (FeatureId feature : FeatureId.values()) {
+      if (!state.featureEnabled().getOrDefault(feature, false)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   /**

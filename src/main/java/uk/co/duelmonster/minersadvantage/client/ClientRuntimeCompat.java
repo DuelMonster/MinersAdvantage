@@ -119,9 +119,14 @@ public final class ClientRuntimeCompat {
       return null;
     }
 
-    Object screen = findFieldValueByTypeName(minecraft, "Screen");
-    if (screen instanceof Screen typed) {
-      return typed;
+    Screen direct = getFieldValueByNameAndType(minecraft, "screen", Screen.class);
+    if (direct != null) {
+      return direct;
+    }
+
+    Screen anyField = findFieldValueByType(minecraft, Screen.class);
+    if (anyField != null) {
+      return anyField;
     }
 
     for (Method method : minecraft.getClass().getMethods()) {
@@ -237,6 +242,50 @@ public final class ClientRuntimeCompat {
           Object value = field.get(instance);
           if (value != null) {
             return value;
+          }
+        } catch (ReflectiveOperationException ignored) {
+        }
+      }
+      current = current.getSuperclass();
+    }
+    return null;
+  }
+
+  private static <T> T getFieldValueByNameAndType(Object instance, String fieldName, Class<T> type) {
+    Class<?> current = instance.getClass();
+    while (current != null) {
+      try {
+        Field field = current.getDeclaredField(fieldName);
+        if (!type.isAssignableFrom(field.getType())) {
+          return null;
+        }
+        field.setAccessible(true);
+        Object value = field.get(instance);
+        if (type.isInstance(value)) {
+          return type.cast(value);
+        }
+        return null;
+      } catch (NoSuchFieldException ignored) {
+      } catch (ReflectiveOperationException ignored) {
+        return null;
+      }
+      current = current.getSuperclass();
+    }
+    return null;
+  }
+
+  private static <T> T findFieldValueByType(Object instance, Class<T> type) {
+    Class<?> current = instance.getClass();
+    while (current != null) {
+      for (Field field : current.getDeclaredFields()) {
+        if (!type.isAssignableFrom(field.getType())) {
+          continue;
+        }
+        try {
+          field.setAccessible(true);
+          Object value = field.get(instance);
+          if (type.isInstance(value)) {
+            return type.cast(value);
           }
         } catch (ReflectiveOperationException ignored) {
         }
