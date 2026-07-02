@@ -71,6 +71,10 @@ public final class ClientRuntimeCompat {
         preferred = method;
         break;
       }
+      if ("setScreenAndShow".equals(method.getName())) {
+        preferred = method;
+        continue;
+      }
       if (preferred == null && method.getName().toLowerCase(java.util.Locale.ROOT).contains("screen")) {
         preferred = method;
       }
@@ -124,13 +128,10 @@ public final class ClientRuntimeCompat {
       return direct;
     }
 
-    Screen anyField = findFieldValueByType(minecraft, Screen.class);
-    if (anyField != null) {
-      return anyField;
-    }
-
     for (Method method : minecraft.getClass().getMethods()) {
-      if (method.getParameterCount() == 0 && Screen.class.isAssignableFrom(method.getReturnType())) {
+      if (method.getParameterCount() == 0
+          && Screen.class.isAssignableFrom(method.getReturnType())
+          && method.getName().toLowerCase(java.util.Locale.ROOT).contains("screen")) {
         try {
           Object value = method.invoke(minecraft);
           if (value instanceof Screen typed) {
@@ -274,24 +275,4 @@ public final class ClientRuntimeCompat {
     return null;
   }
 
-  private static <T> T findFieldValueByType(Object instance, Class<T> type) {
-    Class<?> current = instance.getClass();
-    while (current != null) {
-      for (Field field : current.getDeclaredFields()) {
-        if (!type.isAssignableFrom(field.getType())) {
-          continue;
-        }
-        try {
-          field.setAccessible(true);
-          Object value = field.get(instance);
-          if (type.isInstance(value)) {
-            return type.cast(value);
-          }
-        } catch (ReflectiveOperationException ignored) {
-        }
-      }
-      current = current.getSuperclass();
-    }
-    return null;
-  }
 }

@@ -35,6 +35,7 @@ import uk.co.duelmonster.minersadvantage.common.services.utility.TorchPlacement;
 public final class MinersAdvantageConfigScreen {
   private static MAClientRootConfig currentClientConfig = MAConfig_Base.getClientRootConfig();
   private static MAServerRootConfig currentServerConfig = MAConfig_Base.getServerRootConfig();
+  private static Screen currentConfigScreen;
 
   /**
    * MinersAdvantageConfigScreen exists so this code path does one job clearly instead of spreading chaos across callers.
@@ -202,7 +203,9 @@ public final class MinersAdvantageConfigScreen {
         currentServerConfig.common().blockRadius(), 1, 16, gameplayEditable, value -> mutable.blockRadius = value);
 
     builder.setSavingRunnable(() -> saveMutableConfig(mutable, gameplayEditable));
-    return builder.build();
+    Screen screen = builder.build();
+    currentConfigScreen = screen;
+    return screen;
   }
 
   private static void addFeatureOpenEntry(
@@ -286,10 +289,13 @@ public final class MinersAdvantageConfigScreen {
       }
 
       Minecraft minecraft = Minecraft.getInstance();
-      Screen previousScreen = ClientRuntimeCompat.getCurrentScreen(minecraft);
+      Screen previousScreen = currentConfigScreen != null
+          ? currentConfigScreen
+          : ClientRuntimeCompat.getCurrentScreen(minecraft);
+      final Screen returnScreen = previousScreen;
       ClientRuntimeCompat.setScreen(minecraft, new ConfirmScreen(
           confirmed -> {
-            ClientRuntimeCompat.setScreen(minecraft, previousScreen);
+            ClientRuntimeCompat.setScreen(minecraft, returnScreen);
             // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (confirmed) {
               resetRunnable.run();
@@ -310,10 +316,13 @@ public final class MinersAdvantageConfigScreen {
     }
 
     setButtonOnPressReflective(openButton, ignored -> {
-      Screen activeScreen = ClientRuntimeCompat.getCurrentScreen(Minecraft.getInstance());
+      Screen activeScreen = currentConfigScreen != null
+          ? currentConfigScreen
+          : ClientRuntimeCompat.getCurrentScreen(Minecraft.getInstance());
+      final Screen targetParentScreen = activeScreen;
       // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-      if (activeScreen != null) {
-        ClientRuntimeCompat.setScreen(Minecraft.getInstance(), targetScreenFactory.apply(activeScreen));
+      if (targetParentScreen != null) {
+        ClientRuntimeCompat.setScreen(Minecraft.getInstance(), targetScreenFactory.apply(targetParentScreen));
       }
       resetSelectorEditedState(entry);
     });
@@ -519,7 +528,9 @@ public final class MinersAdvantageConfigScreen {
     entries.forEach(category::addEntry);
 
     builder.setSavingRunnable(() -> saveMutableConfig(mutable, gameplayEditable));
-    return builder.build();
+    Screen screen = builder.build();
+    currentConfigScreen = screen;
+    return screen;
   }
 
   /**

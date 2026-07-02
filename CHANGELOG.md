@@ -1,5 +1,14 @@
 ## 2.19.0
 
+- MC 26.2 KNOWN ISSUES:
+  - Shape outline not rendering
+  - Shape change info display not shown
+  - Config screens: returning to the Feature list works for the first opened Feature config, but then it starts to create a history of screens.
+
+- Fix 26.2 NeoForge outline rendering by honoring the 26.2 `CustomBlockOutlineRenderer` return contract.
+- Fix 26.2 NeoForge feature config screens by preferring `setScreenAndShow` when opening Cloth Config sub-screens.
+- Update 26.2 support to use released Cloth Config 26.2.155, Fabric Loader 0.19.3, and NeoForge 26.2.0.7-beta.
+
 - Fix NeoForge Supreme Vantage parity so 1.21.11 and 26.1.2 client tick flow grants rewards and syncs state like Fabric.
 - Fix NeoForge 1.21.11 feature config sub-screen launching by resolving the active GUI screen from `Minecraft.screen` before opening nested screens.
 - Fix shared shape preview renderer cross-version compile output by restoring the missing reflective `Method` import.

@@ -19,8 +19,8 @@ val clothConfigVersion = when ("$minecraft-$loader") {
     "1.21.11-neoforge" -> "21.11.153"
     "26.1.2-fabric" -> "26.1.154"
     "26.1.2-neoforge" -> "26.1.154"
-    "26.2-fabric" -> "26.1.154"
-    "26.2-neoforge" -> "26.1.154"
+    "26.2-fabric" -> "26.2.155"
+    "26.2-neoforge" -> "26.2.155"
     else -> error("No Cloth Config version mapping for $minecraft-$loader")
 }
 
