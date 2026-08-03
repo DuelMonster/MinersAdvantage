@@ -18,115 +18,113 @@ import uk.co.duelmonster.minersadvantage.common.Functions;
  * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
  */
 public final class VentilationCoreService {
-    private int ladderStackCount = 0;
-    private int ladderIndex = -1;
+  private int ladderStackCount = 0;
+  private int ladderIndex = -1;
 
-    /**
-     * playerHasLadders exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public boolean playerHasLadders(ServerPlayer player) {
-        getLadderSlot(player);
-        return ladderIndex >= 0;
+  /**
+   * playerHasLadders exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public boolean playerHasLadders(ServerPlayer player) {
+    getLadderSlot(player);
+    return ladderIndex >= 0;
+  }
+
+  /**
+   * getLadderSlot exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public void getLadderSlot(ServerPlayer player) {
+    ladderStackCount = 0;
+    ladderIndex = -1;
+
+    Item ladderItem = Blocks.LADDER.asItem();
+    for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
+      ItemStack stack = player.getInventory().getItem(slot);
+      if (stack != null && stack.getItem().equals(ladderItem)) {
+        ladderStackCount++;
+        ladderIndex = Functions.getSlotFromInventory(player, stack);
+      }
+    }
+  }
+
+  /**
+   * isLadderablePosition exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public boolean isLadderablePosition(Level world, BlockPos pos) {
+    return world.isEmptyBlock(pos)
+        && !world.isEmptyBlock(pos.south())
+        && canPlaceLadderOnFace(world, pos.south());
+  }
+
+  /**
+   * canPlaceLadderOnFace exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  private boolean canPlaceLadderOnFace(Level world, BlockPos pos) {
+    BlockState state = world.getBlockState(pos);
+    Block block = state.getBlock();
+    boolean validFace = state.isFaceSturdy(world, pos, Direction.NORTH)
+        && world.getBlockState(pos.relative(Direction.NORTH)).canBeReplaced();
+    boolean validBlockType = block != Blocks.END_GATEWAY && block != Blocks.JACK_O_LANTERN;
+    return validFace && validBlockType;
+  }
+
+  /**
+   * VentilationStep keeps this part of MinersAdvantage running without turning server ticks into confetti.
+   * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+   */
+  public record VentilationStep(int progressIndex, boolean placeLadder) {
+  }
+
+  /**
+   * VentilationBatch keeps this part of MinersAdvantage running without turning server ticks into confetti.
+   * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
+   */
+  public record VentilationBatch(int newProgress, int ladderPlacements, List<VentilationStep> steps) {
+  }
+
+  /**
+   * isCave exists so this code path does one job clearly instead of spreading chaos across callers.
+   * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+   */
+  public boolean isCave(int surfaceLevel, int currentLevel) {
+    return currentLevel < surfaceLevel - 10;
+  }
+
+  /**
+   * estimatedTurnsToVentilate exists so this code path does one job clearly instead of spreading chaos across callers.
+   * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+   */
+  public int estimatedTurnsToVentilate(int width, int height, int depth) {
+    int volume = Math.max(1, width) * Math.max(1, height) * Math.max(1, depth);
+    return volume / 2;
+  }
+
+  public VentilationBatch buildBatch(
+      int currentProgress,
+      int width,
+      int height,
+      int depth,
+      int processesPerTick) {
+    if (processesPerTick <= 0) {
+      return new VentilationBatch(currentProgress, 0, List.of());
     }
 
-    /**
-     * getLadderSlot exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public void getLadderSlot(ServerPlayer player) {
-        ladderStackCount = 0;
-        ladderIndex = -1;
+    int targetTurns = estimatedTurnsToVentilate(width, height, depth);
+    int newProgress = Math.min(targetTurns, currentProgress + processesPerTick);
+    int ladderPlacements = 0;
+    List<VentilationStep> steps = new ArrayList<>();
 
-        Item ladderItem = Blocks.LADDER.asItem();
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
-            ItemStack stack = player.getInventory().getItem(slot);
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            if (stack != null && stack.getItem().equals(ladderItem)) {
-                ladderStackCount++;
-                ladderIndex = Functions.getSlotFromInventory(player, stack);
-            }
-        }
+    for (int index = currentProgress + 1; index <= newProgress; index++) {
+      boolean placeLadder = index % 3 == 0;
+      if (placeLadder) {
+        ladderPlacements++;
+      }
+      steps.add(new VentilationStep(index, placeLadder));
     }
 
-    /**
-     * isLadderablePosition exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public boolean isLadderablePosition(Level world, BlockPos pos) {
-        return world.isEmptyBlock(pos)
-            && !world.isEmptyBlock(pos.south())
-            && canPlaceLadderOnFace(world, pos.south());
-    }
-
-    /**
-     * canPlaceLadderOnFace exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    private boolean canPlaceLadderOnFace(Level world, BlockPos pos) {
-        BlockState state = world.getBlockState(pos);
-        Block block = state.getBlock();
-        boolean validFace = state.isFaceSturdy(world, pos, Direction.NORTH)
-            && world.getBlockState(pos.relative(Direction.NORTH)).canBeReplaced();
-        boolean validBlockType = block != Blocks.END_GATEWAY && block != Blocks.JACK_O_LANTERN;
-        return validFace && validBlockType;
-    }
-    /**
-     * VentilationStep keeps this part of MinersAdvantage running without turning server ticks into confetti.
-     * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
-     */
-    public record VentilationStep(int progressIndex, boolean placeLadder) {}
-    /**
-     * VentilationBatch keeps this part of MinersAdvantage running without turning server ticks into confetti.
-     * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
-     */
-    public record VentilationBatch(int newProgress, int ladderPlacements, List<VentilationStep> steps) {}
-
-    /**
-     * isCave exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    public boolean isCave(int surfaceLevel, int currentLevel) {
-        return currentLevel < surfaceLevel - 10;
-    }
-
-    /**
-     * estimatedTurnsToVentilate exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    public int estimatedTurnsToVentilate(int width, int height, int depth) {
-        int volume = Math.max(1, width) * Math.max(1, height) * Math.max(1, depth);
-        return volume / 2;
-    }
-
-    public VentilationBatch buildBatch(
-        int currentProgress,
-        int width,
-        int height,
-        int depth,
-        int processesPerTick
-    ) {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (processesPerTick <= 0) {
-            return new VentilationBatch(currentProgress, 0, List.of());
-        }
-
-        int targetTurns = estimatedTurnsToVentilate(width, height, depth);
-        int newProgress = Math.min(targetTurns, currentProgress + processesPerTick);
-        int ladderPlacements = 0;
-        List<VentilationStep> steps = new ArrayList<>();
-
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        for (int index = currentProgress + 1; index <= newProgress; index++) {
-            boolean placeLadder = index % 3 == 0;
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            if (placeLadder) {
-                ladderPlacements++;
-            }
-            steps.add(new VentilationStep(index, placeLadder));
-        }
-
-        return new VentilationBatch(newProgress, ladderPlacements, steps);
-    }
+    return new VentilationBatch(newProgress, ladderPlacements, steps);
+  }
 }

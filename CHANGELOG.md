@@ -3,6 +3,7 @@
 - Fix startup/menu lockups by hardening client initialization and render-hook behavior.
 - Defer client outline hook registration until in-world and skip render-thread shape warmup work at startup to keep title-screen initialization responsive.
 - Fix Shaftanation height/runtime trigger regressions and restore expected shaft semantics.
+- Align shaft generation/runtime clamping with configured height and block-origin triggers to prevent extra-layer carving and recursive retrigger chains.
 - Fix Substitution switch-back timing so active automation jobs complete before slot restore.
 
 ## 2.19.0

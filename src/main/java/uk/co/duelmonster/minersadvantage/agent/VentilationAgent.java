@@ -23,218 +23,203 @@ import java.util.Queue;
  * Vent-shaft worker that carves vertical columns and optionally ladders/torch support for downward runs.
  */
 public class VentilationAgent extends Agent {
-    private record VentTarget(BlockPos pos, int depth) {
+  private record VentTarget(BlockPos pos, int depth) {
+  }
+
+  private final BlockPos origin;
+  private final Direction direction;
+  private final VentilationConfig config;
+  private final Queue<VentTarget> queue = new LinkedList<>();
+  private final Deque<BlockPos> ladderQueue = new LinkedList<>();
+  private int dug = 0;
+  private final int blocksPerTick;
+  private final boolean mineVeins;
+  private final CommonConfig commonConfig;
+  private final VeinationRuntimeService veinationRuntime;
+  private final VeinationConfig veinationConfig;
+  private ItemStack veinationTriggerTool;
+  private int ladderPlacements = 0;
+  private BlockPos lowestDugPos;
+  private boolean bottomTorchProcessed = false;
+  private int activeVentLayer = Integer.MIN_VALUE;
+  private boolean activeVentLayerHasNonAir = false;
+  private boolean ventEmptyLayerAborted = false;
+
+  /**
+   * Convenience constructor with downward direction and default config.
+   */
+  public VentilationAgent(ServerPlayer player, BlockPos origin, int length) {
+    this(player, origin, Direction.DOWN, new VentilationConfig(true, 1, Math.max(1, length), 1, 8), new CommonConfig());
+  }
+
+  /**
+   * Convenience constructor with explicit ventilation/common config.
+   */
+  public VentilationAgent(ServerPlayer player, BlockPos origin, VentilationConfig config, CommonConfig commonConfig) {
+    this(player, origin, Direction.DOWN, config, commonConfig);
+  }
+
+  /**
+   * Constructor with explicit direction and default veination wiring.
+   */
+  public VentilationAgent(ServerPlayer player, BlockPos origin, Direction direction, VentilationConfig config,
+      CommonConfig commonConfig) {
+    this(player, origin, direction, config, commonConfig, null, null);
+  }
+
+  /**
+   * Constructor with optional veination runtime service.
+   */
+  public VentilationAgent(
+      ServerPlayer player,
+      BlockPos origin,
+      Direction direction,
+      VentilationConfig config,
+      CommonConfig commonConfig,
+      VeinationRuntimeService veinationRuntime,
+      VeinationConfig veinationConfig) {
+    this(player, origin, direction, config, commonConfig, veinationRuntime, veinationConfig, ItemStack.EMPTY);
+  }
+
+  /**
+   * Full constructor that seeds dig queue and optional ladder queue.
+   */
+  public VentilationAgent(
+      ServerPlayer player,
+      BlockPos origin,
+      Direction direction,
+      VentilationConfig config,
+      CommonConfig commonConfig,
+      VeinationRuntimeService veinationRuntime,
+      VeinationConfig veinationConfig,
+      ItemStack veinationTriggerTool) {
+    super(player);
+    this.origin = origin;
+    this.direction = direction == Direction.UP ? Direction.UP : Direction.DOWN;
+    this.config = config == null ? MAServerRootConfig.defaults().ventilation() : config;
+    int ventDepth = Math.max(1, this.config.height());
+
+    int globalBlocksPerTick = commonConfig == null ? 1 : Math.max(1, commonConfig.blocksPerTick());
+    this.blocksPerTick = Math.max(1, Math.min(globalBlocksPerTick, this.config.processesPerTick()));
+    this.mineVeins = commonConfig == null || commonConfig.mineVeins();
+    this.commonConfig = commonConfig;
+    this.veinationRuntime = veinationRuntime;
+    this.veinationConfig = veinationConfig;
+    this.veinationTriggerTool = veinationTriggerTool == null ? ItemStack.EMPTY : veinationTriggerTool.copy();
+
+    for (int depth = 1; depth <= ventDepth; depth++) {
+      queue.add(new VentTarget(origin.relative(this.direction, depth).immutable(), depth));
     }
 
-    private final BlockPos origin;
-    private final Direction direction;
-    private final VentilationConfig config;
-    private final Queue<VentTarget> queue = new LinkedList<>();
-    private final Deque<BlockPos> ladderQueue = new LinkedList<>();
-    private int dug = 0;
-    private final int blocksPerTick;
-    private final boolean mineVeins;
-    private final CommonConfig commonConfig;
-    private final VeinationRuntimeService veinationRuntime;
-    private final VeinationConfig veinationConfig;
-    private ItemStack veinationTriggerTool;
-    private int ladderPlacements = 0;
-    private BlockPos lowestDugPos;
-    private boolean bottomTorchProcessed = false;
-    private int activeVentLayer = Integer.MIN_VALUE;
-    private boolean activeVentLayerHasNonAir = false;
-    private boolean ventEmptyLayerAborted = false;
-
-    /**
-     * Convenience constructor with downward direction and default config.
-     */
-    public VentilationAgent(ServerPlayer player, BlockPos origin, int length) {
-        this(player, origin, Direction.DOWN, new VentilationConfig(true, 1, Math.max(1, length), 1, 8), new CommonConfig());
+    if (this.direction == Direction.DOWN && this.config.placeLadders()) {
+      ladderQueue.addLast(origin.immutable());
     }
+  }
 
-    /**
-     * Convenience constructor with explicit ventilation/common config.
-     */
-    public VentilationAgent(ServerPlayer player, BlockPos origin, VentilationConfig config, CommonConfig commonConfig) {
-        this(player, origin, Direction.DOWN, config, commonConfig);
-    }
+  /**
+   * Per-tick ventilation loop with carve phase then ladder/torch placement phase.
+   */
+  @Override
+  /**
+   * t ic k exists so this path stays predictable and easier to debug when things get weird.
+   */
+  public boolean tick() {
+    int count = 0;
+    while (!queue.isEmpty() && count < blocksPerTick) {
+      VentTarget target = queue.poll();
+      BlockPos pos = target == null ? null : target.pos();
+      if (target == null) {
+        continue;
+      }
 
-    /**
-     * Constructor with explicit direction and default veination wiring.
-     */
-    public VentilationAgent(ServerPlayer player, BlockPos origin, Direction direction, VentilationConfig config, CommonConfig commonConfig) {
-        this(player, origin, direction, config, commonConfig, null, null);
-    }
-
-    /**
-     * Constructor with optional veination runtime service.
-     */
-    public VentilationAgent(
-        ServerPlayer player,
-        BlockPos origin,
-        Direction direction,
-        VentilationConfig config,
-        CommonConfig commonConfig,
-        VeinationRuntimeService veinationRuntime,
-        VeinationConfig veinationConfig
-    ) {
-        this(player, origin, direction, config, commonConfig, veinationRuntime, veinationConfig, ItemStack.EMPTY);
-    }
-
-    /**
-     * Full constructor that seeds dig queue and optional ladder queue.
-     */
-    public VentilationAgent(
-        ServerPlayer player,
-        BlockPos origin,
-        Direction direction,
-        VentilationConfig config,
-        CommonConfig commonConfig,
-        VeinationRuntimeService veinationRuntime,
-        VeinationConfig veinationConfig,
-        ItemStack veinationTriggerTool
-    ) {
-        super(player);
-        this.origin = origin;
-        this.direction = direction == Direction.UP ? Direction.UP : Direction.DOWN;
-        this.config = config == null ? MAServerRootConfig.defaults().ventilation() : config;
-        int ventDepth = Math.max(1, this.config.height());
-
-        int globalBlocksPerTick = commonConfig == null ? 1 : Math.max(1, commonConfig.blocksPerTick());
-        this.blocksPerTick = Math.max(1, Math.min(globalBlocksPerTick, this.config.processesPerTick()));
-        this.mineVeins = commonConfig == null || commonConfig.mineVeins();
-        this.commonConfig = commonConfig;
-        this.veinationRuntime = veinationRuntime;
-        this.veinationConfig = veinationConfig;
-        this.veinationTriggerTool = veinationTriggerTool == null ? ItemStack.EMPTY : veinationTriggerTool.copy();
-
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        for (int depth = 1; depth <= ventDepth; depth++) {
-            queue.add(new VentTarget(origin.relative(this.direction, depth).immutable(), depth));
+      if (target.depth() != activeVentLayer) {
+        if (activeVentLayer != Integer.MIN_VALUE && !activeVentLayerHasNonAir) {
+          ventEmptyLayerAborted = true;
+          queue.clear();
+          break;
         }
+        activeVentLayer = target.depth();
+        activeVentLayerHasNonAir = false;
+      }
 
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (this.direction == Direction.DOWN && this.config.placeLadders()) {
-            ladderQueue.addLast(origin.immutable());
-        }
-    }
+      BlockState state = world.getBlockState(pos);
+      if (!state.isAir()) {
+        activeVentLayerHasNonAir = true;
+        BreakOutcome breakOutcome = breakBlockWithTool(pos, veinationTriggerTool);
+        if (breakOutcome.broken()) {
+          veinationTriggerTool = breakOutcome.toolAfterBreak().copy();
+          maybeFanOutVeination(pos, state, mineVeins, this.commonConfig, veinationRuntime, veinationConfig,
+              veinationTriggerTool);
+          dug++;
+          count++;
 
-    /**
-     * Per-tick ventilation loop with carve phase then ladder/torch placement phase.
-     */
-    @Override
-    /**
-     * t ic k exists so this path stays predictable and easier to debug when things get weird.
-     */
-    public boolean tick() {
-        int count = 0;
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        while (!queue.isEmpty() && count < blocksPerTick) {
-            VentTarget target = queue.poll();
-            BlockPos pos = target == null ? null : target.pos();
-            if (target == null) {
-                continue;
+          if (direction == Direction.DOWN) {
+            lowestDugPos = pos.immutable();
+            if (config.placeLadders()) {
+              // Prepended so ladder placement runs from far-to-near once digging completes.
+              ladderQueue.addFirst(pos.immutable());
             }
-
-            if (target.depth() != activeVentLayer) {
-                if (activeVentLayer != Integer.MIN_VALUE && !activeVentLayerHasNonAir) {
-                    ventEmptyLayerAborted = true;
-                    queue.clear();
-                    break;
-                }
-                activeVentLayer = target.depth();
-                activeVentLayerHasNonAir = false;
-            }
-
-            BlockState state = world.getBlockState(pos);
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            if (!state.isAir()) {
-                activeVentLayerHasNonAir = true;
-                BreakOutcome breakOutcome = breakBlockWithTool(pos, veinationTriggerTool);
-                if (breakOutcome.broken()) {
-                    veinationTriggerTool = breakOutcome.toolAfterBreak().copy();
-                    maybeFanOutVeination(pos, state, mineVeins, this.commonConfig, veinationRuntime, veinationConfig, veinationTriggerTool);
-                    dug++;
-                    count++;
-
-                    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-                    if (direction == Direction.DOWN) {
-                        lowestDugPos = pos.immutable();
-                        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-                        if (config.placeLadders()) {
-                            // Prepended so ladder placement runs from far-to-near once digging completes.
-                            ladderQueue.addFirst(pos.immutable());
-                        }
-                    }
-                }
-            }
+          }
         }
-
-        boolean diggingComplete = queue.isEmpty();
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (diggingComplete) {
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            if (direction == Direction.DOWN && !bottomTorchProcessed && count < blocksPerTick) {
-                bottomTorchProcessed = true;
-                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-                if (lowestDugPos != null) {
-                    ladderQueue.remove(lowestDugPos);
-                    placeTorchWithInventory(lowestDugPos, Direction.UP);
-                }
-                count++;
-            }
-
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            while (count < blocksPerTick && !ladderQueue.isEmpty()) {
-                BlockPos ladderPos = ladderQueue.pollFirst();
-                tryPlaceLadder(ladderPos);
-                count++;
-            }
-        }
-
-        boolean placementComplete = ladderQueue.isEmpty() && (direction != Direction.DOWN || bottomTorchProcessed);
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (diggingComplete && placementComplete) {
-            return finish(ventEmptyLayerAborted ? "ventilation empty layer" : (queue.isEmpty() ? "ventilation queue exhausted" : "ventilation target reached"));
-        }
-        return false;
+      }
     }
 
-    /**
-     * Attempt ladder placement at position using available inventory ladders.
-     */
-    private void tryPlaceLadder(BlockPos pos) {
-        int ladderSlot = findLadderInInventory();
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (ladderSlot < 0) {
-            return;
+    boolean diggingComplete = queue.isEmpty();
+    if (diggingComplete) {
+      if (direction == Direction.DOWN && !bottomTorchProcessed && count < blocksPerTick) {
+        bottomTorchProcessed = true;
+        if (lowestDugPos != null) {
+          ladderQueue.remove(lowestDugPos);
+          placeTorchWithInventory(lowestDugPos, Direction.UP);
         }
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (!world.getBlockState(pos).canBeReplaced()) {
-            return;
-        }
+        count++;
+      }
 
-        Direction[] sides = {Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST};
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        for (Direction wallDir : sides) {
-            BlockPos supportPos = pos.relative(wallDir);
-            BlockState supportState = world.getBlockState(supportPos);
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            if (supportState.isFaceSturdy(world, supportPos, wallDir.getOpposite())) {
-                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-                if (placeItemFromInventoryByUse(ladderSlot, supportPos, wallDir.getOpposite())) {
-                    ladderPlacements++;
-                }
-                return;
-            }
-        }
+      while (count < blocksPerTick && !ladderQueue.isEmpty()) {
+        BlockPos ladderPos = ladderQueue.pollFirst();
+        tryPlaceLadder(ladderPos);
+        count++;
+      }
     }
 
-    /**
-     * Find first ladder slot in player inventory.
-     */
-    private int findLadderInInventory() {
-        return findFirstInventorySlot(Items.LADDER);
+    boolean placementComplete = ladderQueue.isEmpty() && (direction != Direction.DOWN || bottomTorchProcessed);
+    if (diggingComplete && placementComplete) {
+      return finish(ventEmptyLayerAborted ? "ventilation empty layer"
+          : (queue.isEmpty() ? "ventilation queue exhausted" : "ventilation target reached"));
     }
+    return false;
+  }
+
+  /**
+   * Attempt ladder placement at position using available inventory ladders.
+   */
+  private void tryPlaceLadder(BlockPos pos) {
+    int ladderSlot = findLadderInInventory();
+    if (ladderSlot < 0) {
+      return;
+    }
+    if (!world.getBlockState(pos).canBeReplaced()) {
+      return;
+    }
+
+    Direction[] sides = { Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST };
+    for (Direction wallDir : sides) {
+      BlockPos supportPos = pos.relative(wallDir);
+      BlockState supportState = world.getBlockState(supportPos);
+      if (supportState.isFaceSturdy(world, supportPos, wallDir.getOpposite())) {
+        if (placeItemFromInventoryByUse(ladderSlot, supportPos, wallDir.getOpposite())) {
+          ladderPlacements++;
+        }
+        return;
+      }
+    }
+  }
+
+  /**
+   * Find first ladder slot in player inventory.
+   */
+  private int findLadderInInventory() {
+    return findFirstInventorySlot(Items.LADDER);
+  }
 
 }
