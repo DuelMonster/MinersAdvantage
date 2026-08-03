@@ -1,3 +1,9 @@
+## 2.20.0
+
+- Fix startup/menu lockups by hardening client initialization and render-hook behavior.
+- Fix Shaftanation height/runtime trigger regressions and restore expected shaft semantics.
+- Fix Substitution switch-back timing so active automation jobs complete before slot restore.
+
 ## 2.19.0
 
 - MC 26.2 KNOWN ISSUES:
