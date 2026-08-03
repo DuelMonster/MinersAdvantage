@@ -54,7 +54,6 @@ public final class SingleLayerShapeProcessor implements MAShapeProcessor {
 
     // Horizontal faces push forward by depth while keeping Y fixed to preserve single-layer behavior.
     for (int d = 0; d < depth; d++) {
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       for (int w = minW; w <= maxW; w++) {
         int[] offset = ExcavationFaceGeometry.offsetFor(faceDirection, playerFacingDirection, d, w, 0);
         BlockPos pos = origin.offset(offset[0], offset[1], offset[2]).immutable();

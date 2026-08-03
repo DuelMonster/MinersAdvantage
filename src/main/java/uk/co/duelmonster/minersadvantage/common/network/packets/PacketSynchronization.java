@@ -10,42 +10,40 @@ import uk.co.duelmonster.minersadvantage.common.network.packetids.PacketId;
  * It exists so behavior stays explicit instead of becoming mystery spaghetti at 2 AM.
  */
 public class PacketSynchronization implements IMAPacket {
-    public final UUID uuid;
-    public final SyncType syncType;
-    public final String payload;
+  public final UUID uuid;
+  public final SyncType syncType;
+  public final String payload;
 
-    /**
-     * PacketSynchronization exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public PacketSynchronization(UUID uuid, SyncType syncType, String payload) {
-        this.uuid = uuid;
-        this.syncType = syncType;
-        this.payload = payload == null ? "" : payload;
-    }
+  /**
+   * PacketSynchronization exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public PacketSynchronization(UUID uuid, SyncType syncType, String payload) {
+    this.uuid = uuid;
+    this.syncType = syncType;
+    this.payload = payload == null ? "" : payload;
+  }
 
-    @Override
-    /**
-     * getPacketId exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public PacketId getPacketId() {
-        return PacketId.SYNCHRONIZATION;
-    }
+  @Override
+  /**
+   * getPacketId exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public PacketId getPacketId() {
+    return PacketId.SYNCHRONIZATION;
+  }
 
-    /**
-     * process exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static void process(UUID senderUuid, PacketSynchronization pkt, boolean playToServer) {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (pkt.syncType == SyncType.Variables) {
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            if (playToServer && senderUuid != null) {
-                Variables.set(senderUuid, pkt.payload);
-            } else {
-                Variables.set(pkt.payload);
-            }
-        }
+  /**
+   * process exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static void process(UUID senderUuid, PacketSynchronization pkt, boolean playToServer) {
+    if (pkt.syncType == SyncType.Variables) {
+      if (playToServer && senderUuid != null) {
+        Variables.set(senderUuid, pkt.payload);
+      } else {
+        Variables.set(pkt.payload);
+      }
     }
+  }
 }

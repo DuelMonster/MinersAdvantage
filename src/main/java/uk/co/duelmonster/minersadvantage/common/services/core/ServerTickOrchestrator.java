@@ -7,84 +7,82 @@ import uk.co.duelmonster.minersadvantage.common.services.processing.WorkerRuntim
  * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
  */
 public final class ServerTickOrchestrator {
-    private final PlayerStateService playerStateService;
-    private final WorkerRuntimeService workerRuntimeService;
-    private boolean tpsGuardActive;
-    private boolean enableTickDelay;
-    private int tickDelay;
-    private long tickCounter = 0;
+  private final PlayerStateService playerStateService;
+  private final WorkerRuntimeService workerRuntimeService;
+  private boolean tpsGuardActive;
+  private boolean enableTickDelay;
+  private int tickDelay;
+  private long tickCounter = 0;
 
-    /**
-     * ServerTickOrchestrator exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    public ServerTickOrchestrator(PlayerStateService playerStateService) {
-        this(playerStateService, new WorkerRuntimeService(playerStateService));
-    }
+  /**
+   * ServerTickOrchestrator exists so this code path does one job clearly instead of spreading chaos across callers.
+   * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+   */
+  public ServerTickOrchestrator(PlayerStateService playerStateService) {
+    this(playerStateService, new WorkerRuntimeService(playerStateService));
+  }
 
-    /**
-     * ServerTickOrchestrator exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    public ServerTickOrchestrator(PlayerStateService playerStateService, WorkerRuntimeService workerRuntimeService) {
-        this.playerStateService = playerStateService;
-        this.workerRuntimeService = workerRuntimeService;
-    }
+  /**
+   * ServerTickOrchestrator exists so this code path does one job clearly instead of spreading chaos across callers.
+   * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+   */
+  public ServerTickOrchestrator(PlayerStateService playerStateService, WorkerRuntimeService workerRuntimeService) {
+    this.playerStateService = playerStateService;
+    this.workerRuntimeService = workerRuntimeService;
+  }
 
-    /**
-     * onServerTick exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    public void onServerTick() {
-        tickCounter++;
-        playerStateService.tick();
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (shouldProcessWorkersThisTick()) {
-            workerRuntimeService.tick(tpsGuardActive);
-        }
+  /**
+   * onServerTick exists so this code path does one job clearly instead of spreading chaos across callers.
+   * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+   */
+  public void onServerTick() {
+    tickCounter++;
+    playerStateService.tick();
+    if (shouldProcessWorkersThisTick()) {
+      workerRuntimeService.tick(tpsGuardActive);
     }
+  }
 
-    /**
-     * s ho ul dp ro ce ss wo rk er st hi st ic k exists so this path stays predictable and easier to debug when things get weird.
-     */
-    private boolean shouldProcessWorkersThisTick() {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (!enableTickDelay || tickDelay <= 0) {
-            return true;
-        }
-        int interval = tickDelay + 1;
-        return tickCounter % interval == 0;
+  /**
+   * s ho ul dp ro ce ss wo rk er st hi st ic k exists so this path stays predictable and easier to debug when things get weird.
+   */
+  private boolean shouldProcessWorkersThisTick() {
+    if (!enableTickDelay || tickDelay <= 0) {
+      return true;
     }
+    int interval = tickDelay + 1;
+    return tickCounter % interval == 0;
+  }
 
-    /**
-     * getTickCounter exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    public long getTickCounter() {
-        return tickCounter;
-    }
+  /**
+   * getTickCounter exists so this code path does one job clearly instead of spreading chaos across callers.
+   * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+   */
+  public long getTickCounter() {
+    return tickCounter;
+  }
 
-    /**
-     * workerRuntimeService exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    public WorkerRuntimeService workerRuntimeService() {
-        return workerRuntimeService;
-    }
+  /**
+   * workerRuntimeService exists so this code path does one job clearly instead of spreading chaos across callers.
+   * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+   */
+  public WorkerRuntimeService workerRuntimeService() {
+    return workerRuntimeService;
+  }
 
-    /**
-     * setTpsGuardActive exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    public void setTpsGuardActive(boolean tpsGuardActive) {
-        this.tpsGuardActive = tpsGuardActive;
-    }
+  /**
+   * setTpsGuardActive exists so this code path does one job clearly instead of spreading chaos across callers.
+   * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+   */
+  public void setTpsGuardActive(boolean tpsGuardActive) {
+    this.tpsGuardActive = tpsGuardActive;
+  }
 
-    /**
-     * s et pr oc es si ng de la y exists so this path stays predictable and easier to debug when things get weird.
-     */
-    public void setProcessingDelay(boolean enableTickDelay, int tickDelay) {
-        this.enableTickDelay = enableTickDelay;
-        this.tickDelay = Math.max(0, tickDelay);
-    }
+  /**
+   * s et pr oc es si ng de la y exists so this path stays predictable and easier to debug when things get weird.
+   */
+  public void setProcessingDelay(boolean enableTickDelay, int tickDelay) {
+    this.enableTickDelay = enableTickDelay;
+    this.tickDelay = Math.max(0, tickDelay);
+  }
 }

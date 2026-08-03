@@ -7,25 +7,24 @@ import java.util.Map;
  * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
  */
 public final class InventoryCoreService {
-    /**
-     * hasAtLeast exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    public boolean hasAtLeast(Map<String, Integer> inventory, String itemId, int amount) {
-        return inventory.getOrDefault(itemId, 0) >= amount;
-    }
+  /**
+   * hasAtLeast exists so this code path does one job clearly instead of spreading chaos across callers.
+   * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+   */
+  public boolean hasAtLeast(Map<String, Integer> inventory, String itemId, int amount) {
+    return inventory.getOrDefault(itemId, 0) >= amount;
+  }
 
-    /**
-     * consume exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    public boolean consume(Map<String, Integer> inventory, String itemId, int amount) {
-        int current = inventory.getOrDefault(itemId, 0);
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (current < amount) {
-            return false;
-        }
-        inventory.put(itemId, current - amount);
-        return true;
+  /**
+   * consume exists so this code path does one job clearly instead of spreading chaos across callers.
+   * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+   */
+  public boolean consume(Map<String, Integer> inventory, String itemId, int amount) {
+    int current = inventory.getOrDefault(itemId, 0);
+    if (current < amount) {
+      return false;
     }
+    inventory.put(itemId, current - amount);
+    return true;
+  }
 }

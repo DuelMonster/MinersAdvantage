@@ -1,11 +1,10 @@
 package uk.co.duelmonster.minersadvantage.common.services.utility;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import uk.co.duelmonster.minersadvantage.common.services.utility.SupremeVantageService.EnchantmentGrant;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 /**
  * SupremeVantageService keeps this part of MinersAdvantage running without
@@ -14,7 +13,7 @@ import uk.co.duelmonster.minersadvantage.common.services.utility.SupremeVantageS
  * mysterious at 2 AM.
  */
 public final class SupremeVantageService {
-  // Why this exists: Parity note: key code recognition, cadence, and staged
+  // Parity note: key code recognition, cadence, and staged
   // reward sequencing are ported; item-grant implementation detail parity is
   // tracked in checklist. (future-you will thank present-you).
 
@@ -88,30 +87,42 @@ public final class SupremeVantageService {
       List<EnchantmentGrant> enchantments) {
   }
 
-  private final Map<Long, Integer> rewardProgress = new HashMap<>();
+  private final Map<Long, Integer> rewardProgress = new ConcurrentHashMap<>();
 
   private static final List<EnchantmentGrant> ENCHANTS_UNBREAKABLE = List.of(
       new EnchantmentGrant("minecraft:unbreaking", 3),
       new EnchantmentGrant("minecraft:mending", 1));
 
-  private static final List<EnchantmentGrant> ENCHANTS_EFFICIENCY_FORTUNE = List.of(
-      new EnchantmentGrant("minecraft:efficiency", 5),
-      new EnchantmentGrant("minecraft:fortune", 10),
-      new EnchantmentGrant("minecraft:unbreaking", 3),
-      new EnchantmentGrant("minecraft:mending", 1));
+  private static final List<EnchantmentGrant> ENCHANTS_EFFICIENCY_FORTUNE = Stream.concat(
+      Stream.of(
+          new EnchantmentGrant("minecraft:efficiency", 5),
+          new EnchantmentGrant("minecraft:fortune", 4)),
+      ENCHANTS_UNBREAKABLE.stream()).toList();
 
-  private static final List<EnchantmentGrant> ENCHANTS_FIRE_PROTECTION = List.of(
-      new EnchantmentGrant("minecraft:protection", 10),
-      new EnchantmentGrant("minecraft:fire_protection", 10),
-      new EnchantmentGrant("minecraft:unbreaking", 3),
-      new EnchantmentGrant("minecraft:mending", 1));
+  private static final List<EnchantmentGrant> ENCHANTS_EFFICIENCY_SILK_TOUCH = Stream.concat(
+      Stream.of(
+          new EnchantmentGrant("minecraft:efficiency", 5),
+          new EnchantmentGrant("minecraft:silk_touch", 1)),
+      ENCHANTS_UNBREAKABLE.stream()).toList();
+
+  private static final List<EnchantmentGrant> ENCHANTS_FIRE_PROTECTION = Stream.concat(
+      Stream.of(
+          new EnchantmentGrant("minecraft:protection", 4),
+          new EnchantmentGrant("minecraft:fire_protection", 4)),
+      ENCHANTS_UNBREAKABLE.stream()).toList();
+
+  private static final List<EnchantmentGrant> ENCHANTS_SWORD_GRANTS = Stream.concat(
+      Stream.of(
+          new EnchantmentGrant("minecraft:sharpness", 5),
+          new EnchantmentGrant("minecraft:looting", 4)),
+      ENCHANTS_UNBREAKABLE.stream()).toList();
 
   private static final List<RewardGrant> REWARDS = List.of(
       new RewardGrant(1, "soulblade", "Soulblade", "minecraft:diamond_sword", CODE_D),
       new RewardGrant(2, "peacekeeper", "Peacekeeper", "minecraft:diamond_sword", CODE_D),
       new RewardGrant(3, "minora", "Minora", "minecraft:diamond_pickaxe", CODE_D),
       new RewardGrant(4, "silkar", "Silkar", "minecraft:diamond_pickaxe", CODE_D),
-      new RewardGrant(5, "diggle", "Diggle", "minecraft:diamond_shovel", CODE_D),
+      // new RewardGrant(5, "diggle", "Diggle", "minecraft:diamond_shovel", CODE_D),
       new RewardGrant(5, "scoop", "Scoop, there it is...", "minecraft:diamond_shovel", CODE_D),
       new RewardGrant(6, "whirlwind", "Whirlwind", "minecraft:diamond_axe", CODE_D),
       new RewardGrant(7, "scuba_helm", "Tadpols Scuba Helm", "minecraft:diamond_helmet", CODE_D),
@@ -138,21 +149,13 @@ public final class SupremeVantageService {
    */
   public ClientUpdate processClientTick(ClientState state, Set<Character> pressedDigits, boolean excavationToggled,
       boolean allFeaturesEnabled) {
-    // Why this branch exists: make the flow explicit so future debugging is less
-    // guesswork and fewer surprises.
     if (!allFeaturesEnabled) {
       return new ClientUpdate(ClientState.defaults(), false, false, "");
     }
 
     String code = state.enteredCode();
-    // Why this branch exists: make the flow explicit so future debugging is less
-    // guesswork and fewer surprises.
     if (excavationToggled) {
-      // Why this branch exists: make the flow explicit so future debugging is less
-      // guesswork and fewer surprises.
-      for (char digit : List.of('0', '2', '7', '8')) {
-        // Why this branch exists: make the flow explicit so future debugging is less
-        // guesswork and fewer surprises.
+      for (char digit : List.of('0', '2', '3', '7', '8')) {
         if (pressedDigits.contains(digit) && (code.isEmpty() || code.charAt(code.length() - 1) != digit)) {
           code += digit;
         }
@@ -161,14 +164,10 @@ public final class SupremeVantageService {
           "");
     }
 
-    // Why this branch exists: make the flow explicit so future debugging is less
-    // guesswork and fewer surprises.
     if (!state.worthy() && isRecognizedCode(code)) {
       return new ClientUpdate(new ClientState(code, true, 0, REWARDS.size()), true, false, "");
     }
 
-    // Why this branch exists: make the flow explicit so future debugging is less
-    // guesswork and fewer surprises.
     if (state.worthy()) {
       int idleTicks = state.idleTicks() + 1;
       boolean shouldSend = idleTicks >= 5 && state.remainingRewards() > 0;
@@ -183,8 +182,6 @@ public final class SupremeVantageService {
     }
 
     int idleTicks = state.idleTicks() + 1;
-    // Why this branch exists: make the flow explicit so future debugging is less
-    // guesswork and fewer surprises.
     if ((!code.isEmpty() && idleTicks > 5) || idleTicks >= 1000) {
       return new ClientUpdate(ClientState.defaults(), false, false, "");
     }
@@ -197,17 +194,14 @@ public final class SupremeVantageService {
    * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
    */
   public RewardGrant grantNextReward(long playerId, String code) {
-    // Why this branch exists: make the flow explicit so future debugging is less
-    // guesswork and fewer surprises.
     if (!isRecognizedCode(code)) {
       return null;
     }
 
     int index = rewardProgress.getOrDefault(playerId, 0);
-    // Why this branch exists: make the flow explicit so future debugging is less
-    // guesswork and fewer surprises.
     if (index >= REWARDS.size()) {
-      return null;
+      // Treat a new valid code run after completion as a full sequence restart.
+      index = 0;
     }
 
     RewardGrant base = REWARDS.get(index);
@@ -221,8 +215,6 @@ public final class SupremeVantageService {
    * In short: one clear job here beats ten confusing side-effects elsewhere.
    */
   private RewardGrant applyRiteVariant(RewardGrant base, String code) {
-    // Why this branch exists: make the flow explicit so future debugging is less
-    // guesswork and fewer surprises.
     if (!CODE_N.equals(code)) {
       return new RewardGrant(base.sequence(), base.rewardId(), base.displayName(), base.itemId(), code);
     }
@@ -249,84 +241,71 @@ public final class SupremeVantageService {
    * In short: one clear job here beats ten confusing side-effects elsewhere.
    */
   public ItemGrantSpec materializeRewardSpec(RewardGrant reward) {
-    // Why this branch exists: make the flow explicit so future debugging is less
-    // guesswork and fewer surprises.
     if (reward == null) {
       return null;
     }
 
     List<EnchantmentGrant> enchantments = switch (reward.sequence()) {
-      case 1 -> List.of(
-          new EnchantmentGrant("minecraft:sharpness", 10),
-          new EnchantmentGrant("minecraft:sweeping_edge", 10),
-          new EnchantmentGrant("minecraft:fire_aspect", 2),
-          new EnchantmentGrant("minecraft:looting", 10),
-          new EnchantmentGrant("minecraft:unbreaking", 3),
-          new EnchantmentGrant("minecraft:mending", 1));
-      case 2 -> List.of(
-          new EnchantmentGrant("minecraft:sharpness", 10),
-          new EnchantmentGrant("minecraft:sweeping_edge", 10),
-          new EnchantmentGrant("minecraft:looting", 10),
-          new EnchantmentGrant("minecraft:unbreaking", 3),
-          new EnchantmentGrant("minecraft:mending", 1));
+      case 1 -> Stream.concat(
+          ENCHANTS_SWORD_GRANTS.stream(),
+          Stream.of(new EnchantmentGrant("minecraft:fire_aspect", 2))).toList();
+      case 2 -> ENCHANTS_SWORD_GRANTS;
       case 3 -> ENCHANTS_EFFICIENCY_FORTUNE;
-      case 4 -> List.of(
-          new EnchantmentGrant("minecraft:efficiency", 5),
-          new EnchantmentGrant("minecraft:silk_touch", 1),
-          new EnchantmentGrant("minecraft:unbreaking", 3),
-          new EnchantmentGrant("minecraft:mending", 1));
+      case 4 -> ENCHANTS_EFFICIENCY_SILK_TOUCH;
       case 5, 6 -> ENCHANTS_EFFICIENCY_FORTUNE;
-      case 7 -> List.of(
-          new EnchantmentGrant("minecraft:protection", 10),
-          new EnchantmentGrant("minecraft:fire_protection", 10),
-          new EnchantmentGrant("minecraft:respiration", 10),
-          new EnchantmentGrant("minecraft:aqua_affinity", 1),
-          new EnchantmentGrant("minecraft:unbreaking", 3),
-          new EnchantmentGrant("minecraft:mending", 1));
+      case 7 -> Stream.concat(
+          ENCHANTS_FIRE_PROTECTION.stream(),
+          Stream.of(
+              new EnchantmentGrant("minecraft:respiration", 3),
+              new EnchantmentGrant("minecraft:aqua_affinity", 1)))
+          .toList();
       case 8 -> ENCHANTS_FIRE_PROTECTION;
       case 9 -> ENCHANTS_UNBREAKABLE;
-      case 10 -> List.of(
-          new EnchantmentGrant("minecraft:protection", 10),
-          new EnchantmentGrant("minecraft:fire_protection", 10),
-          new EnchantmentGrant("minecraft:swift_sneak", 10),
-          new EnchantmentGrant("minecraft:unbreaking", 3),
-          new EnchantmentGrant("minecraft:mending", 1));
-      case 11 -> List.of(
-          new EnchantmentGrant("minecraft:protection", 10),
-          new EnchantmentGrant("minecraft:fire_protection", 10),
-          new EnchantmentGrant("minecraft:feather_falling", 10),
-          new EnchantmentGrant("minecraft:depth_strider", 10),
-          new EnchantmentGrant("minecraft:unbreaking", 3),
-          new EnchantmentGrant("minecraft:mending", 1));
-      case 12 -> List.of(
-          new EnchantmentGrant("minecraft:power", 10),
-          new EnchantmentGrant("minecraft:flame", 1),
-          new EnchantmentGrant("minecraft:infinity", 1),
-          new EnchantmentGrant("minecraft:unbreaking", 3),
-          new EnchantmentGrant("minecraft:mending", 1));
-      case 14 -> List.of(
-          new EnchantmentGrant("minecraft:multishot", 1),
-          new EnchantmentGrant("minecraft:piercing", 5),
-          new EnchantmentGrant("minecraft:quick_charge", 5),
-          new EnchantmentGrant("minecraft:unbreaking", 3),
-          new EnchantmentGrant("minecraft:mending", 1));
-      case 15 -> List.of(
-          new EnchantmentGrant("minecraft:riptide", 10),
-          new EnchantmentGrant("minecraft:impaling", 10),
-          new EnchantmentGrant("minecraft:unbreaking", 3),
-          new EnchantmentGrant("minecraft:mending", 1));
-      case 16 -> List.of(
-          new EnchantmentGrant("minecraft:loyalty", 10),
-          new EnchantmentGrant("minecraft:impaling", 10),
-          new EnchantmentGrant("minecraft:channeling", 1),
-          new EnchantmentGrant("minecraft:unbreaking", 3),
-          new EnchantmentGrant("minecraft:mending", 1));
+      case 10 -> Stream.concat(
+          ENCHANTS_FIRE_PROTECTION.stream(),
+          Stream.of(new EnchantmentGrant("minecraft:swift_sneak", 3)))
+          .toList();
+      case 11 -> Stream.concat(
+          ENCHANTS_FIRE_PROTECTION.stream(),
+          Stream.of(
+              new EnchantmentGrant("minecraft:feather_falling", 4),
+              new EnchantmentGrant("minecraft:depth_strider", 3),
+              new EnchantmentGrant("minecraft:soul_speed", 3)))
+          .toList();
+      case 12 -> Stream.concat(
+          Stream.of(
+              new EnchantmentGrant("minecraft:power", 10),
+              new EnchantmentGrant("minecraft:flame", 1),
+              new EnchantmentGrant("minecraft:infinity", 1)),
+          ENCHANTS_UNBREAKABLE.stream())
+          .toList();
+      case 14 -> Stream.concat(
+          Stream.of(
+              new EnchantmentGrant("minecraft:multishot", 1),
+              new EnchantmentGrant("minecraft:piercing", 5),
+              new EnchantmentGrant("minecraft:quick_charge", 5)),
+          ENCHANTS_UNBREAKABLE.stream())
+          .toList();
+      case 15 -> Stream.concat(
+          Stream.of(
+              new EnchantmentGrant("minecraft:riptide", 10),
+              new EnchantmentGrant("minecraft:impaling", 10)),
+          ENCHANTS_UNBREAKABLE.stream())
+          .toList();
+      case 16 -> Stream.concat(
+          Stream.of(
+              new EnchantmentGrant("minecraft:loyalty", 3),
+              new EnchantmentGrant("minecraft:impaling", 5),
+              new EnchantmentGrant("minecraft:channeling", 1)),
+          ENCHANTS_UNBREAKABLE.stream())
+          .toList();
       case 17, 18, 19 -> ENCHANTS_UNBREAKABLE;
-      case 20 -> List.of(
-          new EnchantmentGrant("minecraft:lure", 8),
-          new EnchantmentGrant("minecraft:luck_of_the_sea", 10),
-          new EnchantmentGrant("minecraft:unbreaking", 3),
-          new EnchantmentGrant("minecraft:mending", 1));
+      case 20 -> Stream.concat(
+          Stream.of(
+              new EnchantmentGrant("minecraft:lure", 4),
+              new EnchantmentGrant("minecraft:luck_of_the_sea", 5)),
+          ENCHANTS_UNBREAKABLE.stream())
+          .toList();
       default -> List.of();
     };
 

@@ -5,6 +5,7 @@
 - Fix Shaftanation height/runtime trigger regressions and restore expected shaft semantics.
 - Align shaft generation/runtime clamping with configured height and block-origin triggers to prevent extra-layer carving and recursive retrigger chains.
 - Fix Substitution switch-back timing so active automation jobs complete before slot restore.
+- Gate Substitution switch-back on active automation agents so tool restoration cannot interrupt in-progress harvesting chains.
 
 ## 2.19.0
 

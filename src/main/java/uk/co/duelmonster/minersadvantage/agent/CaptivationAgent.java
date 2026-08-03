@@ -69,7 +69,6 @@ public class CaptivationAgent extends Agent {
    * t ic k exists so this path stays predictable and easier to debug when things get weird.
    */
   public boolean tick() {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (player.isRemoved() || !player.isAlive()) {
       return finish("player unavailable");
     }
@@ -77,7 +76,6 @@ public class CaptivationAgent extends Agent {
     // Respect GUI lock unless config explicitly allows magnet behavior while menus are open.
     if (!allowInGui && player.containerMenu != player.inventoryMenu) {
       ticks++;
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (ticks >= maxTicks) {
         return finish("max tick budget reached while gui open");
       }
@@ -87,9 +85,7 @@ public class CaptivationAgent extends Agent {
     Level world = player.level();
     AABB box = player.getBoundingBox().inflate(radiusHorizontal, radiusVertical, radiusHorizontal);
     List<Entity> entities = world.getEntities(player, box, e -> e instanceof ItemEntity || e instanceof ExperienceOrb);
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     for (Entity e : entities) {
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (e instanceof ItemEntity item) {
         String itemId = BuiltInRegistries.ITEM.getKey(item.getItem().getItem()).toString();
         // Core service decides if this item is allowed by blacklist/whitelist policy.
@@ -97,7 +93,6 @@ public class CaptivationAgent extends Agent {
         if (shouldSkipItemInTick(service.canCaptureItem(itemId, false), dropper, player.getUUID(), item.tickCount)) {
           continue;
         }
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (item.position().distanceToSqr(player.position()) <= NO_PULL_RADIUS_SQUARED) {
           int beforeCount = item.getItem().getCount();
           item.playerTouch(player);
@@ -116,7 +111,6 @@ public class CaptivationAgent extends Agent {
         double dy = player.getY() + 1.0 - item.getY();
         double dz = player.getZ() - item.getZ();
         double dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (dist > 0.1) {
           double speed = 0.3;
           pullTowardPlayer(item, dx, dy, dz, dist, speed);
@@ -131,7 +125,6 @@ public class CaptivationAgent extends Agent {
         double dy = player.getY() + 1.0 - orb.getY();
         double dz = player.getZ() - orb.getZ();
         double dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (dist > 0.1) {
           double speed = 0.3;
           pullTowardPlayer(orb, dx, dy, dz, dist, speed);
@@ -139,7 +132,6 @@ public class CaptivationAgent extends Agent {
       }
     }
     ticks++;
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (ticks >= maxTicks) {
       return finish("max tick budget reached");
     }
@@ -168,13 +160,10 @@ public class CaptivationAgent extends Agent {
    */
   private UUID resolveDropperUuid(ItemEntity item) {
     Method getter = getDropperGetter(item);
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (getter != null) {
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       try {
         Object value = getter.invoke(item);
         UUID id = extractDropperUuid(value);
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (id != null) {
           return id;
         }
@@ -183,13 +172,10 @@ public class CaptivationAgent extends Agent {
     }
 
     Field field = getDropperField(item);
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (field != null) {
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       try {
         Object value = field.get(item);
         UUID id = extractDropperUuid(value);
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (id != null) {
           return id;
         }
@@ -204,7 +190,6 @@ public class CaptivationAgent extends Agent {
    * Resolve and cache dropper getter method once, then reuse for future entity checks.
    */
   private static Method getDropperGetter(ItemEntity item) {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (dropperGetterResolved) {
       return cachedDropperGetter;
     }
@@ -226,13 +211,11 @@ public class CaptivationAgent extends Agent {
    * Resolve and cache dropper backing field once when no compatible getter exists.
    */
   private static Field getDropperField(ItemEntity item) {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (dropperFieldResolved) {
       return cachedDropperField;
     }
 
     for (Field field : item.getClass().getDeclaredFields()) {
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (Modifier.isStatic(field.getModifiers()) || !canContainDropperUuid(field.getType())) {
         continue;
       }
@@ -246,7 +229,6 @@ public class CaptivationAgent extends Agent {
     }
 
     for (Field field : item.getClass().getDeclaredFields()) {
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (Modifier.isStatic(field.getModifiers()) || !canContainDropperUuid(field.getType())) {
         continue;
       }
@@ -278,11 +260,9 @@ public class CaptivationAgent extends Agent {
    * Convert reflected dropper value into UUID when possible.
    */
   private static UUID extractDropperUuid(Object value) {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (value instanceof UUID id) {
       return id;
     }
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (value instanceof Entity entity) {
       return entity.getUUID();
     }
@@ -291,7 +271,6 @@ public class CaptivationAgent extends Agent {
 
   private static Method findFirstCompatibleMethod(Class<?> ownerType, java.util.function.Predicate<Method> predicate) {
     for (Method method : ownerType.getMethods()) {
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (method.getDeclaringClass() != ItemEntity.class) {
         continue;
       }

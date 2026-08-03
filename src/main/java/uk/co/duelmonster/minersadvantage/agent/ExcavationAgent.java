@@ -68,6 +68,7 @@ public class ExcavationAgent extends Agent {
   private final Set<BlockPos> carvedPositions = new LinkedHashSet<>();
   private final Set<BlockPos> allowedShapePositions;
   private final boolean useOrderedShapeQueue;
+  private final String selectedShapeId;
   private int activeShapeLayer = Integer.MIN_VALUE;
   private boolean activeShapeLayerHasNonAir = false;
   private boolean excavationEmptyLayerAborted = false;
@@ -231,7 +232,7 @@ public class ExcavationAgent extends Agent {
         selectedShape.map(MAShapeDefinition::id).orElse("none"),
         selectedShape.map(MAShapeDefinition::displayName).orElse("none"),
         hitFace == null ? "null" : hitFace);
-    String selectedShapeId = selectedShape.map(MAShapeDefinition::id).orElse(MAShapeIds.EXCAVATION_SHAPELESS);
+    this.selectedShapeId = selectedShape.map(MAShapeDefinition::id).orElse(MAShapeIds.EXCAVATION_SHAPELESS);
 
     this.allowedShapePositions = selectedShape
         .map(shapeDefinition -> {
@@ -257,7 +258,6 @@ public class ExcavationAgent extends Agent {
               dimensions.width(),
               dimensions.height(),
               dimensions.depth());
-          // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
           if (!computed.contains(origin)) {
             computed = new java.util.LinkedHashSet<>(computed);
             computed.add(origin.immutable());
@@ -265,7 +265,7 @@ public class ExcavationAgent extends Agent {
           return computed;
         })
         .orElse(null);
-    boolean shapelessSelected = MAShapeIds.EXCAVATION_SHAPELESS.equals(selectedShapeId);
+    boolean shapelessSelected = MAShapeIds.EXCAVATION_SHAPELESS.equals(this.selectedShapeId);
     this.useOrderedShapeQueue = this.allowedShapePositions != null && !shapelessSelected;
     if (selectedShape.isPresent()) {
       MAShapeDefinition shape = selectedShape.get();
@@ -288,7 +288,6 @@ public class ExcavationAgent extends Agent {
     }
 
     String originBlockId = BuiltInRegistries.BLOCK.getKey(this.originState.getBlock()).toString();
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (this.config.isBlacklisted(originBlockId)) {
       return;
     }
@@ -298,7 +297,7 @@ public class ExcavationAgent extends Agent {
     if (useOrderedShapeQueue) {
       queue.addAll(
           orderExcavationPositions(
-              selectedShapeId,
+              this.selectedShapeId,
               allowedShapePositions,
               origin,
               effectiveHitFace,
@@ -323,18 +322,18 @@ public class ExcavationAgent extends Agent {
    */
   public boolean tick() {
     int count = 0;
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     while (!queue.isEmpty() && count < blocksPerTick) {
       ExcavationTarget target = queue.poll();
       BlockPos pos = target == null ? null : target.pos();
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (pos == null || !visited.add(pos)) {
         continue;
       }
 
       if (useOrderedShapeQueue) {
         if (target.layer() != activeShapeLayer) {
-          if (activeShapeLayer != Integer.MIN_VALUE && !activeShapeLayerHasNonAir) {
+          if (activeShapeLayer != Integer.MIN_VALUE
+              && !activeShapeLayerHasNonAir
+              && abortOnEmptyShapeLayer()) {
             excavationEmptyLayerAborted = true;
             queue.clear();
             break;
@@ -344,7 +343,6 @@ public class ExcavationAgent extends Agent {
         }
       }
 
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (!isWithinConfiguredRadius(pos)) {
         continue;
       }
@@ -353,13 +351,11 @@ public class ExcavationAgent extends Agent {
       if (useOrderedShapeQueue && !state.isAir()) {
         activeShapeLayerHasNonAir = true;
       }
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (!useOrderedShapeQueue && pos.equals(origin) && state.getBlock() == Blocks.AIR) {
         enqueueNeighbors(pos);
         continue;
       }
 
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (state.getBlock() != Blocks.AIR && isTargetState(state)) {
         boolean usedTriggerTool = !veinationTriggerTool.isEmpty();
         BreakOutcome breakOutcome = breakBlockWithTool(pos, veinationTriggerTool);
@@ -380,7 +376,6 @@ public class ExcavationAgent extends Agent {
       }
     }
 
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (queue.isEmpty()) {
       maybeQueueIllumination();
       return finish(excavationEmptyLayerAborted ? "excavation empty layer" : "excavation queue exhausted");
@@ -392,18 +387,15 @@ public class ExcavationAgent extends Agent {
    * Optionally enqueue illumination agent for carved area after excavation completes.
    */
   private void maybeQueueIllumination() {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (!commonConfig.autoIlluminate() || illuminationConfig == null || !illuminationConfig.enabled()) {
       return;
     }
 
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (!carvedAnyBlock) {
       return;
     }
 
     AgentManager manager = AgentManager.get();
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (!manager.hasAgentType(player, IlluminationAgent.class)) {
       manager.addAgent(player, new IlluminationAgent(player, carvedPositions, illuminationConfig, commonConfig));
     }
@@ -453,11 +445,18 @@ public class ExcavationAgent extends Agent {
     }
   }
 
+  private boolean abortOnEmptyShapeLayer() {
+    return isEmptyLayerAbortEnabledForShape(selectedShapeId);
+  }
+
+  static boolean isEmptyLayerAbortEnabledForShape(String shapeId) {
+    return !MAShapeIds.EXCAVATION_SINGLE_LAYER.equals(shapeId);
+  }
+
   /**
    * Check whether position is within selected shape or fallback width/height/depth bounds.
    */
   private boolean isWithinConfiguredRadius(BlockPos pos) {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (allowedShapePositions != null) {
       return allowedShapePositions.contains(pos);
     }
@@ -475,12 +474,10 @@ public class ExcavationAgent extends Agent {
    */
   private boolean isTargetState(BlockState state) {
     String blockId = BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString();
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (config.isBlacklisted(blockId)) {
       return false;
     }
 
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (config.ignoreBlockVariants()) {
       return state.getBlock() == originState.getBlock();
     }
@@ -728,21 +725,17 @@ public class ExcavationAgent extends Agent {
    * Try veination on broken block, then on immediate connected neighbors.
    */
   private void maybeFanOutVeinationFromConnectedOre(BlockPos brokenPos, BlockState brokenState) {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (maybeFanOutVeination(brokenPos, brokenState, mineVeins, commonConfig, veinationRuntime, veinationConfig,
         veinationTriggerTool)) {
       return;
     }
 
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     for (BlockPos neighbor : Functions.connectedNeighbors(brokenPos)) {
       BlockState neighborState = world.getBlockState(neighbor);
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (neighborState.isAir()) {
         continue;
       }
 
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (maybeFanOutVeination(neighbor, neighborState, mineVeins, commonConfig, veinationRuntime, veinationConfig,
           veinationTriggerTool)) {
         return;

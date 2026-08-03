@@ -48,6 +48,7 @@ public class LumbinationAgent extends Agent {
   private boolean harvestedLog = false;
   private boolean logsPhaseComplete = false;
   private boolean leafCandidatesSeeded = false;
+  private boolean replantPending = false;
   private int harvestedSaplings = 0;
   private int trunkMinX;
   private int trunkMaxX;
@@ -137,35 +138,28 @@ public class LumbinationAgent extends Agent {
     }
 
     int count = 0;
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     while (count < blocksPerTick) {
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (logsPhaseComplete && !leafCandidatesSeeded) {
         // Seed leaf candidates exactly once after trunk pass is done.
         seedLeafQueueFromCanopyBounds();
         leafCandidatesSeeded = true;
       }
 
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (logsPhaseComplete && leafQueue.isEmpty()) {
         break;
       }
 
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (!logsPhaseComplete && queue.isEmpty()) {
         logsPhaseComplete = true;
         continue;
       }
 
       BlockPos pos = logsPhaseComplete ? leafQueue.poll() : queue.poll();
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (pos == null) {
         continue;
       }
 
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (logsPhaseComplete) {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!visitedLeaves.add(pos)) {
           continue;
         }
@@ -174,16 +168,13 @@ public class LumbinationAgent extends Agent {
       }
 
       BlockState state = world.getBlockState(pos);
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (pos.equals(origin) && state.getBlock() == Blocks.AIR && matchesLog(originState)) {
         // Origin may already be gone; continue traversal through neighbors anyway.
         enqueueNeighbors(pos, false);
         continue;
       }
 
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (!logsPhaseComplete && matchesLog(state)) {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!withinRange(pos, maxTrunkRange, config.chopTreeBelow())) {
           continue;
         }
@@ -204,27 +195,25 @@ public class LumbinationAgent extends Agent {
           && withinRange(pos, maxTrunkRange + maxLeafRange, config.chopTreeBelow())
           && withinLeafCanopyBounds(pos)) {
         ItemStack originalMainHand = player.getMainHandItem().copy();
+        int selectedSlotBeforeLeafBreak = player.getInventory().getSelectedSlot();
         boolean restoreMainHand = false;
 
         // Optionally swap to canopy tool for leaf phase if configured.
         if (config.useCanopyTool()) {
           ItemStack canopyTool = firstCanopyToolInInventory();
-          // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
           if (!canopyTool.isEmpty()) {
             player.setItemInHand(InteractionHand.MAIN_HAND, canopyTool.copy());
             restoreMainHand = true;
           }
         }
 
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!config.leavesAffectDurability()) {
           restoreMainHand = true;
         }
 
         BreakOutcome breakOutcome = breakBlockWithTool(pos, ItemStack.EMPTY);
 
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (restoreMainHand) {
+        if (restoreMainHand && player.getInventory().getSelectedSlot() == selectedSlotBeforeLeafBreak) {
           // Keep player hand state stable after temporary tool overrides.
           player.setItemInHand(InteractionHand.MAIN_HAND, originalMainHand);
         }
@@ -236,12 +225,15 @@ public class LumbinationAgent extends Agent {
       }
     }
 
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (logsPhaseComplete && leafQueue.isEmpty() && config.replantSaplings() && harvestedLog) {
+      if (!replantPending) {
+        // Defer replant one tick so final canopy/log updates settle before placement.
+        replantPending = true;
+        return false;
+      }
       tryReplantSaplings();
     }
 
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (logsPhaseComplete && leafQueue.isEmpty()) {
       return finish("tree traversal exhausted");
     }
@@ -252,7 +244,6 @@ public class LumbinationAgent extends Agent {
    * Populate leaf queue from canopy bounds inferred from harvested trunk bounds.
    */
   private void seedLeafQueueFromCanopyBounds() {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (!config.destroyLeaves()) {
       return;
     }
@@ -269,13 +260,10 @@ public class LumbinationAgent extends Agent {
 
     // Capture nearby competing trunks first so overlap pruning can compare against the full local canopy.
     for (int y = minY; y <= maxY; y++) {
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       for (int x = minX; x <= maxX; x++) {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (int z = minZ; z <= maxZ; z++) {
           BlockPos pos = new BlockPos(x, y, z);
           BlockState state = world.getBlockState(pos);
-          // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
           if (matchesLog(state) && !harvestedLogs.contains(pos.immutable())) {
             competingLogs.add(pos.immutable());
           }
@@ -288,19 +276,15 @@ public class LumbinationAgent extends Agent {
 
     // Scan canopy box and keep only matching leaves that satisfy range guards.
     for (int y = minY; y <= maxY; y++) {
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       for (int x = minX; x <= maxX; x++) {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (int z = minZ; z <= maxZ; z++) {
           BlockPos pos = new BlockPos(x, y, z);
           BlockState state = world.getBlockState(pos);
 
-          // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
           if (!matchesLeaf(state)) {
             continue;
           }
 
-          // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
           if (!withinRange(pos, maxTrunkRange + maxLeafRange, config.chopTreeBelow())) {
             continue;
           }
@@ -322,11 +306,8 @@ public class LumbinationAgent extends Agent {
    * Enqueue connected neighbors either into log queue or leaf queue depending on phase.
    */
   private void enqueueNeighbors(BlockPos pos, boolean toLeafQueue) {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     for (BlockPos candidate : Functions.connectedNeighbors(pos)) {
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (toLeafQueue) {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (withinLeafCanopyBounds(candidate)) {
           leafQueue.add(candidate);
         }
@@ -375,7 +356,6 @@ public class LumbinationAgent extends Agent {
     int dx = Math.abs(pos.getX() - origin.getX());
     int dy = Math.abs(pos.getY() - origin.getY());
     int dz = Math.abs(pos.getZ() - origin.getZ());
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (!allowBelowOrigin && pos.getY() < origin.getY()) {
       return false;
     }
@@ -386,7 +366,6 @@ public class LumbinationAgent extends Agent {
    * Determine whether candidate block is an allowed trunk/log for this tree run.
    */
   private boolean matchesLog(BlockState state) {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (state == null || state.getBlock() == Blocks.AIR) {
       return false;
     }
@@ -397,7 +376,6 @@ public class LumbinationAgent extends Agent {
       return false;
     }
 
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (!config.logs().isEmpty()) {
       return config.logs().stream()
           .filter(value -> value != null && !value.isBlank())
@@ -416,7 +394,6 @@ public class LumbinationAgent extends Agent {
    * Determine whether candidate block is an allowed leaf/canopy block for this tree run.
    */
   private boolean matchesLeaf(BlockState state) {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (state == null || state.getBlock() == Blocks.AIR) {
       return false;
     }
@@ -428,12 +405,10 @@ public class LumbinationAgent extends Agent {
       return false;
     }
 
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-    if (originLeafBlock != null && state.getBlock() != originLeafBlock) {
+    if (originLeafBlock != null && state.getBlock() != originLeafBlock && !isMangroveRootsBlock(state.getBlock())) {
       return false;
     }
 
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (!config.leaves().isEmpty()) {
       String blockId = BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString().toLowerCase(Locale.ROOT);
       return config.leaves().stream()
@@ -444,7 +419,8 @@ public class LumbinationAgent extends Agent {
 
     Block block = state.getBlock();
     return block.defaultBlockState().is(BlockTags.LEAVES)
-        || block.defaultBlockState().is(BlockTags.WART_BLOCKS);
+        || block.defaultBlockState().is(BlockTags.WART_BLOCKS)
+        || isMangroveRootsBlock(block);
   }
 
   /**
@@ -498,12 +474,10 @@ public class LumbinationAgent extends Agent {
 
     while (!pendingLogs.isEmpty()) {
       BlockPos logPos = pendingLogs.poll();
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (!visited.add(logPos)) {
         continue;
       }
 
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (!withinRange(logPos, maxTrunkRange, config.chopTreeBelow())) {
         continue;
       }
@@ -536,22 +510,32 @@ public class LumbinationAgent extends Agent {
    */
   private boolean isLeafBlock(Block block) {
     return block.defaultBlockState().is(BlockTags.LEAVES)
-        || block.defaultBlockState().is(BlockTags.WART_BLOCKS);
+        || block.defaultBlockState().is(BlockTags.WART_BLOCKS)
+        || isMangroveRootsBlock(block);
+  }
+
+  static boolean isMangroveRootsBlock(Block block) {
+    if (block == null) {
+      return false;
+    }
+
+    return isMangroveRootsId(BuiltInRegistries.BLOCK.getKey(block).toString());
+  }
+
+  static boolean isMangroveRootsId(String blockId) {
+    return "minecraft:mangrove_roots".equals(blockId);
   }
 
   /**
    * Find first usable canopy tool (shears/hoe) in inventory.
    */
   private ItemStack firstCanopyToolInInventory() {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (player == null || player.getInventory() == null) {
       return ItemStack.EMPTY;
     }
 
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
       ItemStack stack = player.getInventory().getItem(slot);
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (!stack.isEmpty() && (stack.getItem() instanceof ShearsItem || stack.getItem() instanceof HoeItem)) {
         return stack;
       }
@@ -565,7 +549,6 @@ public class LumbinationAgent extends Agent {
   private void tryReplantSaplings() {
     String originBlockId = BuiltInRegistries.BLOCK.getKey(originState.getBlock()).toString();
     int separator = originBlockId.indexOf(':');
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (separator <= 0 || separator >= originBlockId.length() - 1) {
       return;
     }
@@ -578,7 +561,6 @@ public class LumbinationAgent extends Agent {
         .replace("_stem", "_sapling")
         .replace("_hyphae", "_sapling");
 
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (saplingPath.equals(path)) {
       return;
     }
@@ -587,37 +569,31 @@ public class LumbinationAgent extends Agent {
     Block saplingBlock = Blocks.AIR;
     // Registry scan resolves derived sapling id without hardcoding every tree family.
     for (Block block : BuiltInRegistries.BLOCK) {
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (saplingId.equals(BuiltInRegistries.BLOCK.getKey(block).toString())) {
         saplingBlock = block;
         break;
       }
     }
 
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (saplingBlock == null || saplingBlock == Blocks.AIR) {
       return;
     }
 
     List<BlockPos> targets = findReplantTargets();
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (targets.isEmpty()) {
       return;
     }
 
     int requiredSaplings = targets.size();
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (requiredSaplings <= 0 || !hasAvailableSaplings(saplingBlock, requiredSaplings)) {
       return;
     }
 
     BlockState saplingState = saplingBlock.defaultBlockState();
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (!allTargetsPlantable(targets, saplingState)) {
       return;
     }
 
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (!consumeSaplingsForReplant(saplingBlock, requiredSaplings)) {
       return;
     }
@@ -639,14 +615,11 @@ public class LumbinationAgent extends Agent {
    * Validate all target positions are empty and can support sapling survival.
    */
   private boolean allTargetsPlantable(List<BlockPos> targets, BlockState saplingState) {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     for (BlockPos target : targets) {
       BlockState existing = world.getBlockState(target);
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (!existing.isAir() && !existing.canBeReplaced()) {
         return false;
       }
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (!saplingState.canSurvive(world, target)) {
         return false;
       }
@@ -665,16 +638,13 @@ public class LumbinationAgent extends Agent {
    * Count saplings in player inventory matching specific sapling block.
    */
   private int countInventorySaplings(Block saplingBlock) {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (player == null || player.getInventory() == null) {
       return 0;
     }
 
     int count = 0;
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
       ItemStack stack = player.getInventory().getItem(slot);
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (isSaplingStackForBlock(stack, saplingBlock)) {
         count += stack.getCount();
       }
@@ -690,7 +660,6 @@ public class LumbinationAgent extends Agent {
     int availableInventory = countInventorySaplings(saplingBlock);
     int availableDrops = harvestedSaplings;
 
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (!hasAvailableSaplings(availableInventory, availableDrops, required)) {
       return false;
     }
@@ -701,7 +670,6 @@ public class LumbinationAgent extends Agent {
     shrinkInventorySaplings(saplingBlock, fromInventory);
     remaining -= fromInventory;
 
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (remaining > 0) {
       harvestedSaplings = Math.max(0, harvestedSaplings - remaining);
       remaining = 0;
@@ -714,16 +682,13 @@ public class LumbinationAgent extends Agent {
    * Remove requested number of matching saplings from inventory stacks.
    */
   private void shrinkInventorySaplings(Block saplingBlock, int countToRemove) {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (countToRemove <= 0 || player == null || player.getInventory() == null) {
       return;
     }
 
     int remaining = countToRemove;
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     for (int slot = 0; slot < player.getInventory().getContainerSize() && remaining > 0; slot++) {
       ItemStack stack = player.getInventory().getItem(slot);
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (!isSaplingStackForBlock(stack, saplingBlock)) {
         continue;
       }
@@ -750,16 +715,12 @@ public class LumbinationAgent extends Agent {
   private void collectSaplingDrops(BlockState state, BlockPos pos) {
     var drops = Block.getDrops(state, (net.minecraft.server.level.ServerLevel) world, pos, null, player,
         player.getMainHandItem());
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     for (ItemStack drop : drops) {
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (drop == null || drop.isEmpty()) {
         continue;
       }
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (drop.getItem() instanceof BlockItem blockItem) {
         String blockId = BuiltInRegistries.BLOCK.getKey(blockItem.getBlock()).toString();
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (blockId.endsWith("_sapling")) {
           harvestedSaplings += drop.getCount();
         }

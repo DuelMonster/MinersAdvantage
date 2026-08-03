@@ -3,7 +3,6 @@ package uk.co.duelmonster.minersadvantage.common.services.utility;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Map;
@@ -15,6 +14,8 @@ import org.junit.jupiter.api.Test;
  * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
  */
 class SupremeVantageServiceTest {
+  private static final int REWARD_COUNT = 17;
+
   @Test
   /**
    * u nl oc ks wo rt hy st at ea ft er se cr et ex ca va ti on co de exists so this path stays predictable and easier to debug when things get weird.
@@ -23,7 +24,6 @@ class SupremeVantageServiceTest {
     SupremeVantageService service = new SupremeVantageService();
     SupremeVantageService.ClientState state = SupremeVantageService.ClientState.defaults();
 
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     for (char digit : "2780872".toCharArray()) {
       state = service.processClientTick(state, Set.of(digit), true, true).state();
     }
@@ -32,8 +32,8 @@ class SupremeVantageServiceTest {
 
     assertTrue(update.notifyWorthy());
     assertTrue(update.state().worthy());
-    assertEquals("2780872", update.state().enteredCode());
-    assertEquals(18, update.state().remainingRewards());
+    assertEquals(SupremeVantageService.CODE_N, update.state().enteredCode());
+    assertEquals(REWARD_COUNT, update.state().remainingRewards());
   }
 
   @Test
@@ -42,13 +42,14 @@ class SupremeVantageServiceTest {
    */
   void emitsRewardPacketCadenceWhileWorthy() {
     SupremeVantageService service = new SupremeVantageService();
-    SupremeVantageService.ClientState state = new SupremeVantageService.ClientState("2780872", true, 4);
+    SupremeVantageService.ClientState state = new SupremeVantageService.ClientState(SupremeVantageService.CODE_N, true,
+        4);
 
     SupremeVantageService.ClientUpdate update = service.processClientTick(state, Set.of(), false, true);
 
     assertTrue(update.shouldSendRewardPacket());
-    assertEquals("2780872", update.packetCode());
-    assertEquals(17, update.state().remainingRewards());
+    assertEquals(SupremeVantageService.CODE_N, update.packetCode());
+    assertEquals(REWARD_COUNT - 1, update.state().remainingRewards());
   }
 
   @Test
@@ -58,7 +59,7 @@ class SupremeVantageServiceTest {
   void stopsEmittingPacketsAfterFinalRewardBudgetIsExpended() {
     SupremeVantageService service = new SupremeVantageService();
     SupremeVantageService.ClientState state = new SupremeVantageService.ClientState(
-        "2780872",
+        SupremeVantageService.CODE_N,
         true,
         0,
         1);
@@ -69,7 +70,7 @@ class SupremeVantageServiceTest {
 
     SupremeVantageService.ClientUpdate sendUpdate = service.processClientTick(state, Set.of(), false, true);
     assertTrue(sendUpdate.shouldSendRewardPacket());
-    assertEquals("2780872", sendUpdate.packetCode());
+    assertEquals(SupremeVantageService.CODE_N, sendUpdate.packetCode());
     assertEquals(SupremeVantageService.ClientState.defaults(), sendUpdate.state());
 
     SupremeVantageService.ClientUpdate afterBudget = service.processClientTick(sendUpdate.state(), Set.of(), false,
@@ -108,20 +109,19 @@ class SupremeVantageServiceTest {
 
     assertNotNull(firstSpec);
     assertFalse(firstSpec.unbreakable());
-    assertEquals(6, firstSpec.enchantments().size());
+    assertEquals(5, firstSpec.enchantments().size());
     Map<String, Integer> firstEnchantments = firstSpec.enchantments().stream().collect(
         java.util.stream.Collectors.toMap(
             SupremeVantageService.EnchantmentGrant::enchantmentId,
             SupremeVantageService.EnchantmentGrant::level));
-    assertEquals(10, firstEnchantments.get("minecraft:sharpness"));
-    assertEquals(10, firstEnchantments.get("minecraft:sweeping_edge"));
+    assertEquals(5, firstEnchantments.get("minecraft:sharpness"));
     assertEquals(2, firstEnchantments.get("minecraft:fire_aspect"));
-    assertEquals(10, firstEnchantments.get("minecraft:looting"));
+    assertEquals(4, firstEnchantments.get("minecraft:looting"));
     assertEquals(3, firstEnchantments.get("minecraft:unbreaking"));
     assertEquals(1, firstEnchantments.get("minecraft:mending"));
 
     SupremeVantageService.RewardGrant arrowGrant = null;
-    for (int i = 0; i < 13; i++) {
+    for (int i = 0; i < 12; i++) {
       arrowGrant = service.grantNextReward(21L, SupremeVantageService.CODE_D);
     }
     SupremeVantageService.ItemGrantSpec arrowSpec = service.materializeRewardSpec(arrowGrant);
@@ -139,7 +139,7 @@ class SupremeVantageServiceTest {
     SupremeVantageService service = new SupremeVantageService();
     SupremeVantageService.RewardGrant grant = null;
 
-    for (int i = 0; i < 18; i++) {
+    for (int i = 0; i < REWARD_COUNT; i++) {
       grant = service.grantNextReward(1234L, SupremeVantageService.CODE_D);
       assertNotNull(grant);
     }
@@ -147,6 +147,8 @@ class SupremeVantageServiceTest {
     SupremeVantageService.RewardGrant afterComplete = service.grantNextReward(1234L, SupremeVantageService.CODE_D);
     assertEquals(20, grant.sequence());
     assertEquals("Raider of Poseidons Stash", grant.displayName());
-    assertNull(afterComplete);
+    assertNotNull(afterComplete);
+    assertEquals(1, afterComplete.sequence());
+    assertEquals("Soulblade", afterComplete.displayName());
   }
 }

@@ -9,53 +9,52 @@ import java.util.function.Consumer;
  * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
  */
 public final class ProcessingCoreService<T> {
-    private final Deque<T> queue = new ArrayDeque<>();
-    private final int blocksPerTick;
+  private final Deque<T> queue = new ArrayDeque<>();
+  private final int blocksPerTick;
 
-    /**
-     * ProcessingCoreService exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    public ProcessingCoreService(int blocksPerTick) {
-        this.blocksPerTick = blocksPerTick;
-    }
+  /**
+   * ProcessingCoreService exists so this code path does one job clearly instead of spreading chaos across callers.
+   * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+   */
+  public ProcessingCoreService(int blocksPerTick) {
+    this.blocksPerTick = blocksPerTick;
+  }
 
-    /**
-     * offer exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    public boolean offer(T value) {
-        queue.add(value);
-        return true;
-    }
+  /**
+   * offer exists so this code path does one job clearly instead of spreading chaos across callers.
+   * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+   */
+  public boolean offer(T value) {
+    queue.add(value);
+    return true;
+  }
 
-    /**
-     * processTick exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    public int processTick(Consumer<T> consumer) {
-        int processed = 0;
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        while (processed < blocksPerTick && !queue.isEmpty()) {
-            consumer.accept(queue.removeFirst());
-            processed++;
-        }
-        return processed;
+  /**
+   * processTick exists so this code path does one job clearly instead of spreading chaos across callers.
+   * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+   */
+  public int processTick(Consumer<T> consumer) {
+    int processed = 0;
+    while (processed < blocksPerTick && !queue.isEmpty()) {
+      consumer.accept(queue.removeFirst());
+      processed++;
     }
+    return processed;
+  }
 
-    /**
-     * clear exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    public void clear() {
-        queue.clear();
-    }
+  /**
+   * clear exists so this code path does one job clearly instead of spreading chaos across callers.
+   * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+   */
+  public void clear() {
+    queue.clear();
+  }
 
-    /**
-     * size exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    public int size() {
-        return queue.size();
-    }
+  /**
+   * size exists so this code path does one job clearly instead of spreading chaos across callers.
+   * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+   */
+  public int size() {
+    return queue.size();
+  }
 }

@@ -5,16 +5,16 @@ package uk.co.duelmonster.minersadvantage.common.utils;
  * It exists so behavior stays explicit instead of becoming mystery spaghetti at 2 AM.
  */
 public final class UtilsCommon {
-    private UtilsCommon() {}
+  private UtilsCommon() {
+  }
 
-    /**
-     * checkNotNull exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static <T> void checkNotNull(T object, String name) {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (object == null) {
-            throw new NullPointerException(name + " must not be null.");
-        }
+  /**
+   * checkNotNull exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static <T> void checkNotNull(T object, String name) {
+    if (object == null) {
+      throw new NullPointerException(name + " must not be null.");
     }
+  }
 }

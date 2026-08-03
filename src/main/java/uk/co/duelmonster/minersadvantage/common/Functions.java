@@ -39,527 +39,500 @@ import uk.co.duelmonster.minersadvantage.common.log.LogUtils;
  * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
  */
 public class Functions {
-    /**
-     * localize exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static String localize(String key) {
-        return Component.translatable(key).getString();
-    }
+  /**
+   * localize exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static String localize(String key) {
+    return Component.translatable(key).getString();
+  }
 
-    /**
-     * isDebug exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static boolean isDebug() {
-        return LogUtils.isDebugLoggingEnabled();
-    }
+  /**
+   * isDebug exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static boolean isDebug() {
+    return LogUtils.isDebugLoggingEnabled();
+  }
 
-    /**
-     * DebugNotifyClient exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static void DebugNotifyClient(Player player, String message) {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (isDebug()) {
-            NotifyClient(player, message);
+  /**
+   * DebugNotifyClient exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static void DebugNotifyClient(Player player, String message) {
+    if (isDebug()) {
+      NotifyClient(player, message);
+    }
+  }
+
+  /**
+   * DebugNotifyClient exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static void DebugNotifyClient(Player player, boolean isOn, String featureName) {
+    if (isDebug()) {
+      NotifyClient(player, isOn, featureName);
+    }
+  }
+
+  /**
+   * NotifyClient exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static void NotifyClient(Player player, String message) {
+    sendPlayerMessage(player, Component.literal(Constants.MOD_NAME_MSG + message));
+  }
+
+  /**
+   * NotifyClient exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static void NotifyClient(Player player, boolean isOn, String featureName) {
+    sendPlayerMessage(player, Component.literal(
+        Constants.MOD_NAME_MSG + ChatFormatting.GOLD + featureName + " "
+            + (isOn ? ChatFormatting.GREEN + "ON" : ChatFormatting.RED + "OFF")));
+  }
+
+  /**
+   * sendPlayerMessage exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  private static void sendPlayerMessage(Player player, Component component) {
+    try {
+      Method displayClientMessage = Arrays.stream(player.getClass().getMethods())
+          .filter(method -> method.getParameterCount() == 2)
+          .filter(method -> method.getParameterTypes()[0] == Component.class)
+          .filter(method -> method.getParameterTypes()[1] == boolean.class
+              || method.getParameterTypes()[1] == Boolean.class)
+          .filter(method -> method.getReturnType() == void.class)
+          .findFirst()
+          .orElse(null);
+      if (displayClientMessage != null) {
+        displayClientMessage.invoke(player, component, false);
+        return;
+      }
+
+      Method sendSystemMessage = Arrays.stream(player.getClass().getMethods())
+          .filter(method -> method.getParameterCount() == 1)
+          .filter(method -> method.getParameterTypes()[0] == Component.class)
+          .filter(method -> method.getReturnType() == void.class)
+          .findFirst()
+          .orElse(null);
+      if (sendSystemMessage != null) {
+        sendSystemMessage.invoke(player, component);
+        return;
+      }
+
+      Method sendMessage = Arrays.stream(player.getClass().getMethods())
+          .filter(method -> method.getParameterCount() == 2)
+          .filter(method -> method.getParameterTypes()[0] == Component.class)
+          .filter(method -> method.getParameterTypes()[1] == UUID.class)
+          .filter(method -> method.getReturnType() == void.class)
+          .findFirst()
+          .orElse(null);
+      if (sendMessage != null) {
+        sendMessage.invoke(player, component, UUID.randomUUID());
+      }
+    } catch (Exception ignored) {
+      // Message dispatch is best-effort across loader/mapping versions. (future-you will thank present-you).
+    }
+  }
+
+  /**
+   * getHeldItemStack exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static ItemStack getHeldItemStack(Player player) {
+    ItemStack heldItem = player.getItemBySlot(EquipmentSlot.MAINHAND);
+    return (heldItem == null || heldItem.isEmpty()) ? null : heldItem;
+  }
+
+  /**
+   * getHeldItem exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static Item getHeldItem(Player player) {
+    ItemStack heldItem = getHeldItemStack(player);
+    return heldItem == null ? null : heldItem.getItem();
+  }
+
+  /**
+   * IsPlayerStarving exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static boolean IsPlayerStarving(Player player) {
+    Variables vars = Variables.get(player.getUUID());
+    if (!vars.HungerNotified && player.getFoodData().getFoodLevel() <= Constants.MIN_HUNGER) {
+      NotifyClient(player, ChatFormatting.RED + localize("minersadvantage.hungery") + Constants.MOD_NAME);
+      vars.HungerNotified = true;
+    }
+    return vars.HungerNotified;
+  }
+
+  /**
+   * getPlayerFacing exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static Direction getPlayerFacing(Player player) {
+    return player.getDirection();
+  }
+
+  /**
+   * getStackTrace exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static String getStackTrace() {
+    StringBuilder result = new StringBuilder();
+    StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+    for (int i = 2; i < stackTrace.length; i++) {
+      result.append(System.lineSeparator()).append("\tat ").append(stackTrace[i]);
+    }
+    return result.toString();
+  }
+
+  /**
+   * isWithinRange exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static boolean isWithinRange(BlockPos sourcePos, BlockPos targetPos, int range) {
+    int distanceX = sourcePos.getX() - targetPos.getX();
+    int distanceY = sourcePos.getY() - targetPos.getY();
+    int distanceZ = sourcePos.getZ() - targetPos.getZ();
+    return ((distanceX * distanceX) + (distanceY * distanceY) + (distanceZ * distanceZ)) <= (range * range);
+  }
+
+  /**
+   * isPosEqual exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static boolean isPosEqual(BlockPos sourcePos, BlockPos comparePos) {
+    return comparePos != null
+        && sourcePos != null
+        && comparePos.getX() == sourcePos.getX()
+        && comparePos.getY() == sourcePos.getY()
+        && comparePos.getZ() == sourcePos.getZ();
+  }
+
+  /**
+   * isWithinArea exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static boolean isWithinArea(BlockPos pos, AABB area) {
+    return area != null
+        && pos.getX() >= area.minX && pos.getX() <= area.maxX
+        && pos.getY() >= area.minY && pos.getY() <= area.maxY
+        && pos.getZ() >= area.minZ && pos.getZ() <= area.maxZ;
+  }
+
+  /**
+   * isWithinArea exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static boolean isWithinArea(Entity entity, AABB area) {
+    return area != null
+        && entity.getX() >= area.minX && entity.getX() <= area.maxX
+        && entity.getY() >= area.minY && entity.getY() <= area.maxY
+        && entity.getZ() >= area.minZ && entity.getZ() <= area.maxZ;
+  }
+
+  /**
+   * getAllPositionsInArea exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static List<BlockPos> getAllPositionsInArea(AABB area) {
+    List<BlockPos> positions = new ArrayList<>();
+    for (int y = (int) area.minY; y <= area.maxY; y++) {
+      for (int x = (int) area.minX; x <= area.maxX; x++) {
+        for (int z = (int) area.minZ; z <= area.maxZ; z++) {
+          positions.add(new BlockPos(x, y, z));
         }
+      }
+    }
+    return positions;
+  }
+
+  /**
+   * isPosConnected exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static boolean isPosConnected(List<BlockPos> posList, BlockPos checkPos) {
+    for (BlockPos neighbor : connectedNeighbors(checkPos)) {
+      if (posList.contains(neighbor)) {
+        return true;
+      }
     }
 
-    /**
-     * DebugNotifyClient exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static void DebugNotifyClient(Player player, boolean isOn, String featureName) {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (isDebug()) {
-            NotifyClient(player, isOn, featureName);
+    if (posList.contains(checkPos)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * connectedNeighbors exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static List<BlockPos> connectedNeighbors(BlockPos origin) {
+    List<BlockPos> neighbors = new ArrayList<>(18);
+    for (int yOffset = -1; yOffset <= 1; yOffset++) {
+      for (int xOffset = -1; xOffset <= 1; xOffset++) {
+        for (int zOffset = -1; zOffset <= 1; zOffset++) {
+          if (xOffset == 0 && yOffset == 0 && zOffset == 0) {
+            continue;
+          }
+
+          neighbors.add(origin.offset(xOffset, yOffset, zOffset).immutable());
         }
+      }
     }
+    return neighbors;
+  }
 
-    /**
-     * NotifyClient exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static void NotifyClient(Player player, String message) {
-        sendPlayerMessage(player, Component.literal(Constants.MOD_NAME_MSG + message));
-    }
-
-    /**
-     * NotifyClient exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static void NotifyClient(Player player, boolean isOn, String featureName) {
-        sendPlayerMessage(player, Component.literal(
-            Constants.MOD_NAME_MSG + ChatFormatting.GOLD + featureName + " " + (isOn ? ChatFormatting.GREEN + "ON" : ChatFormatting.RED + "OFF")
-        ));
-    }
-
-    /**
-     * sendPlayerMessage exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    private static void sendPlayerMessage(Player player, Component component) {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        try {
-            Method displayClientMessage = Arrays.stream(player.getClass().getMethods())
-                .filter(method -> method.getParameterCount() == 2)
-                .filter(method -> method.getParameterTypes()[0] == Component.class)
-                .filter(method -> method.getParameterTypes()[1] == boolean.class || method.getParameterTypes()[1] == Boolean.class)
-                .filter(method -> method.getReturnType() == void.class)
-                .findFirst()
-                .orElse(null);
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            if (displayClientMessage != null) {
-                displayClientMessage.invoke(player, component, false);
-                return;
-            }
-
-            Method sendSystemMessage = Arrays.stream(player.getClass().getMethods())
-                .filter(method -> method.getParameterCount() == 1)
-                .filter(method -> method.getParameterTypes()[0] == Component.class)
-                .filter(method -> method.getReturnType() == void.class)
-                .findFirst()
-                .orElse(null);
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            if (sendSystemMessage != null) {
-                sendSystemMessage.invoke(player, component);
-                return;
-            }
-
-            Method sendMessage = Arrays.stream(player.getClass().getMethods())
-                .filter(method -> method.getParameterCount() == 2)
-                .filter(method -> method.getParameterTypes()[0] == Component.class)
-                .filter(method -> method.getParameterTypes()[1] == UUID.class)
-                .filter(method -> method.getReturnType() == void.class)
-                .findFirst()
-                .orElse(null);
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            if (sendMessage != null) {
-                sendMessage.invoke(player, component, UUID.randomUUID());
-            }
-        } catch (Exception ignored) {
-            // Why this exists: Message dispatch is best-effort across loader/mapping versions. (future-you will thank present-you).
+  /**
+   * getNearbyEntities exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static List<Entity> getNearbyEntities(Level world, AABB area) {
+    List<Entity> result = new ArrayList<>();
+    try {
+      List<Entity> entities = new ArrayList<>(world.getEntitiesOfClass(Entity.class, area));
+      for (Entity entity : entities) {
+        if (entity != null && entity.isAlive() && (entity instanceof ItemEntity || entity instanceof ExperienceOrb)) {
+          result.add(entity);
         }
+      }
+    } catch (ConcurrentModificationException ex) {
+      Constants.LOGGER.error("ConcurrentModificationException avoided while reading nearby entities");
+    } catch (IllegalStateException ex) {
+      Constants.LOGGER.error("IllegalStateException avoided while reading nearby entities");
+    } catch (Exception ex) {
+      Constants.LOGGER.error("{} Exception while reading nearby entities: {}", ex.getClass().getName(),
+          getStackTrace());
     }
+    return result;
+  }
 
-    /**
-     * getHeldItemStack exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static ItemStack getHeldItemStack(Player player) {
-        ItemStack heldItem = player.getItemBySlot(EquipmentSlot.MAINHAND);
-        return (heldItem == null || heldItem.isEmpty()) ? null : heldItem;
+  /**
+   * playSound exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static void playSound(Level world, BlockPos pos, SoundEvent sound, SoundSource soundSource, float volume,
+      float pitch) {
+    playSound(world, null, pos, sound, soundSource, volume, pitch);
+  }
+
+  /**
+   * playSound exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static void playSound(Level world, Player player, BlockPos pos, SoundEvent sound, SoundSource soundSource,
+      float volume, float pitch) {
+    world.playSound(player, pos.getX() + 0.5F, pos.getY() + 0.5F, pos.getZ() + 0.5F, sound, soundSource, volume, pitch);
+  }
+
+  /**
+   * spawnAreaEffectCloud exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static void spawnAreaEffectCloud(Level world, Player entity, BlockPos pos) {
+    AreaEffectCloud effectCloud = new AreaEffectCloud(world, pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D);
+    effectCloud.setOwner(entity);
+    effectCloud.setRadius(1.0F);
+    effectCloud.setRadiusOnUse(-0.5F);
+    effectCloud.setWaitTime(1);
+    effectCloud.setDuration(20);
+    effectCloud.setRadiusPerTick(-effectCloud.getRadius() / effectCloud.getDuration());
+    effectCloud.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 10));
+    world.addFreshEntity(effectCloud);
+  }
+
+  /**
+   * getSlotFromInventory exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static int getSlotFromInventory(Player player, ItemStack stack) {
+    Inventory inventory = player.getInventory();
+    for (int i = 0; i < inventory.getContainerSize(); ++i) {
+      ItemStack compare = inventory.getItem(i);
+      if (!compare.isEmpty() && ItemStack.isSameItem(stack, compare)) {
+        return i;
+      }
     }
+    return -1;
+  }
 
-    /**
-     * getHeldItem exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static Item getHeldItem(Player player) {
-        ItemStack heldItem = getHeldItemStack(player);
-        return heldItem == null ? null : heldItem.getItem();
-    }
+  /**
+   * getStackOfClassTypeFromHotBar exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static ItemStack getStackOfClassTypeFromHotBar(Inventory inventory, Class<?> classType) {
+    return getStackOfClassTypeFromInventory(9, inventory, classType);
+  }
 
-    /**
-     * IsPlayerStarving exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static boolean IsPlayerStarving(Player player) {
-        Variables vars = Variables.get(player.getUUID());
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (!vars.HungerNotified && player.getFoodData().getFoodLevel() <= Constants.MIN_HUNGER) {
-            NotifyClient(player, ChatFormatting.RED + localize("minersadvantage.hungery") + Constants.MOD_NAME);
-            vars.HungerNotified = true;
+  /**
+   * getStackOfClassTypeFromInventory exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static ItemStack getStackOfClassTypeFromInventory(Inventory inventory, Class<?> classType) {
+    return getStackOfClassTypeFromInventory(inventory.getContainerSize(), inventory, classType);
+  }
+
+  /**
+   * getStackOfClassTypeFromInventory exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  private static ItemStack getStackOfClassTypeFromInventory(int inventorySize, Inventory inventory,
+      Class<?> classType) {
+    try {
+      for (int slot = 0; slot < inventorySize; slot++) {
+        ItemStack itemStack = inventory.getItem(slot);
+        if (itemStack != null && classType.isInstance(itemStack.getItem())) {
+          return itemStack;
         }
-        return vars.HungerNotified;
+      }
+    } catch (Exception ex) {
+      Constants.LOGGER.error("Failed selecting stack by class type", ex);
     }
+    return null;
+  }
 
-    /**
-     * getPlayerFacing exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static Direction getPlayerFacing(Player player) {
-        return player.getDirection();
-    }
-
-    /**
-     * getStackTrace exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static String getStackTrace() {
-        StringBuilder result = new StringBuilder();
-        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        for (int i = 2; i < stackTrace.length; i++) {
-            result.append(System.lineSeparator()).append("\tat ").append(stackTrace[i]);
+  /**
+   * getAllStacksOfClassTypeFromInventory exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static NonNullList<ItemStack> getAllStacksOfClassTypeFromInventory(Inventory inventory, Class<?> classType) {
+    NonNullList<ItemStack> result = NonNullList.create();
+    try {
+      for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
+        ItemStack itemStack = inventory.getItem(slot);
+        if (itemStack != null
+            && itemStack.getItem() instanceof BlockItem blockItem
+            && classType.isInstance(blockItem.getBlock())) {
+          result.add(itemStack);
         }
-        return result.toString();
+      }
+    } catch (Exception ex) {
+      Constants.LOGGER.error("Failed collecting block stacks by class type", ex);
     }
+    return result;
+  }
 
-    /**
-     * isWithinRange exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static boolean isWithinRange(BlockPos sourcePos, BlockPos targetPos, int range) {
-        int distanceX = sourcePos.getX() - targetPos.getX();
-        int distanceY = sourcePos.getY() - targetPos.getY();
-        int distanceZ = sourcePos.getZ() - targetPos.getZ();
-        return ((distanceX * distanceX) + (distanceY * distanceY) + (distanceZ * distanceZ)) <= (range * range);
+  /**
+   * getName exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static String getName(ItemEntity itemEntity) {
+    return getName(itemEntity.getItem());
+  }
+
+  /**
+   * getName exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static String getName(ItemStack itemStack) {
+    return getName(itemStack.getItem());
+  }
+
+  /**
+   * getName exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static String getName(Item item) {
+    return Component.translatable(item.getDescriptionId()).getString();
+  }
+
+  /**
+   * getName exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static String getName(Block block) {
+    return block.getName().getString();
+  }
+
+  /**
+   * getName exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static String getName(BlockState state) {
+    return state.getBlock().getName().getString();
+  }
+
+  /**
+   * getBlockFromWorld exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static Block getBlockFromWorld(Level world, BlockPos pos) {
+    return world.getBlockState(pos).getBlock();
+  }
+
+  /**
+   * sleep exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static void sleep(long millis) {
+    try {
+      Thread.sleep(millis);
+    } catch (InterruptedException ignored) {
+      Thread.currentThread().interrupt();
     }
+  }
 
-    /**
-     * isPosEqual exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static boolean isPosEqual(BlockPos sourcePos, BlockPos comparePos) {
-        return comparePos != null
-            && sourcePos != null
-            && comparePos.getX() == sourcePos.getX()
-            && comparePos.getY() == sourcePos.getY()
-            && comparePos.getZ() == sourcePos.getZ();
-    }
-
-    /**
-     * isWithinArea exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static boolean isWithinArea(BlockPos pos, AABB area) {
-        return area != null
-            && pos.getX() >= area.minX && pos.getX() <= area.maxX
-            && pos.getY() >= area.minY && pos.getY() <= area.maxY
-            && pos.getZ() >= area.minZ && pos.getZ() <= area.maxZ;
-    }
-
-    /**
-     * isWithinArea exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static boolean isWithinArea(Entity entity, AABB area) {
-        return area != null
-            && entity.getX() >= area.minX && entity.getX() <= area.maxX
-            && entity.getY() >= area.minY && entity.getY() <= area.maxY
-            && entity.getZ() >= area.minZ && entity.getZ() <= area.maxZ;
-    }
-
-    /**
-     * getAllPositionsInArea exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static List<BlockPos> getAllPositionsInArea(AABB area) {
-        List<BlockPos> positions = new ArrayList<>();
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        for (int y = (int) area.minY; y <= area.maxY; y++) {
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            for (int x = (int) area.minX; x <= area.maxX; x++) {
-                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-                for (int z = (int) area.minZ; z <= area.maxZ; z++) {
-                    positions.add(new BlockPos(x, y, z));
-                }
-            }
-        }
-        return positions;
-    }
-
-    /**
-     * isPosConnected exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static boolean isPosConnected(List<BlockPos> posList, BlockPos checkPos) {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        for (BlockPos neighbor : connectedNeighbors(checkPos)) {
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            if (posList.contains(neighbor)) {
-                return true;
-            }
-        }
-
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (posList.contains(checkPos)) {
-            return true;
-        }
-
+  /**
+   * canSustainPlant exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static boolean canSustainPlant(Level world, BlockPos pos, Object plantable) {
+    try {
+      BlockState state = world.getBlockState(pos);
+      Method method = Arrays.stream(state.getClass().getMethods())
+          .filter(candidate -> candidate.getParameterCount() == 4)
+          .filter(candidate -> candidate.getParameterTypes()[0].isAssignableFrom(Level.class))
+          .filter(candidate -> candidate.getParameterTypes()[1].isAssignableFrom(BlockPos.class))
+          .filter(candidate -> candidate.getParameterTypes()[2].isAssignableFrom(Direction.class))
+          .filter(candidate -> candidate.getParameterTypes()[3].isInstance(plantable))
+          .filter(candidate -> candidate.getReturnType() == boolean.class || candidate.getReturnType() == Boolean.class)
+          .findFirst()
+          .orElse(null);
+      if (method == null) {
         return false;
+      }
+      Object result = method.invoke(state, world, pos, Direction.UP, plantable);
+      return result instanceof Boolean b && b;
+    } catch (ReflectiveOperationException | SecurityException ignored) {
+      return false;
     }
+  }
 
-    /**
-     * connectedNeighbors exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static List<BlockPos> connectedNeighbors(BlockPos origin) {
-        List<BlockPos> neighbors = new ArrayList<>(18);
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        for (int yOffset = -1; yOffset <= 1; yOffset++) {
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            for (int xOffset = -1; xOffset <= 1; xOffset++) {
-                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-                for (int zOffset = -1; zOffset <= 1; zOffset++) {
-                    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-                    if (xOffset == 0 && yOffset == 0 && zOffset == 0) {
-                        continue;
-                    }
+  /**
+   * isValidOre exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static boolean isValidOre(BlockState state, SyncedClientConfig clientConfig) {
+    String itemName = getName(state.getBlock().asItem());
+    boolean configuredOre = clientConfig != null
+        && clientConfig.veination() != null
+        && clientConfig.veination().ores() != null
+        && !clientConfig.veination().ores().isEmpty()
+        && clientConfig.veination().ores().contains(itemName);
+    boolean likelyOre = RegistryPredicates.isOreLike(state);
+    return likelyOre || configuredOre;
+  }
 
-                    neighbors.add(origin.offset(xOffset, yOffset, zOffset).immutable());
-                }
-            }
-        }
-        return neighbors;
-    }
+  /**
+   * setFinalFieldValue exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static void setFinalFieldValue(Object owner, Field field, Object value) throws Exception {
+    field.setAccessible(true);
+    field.set(owner, value);
+  }
 
-    /**
-     * getNearbyEntities exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static List<Entity> getNearbyEntities(Level world, AABB area) {
-        List<Entity> result = new ArrayList<>();
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        try {
-            List<Entity> entities = new ArrayList<>(world.getEntitiesOfClass(Entity.class, area));
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            for (Entity entity : entities) {
-                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-                if (entity != null && entity.isAlive() && (entity instanceof ItemEntity || entity instanceof ExperienceOrb)) {
-                    result.add(entity);
-                }
-            }
-        } catch (ConcurrentModificationException ex) {
-            Constants.LOGGER.error("ConcurrentModificationException avoided while reading nearby entities");
-        } catch (IllegalStateException ex) {
-            Constants.LOGGER.error("IllegalStateException avoided while reading nearby entities");
-        } catch (Exception ex) {
-            Constants.LOGGER.error("{} Exception while reading nearby entities: {}", ex.getClass().getName(), getStackTrace());
-        }
-        return result;
-    }
-
-    /**
-     * playSound exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static void playSound(Level world, BlockPos pos, SoundEvent sound, SoundSource soundSource, float volume, float pitch) {
-        playSound(world, null, pos, sound, soundSource, volume, pitch);
-    }
-
-    /**
-     * playSound exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static void playSound(Level world, Player player, BlockPos pos, SoundEvent sound, SoundSource soundSource, float volume, float pitch) {
-        world.playSound(player, pos.getX() + 0.5F, pos.getY() + 0.5F, pos.getZ() + 0.5F, sound, soundSource, volume, pitch);
-    }
-
-    /**
-     * spawnAreaEffectCloud exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static void spawnAreaEffectCloud(Level world, Player entity, BlockPos pos) {
-        AreaEffectCloud effectCloud = new AreaEffectCloud(world, pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D);
-        effectCloud.setOwner(entity);
-        effectCloud.setRadius(1.0F);
-        effectCloud.setRadiusOnUse(-0.5F);
-        effectCloud.setWaitTime(1);
-        effectCloud.setDuration(20);
-        effectCloud.setRadiusPerTick(-effectCloud.getRadius() / effectCloud.getDuration());
-        effectCloud.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 10));
-        world.addFreshEntity(effectCloud);
-    }
-
-    /**
-     * getSlotFromInventory exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static int getSlotFromInventory(Player player, ItemStack stack) {
-        Inventory inventory = player.getInventory();
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        for (int i = 0; i < inventory.getContainerSize(); ++i) {
-            ItemStack compare = inventory.getItem(i);
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            if (!compare.isEmpty() && ItemStack.isSameItem(stack, compare)) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    /**
-     * getStackOfClassTypeFromHotBar exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static ItemStack getStackOfClassTypeFromHotBar(Inventory inventory, Class<?> classType) {
-        return getStackOfClassTypeFromInventory(9, inventory, classType);
-    }
-
-    /**
-     * getStackOfClassTypeFromInventory exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static ItemStack getStackOfClassTypeFromInventory(Inventory inventory, Class<?> classType) {
-        return getStackOfClassTypeFromInventory(inventory.getContainerSize(), inventory, classType);
-    }
-
-    /**
-     * getStackOfClassTypeFromInventory exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    private static ItemStack getStackOfClassTypeFromInventory(int inventorySize, Inventory inventory, Class<?> classType) {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        try {
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            for (int slot = 0; slot < inventorySize; slot++) {
-                ItemStack itemStack = inventory.getItem(slot);
-                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-                if (itemStack != null && classType.isInstance(itemStack.getItem())) {
-                    return itemStack;
-                }
-            }
-        } catch (Exception ex) {
-            Constants.LOGGER.error("Failed selecting stack by class type", ex);
-        }
-        return null;
-    }
-
-    /**
-     * getAllStacksOfClassTypeFromInventory exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static NonNullList<ItemStack> getAllStacksOfClassTypeFromInventory(Inventory inventory, Class<?> classType) {
-        NonNullList<ItemStack> result = NonNullList.create();
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        try {
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
-                ItemStack itemStack = inventory.getItem(slot);
-                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-                if (itemStack != null
-                    && itemStack.getItem() instanceof BlockItem blockItem
-                    && classType.isInstance(blockItem.getBlock())) {
-                    result.add(itemStack);
-                }
-            }
-        } catch (Exception ex) {
-            Constants.LOGGER.error("Failed collecting block stacks by class type", ex);
-        }
-        return result;
-    }
-
-    /**
-     * getName exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static String getName(ItemEntity itemEntity) {
-        return getName(itemEntity.getItem());
-    }
-
-    /**
-     * getName exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static String getName(ItemStack itemStack) {
-        return getName(itemStack.getItem());
-    }
-
-    /**
-     * getName exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static String getName(Item item) {
-        return Component.translatable(item.getDescriptionId()).getString();
-    }
-
-    /**
-     * getName exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static String getName(Block block) {
-        return block.getName().getString();
-    }
-
-    /**
-     * getName exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static String getName(BlockState state) {
-        return state.getBlock().getName().getString();
-    }
-
-    /**
-     * getBlockFromWorld exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static Block getBlockFromWorld(Level world, BlockPos pos) {
-        return world.getBlockState(pos).getBlock();
-    }
-
-    /**
-     * sleep exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static void sleep(long millis) {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException ignored) {
-            Thread.currentThread().interrupt();
-        }
-    }
-
-    /**
-     * canSustainPlant exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static boolean canSustainPlant(Level world, BlockPos pos, Object plantable) {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        try {
-            BlockState state = world.getBlockState(pos);
-            Method method = Arrays.stream(state.getClass().getMethods())
-                .filter(candidate -> candidate.getParameterCount() == 4)
-                .filter(candidate -> candidate.getParameterTypes()[0].isAssignableFrom(Level.class))
-                .filter(candidate -> candidate.getParameterTypes()[1].isAssignableFrom(BlockPos.class))
-                .filter(candidate -> candidate.getParameterTypes()[2].isAssignableFrom(Direction.class))
-                .filter(candidate -> candidate.getParameterTypes()[3].isInstance(plantable))
-                .filter(candidate -> candidate.getReturnType() == boolean.class || candidate.getReturnType() == Boolean.class)
-                .findFirst()
-                .orElse(null);
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            if (method == null) {
-                return false;
-            }
-            Object result = method.invoke(state, world, pos, Direction.UP, plantable);
-            return result instanceof Boolean b && b;
-        } catch (ReflectiveOperationException | SecurityException ignored) {
-            return false;
-        }
-    }
-
-    /**
-     * isValidOre exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static boolean isValidOre(BlockState state, SyncedClientConfig clientConfig) {
-        String itemName = getName(state.getBlock().asItem());
-        boolean configuredOre = clientConfig != null
-            && clientConfig.veination() != null
-            && clientConfig.veination().ores() != null
-            && !clientConfig.veination().ores().isEmpty()
-            && clientConfig.veination().ores().contains(itemName);
-        boolean likelyOre = RegistryPredicates.isOreLike(state);
-        return likelyOre || configuredOre;
-    }
-
-    /**
-     * setFinalFieldValue exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static void setFinalFieldValue(Object owner, Field field, Object value) throws Exception {
-        field.setAccessible(true);
-        field.set(owner, value);
-    }
-
-    /**
-     * isBlockSame exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static boolean isBlockSame(Block source, Block compare) {
-        return compare.getClass().isInstance(source);
-    }
+  /**
+   * isBlockSame exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static boolean isBlockSame(Block source, Block compare) {
+    return compare.getClass().isInstance(source);
+  }
 }

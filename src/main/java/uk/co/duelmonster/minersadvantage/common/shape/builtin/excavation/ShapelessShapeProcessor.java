@@ -28,13 +28,11 @@ public final class ShapelessShapeProcessor implements MAShapeProcessor {
     LinkedHashSet<BlockPos> out = new LinkedHashSet<>();
 
     BlockState originState = context.originState();
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (originState.isAir()) {
       return out;
     }
 
     Set<BlockPos> envelope = facingAwareEnvelope(context);
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (envelope.isEmpty()) {
       return out;
     }
@@ -48,7 +46,6 @@ public final class ShapelessShapeProcessor implements MAShapeProcessor {
     // Depth-first expansion mirrors LiteMiner traversal and keeps shape growth local-first.
     while (!stack.isEmpty()) {
       BlockPos current = stack.pop();
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (!envelope.contains(current) || visited.contains(current)) {
         continue;
       }
@@ -59,7 +56,6 @@ public final class ShapelessShapeProcessor implements MAShapeProcessor {
       if (!matchesOriginFamily && current.equals(context.origin()) && state.isAir()) {
         matchesOriginFamily = true;
       }
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (!matchesOriginFamily) {
         continue;
       }
@@ -283,7 +279,6 @@ public final class ShapelessShapeProcessor implements MAShapeProcessor {
     for (int y = -1; y <= 1; y++) {
       for (int x = -1; x <= 1; x++) {
         for (int z = -1; z <= 1; z++) {
-          // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
           if (x == 0 && y == 0 && z == 0) {
             continue;
           }

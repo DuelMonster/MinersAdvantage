@@ -23,246 +23,228 @@ import java.util.Map.Entry;
  * It exists so behavior stays explicit instead of becoming mystery spaghetti at 2 AM.
  */
 public class JsonHelper {
-    private static final Gson gson = new Gson();
+  private static final Gson gson = new Gson();
 
-    /**
-     * ParseObject exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static JsonObject ParseObject(String json) {
-        return JsonParser.parseString(json).getAsJsonObject();
+  /**
+   * ParseObject exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static JsonObject ParseObject(String json) {
+    return JsonParser.parseString(json).getAsJsonObject();
+  }
+
+  /**
+   * ParseObject exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static JsonObject ParseObject(String[] stringList) {
+    JsonObject json = new JsonObject();
+    if (stringList == null) {
+      return json;
     }
 
-    /**
-     * ParseObject exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static JsonObject ParseObject(String[] stringList) {
-        JsonObject json = new JsonObject();
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (stringList == null) {
-            return json;
-        }
+    for (String value : stringList) {
+      if (value != null && !value.isBlank()) {
+        json.addProperty(value, "");
+      }
+    }
+    return json;
+  }
 
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        for (String value : stringList) {
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            if (value != null && !value.isBlank()) {
-                json.addProperty(value, "");
-            }
-        }
-        return json;
+  /**
+   * toJson exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static String toJson(Object obj) {
+    return gson.toJson(obj);
+  }
+
+  /**
+   * fromJson exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static <T> T fromJson(String json, Class<T> classOfT) {
+    return gson.fromJson(json, classOfT);
+  }
+
+  /**
+   * toStringList exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static String[] toStringList(JsonObject json) {
+    if (json == null || json.size() == 0) {
+      return new String[0];
     }
 
-    /**
-     * toJson exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static String toJson(Object obj) {
-        return gson.toJson(obj);
+    List<String> values = new ArrayList<>();
+    for (Entry<String, JsonElement> entry : json.entrySet()) {
+      if (!values.contains(entry.getKey())) {
+        values.add(entry.getKey());
+      }
     }
+    return values.toArray(new String[0]);
+  }
 
-    /**
-     * fromJson exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static <T> T fromJson(String json, Class<T> classOfT) {
-        return gson.fromJson(json, classOfT);
+  /**
+   * contains exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static boolean contains(JsonObject json, String key) {
+    return json != null && key != null && json.has(key);
+  }
+
+  /**
+   * size exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static int size(JsonObject json) {
+    return json == null ? 0 : json.entrySet().size();
+  }
+
+  /**
+   * isEmpty exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static boolean isEmpty(JsonObject json) {
+    return size(json) == 0;
+  }
+
+  /**
+   * GetArray exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static JsonArray GetArray(JsonObject json, String key) {
+    if (json != null && json.has(key) && json.get(key).isJsonArray()) {
+      return json.get(key).getAsJsonArray();
     }
+    return new JsonArray();
+  }
 
-    /**
-     * toStringList exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static String[] toStringList(JsonObject json) {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (json == null || json.size() == 0) {
-            return new String[0];
-        }
-
-        List<String> values = new ArrayList<>();
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        for (Entry<String, JsonElement> entry : json.entrySet()) {
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            if (!values.contains(entry.getKey())) {
-                values.add(entry.getKey());
-            }
-        }
-        return values.toArray(new String[0]);
+  /**
+   * GetObject exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static JsonObject GetObject(JsonObject json, String key) {
+    if (json != null && json.has(key) && json.get(key).isJsonObject()) {
+      return json.get(key).getAsJsonObject();
     }
+    return new JsonObject();
+  }
 
-    /**
-     * contains exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static boolean contains(JsonObject json, String key) {
-        return json != null && key != null && json.has(key);
+  /**
+   * GetString exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static String GetString(JsonObject json, String key, String defaultValue) {
+    if (json != null && json.has(key) && json.get(key).isJsonPrimitive()
+        && json.get(key).getAsJsonPrimitive().isString()) {
+      return json.get(key).getAsString();
     }
+    return defaultValue;
+  }
 
-    /**
-     * size exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static int size(JsonObject json) {
-        return json == null ? 0 : json.entrySet().size();
-    }
-
-    /**
-     * isEmpty exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static boolean isEmpty(JsonObject json) {
-        return size(json) == 0;
-    }
-
-    /**
-     * GetArray exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static JsonArray GetArray(JsonObject json, String key) {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (json != null && json.has(key) && json.get(key).isJsonArray()) {
-            return json.get(key).getAsJsonArray();
-        }
-        return new JsonArray();
-    }
-
-    /**
-     * GetObject exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static JsonObject GetObject(JsonObject json, String key) {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (json != null && json.has(key) && json.get(key).isJsonObject()) {
-            return json.get(key).getAsJsonObject();
-        }
-        return new JsonObject();
-    }
-
-    /**
-     * GetString exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static String GetString(JsonObject json, String key, String defaultValue) {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (json != null && json.has(key) && json.get(key).isJsonPrimitive() && json.get(key).getAsJsonPrimitive().isString()) {
-            return json.get(key).getAsString();
-        }
+  /**
+   * GetNumber exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static Number GetNumber(JsonObject json, String key, Number defaultValue) {
+    if (json != null && json.has(key) && json.get(key).isJsonPrimitive()) {
+      try {
+        return json.get(key).getAsNumber();
+      } catch (Exception ignored) {
         return defaultValue;
+      }
     }
+    return defaultValue;
+  }
 
-    /**
-     * GetNumber exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static Number GetNumber(JsonObject json, String key, Number defaultValue) {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (json != null && json.has(key) && json.get(key).isJsonPrimitive()) {
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            try {
-                return json.get(key).getAsNumber();
-            } catch (Exception ignored) {
-                return defaultValue;
-            }
-        }
+  /**
+   * GetBoolean exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static boolean GetBoolean(JsonObject json, String key, boolean defaultValue) {
+    if (json != null && json.has(key) && json.get(key).isJsonPrimitive()) {
+      try {
+        return json.get(key).getAsBoolean();
+      } catch (Exception ignored) {
         return defaultValue;
+      }
+    }
+    return defaultValue;
+  }
+
+  /**
+   * ReadFromFile exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static JsonObject ReadFromFile(File sourceFile) {
+    if (sourceFile == null || !sourceFile.exists()) {
+      return new JsonObject();
     }
 
     /**
-     * GetBoolean exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
+     * f il ei np ut st re am exists so this path stays predictable and easier to debug when things get weird.
      */
-    public static boolean GetBoolean(JsonObject json, String key, boolean defaultValue) {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (json != null && json.has(key) && json.get(key).isJsonPrimitive()) {
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            try {
-                return json.get(key).getAsBoolean();
-            } catch (Exception ignored) {
-                return defaultValue;
-            }
-        }
-        return defaultValue;
+    try (InputStreamReader reader = new InputStreamReader(new FileInputStream(sourceFile), StandardCharsets.UTF_8)) {
+      JsonObject json = new Gson().fromJson(reader, JsonObject.class);
+      return json == null ? new JsonObject() : json;
+    } catch (Exception ex) {
+      Constants.LOGGER.error("An error occurred while loading JSON from file", ex);
+      return new JsonObject();
+    }
+  }
+
+  /**
+   * WriteToFile exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static void WriteToFile(File outputFile, JsonObject json) {
+    if (outputFile == null) {
+      return;
     }
 
-    /**
-     * ReadFromFile exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static JsonObject ReadFromFile(File sourceFile) {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (sourceFile == null || !sourceFile.exists()) {
-            return new JsonObject();
+    try {
+      if (!outputFile.exists()) {
+        File parent = outputFile.getParentFile();
+        if (parent != null && !parent.exists()) {
+          parent.mkdirs();
         }
+        outputFile.createNewFile();
+      }
 
-        /**
-         * f il ei np ut st re am exists so this path stays predictable and easier to debug when things get weird.
-         */
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        try (InputStreamReader reader = new InputStreamReader(new FileInputStream(sourceFile), StandardCharsets.UTF_8)) {
-            JsonObject json = new Gson().fromJson(reader, JsonObject.class);
-            return json == null ? new JsonObject() : json;
-        } catch (Exception ex) {
-            Constants.LOGGER.error("An error occurred while loading JSON from file", ex);
-            return new JsonObject();
-        }
+      /**
+       * f il eo ut pu ts tr ea m exists so this path stays predictable and easier to debug when things get weird.
+       */
+      try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(outputFile),
+          StandardCharsets.UTF_8)) {
+        new GsonBuilder().setPrettyPrinting().create().toJson(json == null ? new JsonObject() : json, writer);
+      }
+    } catch (Exception ex) {
+      Constants.LOGGER.error("An error occurred while saving JSON to file", ex);
+    }
+  }
+
+  /**
+   * CopyPaste exists to keep this step focused, predictable, and debuggable.
+   * In short: one clear job here beats ten confusing side-effects elsewhere.
+   */
+  public static void CopyPaste(File sourceFile, File outputFile) {
+    if (sourceFile == null || outputFile == null) {
+      return;
     }
 
-    /**
-     * WriteToFile exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static void WriteToFile(File outputFile, JsonObject json) {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (outputFile == null) {
-            return;
-        }
-
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        try {
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            if (!outputFile.exists()) {
-                File parent = outputFile.getParentFile();
-                // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-                if (parent != null && !parent.exists()) {
-                    parent.mkdirs();
-                }
-                outputFile.createNewFile();
-            }
-
-            /**
-             * f il eo ut pu ts tr ea m exists so this path stays predictable and easier to debug when things get weird.
-             */
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(outputFile), StandardCharsets.UTF_8)) {
-                new GsonBuilder().setPrettyPrinting().create().toJson(json == null ? new JsonObject() : json, writer);
-            }
-        } catch (Exception ex) {
-            Constants.LOGGER.error("An error occurred while saving JSON to file", ex);
-        }
+    try (
+        BufferedReader reader = new BufferedReader(
+            new InputStreamReader(new FileInputStream(sourceFile), StandardCharsets.UTF_8));
+        BufferedWriter writer = new BufferedWriter(
+            new OutputStreamWriter(new FileOutputStream(outputFile), StandardCharsets.UTF_8))) {
+      char[] buffer = new char[256];
+      int read;
+      while ((read = reader.read(buffer)) != -1) {
+        writer.write(buffer, 0, read);
+      }
+    } catch (Exception ex) {
+      Constants.LOGGER.error("Failed copy-paste operation", ex);
     }
-
-    /**
-     * CopyPaste exists to keep this step focused, predictable, and debuggable.
-     * In short: one clear job here beats ten confusing side-effects elsewhere.
-     */
-    public static void CopyPaste(File sourceFile, File outputFile) {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (sourceFile == null || outputFile == null) {
-            return;
-        }
-
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(sourceFile), StandardCharsets.UTF_8));
-             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFile), StandardCharsets.UTF_8))) {
-            char[] buffer = new char[256];
-            int read;
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-            while ((read = reader.read(buffer)) != -1) {
-                writer.write(buffer, 0, read);
-            }
-        } catch (Exception ex) {
-            Constants.LOGGER.error("Failed copy-paste operation", ex);
-        }
-    }
+  }
 }

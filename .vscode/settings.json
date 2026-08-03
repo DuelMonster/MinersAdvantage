@@ -9,5 +9,6 @@
     "prettier.printWidth": 240,
     "editor.formatOnPaste": true,
     "html.format.wrapLineLength": 240,
-    "java.format.comments.enabled": false
+    "java.format.comments.enabled": false,
+    "java.compile.nullAnalysis.mode": "automatic"
 }

@@ -16,70 +16,66 @@ public record FeatureDispatchPacket(
     int blockY,
     int blockZ,
     String blockId,
-    String toolId
-) implements CustomPacketPayload {
-    public static final Type<FeatureDispatchPacket> TYPE = createType();
-    public static final StreamCodec<RegistryFriendlyByteBuf, FeatureDispatchPacket> STREAM_CODEC = createStreamCodec();
+    String toolId) implements CustomPacketPayload {
+  public static final Type<FeatureDispatchPacket> TYPE = createType();
+  public static final StreamCodec<RegistryFriendlyByteBuf, FeatureDispatchPacket> STREAM_CODEC = createStreamCodec();
 
-    @Override
-    /**
-     * type exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
-    }
+  @Override
+  /**
+   * type exists so this code path does one job clearly instead of spreading chaos across callers.
+   * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+   */
+  public Type<? extends CustomPacketPayload> type() {
+    return TYPE;
+  }
 
-    /**
-     * createType exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    private static Type<FeatureDispatchPacket> createType() {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        try {
-            return payloadId("feature_dispatch");
-        } catch (Throwable throwable) {
-            return null;
-        }
+  /**
+   * createType exists so this code path does one job clearly instead of spreading chaos across callers.
+   * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+   */
+  private static Type<FeatureDispatchPacket> createType() {
+    try {
+      return payloadId("feature_dispatch");
+    } catch (Throwable throwable) {
+      return null;
     }
+  }
 
-    @SuppressWarnings("unchecked")
-    /**
-     * createStreamCodec exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    private static StreamCodec<RegistryFriendlyByteBuf, FeatureDispatchPacket> createStreamCodec() {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        try {
-            StreamCodec<RegistryFriendlyByteBuf, FeatureId> featureCodec =
-                (StreamCodec<RegistryFriendlyByteBuf, FeatureId>) (StreamCodec<?, FeatureId>) ByteBufCodecs.STRING_UTF8.map(FeatureId::valueOf, FeatureId::name);
-            return StreamCodec.composite(
-                featureCodec,
-                FeatureDispatchPacket::feature,
-                ByteBufCodecs.VAR_INT,
-                FeatureDispatchPacket::blockX,
-                ByteBufCodecs.VAR_INT,
-                FeatureDispatchPacket::blockY,
-                ByteBufCodecs.VAR_INT,
-                FeatureDispatchPacket::blockZ,
-                ByteBufCodecs.STRING_UTF8,
-                FeatureDispatchPacket::blockId,
-                ByteBufCodecs.STRING_UTF8,
-                FeatureDispatchPacket::toolId,
-                FeatureDispatchPacket::new
-            );
-        } catch (Throwable throwable) {
-            return null;
-        }
+  @SuppressWarnings("unchecked")
+  /**
+   * createStreamCodec exists so this code path does one job clearly instead of spreading chaos across callers.
+   * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+   */
+  private static StreamCodec<RegistryFriendlyByteBuf, FeatureDispatchPacket> createStreamCodec() {
+    try {
+      StreamCodec<RegistryFriendlyByteBuf, FeatureId> featureCodec = (StreamCodec<RegistryFriendlyByteBuf, FeatureId>) (StreamCodec<?, FeatureId>) ByteBufCodecs.STRING_UTF8
+          .map(FeatureId::valueOf, FeatureId::name);
+      return StreamCodec.composite(
+          featureCodec,
+          FeatureDispatchPacket::feature,
+          ByteBufCodecs.VAR_INT,
+          FeatureDispatchPacket::blockX,
+          ByteBufCodecs.VAR_INT,
+          FeatureDispatchPacket::blockY,
+          ByteBufCodecs.VAR_INT,
+          FeatureDispatchPacket::blockZ,
+          ByteBufCodecs.STRING_UTF8,
+          FeatureDispatchPacket::blockId,
+          ByteBufCodecs.STRING_UTF8,
+          FeatureDispatchPacket::toolId,
+          FeatureDispatchPacket::new);
+    } catch (Throwable throwable) {
+      return null;
     }
+  }
 
-    @SuppressWarnings("unchecked")
-    /**
-     * payloadId exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    private static Type<FeatureDispatchPacket> payloadId(String path) {
-        return NetworkPayloadReflection.payloadId(path, "Unable to create payload id for feature_dispatch");
-    }
+  @SuppressWarnings("unchecked")
+  /**
+   * payloadId exists so this code path does one job clearly instead of spreading chaos across callers.
+   * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+   */
+  private static Type<FeatureDispatchPacket> payloadId(String path) {
+    return NetworkPayloadReflection.payloadId(path, "Unable to create payload id for feature_dispatch");
+  }
 
 }

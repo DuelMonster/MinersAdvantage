@@ -12,62 +12,58 @@ import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
  */
 public record ComponentTogglePacket(
     FeatureId feature,
-    boolean enabled
-) implements CustomPacketPayload {
-    public static final Type<ComponentTogglePacket> TYPE = createType();
-    public static final StreamCodec<RegistryFriendlyByteBuf, ComponentTogglePacket> STREAM_CODEC = createStreamCodec();
+    boolean enabled) implements CustomPacketPayload {
+  public static final Type<ComponentTogglePacket> TYPE = createType();
+  public static final StreamCodec<RegistryFriendlyByteBuf, ComponentTogglePacket> STREAM_CODEC = createStreamCodec();
 
-    @Override
-    /**
-     * type exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
-    }
+  @Override
+  /**
+   * type exists so this code path does one job clearly instead of spreading chaos across callers.
+   * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+   */
+  public Type<? extends CustomPacketPayload> type() {
+    return TYPE;
+  }
 
-    /**
-     * createType exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    private static Type<ComponentTogglePacket> createType() {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        try {
-            return payloadId("component_toggle");
-        } catch (Throwable throwable) {
-            return null;
-        }
+  /**
+   * createType exists so this code path does one job clearly instead of spreading chaos across callers.
+   * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+   */
+  private static Type<ComponentTogglePacket> createType() {
+    try {
+      return payloadId("component_toggle");
+    } catch (Throwable throwable) {
+      return null;
     }
+  }
 
-    @SuppressWarnings("unchecked")
-    /**
-     * createStreamCodec exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    private static StreamCodec<RegistryFriendlyByteBuf, ComponentTogglePacket> createStreamCodec() {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        try {
-            StreamCodec<RegistryFriendlyByteBuf, FeatureId> featureCodec =
-                (StreamCodec<RegistryFriendlyByteBuf, FeatureId>) (StreamCodec<?, FeatureId>) ByteBufCodecs.STRING_UTF8.map(FeatureId::valueOf, FeatureId::name);
-            return StreamCodec.composite(
-                featureCodec,
-                ComponentTogglePacket::feature,
-                ByteBufCodecs.BOOL,
-                ComponentTogglePacket::enabled,
-                ComponentTogglePacket::new
-            );
-        } catch (Throwable throwable) {
-            return null;
-        }
+  @SuppressWarnings("unchecked")
+  /**
+   * createStreamCodec exists so this code path does one job clearly instead of spreading chaos across callers.
+   * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+   */
+  private static StreamCodec<RegistryFriendlyByteBuf, ComponentTogglePacket> createStreamCodec() {
+    try {
+      StreamCodec<RegistryFriendlyByteBuf, FeatureId> featureCodec = (StreamCodec<RegistryFriendlyByteBuf, FeatureId>) (StreamCodec<?, FeatureId>) ByteBufCodecs.STRING_UTF8
+          .map(FeatureId::valueOf, FeatureId::name);
+      return StreamCodec.composite(
+          featureCodec,
+          ComponentTogglePacket::feature,
+          ByteBufCodecs.BOOL,
+          ComponentTogglePacket::enabled,
+          ComponentTogglePacket::new);
+    } catch (Throwable throwable) {
+      return null;
     }
+  }
 
-    @SuppressWarnings("unchecked")
-    /**
-     * payloadId exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    private static Type<ComponentTogglePacket> payloadId(String path) {
-        return NetworkPayloadReflection.payloadId(path, "Unable to create payload id for component_toggle");
-    }
+  @SuppressWarnings("unchecked")
+  /**
+   * payloadId exists so this code path does one job clearly instead of spreading chaos across callers.
+   * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+   */
+  private static Type<ComponentTogglePacket> payloadId(String path) {
+    return NetworkPayloadReflection.payloadId(path, "Unable to create payload id for component_toggle");
+  }
 
 }

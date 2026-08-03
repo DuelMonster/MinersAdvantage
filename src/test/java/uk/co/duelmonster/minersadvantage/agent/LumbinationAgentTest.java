@@ -30,4 +30,11 @@ class LumbinationAgentTest {
     assertTrue(LumbinationAgent.hasAvailableSaplings(2, 2, 4));
     assertFalse(LumbinationAgent.hasAvailableSaplings(1, 2, 4));
   }
+
+  @Test
+  void isMangroveRootsId_shouldRecognizeMangroveRootsOnly() {
+    assertTrue(LumbinationAgent.isMangroveRootsId("minecraft:mangrove_roots"));
+    assertFalse(LumbinationAgent.isMangroveRootsId("minecraft:oak_leaves"));
+    assertFalse(LumbinationAgent.isMangroveRootsId(null));
+  }
 }

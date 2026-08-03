@@ -14,63 +14,59 @@ public record IlluminationActionPacket(
     int blockY,
     int blockZ,
     boolean area,
-    Direction faceDirection
-) implements CustomPacketPayload {
-    public static final Type<IlluminationActionPacket> TYPE = createType();
-    public static final StreamCodec<RegistryFriendlyByteBuf, IlluminationActionPacket> STREAM_CODEC = createStreamCodec();
+    Direction faceDirection) implements CustomPacketPayload {
+  public static final Type<IlluminationActionPacket> TYPE = createType();
+  public static final StreamCodec<RegistryFriendlyByteBuf, IlluminationActionPacket> STREAM_CODEC = createStreamCodec();
 
-    /**
-     * Return the payload type key so networking can route this packet without guesswork.
-     */
-    @Override
-    /**
-     * Return the payload type key so networking can route this packet without guesswork.
-     */
-    public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
-    }
+  /**
+   * Return the payload type key so networking can route this packet without guesswork.
+   */
+  @Override
+  /**
+   * Return the payload type key so networking can route this packet without guesswork.
+   */
+  public Type<? extends CustomPacketPayload> type() {
+    return TYPE;
+  }
 
-    /**
-     * c re at et yp e exists so this path stays predictable and easier to debug when things get weird.
-     */
-    private static Type<IlluminationActionPacket> createType() {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        try {
-            return payloadId("illumination_action");
-        } catch (Throwable throwable) {
-            return null;
-        }
+  /**
+   * c re at et yp e exists so this path stays predictable and easier to debug when things get weird.
+   */
+  private static Type<IlluminationActionPacket> createType() {
+    try {
+      return payloadId("illumination_action");
+    } catch (Throwable throwable) {
+      return null;
     }
+  }
 
-    /**
-     * c re at es tr ea mc od ec exists so this path stays predictable and easier to debug when things get weird.
-     */
-    private static StreamCodec<RegistryFriendlyByteBuf, IlluminationActionPacket> createStreamCodec() {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        try {
-            return StreamCodec.composite(
-                ByteBufCodecs.VAR_INT,
-                IlluminationActionPacket::blockX,
-                ByteBufCodecs.VAR_INT,
-                IlluminationActionPacket::blockY,
-                ByteBufCodecs.VAR_INT,
-                IlluminationActionPacket::blockZ,
-                ByteBufCodecs.BOOL,
-                IlluminationActionPacket::area,
-                ByteBufCodecs.VAR_INT.map(i -> Direction.values()[i], Direction::ordinal),
-                IlluminationActionPacket::faceDirection,
-                IlluminationActionPacket::new
-            );
-        } catch (Throwable throwable) {
-            return null;
-        }
+  /**
+   * c re at es tr ea mc od ec exists so this path stays predictable and easier to debug when things get weird.
+   */
+  private static StreamCodec<RegistryFriendlyByteBuf, IlluminationActionPacket> createStreamCodec() {
+    try {
+      return StreamCodec.composite(
+          ByteBufCodecs.VAR_INT,
+          IlluminationActionPacket::blockX,
+          ByteBufCodecs.VAR_INT,
+          IlluminationActionPacket::blockY,
+          ByteBufCodecs.VAR_INT,
+          IlluminationActionPacket::blockZ,
+          ByteBufCodecs.BOOL,
+          IlluminationActionPacket::area,
+          ByteBufCodecs.VAR_INT.map(i -> Direction.values()[i], Direction::ordinal),
+          IlluminationActionPacket::faceDirection,
+          IlluminationActionPacket::new);
+    } catch (Throwable throwable) {
+      return null;
     }
+  }
 
-    @SuppressWarnings("unchecked")
-    /**
-     * p ay lo ad id exists so this path stays predictable and easier to debug when things get weird.
-     */
-    private static Type<IlluminationActionPacket> payloadId(String path) {
-        return NetworkPayloadReflection.payloadId(path, "Unable to create payload id for illumination_action");
-    }
+  @SuppressWarnings("unchecked")
+  /**
+   * p ay lo ad id exists so this path stays predictable and easier to debug when things get weird.
+   */
+  private static Type<IlluminationActionPacket> payloadId(String path) {
+    return NetworkPayloadReflection.payloadId(path, "Unable to create payload id for illumination_action");
+  }
 }

@@ -82,7 +82,6 @@ public abstract class Agent {
    */
   protected boolean placeTorchWithInventory(BlockPos pos, Direction facing) {
     int slot = findTorchSlot();
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (slot < 0) {
       return false;
     }
@@ -101,7 +100,6 @@ public abstract class Agent {
    */
   protected boolean canPlaceTorchAt(BlockPos pos, Direction facing) {
     Direction placementDirection = normalizeTorchFacing(facing);
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (!world.getBlockState(pos).canBeReplaced()) {
       return false;
     }
@@ -150,9 +148,7 @@ public abstract class Agent {
    */
   protected int findFirstInventorySlot(Item item) {
     Inventory inventory = player.getInventory();
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     for (int i = 0; i < inventory.getContainerSize(); i++) {
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (inventory.getItem(i).is(item)) {
         return i;
       }
@@ -164,19 +160,18 @@ public abstract class Agent {
    * Perform item placement via game-mode use call while temporarily moving stack into offhand.
    */
   protected boolean placeItemFromInventoryByUse(int slot, BlockPos supportPos, Direction clickedFace) {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (player.gameMode == null) {
       return false;
     }
 
     Inventory inventory = player.getInventory();
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (slot < 0 || slot >= inventory.getContainerSize()) {
       return false;
     }
 
-    ItemStack sourceStack = inventory.getItem(slot).copy();
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+    ItemStack sourceStackRef = inventory.getItem(slot);
+    boolean sourceSlotIsOffhand = sourceStackRef == player.getOffhandItem();
+    ItemStack sourceStack = sourceStackRef.copy();
     if (sourceStack.isEmpty()) {
       return false;
     }
@@ -188,7 +183,6 @@ public abstract class Agent {
     inventory.setItem(slot, ItemStack.EMPTY);
     player.setItemInHand(InteractionHand.OFF_HAND, sourceStack);
 
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     try {
       // Aim at support face center so vanilla placement logic gets realistic hit context.
       Vec3 hitVec = Vec3.atCenterOf(supportPos).add(
@@ -199,7 +193,6 @@ public abstract class Agent {
       InteractionResult result = useItemOnAsPlayer(InteractionHand.OFF_HAND, hitResult);
       BlockState afterState = world.getBlockState(placementPos);
       boolean placed = !afterState.equals(beforeState);
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (placed) {
         SoundType soundType = afterState.getSoundType();
         world.playSound(
@@ -215,7 +208,7 @@ public abstract class Agent {
       // Always restore inventory/offhand even if placement call path throws.
       ItemStack updatedOffhand = player.getOffhandItem().copy();
       inventory.setItem(slot, updatedOffhand);
-      player.setItemInHand(InteractionHand.OFF_HAND, previousOffhand);
+      player.setItemInHand(InteractionHand.OFF_HAND, sourceSlotIsOffhand ? updatedOffhand.copy() : previousOffhand);
     }
   }
 
@@ -228,10 +221,8 @@ public abstract class Agent {
         Level.class,
         InteractionHand.class,
         BlockHitResult.class);
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (fourArgMethod != null) {
       Object result = invokeGameModeMethod(fourArgMethod, player, world, hand, hitResult);
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (result instanceof InteractionResult interactionResult) {
         return interactionResult;
       }
@@ -243,16 +234,13 @@ public abstract class Agent {
         ItemStack.class,
         InteractionHand.class,
         BlockHitResult.class);
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (fiveArgMethod != null) {
       Object result = invokeGameModeMethod(fiveArgMethod, player, world, player.getItemInHand(hand), hand, hitResult);
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (result instanceof InteractionResult interactionResult) {
         return interactionResult;
       }
     }
 
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (!useItemOnLookupWarned) {
       useItemOnLookupWarned = true;
       LogUtils.logWarn(
@@ -266,14 +254,12 @@ public abstract class Agent {
     Class<?> gameModeClass = player.gameMode.getClass();
 
     for (Method method : gameModeClass.getMethods()) {
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (isCompatibleInteractionMethod(method, expectedParameterTypes)) {
         return method;
       }
     }
 
     for (Method method : gameModeClass.getDeclaredMethods()) {
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (isCompatibleInteractionMethod(method, expectedParameterTypes)) {
         method.trySetAccessible();
         return method;
@@ -283,13 +269,11 @@ public abstract class Agent {
   }
 
   private static boolean isCompatibleInteractionMethod(Method method, Class<?>... expectedParameterTypes) {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (method.getReturnType() != InteractionResult.class) {
       return false;
     }
 
     Class<?>[] actualParameterTypes = method.getParameterTypes();
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (actualParameterTypes.length != expectedParameterTypes.length) {
       return false;
     }
@@ -331,15 +315,31 @@ public abstract class Agent {
 
     ItemStack configuredTool = preferredTool == null ? ItemStack.EMPTY : preferredTool;
     boolean forceTool = !configuredTool.isEmpty();
+    int selectedSlotAtStart = player.getInventory().getSelectedSlot();
+    ItemStack mainHandBeforeForce = player.getMainHandItem().copy();
 
-    if (forceTool) {
+    ItemStack effectiveTool = forceTool ? configuredTool : player.getMainHandItem();
+    if (!beforeBreak.isAir()) {
+      if (beforeBreak.getDestroySpeed(world, pos) < 0.0F) {
+        return new BreakOutcome(false, effectiveTool.copy());
+      }
+      if (beforeBreak.requiresCorrectToolForDrops() && !effectiveTool.isCorrectToolForDrops(beforeBreak)) {
+        return new BreakOutcome(false, effectiveTool.copy());
+      }
+    }
+
+    boolean canForcePreferredTool = forceTool
+        && player.getInventory().getSelectedSlot() == selectedSlotAtStart
+        && ItemStack.isSameItemSameComponents(mainHandBeforeForce, configuredTool);
+
+    if (canForcePreferredTool) {
       player.setItemInHand(InteractionHand.MAIN_HAND, configuredTool.copy());
     }
 
     boolean broken = player.gameMode.destroyBlock(pos);
     ItemStack usedTool = player.getMainHandItem().copy();
 
-    if (forceTool) {
+    if (canForcePreferredTool && player.getInventory().getSelectedSlot() == selectedSlotAtStart) {
       // Persist the post-break forced tool so durability and breakage affect the real held stack.
       player.setItemInHand(InteractionHand.MAIN_HAND, usedTool);
     }
@@ -363,14 +363,12 @@ public abstract class Agent {
       VeinationRuntimeService veinationRuntime,
       VeinationConfig veinationConfig,
       ItemStack veinationTriggerTool) {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (!mineVeins || veinationRuntime == null || veinationConfig == null || !veinationConfig.enabled()) {
       return false;
     }
 
     // Only one active VeinationAgent per player at a time; no queue pileups allowed.
     AgentManager agentManager = AgentManager.get();
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (agentManager.hasAgentType(player, VeinationAgent.class)) {
       return true;
     }
@@ -383,12 +381,10 @@ public abstract class Agent {
     boolean toolMinesCandidate = candidateState != null
         && (!candidateState.requiresCorrectToolForDrops() || toolStack.isCorrectToolForDrops(candidateState));
 
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (!toolAllowedByAllowlist && !toolMinesCandidate) {
       return false;
     }
 
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (!veinationRuntime.isOreAllowed(veinationConfig, candidateState)) {
       return false;
     }

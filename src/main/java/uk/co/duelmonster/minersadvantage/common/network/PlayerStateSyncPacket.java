@@ -19,97 +19,91 @@ public record PlayerStateSyncPacket(
     boolean excavationToggled,
     boolean shaftVentToggled,
     int selectedExcavationShapeIndex,
-    int selectedShaftanationShapeIndex
-) implements CustomPacketPayload {
-    private static final Gson GSON = new Gson();
+    int selectedShaftanationShapeIndex) implements CustomPacketPayload {
+  private static final Gson GSON = new Gson();
 
-    public static final Type<PlayerStateSyncPacket> TYPE = createType();
-    public static final StreamCodec<RegistryFriendlyByteBuf, PlayerStateSyncPacket> STREAM_CODEC = createStreamCodec();
+  public static final Type<PlayerStateSyncPacket> TYPE = createType();
+  public static final StreamCodec<RegistryFriendlyByteBuf, PlayerStateSyncPacket> STREAM_CODEC = createStreamCodec();
 
-    public PlayerStateSyncPacket(
-        long playerId,
-        MAClientRootConfig clientConfig,
-        MAServerRootConfig serverConfig
-    ) {
-        this(playerId, clientConfig, serverConfig, false, false, 0, 0);
+  public PlayerStateSyncPacket(
+      long playerId,
+      MAClientRootConfig clientConfig,
+      MAServerRootConfig serverConfig) {
+    this(playerId, clientConfig, serverConfig, false, false, 0, 0);
+  }
+
+  public PlayerStateSyncPacket(
+      long playerId,
+      MAClientRootConfig clientConfig,
+      MAServerRootConfig serverConfig,
+      boolean excavationToggled,
+      boolean shaftVentToggled) {
+    this(playerId, clientConfig, serverConfig, excavationToggled, shaftVentToggled, 0, 0);
+  }
+
+  @Override
+  /**
+   * type exists so this code path does one job clearly instead of spreading chaos across callers.
+   * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+   */
+  public Type<? extends CustomPacketPayload> type() {
+    return TYPE;
+  }
+
+  /**
+   * createType exists so this code path does one job clearly instead of spreading chaos across callers.
+   * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+   */
+  private static Type<PlayerStateSyncPacket> createType() {
+    try {
+      return payloadId("player_state_sync");
+    } catch (Throwable throwable) {
+      return null;
     }
+  }
 
-    public PlayerStateSyncPacket(
-        long playerId,
-        MAClientRootConfig clientConfig,
-        MAServerRootConfig serverConfig,
-        boolean excavationToggled,
-        boolean shaftVentToggled
-    ) {
-        this(playerId, clientConfig, serverConfig, excavationToggled, shaftVentToggled, 0, 0);
+  /**
+   * createStreamCodec exists so this code path does one job clearly instead of spreading chaos across callers.
+   * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+   */
+  private static StreamCodec<RegistryFriendlyByteBuf, PlayerStateSyncPacket> createStreamCodec() {
+    try {
+      return StreamCodec.composite(
+          ByteBufCodecs.VAR_LONG,
+          PlayerStateSyncPacket::playerId,
+          ByteBufCodecs.STRING_UTF8,
+          packet -> GSON.toJson(packet.clientConfig()),
+          ByteBufCodecs.STRING_UTF8,
+          packet -> GSON.toJson(packet.serverConfig()),
+          ByteBufCodecs.BOOL,
+          PlayerStateSyncPacket::excavationToggled,
+          ByteBufCodecs.BOOL,
+          PlayerStateSyncPacket::shaftVentToggled,
+          ByteBufCodecs.VAR_INT,
+          PlayerStateSyncPacket::selectedExcavationShapeIndex,
+          ByteBufCodecs.VAR_INT,
+          PlayerStateSyncPacket::selectedShaftanationShapeIndex,
+          (playerId, clientJson, serverJson, excavationToggled, shaftVentToggled, selectedExcavationShapeIndex,
+              selectedShaftanationShapeIndex) -> new PlayerStateSyncPacket(
+                  playerId,
+                  GSON.fromJson(clientJson, MAClientRootConfig.class),
+                  GSON.fromJson(serverJson, MAServerRootConfig.class),
+                  excavationToggled,
+                  shaftVentToggled,
+                  selectedExcavationShapeIndex,
+                  selectedShaftanationShapeIndex));
+    } catch (Throwable throwable) {
+      return null;
     }
+  }
 
-    @Override
-    /**
-     * type exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
-    }
-
-    /**
-     * createType exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    private static Type<PlayerStateSyncPacket> createType() {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        try {
-            return payloadId("player_state_sync");
-        } catch (Throwable throwable) {
-            return null;
-        }
-    }
-
-    /**
-     * createStreamCodec exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    private static StreamCodec<RegistryFriendlyByteBuf, PlayerStateSyncPacket> createStreamCodec() {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        try {
-            return StreamCodec.composite(
-                ByteBufCodecs.VAR_LONG,
-                PlayerStateSyncPacket::playerId,
-                ByteBufCodecs.STRING_UTF8,
-                packet -> GSON.toJson(packet.clientConfig()),
-                ByteBufCodecs.STRING_UTF8,
-                packet -> GSON.toJson(packet.serverConfig()),
-                ByteBufCodecs.BOOL,
-                PlayerStateSyncPacket::excavationToggled,
-                ByteBufCodecs.BOOL,
-                PlayerStateSyncPacket::shaftVentToggled,
-                ByteBufCodecs.VAR_INT,
-                PlayerStateSyncPacket::selectedExcavationShapeIndex,
-                ByteBufCodecs.VAR_INT,
-                PlayerStateSyncPacket::selectedShaftanationShapeIndex,
-                (playerId, clientJson, serverJson, excavationToggled, shaftVentToggled, selectedExcavationShapeIndex, selectedShaftanationShapeIndex) -> new PlayerStateSyncPacket(
-                    playerId,
-                    GSON.fromJson(clientJson, MAClientRootConfig.class),
-                    GSON.fromJson(serverJson, MAServerRootConfig.class),
-                    excavationToggled,
-                    shaftVentToggled,
-                    selectedExcavationShapeIndex,
-                    selectedShaftanationShapeIndex
-                )
-            );
-        } catch (Throwable throwable) {
-            return null;
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    /**
-     * payloadId exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    private static Type<PlayerStateSyncPacket> payloadId(String path) {
-        return NetworkPayloadReflection.payloadId(path, "Unable to create payload id for player_state_sync");
-    }
+  @SuppressWarnings("unchecked")
+  /**
+   * payloadId exists so this code path does one job clearly instead of spreading chaos across callers.
+   * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+   */
+  private static Type<PlayerStateSyncPacket> payloadId(String path) {
+    return NetworkPayloadReflection.payloadId(path, "Unable to create payload id for player_state_sync");
+  }
 
 }

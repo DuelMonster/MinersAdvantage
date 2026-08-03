@@ -15,29 +15,27 @@ public record ExcavationConfig(
     boolean toggleMode,
     boolean ignoreBlockVariants,
     boolean isBlockWhitelist,
-    List<String> blockBlacklist
-) {
-    /**
-     * ExcavationConfig exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    public ExcavationConfig(boolean enabled, int width, int height, int depth, int processesPerTick) {
-        this(enabled, width, height, depth, processesPerTick, false, false, false, List.of());
-    }
+    List<String> blockBlacklist) {
+  /**
+   * ExcavationConfig exists so this code path does one job clearly instead of spreading chaos across callers.
+   * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+   */
+  public ExcavationConfig(boolean enabled, int width, int height, int depth, int processesPerTick) {
+    this(enabled, width, height, depth, processesPerTick, false, false, false, List.of());
+  }
 
-    public ExcavationConfig {
-        blockBlacklist = blockBlacklist == null ? List.of() : List.copyOf(blockBlacklist);
-    }
+  public ExcavationConfig {
+    blockBlacklist = blockBlacklist == null ? List.of() : List.copyOf(blockBlacklist);
+  }
 
-    /**
-     * isBlacklisted exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    public boolean isBlacklisted(String blockId) {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
-        if (blockId == null || blockId.isBlank()) {
-            return isBlockWhitelist;
-        }
-        return blockBlacklist.contains(blockId) ? !isBlockWhitelist : isBlockWhitelist;
+  /**
+   * isBlacklisted exists so this code path does one job clearly instead of spreading chaos across callers.
+   * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+   */
+  public boolean isBlacklisted(String blockId) {
+    if (blockId == null || blockId.isBlank()) {
+      return isBlockWhitelist;
     }
+    return blockBlacklist.contains(blockId) ? !isBlockWhitelist : isBlockWhitelist;
+  }
 }

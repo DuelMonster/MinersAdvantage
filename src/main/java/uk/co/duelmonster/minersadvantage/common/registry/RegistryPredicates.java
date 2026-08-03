@@ -43,7 +43,6 @@ public final class RegistryPredicates {
    * are less reliable than a predictable registry name.
    */
   public static boolean isPickaxeTool(ItemStack stack) {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     try {
       return BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath().endsWith("_pickaxe");
     } catch (RuntimeException | LinkageError ignored) {
@@ -115,7 +114,6 @@ public final class RegistryPredicates {
    */
   public static boolean isOreLikeBlockId(String blockId) {
     BlockState state = resolveBlockState(blockId);
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (state != null) {
       return isOreLike(state);
     }
@@ -140,7 +138,6 @@ public final class RegistryPredicates {
    */
   public static boolean isStoneLikeBlockId(String blockId) {
     BlockState state = resolveBlockState(blockId);
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (state != null) {
       return isStoneLike(state);
     }
@@ -167,7 +164,6 @@ public final class RegistryPredicates {
    */
   public static boolean isDirtLikeBlockId(String blockId) {
     BlockState state = resolveBlockState(blockId);
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (state != null) {
       return isDirtLike(state);
     }
@@ -192,7 +188,6 @@ public final class RegistryPredicates {
    */
   public static boolean isCropBlockId(String blockId) {
     BlockState state = resolveBlockState(blockId);
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (state != null) {
       return isCropBlock(state);
     }
@@ -218,7 +213,6 @@ public final class RegistryPredicates {
    */
   public static boolean isLogLikeBlockId(String blockId) {
     BlockState state = resolveBlockState(blockId);
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (state != null) {
       return isLogLike(state);
     }
@@ -239,7 +233,6 @@ public final class RegistryPredicates {
    */
   public static boolean isLeafLikeBlockId(String blockId) {
     BlockState state = resolveBlockState(blockId);
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (state != null) {
       return isLeafLike(state);
     }
@@ -252,17 +245,14 @@ public final class RegistryPredicates {
    * Resolve block id to default state using defensive registry lookup.
    */
   public static BlockState resolveBlockState(String blockId) {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (blockId == null || blockId.isBlank() || blockId.equals("air")) {
       return null;
     }
 
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     try {
       // Yes, this is a linear scan. It's deliberate because this path is defensive lookup code,
       // not hot-loop geometry math, and we value "works everywhere" over fancy indexing here.
       for (Block block : BuiltInRegistries.BLOCK) {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (BuiltInRegistries.BLOCK.getKey(block).toString().equals(blockId)) {
           return block.defaultBlockState();
         }
@@ -338,12 +328,10 @@ public final class RegistryPredicates {
    * Strip namespace prefix and normalize to path component.
    */
   private static String normalizedPath(String id) {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (id == null || id.isBlank()) {
       return "";
     }
     int separator = id.indexOf(':');
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (separator >= 0 && separator + 1 < id.length()) {
       return id.substring(separator + 1);
     }
