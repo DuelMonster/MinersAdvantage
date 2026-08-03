@@ -395,6 +395,8 @@ if (!modrinthToken.isNullOrBlank() || !curseForgeToken.isNullOrBlank()) {
                 projectId = findProperty("curseforge_project_id") as? String ?: ""
                 minecraftVersions.add(minecraft)
                 modLoaders.add(loader)
+                clientRequired.set(true)
+                serverRequired.set(true)
                 displayName = "MinersAdvantage $modVer+$minecraft-$loader"
                 version = "$modVer+$minecraft-$loader"
                 type = me.modmuss50.mpp.ReleaseType.STABLE
