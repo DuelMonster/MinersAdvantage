@@ -61,7 +61,7 @@ public final class ClientInputHandler {
    * Returns InputConstants.Key that can be used to construct KeyMapping.
    */
   private static InputConstants.Key parseKeyToken(String token) {
-    // Why this exists: Map token names to Minecraft key format (future-you will thank present-you).
+    // Map token names to Minecraft key format (future-you will thank present-you).
     return ClientActionInputSupport.parseKeyToken(token);
   }
 
@@ -70,11 +70,9 @@ public final class ClientInputHandler {
    * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
    */
   private static void registerKeyMapping(KeyMapping keyMapping) {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     try {
       Class<?> helperClass;
       java.lang.reflect.Method registerMethod;
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       try {
         helperClass = Class.forName("net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper");
       } catch (ClassNotFoundException oldApiMissing) {
@@ -102,7 +100,6 @@ public final class ClientInputHandler {
    * Called from FabricClientEntrypoint.onInitializeClient().
    */
   public static void registerKeybindings() {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     for (KeyBindings.KeyBindingSpec spec : KeyBindings.all()) {
       if (spec.defaultKey() == null) {
         continue;
@@ -152,17 +149,17 @@ public final class ClientInputHandler {
       return;
     }
 
-    // Why this exists: Collect currently pressed keybindings (future-you will thank present-you).
+    // Collect currently pressed keybindings (future-you will thank present-you).
     Set<KeyBindings.ClientAction> pressedSet = getPressedActions();
 
-    // Why this exists: Process input state machine (future-you will thank present-you).
-    // Why this exists: Hold-mode remains the default here until a dedicated local toggle setting is introduced. (future-you will thank present-you).
+    // Process input state machine (future-you will thank present-you).
+    // Hold-mode remains the default here until a dedicated local toggle setting is introduced. (future-you will thank present-you).
     boolean excavationToggleMode = false;
     ClientInputService.ClientInputState previousState = inputState;
     ClientInputService.ClientInputResult result = new ClientInputService().process(inputState, pressedSet,
         excavationToggleMode);
 
-    // Why this exists: Update state (future-you will thank present-you).
+    // Update state (future-you will thank present-you).
     inputState = result.state();
     showShapeHudIfChangedOrActivated(previousState, inputState);
 
@@ -178,7 +175,6 @@ public final class ClientInputHandler {
           Component.literal("SupremeVantage code accepted"));
     }
 
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (supremeUpdate.shouldSendRewardPacket() && !supremeUpdate.packetCode().isEmpty()) {
       long playerId = ClientActionInputSupport.resolveLocalPlayerId();
       if (playerId != 0L) {
@@ -186,21 +182,18 @@ public final class ClientInputHandler {
       }
     }
 
-    // Why this exists: Send component toggle packets to the server. (future-you will thank present-you).
+    // Send component toggle packets to the server. (future-you will thank present-you).
     for (ComponentTogglePacket packet : result.togglePackets()) {
       ClientPlayNetworking.send(packet);
     }
 
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (result.illuminatePlace()) {
       sendIlluminationAction(false);
     }
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (result.illuminateArea()) {
       sendIlluminationAction(true);
     }
 
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (result.abortRequested()) {
       long playerId = ClientActionInputSupport.resolveLocalPlayerId();
       ClientPlayNetworking.send(new AbortWorkersPacket(playerId, "client:keybind"));
@@ -209,7 +202,6 @@ public final class ClientInputHandler {
     boolean activationStateChanged = ClientActionInputSupport.hasActivationStateChanged(lastSyncedState,
         result.state());
 
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (activationStateChanged && (result.shouldSyncConfig() || result.shouldSyncVariables())) {
       syncStateToServer(result.state());
     }
@@ -223,13 +215,11 @@ public final class ClientInputHandler {
    * o nm ou se sc ro ll exists so this path stays predictable and easier to debug when things get weird.
    */
   public static boolean onMouseScroll(double scrollY) {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (scrollY == 0.0d) {
       return false;
     }
 
     Set<KeyBindings.ClientAction> actions = ClientActionInputSupport.collectScrollActions(inputState, scrollY);
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (actions.isEmpty()) {
       return false;
     }
@@ -251,26 +241,22 @@ public final class ClientInputHandler {
     boolean shaftChanged = previous.selectedShaftanationShapeIndex() != current.selectedShaftanationShapeIndex();
     boolean excavationActivated = !previous.excavationToggled() && current.excavationToggled();
     boolean shaftActivated = !previous.shaftVentToggled() && current.shaftVentToggled();
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (!excavationChanged && !shaftChanged && !excavationActivated && !shaftActivated) {
       return;
     }
 
     MAShapeBootstrap.ensureInitialized();
     StringBuilder message = new StringBuilder();
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (excavationChanged || excavationActivated) {
       String excavationName = MAShapeRegistry.byIndex(FeatureId.EXCAVATION, current.selectedExcavationShapeIndex())
           .map(shape -> shape.displayName())
           .orElse("#" + current.selectedExcavationShapeIndex());
       message.append("Excavation Shape: ").append(excavationName);
     }
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (shaftChanged || shaftActivated) {
       String shaftName = MAShapeRegistry.byIndex(FeatureId.SHAFTANATION, current.selectedShaftanationShapeIndex())
           .map(shape -> shape.displayName())
           .orElse("#" + current.selectedShaftanationShapeIndex());
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (!message.isEmpty()) {
         message.append(" | ");
       }
@@ -278,7 +264,6 @@ public final class ClientInputHandler {
     }
 
     Minecraft minecraft = Minecraft.getInstance();
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     ClientRuntimeCompat.showOverlayMessage(minecraft, Component.literal(message.toString()));
   }
 
@@ -304,7 +289,6 @@ public final class ClientInputHandler {
    */
   private static void sendIlluminationAction(boolean area) {
     Minecraft client = Minecraft.getInstance();
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (!(client.hitResult instanceof BlockHitResult blockHit)) {
       return;
     }

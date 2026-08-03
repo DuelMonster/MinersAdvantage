@@ -33,7 +33,6 @@ public class MAConfig_Base {
    * In short: one clear job here beats ten confusing side-effects elsewhere.
    */
   public static SyncedClientConfig getPlayerConfig(UUID playerId) {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (playerId == null) {
       return getGlobalConfig();
     }
@@ -90,7 +89,7 @@ public class MAConfig_Base {
           previousDebugLogging,
           currentDebugLogging);
     }
-    MAShapePrecomputeCache.warmupFromConfig(getGlobalConfig());
+    scheduleShapeWarmup(getGlobalConfig());
     saveGlobalConfig(getGlobalConfig());
   }
 
@@ -104,7 +103,7 @@ public class MAConfig_Base {
     }
 
     serverRootConfig = next;
-    MAShapePrecomputeCache.warmupFromConfig(getGlobalConfig());
+    scheduleShapeWarmup(getGlobalConfig());
     saveGlobalConfig(getGlobalConfig());
   }
 
@@ -113,11 +112,9 @@ public class MAConfig_Base {
    * In short: one clear job here beats ten confusing side-effects elsewhere.
    */
   public static void setPlayerConfig(UUID playerId, SyncedClientConfig config) {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (playerId == null) {
       return;
     }
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (config == null) {
       PLAYER_CONFIGS.remove(playerId);
       return;
@@ -130,7 +127,6 @@ public class MAConfig_Base {
    * In short: one clear job here beats ten confusing side-effects elsewhere.
    */
   public static void clearPlayerConfig(UUID playerId) {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (playerId == null) {
       return;
     }
@@ -149,7 +145,6 @@ public class MAConfig_Base {
    * Load global config from disk, normalize, and resave canonical form.
    */
   private static SyncedClientConfig loadGlobalConfig() {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     try {
       Files.createDirectories(CONFIG_DIR);
     } catch (Exception exception) {
@@ -177,6 +172,23 @@ public class MAConfig_Base {
     clientRootConfig = MAClientRootConfig.fromSyncedConfig(value);
     serverRootConfig = MAServerRootConfig.fromSyncedConfig(value);
     LogUtils.setConfigDebugLoggingEnabled(clientRootConfig.client().debugLogging());
-    MAShapePrecomputeCache.warmupFromConfig(getGlobalConfig());
+    scheduleShapeWarmup(getGlobalConfig());
+  }
+
+  /**
+   * Keep title-screen startup responsive by never doing warmup work on the render thread.
+   */
+  private static void scheduleShapeWarmup(SyncedClientConfig config) {
+    SyncedClientConfig value = config == null ? SyncedClientConfig.defaults() : config;
+    if (isRenderThread()) {
+      LogUtils.logDebug("Skipped shape precompute warmup on render thread to avoid startup/menu stalls");
+      return;
+    }
+    MAShapePrecomputeCache.warmupFromConfig(value);
+  }
+
+  private static boolean isRenderThread() {
+    String threadName = Thread.currentThread().getName();
+    return threadName != null && threadName.equals("Render thread");
   }
 }

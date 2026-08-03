@@ -18,13 +18,11 @@ public abstract class MouseHandlerMixin {
   private void minersadvantage$handleShapeScroll(long windowPointer, double horizontalScroll, double verticalScroll,
       CallbackInfo ci) {
     Minecraft minecraft = Minecraft.getInstance();
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (ClientRuntimeCompat.getCurrentScreen(minecraft) != null || minecraft.player == null
         || minecraft.level == null) {
       return;
     }
 
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (ClientMouseScrollBridge.onScroll(verticalScroll)) {
       ci.cancel();
     }

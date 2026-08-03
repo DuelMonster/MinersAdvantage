@@ -4,9 +4,7 @@
   "package": "uk.co.duelmonster.minersadvantage.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [],
-  "client": [
-    "client.MouseHandlerMixin"
-  ],
+  "client": [],
   "injectors": {
     "defaultRequire": 1
   }

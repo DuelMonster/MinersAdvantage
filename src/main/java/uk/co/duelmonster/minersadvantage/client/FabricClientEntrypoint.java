@@ -24,6 +24,8 @@ import uk.co.duelmonster.minersadvantage.common.log.LogUtils;
 public final class FabricClientEntrypoint implements ClientModInitializer {
   private static long lastOutlineCallbackLogNanos;
   private static long lastOutlineCallbackSkipLogNanos;
+  private static boolean clientFeaturesInitialized;
+  private static boolean outlineHookRegistered;
 
   @Override
   /**
@@ -31,18 +33,46 @@ public final class FabricClientEntrypoint implements ClientModInitializer {
    * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
    */
   public void onInitializeClient() {
-    // Why this exists: M3/M4: Register keybindings, payload types, and wire client tick input loop (future-you will thank present-you).
+    // Key mappings must be registered before GameOptions initialization.
     ClientInputHandler.registerKeybindings();
+
+    // Keep payload type registration in startup path so networking remains valid.
     FabricNetworkEvents.registerPayloadTypes();
-    ClientTickEvents.END_CLIENT_TICK.register(minecraft -> ClientInputHandler.tick());
-    registerOutlineRenderHook();
+
+    // Defer feature hooks until an actual world exists.
+    ClientTickEvents.END_CLIENT_TICK.register(minecraft -> {
+      if (!clientFeaturesInitialized) {
+        if (minecraft.player == null || minecraft.level == null) {
+          return;
+        }
+        initializeClientFeatures();
+      }
+
+      ClientInputHandler.tick();
+
+      if (clientFeaturesInitialized && !outlineHookRegistered) {
+        registerOutlineRenderHook();
+      }
+    });
+  }
+
+  private static void initializeClientFeatures() {
+    if (clientFeaturesInitialized) {
+      return;
+    }
+
+    clientFeaturesInitialized = true;
+    LogUtils.logInfo("Deferred client feature initialization completed trigger=world-loaded");
   }
 
   /**
    * r eg is te ro ut li ne re nd er ho ok exists so this path stays predictable and easier to debug when things get weird.
    */
   private static void registerOutlineRenderHook() {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+    if (outlineHookRegistered) {
+      return;
+    }
+
     try {
       Class<?> worldRenderEventsClass = findWorldRenderEventsClass();
       Object beforeBlockOutlineEvent = worldRenderEventsClass.getField("BEFORE_BLOCK_OUTLINE").get(null);
@@ -51,30 +81,50 @@ public final class FabricClientEntrypoint implements ClientModInitializer {
           FabricClientEntrypoint.class.getClassLoader(),
           new Class<?>[] { listenerInterface },
           (proxy, method, args) -> {
+            if (method.getDeclaringClass() == Object.class) {
+              return switch (method.getName()) {
+                case "hashCode" -> System.identityHashCode(proxy);
+                case "equals" -> proxy == (args != null && args.length > 0 ? args[0] : null);
+                case "toString" -> "MinersAdvantageBeforeBlockOutlineListener";
+                default -> null;
+              };
+            }
+
+            if (args == null || args.length == 0) {
+              return true;
+            }
+
+            if (!"beforeBlockOutline".equals(method.getName())) {
+              return true;
+            }
+
+            Minecraft minecraft = Minecraft.getInstance();
+            if (minecraft.player == null || minecraft.level == null || minecraft.gameRenderer == null) {
+              return true;
+            }
+
             // Context moved from WorldRenderContext to LevelRenderContext in newer Fabric API.
             Object context = args[0];
-            PoseStack matrices = extractPoseStack(context);
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+            PoseStack matrices;
+            try {
+              matrices = extractPoseStack(context);
+            } catch (ReflectiveOperationException exception) {
+              long now = System.nanoTime();
+              if (now - lastOutlineCallbackSkipLogNanos >= 2_000_000_000L) {
+                lastOutlineCallbackSkipLogNanos = now;
+                LogUtils.logDebug(
+                    "Fabric outline callback skipped reason=pose-stack-reflection-failed contextType={} exceptionType={}",
+                    context == null ? "null" : context.getClass().getName(),
+                    exception.getClass().getSimpleName());
+              }
+              return true;
+            }
             if (matrices == null) {
               long now = System.nanoTime();
               if (now - lastOutlineCallbackSkipLogNanos >= 2_000_000_000L) {
                 lastOutlineCallbackSkipLogNanos = now;
                 LogUtils.logDebug("Fabric outline callback skipped reason=null-pose-stack contextType={}",
                     context == null ? "null" : context.getClass().getName());
-              }
-              return true;
-            }
-
-            Minecraft minecraft = Minecraft.getInstance();
-            if (minecraft.player == null || minecraft.level == null || minecraft.gameRenderer == null) {
-              long now = System.nanoTime();
-              if (now - lastOutlineCallbackSkipLogNanos >= 2_000_000_000L) {
-                lastOutlineCallbackSkipLogNanos = now;
-                LogUtils.logDebug(
-                    "Fabric outline callback skipped reason=missing-client-state playerPresent={} levelPresent={} gameRendererPresent={}",
-                    minecraft.player != null,
-                    minecraft.level != null,
-                    minecraft.gameRenderer != null);
               }
               return true;
             }
@@ -89,6 +139,7 @@ public final class FabricClientEntrypoint implements ClientModInitializer {
             Vec3 cameraPos = ClientRuntimeCompat.getCameraPosition(minecraft);
             ShapePreviewRenderer.renderHeldPreview(
                 ClientInputHandler.getInputState(),
+                context,
                 matrices,
                 cameraPos.x,
                 cameraPos.y,
@@ -99,6 +150,7 @@ public final class FabricClientEntrypoint implements ClientModInitializer {
       @SuppressWarnings("unchecked")
       Event<Object> event = (Event<Object>) beforeBlockOutlineEvent;
       event.register(listener);
+      outlineHookRegistered = true;
       LogUtils.logDebug("Fabric outline render hook registered eventClass={} listenerInterface={}",
           worldRenderEventsClass.getName(),
           listenerInterface.getName());
@@ -114,7 +166,6 @@ public final class FabricClientEntrypoint implements ClientModInitializer {
    * Find the world-render events class across API package variants without forcing a hard dependency.
    */
   private static Class<?> findWorldRenderEventsClass() throws ClassNotFoundException {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     try {
       return Class.forName("net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents");
     } catch (ClassNotFoundException ignored) {
@@ -131,6 +182,10 @@ public final class FabricClientEntrypoint implements ClientModInitializer {
    * Extract pose stack from either legacy WorldRenderContext or new LevelRenderContext.
    */
   private static PoseStack extractPoseStack(Object context) throws ReflectiveOperationException {
+    if (context == null) {
+      return null;
+    }
+
     for (java.lang.reflect.Method method : context.getClass().getMethods()) {
       if (method.getParameterCount() != 0 || !PoseStack.class.isAssignableFrom(method.getReturnType())) {
         continue;

@@ -89,6 +89,9 @@ public final class ShapePreviewRenderer {
   private static volatile java.lang.reflect.Method heldKeyMethod;
   private static volatile boolean heldKeyMethodInitialized;
   private static volatile String heldKeyMethodSource;
+  private static volatile boolean loggedSubmitNodeRenderPath;
+  private static volatile boolean loggedSubmitNodeRenderFailure;
+  private static volatile boolean loggedLegacyBufferRenderPath;
 
   private static final RenderType LINES_NORMAL = RenderTypes.lines();
   private static final RenderType LINES_TRANSLUCENT_NO_DEPTH_TEST = createLinesTranslucentNoDepthTestRenderType();
@@ -179,7 +182,7 @@ public final class ShapePreviewRenderer {
   private static RenderType createLinesTranslucentNoDepthTestRenderType() {
     //? if mc1 {
     RenderPipeline.Snippet snippet = RenderPipeline
-        .builder(RenderPipelines.MATRICES_FOG_SNIPPET, RenderPipelines.GLOBALS_SNIPPET)
+        .builder(RenderPipelines.MATRICES_FOG_SNIPPET)
         .withVertexShader("core/rendertype_lines")
         .withFragmentShader("core/rendertype_lines")
         .withBlend(BlendFunction.TRANSLUCENT)
@@ -199,7 +202,7 @@ public final class ShapePreviewRenderer {
     return RenderType.create("minersadvantage_lines_translucent_no_depth_test", setup);
     //?} else {
     /*
-    RenderPipeline.Builder builder = RenderPipeline.builder(RenderPipelines.MATRICES_FOG_SNIPPET, RenderPipelines.GLOBALS_SNIPPET)
+    RenderPipeline.Builder builder = RenderPipeline.builder(RenderPipelines.MATRICES_FOG_SNIPPET)
       .withVertexShader("core/rendertype_lines")
       .withFragmentShader("core/rendertype_lines")
       .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
@@ -260,9 +263,19 @@ public final class ShapePreviewRenderer {
    */
   public static void renderHeldPreview(ClientInputState state, PoseStack poseStack, double cameraX, double cameraY,
       double cameraZ) {
+    renderHeldPreview(state, null, poseStack, cameraX, cameraY, cameraZ);
+  }
+
+  /**
+   * Render active held-key preview outlines for excavation/shaft/ventilation contexts.
+   *
+   * renderContext is provided by newer Fabric callbacks and can expose the correct
+   * frame-local submission target for MC 26.x rendering.
+   */
+  public static void renderHeldPreview(ClientInputState state, Object renderContext, PoseStack poseStack,
+      double cameraX, double cameraY, double cameraZ) {
     long frameStartNanos = System.nanoTime();
     Minecraft minecraft = Minecraft.getInstance();
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (minecraft.level == null || minecraft.player == null) {
       logRateLimitedSkip("missing-world-or-player", lastMissingWorldLogNanos, frameStartNanos,
           "Preview skipped reason=missing-world-or-player levelPresent={} playerPresent={}",
@@ -271,7 +284,6 @@ public final class ShapePreviewRenderer {
       lastMissingWorldLogNanos = frameStartNanos;
       return;
     }
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (!(minecraft.hitResult instanceof BlockHitResult blockHit)) {
       logRateLimitedSkip("missing-block-hit", lastMissingHitResultLogNanos, frameStartNanos,
           "Preview skipped reason=missing-block-hit hitResultType={}",
@@ -292,7 +304,6 @@ public final class ShapePreviewRenderer {
     boolean shaftPreview = shaftVentPreview && blockHit.getDirection().getAxis().isHorizontal();
     boolean ventilationPreview = shaftVentPreview && blockHit.getDirection().getAxis().isVertical();
 
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (!excavationPreview && !shaftPreview && !ventilationPreview) {
       logRateLimitedSkip("inactive-preview", lastInactivePreviewLogNanos, frameStartNanos,
           "Preview inactive held[excavation={},shaftVent={}] toggled[excavation={},shaftVent={}] featureEnabled[excavation={},shaftanation={}] hitFace={}",
@@ -333,7 +344,6 @@ public final class ShapePreviewRenderer {
           shaftVentKeyHeld);
     }
 
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (excavationPreview) {
       var excavation = syncedConfig.excavation();
       MAShapeDimensions.Dimensions dimensions = MAShapeDimensions.excavationFromConfig(
@@ -361,6 +371,7 @@ public final class ShapePreviewRenderer {
                 hitFace,
                 playerFacing,
                 () -> MAShapePrecomputeCache.compute(shape, context),
+                renderContext,
                 poseStack,
                 cameraX,
                 cameraY,
@@ -368,7 +379,6 @@ public final class ShapePreviewRenderer {
           });
     }
 
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (shaftPreview) {
       var shaft = syncedConfig.shaftanation();
       MAShapeDimensions.Dimensions dimensions = MAShapeDimensions.shaftFromConfig(shaft.width(), shaft.height(),
@@ -393,13 +403,13 @@ public final class ShapePreviewRenderer {
               hitFace,
               playerFacing,
               () -> MAShapePrecomputeCache.compute(shape, context),
+              renderContext,
               poseStack,
               cameraX,
               cameraY,
               cameraZ));
     }
 
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (ventilationPreview) {
       var ventilation = syncedConfig.ventilation();
       int ventDepth = Math.max(1, ventilation.height());
@@ -422,6 +432,7 @@ public final class ShapePreviewRenderer {
           hitFace,
           playerFacing,
           () -> MAShapePrecomputeCache.compute(VENTILATION_PREVIEW_SHAPE, context),
+          renderContext,
           poseStack,
           cameraX,
           cameraY,
@@ -447,6 +458,7 @@ public final class ShapePreviewRenderer {
       Direction hitFace,
       Direction playerFacing,
       Supplier<Set<BlockPos>> positionsSupplier,
+      Object renderContext,
       PoseStack poseStack,
       double cameraX,
       double cameraY,
@@ -467,7 +479,6 @@ public final class ShapePreviewRenderer {
     boolean cacheHit = outline != null;
     long outlineStartNanos = System.nanoTime();
 
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (outline == null) {
       long positionsStartNanos = System.nanoTime();
       Set<BlockPos> positions = positionsSupplier.get();
@@ -486,7 +497,6 @@ public final class ShapePreviewRenderer {
           hitFace,
           playerFacing,
           cacheable);
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (positions.isEmpty()) {
         LogUtils.logDebug(
             "Preview outline empty feature={} shapeId={} origin={} shapeIndex={} dimensions={}x{}x{} hitFace={} playerFacing={} cacheable={}",
@@ -574,7 +584,6 @@ public final class ShapePreviewRenderer {
         cacheHit);
 
     VoxelShape combinedShape = outline.combinedShape;
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (combinedShape == null || combinedShape.isEmpty()) {
       LogUtils.logDebug("Preview outline combined shape empty feature={} shapeId={} origin={} cacheHit={}",
           feature,
@@ -584,12 +593,6 @@ public final class ShapePreviewRenderer {
       return;
     }
 
-    // Use the game's own render buffer source directly, just like LiteMiner does.
-    // The event-provided consumers cannot support custom RenderTypes with custom pipelines.
-    Object buffers = ClientRuntimeCompat.getBufferSource(Minecraft.getInstance());
-    if (buffers == null) {
-      return;
-    }
     float lineWidth = Minecraft.getInstance().getWindow().getAppropriateLineWidth();
     ClientConfig clientConfig = MAConfig_Base.getClientRootConfig().client();
     int outlineForegroundColor = clientConfig.outlineForegroundColor();
@@ -599,16 +602,69 @@ public final class ShapePreviewRenderer {
     poseStack.pushPose();
     poseStack.translate(origin.getX() - cameraX, origin.getY() - cameraY, origin.getZ() - cameraZ);
 
+    Object submitNodeCollector = ClientRuntimeCompat.getSubmitNodeCollector(renderContext);
+    if (submitNodeCollector != null) {
+      boolean submitted = false;
+      submitted |= ClientRuntimeCompat.submitShapeOutline(
+          submitNodeCollector,
+          poseStack,
+          combinedShape,
+          LINES_TRANSLUCENT_NO_DEPTH_TEST,
+          outlineSeeThroughColor,
+          lineWidth,
+          false);
+      submitted |= ClientRuntimeCompat.submitShapeOutline(
+          submitNodeCollector,
+          poseStack,
+          combinedShape,
+          LINES_NORMAL,
+          outlineForegroundColor,
+          lineWidth,
+          false);
+      if (submitted) {
+        if (!loggedSubmitNodeRenderPath) {
+          loggedSubmitNodeRenderPath = true;
+          LogUtils.logDebug("Preview rendering path=submit-node-collector");
+        }
+        poseStack.popPose();
+        return;
+      }
+      if (!loggedSubmitNodeRenderFailure) {
+        loggedSubmitNodeRenderFailure = true;
+        LogUtils.logDebug(
+            "Preview submit-node collector present but submitShapeOutline invocation failed; falling back to legacy buffers.");
+      }
+    }
+
+    // Fallback path for older render pipelines where immediate buffers are still expected.
+    if (!loggedLegacyBufferRenderPath) {
+      loggedLegacyBufferRenderPath = true;
+      LogUtils.logDebug("Preview rendering path=legacy-buffer-source");
+    }
+    Object buffers = ClientRuntimeCompat.getBufferSource(renderContext, Minecraft.getInstance());
+    if (buffers == null) {
+      poseStack.popPose();
+      return;
+    }
+
     // Pass 1: translucent, NO_DEPTH_TEST -- occluded bounds visible through blocks
     Object translucentBuilder = ClientRuntimeCompat.getBuffer(buffers, LINES_TRANSLUCENT_NO_DEPTH_TEST);
-    ClientRuntimeCompat.renderShape(poseStack, translucentBuilder, combinedShape, outlineSeeThroughColor, lineWidth);
+    if (translucentBuilder != null) {
+      ClientRuntimeCompat.renderShape(poseStack, translucentBuilder, combinedShape, outlineSeeThroughColor, lineWidth);
+    }
 
     // Pass 2: opaque, normal depth test -- foreground edges
     Object opaqueBuilder = ClientRuntimeCompat.getBuffer(buffers, LINES_NORMAL);
-    ClientRuntimeCompat.renderShape(poseStack, opaqueBuilder, combinedShape, outlineForegroundColor, lineWidth);
+    if (opaqueBuilder != null) {
+      ClientRuntimeCompat.renderShape(poseStack, opaqueBuilder, combinedShape, outlineForegroundColor, lineWidth);
+    }
 
-    ClientRuntimeCompat.endBatch(buffers, LINES_TRANSLUCENT_NO_DEPTH_TEST);
-    ClientRuntimeCompat.endBatch(buffers, LINES_NORMAL);
+    if (translucentBuilder != null) {
+      ClientRuntimeCompat.endBatch(buffers, LINES_TRANSLUCENT_NO_DEPTH_TEST);
+    }
+    if (opaqueBuilder != null) {
+      ClientRuntimeCompat.endBatch(buffers, LINES_NORMAL);
+    }
 
     poseStack.popPose();
 
@@ -647,7 +703,6 @@ public final class ShapePreviewRenderer {
     int originY = origin.getY();
     int originZ = origin.getZ();
 
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     for (BlockPos position : positions) {
       int relativeX = position.getX() - originX;
       int relativeY = position.getY() - originY;
@@ -806,7 +861,6 @@ public final class ShapePreviewRenderer {
    */
   private static void advanceShapelessBuild(CachedOutline outline, int budget) {
     ShapelessOutlineBuild pending = outline.pendingShapelessBuild;
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (pending == null || budget <= 0) {
       return;
     }

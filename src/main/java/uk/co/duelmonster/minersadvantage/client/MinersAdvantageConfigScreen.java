@@ -92,7 +92,6 @@ public final class MinersAdvantageConfigScreen {
         .setSaveConsumer(value -> mutable.outlineSeeThroughColor = value)
         .build());
 
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (!gameplayEditable) {
       generalCategory.addEntry(authorityNoticeEntry(entryBuilder));
       featuresCategory.addEntry(authorityNoticeEntry(entryBuilder));
@@ -250,7 +249,6 @@ public final class MinersAdvantageConfigScreen {
    */
   private static void updateFeatureEntryLabelReflective(SelectionListEntry<?> entry, String featureName,
       boolean enabled) {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     try {
       Field fieldNameField = AbstractConfigListEntry.class.getDeclaredField("fieldName");
       fieldNameField.setAccessible(true);
@@ -276,14 +274,12 @@ public final class MinersAdvantageConfigScreen {
       BooleanSupplier resetEnabledSupplier,
       Runnable resetRunnable) {
     Button resetButton = getSelectionResetButton(entry);
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (resetButton == null) {
       return;
     }
 
     resetButton.active = resetEnabledSupplier.getAsBoolean();
     setButtonOnPressReflective(resetButton, ignored -> {
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (!resetEnabledSupplier.getAsBoolean()) {
         return;
       }
@@ -296,7 +292,6 @@ public final class MinersAdvantageConfigScreen {
       ClientRuntimeCompat.setScreen(minecraft, new ConfirmScreen(
           confirmed -> {
             ClientRuntimeCompat.setScreen(minecraft, returnScreen);
-            // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
             if (confirmed) {
               resetRunnable.run();
             }
@@ -310,7 +305,6 @@ public final class MinersAdvantageConfigScreen {
       SelectionListEntry<FeatureLaunchAction> entry,
       java.util.function.Function<Screen, Screen> targetScreenFactory) {
     Button openButton = getSelectionPrimaryButton(entry);
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (openButton == null) {
       return;
     }
@@ -320,7 +314,6 @@ public final class MinersAdvantageConfigScreen {
           ? currentConfigScreen
           : ClientRuntimeCompat.getCurrentScreen(Minecraft.getInstance());
       final Screen targetParentScreen = activeScreen;
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (targetParentScreen != null) {
         ClientRuntimeCompat.setScreen(Minecraft.getInstance(), targetScreenFactory.apply(targetParentScreen));
       }
@@ -332,12 +325,10 @@ public final class MinersAdvantageConfigScreen {
    * Resolve the reset button from a selector entry via reflective access.
    */
   private static Button getSelectionResetButton(SelectionListEntry<?> entry) {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     try {
       Field field = SelectionListEntry.class.getDeclaredField("resetButton");
       field.setAccessible(true);
       Object value = field.get(entry);
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (value instanceof Button button) {
         return button;
       }
@@ -348,7 +339,6 @@ public final class MinersAdvantageConfigScreen {
   }
 
   private static Button getSelectionPrimaryButton(SelectionListEntry<?> entry) {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     try {
       for (String fieldName : new String[] { "buttonWidget", "button" }) {
         try {
@@ -373,17 +363,13 @@ public final class MinersAdvantageConfigScreen {
    */
   private static void setButtonOnPressReflective(Button button, Button.OnPress onPress) {
     Class<?> current = button.getClass();
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     while (current != null) {
       Field[] fields = current.getDeclaredFields();
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       for (Field field : fields) {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!Button.OnPress.class.isAssignableFrom(field.getType())) {
           continue;
         }
 
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         try {
           field.setAccessible(true);
           field.set(button, onPress);
@@ -400,12 +386,10 @@ public final class MinersAdvantageConfigScreen {
    * Clear selector edited marker after launching a feature screen.
    */
   private static void resetSelectorEditedState(SelectionListEntry<?> entry) {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     try {
       Field indexField = SelectionListEntry.class.getDeclaredField("index");
       indexField.setAccessible(true);
       Object indexValue = indexField.get(entry);
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (!(indexValue instanceof java.util.concurrent.atomic.AtomicInteger index)) {
         return;
       }
@@ -475,7 +459,6 @@ public final class MinersAdvantageConfigScreen {
     ConfigEntryBuilder entryBuilder = builder.entryBuilder();
     ConfigCategory generalCategory = builder.getOrCreateCategory(Component.literal("General"));
 
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (!gameplayEditable) {
       generalCategory.addEntry(authorityNoticeEntry(entryBuilder));
     }
@@ -520,7 +503,6 @@ public final class MinersAdvantageConfigScreen {
     ConfigCategory category = builder.getOrCreateCategory(Component.literal(featureName));
 
     List<AbstractConfigListEntry<?>> entries = new ArrayList<>();
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (!gameplayEditable) {
       entries.add(authorityNoticeEntry(entryBuilder));
     }
@@ -552,7 +534,6 @@ public final class MinersAdvantageConfigScreen {
         .build();
 
     Button saveButton = Button.builder(Component.literal("Save"), ignored -> {
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (screen instanceof AbstractConfigScreen configScreen) {
         configScreen.saveAll(false);
       } else {
@@ -574,15 +555,12 @@ public final class MinersAdvantageConfigScreen {
    * Hide overlapping default footer controls near custom footer row.
    */
   private static void hideDefaultFooterButtons(Screen screen, int customFooterY) {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     for (Object child : getScreenChildrenReflective(screen)) {
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (!(child instanceof Button button)) {
         continue;
       }
 
       int buttonY = getWidgetY(button);
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       if (Math.abs(buttonY - customFooterY) <= 3) {
         button.visible = false;
         button.active = false;
@@ -595,9 +573,7 @@ public final class MinersAdvantageConfigScreen {
    */
   private static List<?> getScreenChildrenReflective(Screen screen) {
     Class<?> current = screen.getClass();
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     while (current != null) {
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       try {
         for (Method method : current.getDeclaredMethods()) {
           if (method.getParameterCount() != 0 || !List.class.isAssignableFrom(method.getReturnType())) {
@@ -605,7 +581,6 @@ public final class MinersAdvantageConfigScreen {
           }
           method.setAccessible(true);
           Object result = method.invoke(screen);
-          // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
           if (result instanceof List<?> list) {
             return list;
           }
@@ -622,14 +597,12 @@ public final class MinersAdvantageConfigScreen {
    * Read widget Y coordinate using method-first then field fallback.
    */
   private static int getWidgetY(Button button) {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     try {
       for (Method method : button.getClass().getMethods()) {
         if (method.getParameterCount() != 0 || method.getReturnType() != int.class) {
           continue;
         }
         Object value = method.invoke(button);
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (value instanceof Integer y && y > Integer.MIN_VALUE / 2) {
           return y;
         }
@@ -638,12 +611,9 @@ public final class MinersAdvantageConfigScreen {
       // fall back to field lookup below
     }
 
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     try {
       Class<?> current = button.getClass();
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       while (current != null) {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (java.lang.reflect.Field field : current.getDeclaredFields()) {
           if (field.getType() != int.class) {
             continue;
@@ -689,7 +659,6 @@ public final class MinersAdvantageConfigScreen {
       // Fall through to field lookup.
     }
 
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     try {
       Class<?> current = screen.getClass();
       while (current != null) {
@@ -725,12 +694,10 @@ public final class MinersAdvantageConfigScreen {
    */
   private static boolean addWidgetReflective(Screen screen, Button button) {
     Method addMethod = findCompatibleWidgetAddMethod(screen.getClass(), button.getClass());
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (addMethod == null) {
       return false;
     }
 
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     try {
       addMethod.setAccessible(true);
       addMethod.invoke(screen, button);
@@ -752,19 +719,14 @@ public final class MinersAdvantageConfigScreen {
     };
 
     Class<?> current = screenClass;
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     while (current != null) {
       Method[] methods = current.getDeclaredMethods();
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       for (String candidateName : candidateNames) {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         for (Method method : methods) {
-          // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
           if (!candidateName.equals(method.getName())) {
             continue;
           }
           Class<?>[] parameterTypes = method.getParameterTypes();
-          // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
           if (parameterTypes.length == 1 && parameterTypes[0].isAssignableFrom(widgetClass)) {
             return method;
           }
@@ -799,7 +761,6 @@ public final class MinersAdvantageConfigScreen {
     currentClientConfig = mutable.toClientRootConfig(currentClientConfig);
     MAConfig_Base.setClientRootConfig(currentClientConfig);
     LogUtils.applyConfiguredLogging();
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (gameplayEditable) {
       currentServerConfig = mutable.toServerRootConfig(currentServerConfig);
       MAConfig_Base.setServerRootConfig(currentServerConfig);
@@ -1151,7 +1112,6 @@ public final class MinersAdvantageConfigScreen {
       boolean editable,
       Consumer<List<AbstractConfigListEntry<?>>> entryCollector) {
     List<AbstractConfigListEntry<?>> entries = new ArrayList<>();
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (!editable) {
       entries.add(authorityNoticeEntry(entryBuilder));
     }
@@ -1209,7 +1169,6 @@ public final class MinersAdvantageConfigScreen {
       boolean defaultValue,
       boolean editable,
       Consumer<Boolean> consumer) {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (!editable) {
       addReadOnlyEntry(entries, entryBuilder, label + ": " + (currentValue ? "Enabled" : "Disabled"));
       return;
@@ -1233,7 +1192,6 @@ public final class MinersAdvantageConfigScreen {
       int max,
       boolean editable,
       Consumer<Integer> consumer) {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (!editable) {
       addReadOnlyEntry(entries, entryBuilder, label + ": " + currentValue);
       return;
@@ -1259,7 +1217,6 @@ public final class MinersAdvantageConfigScreen {
       double max,
       boolean editable,
       Consumer<Double> consumer) {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (!editable) {
       addReadOnlyEntry(entries, entryBuilder, label + ": " + currentValue);
       return;
@@ -1284,7 +1241,6 @@ public final class MinersAdvantageConfigScreen {
       Class<T> enumClass,
       boolean editable,
       Consumer<T> consumer) {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (!editable) {
       addReadOnlyEntry(entries, entryBuilder, label + ": " + currentValue.name());
       return;
@@ -1306,7 +1262,6 @@ public final class MinersAdvantageConfigScreen {
       List<String> defaultValue,
       boolean editable,
       Consumer<List<String>> consumer) {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (!editable) {
       addReadOnlyEntry(entries, entryBuilder,
           label + ": " + (currentValue.isEmpty() ? "[]" : String.join(", ", currentValue)));
@@ -1329,7 +1284,6 @@ public final class MinersAdvantageConfigScreen {
       boolean defaultValue,
       boolean editable,
       Consumer<Boolean> consumer) {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (!editable) {
       addReadOnlyEntry(category, entryBuilder, label + ": " + (currentValue ? "Enabled" : "Disabled"));
       return;
@@ -1353,7 +1307,6 @@ public final class MinersAdvantageConfigScreen {
       int max,
       boolean editable,
       Consumer<Integer> consumer) {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (!editable) {
       addReadOnlyEntry(category, entryBuilder, label + ": " + currentValue);
       return;
@@ -1378,7 +1331,6 @@ public final class MinersAdvantageConfigScreen {
    * Append server-authority note when gameplay values are read-only.
    */
   private static Component authorityAwareDescription(String baseDescription, boolean gameplayEditable) {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (gameplayEditable) {
       return Component.literal(baseDescription);
     }
@@ -1390,7 +1342,6 @@ public final class MinersAdvantageConfigScreen {
    */
   private static boolean isGameplayEditable() {
     Minecraft minecraft = Minecraft.getInstance();
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (minecraft.getConnection() == null) {
       return true;
     }
@@ -1412,7 +1363,6 @@ public final class MinersAdvantageConfigScreen {
    */
   private static void sendClientSync(MAClientRootConfig updatedConfig) {
     Minecraft minecraft = Minecraft.getInstance();
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (minecraft.getConnection() == null || minecraft.player == null) {
       return;
     }
@@ -1423,7 +1373,6 @@ public final class MinersAdvantageConfigScreen {
         updatedConfig,
         MAServerRootConfig.defaults());
 
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (invokeStaticSingleArgMethod(
         "net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking",
         "send",
@@ -1441,18 +1390,14 @@ public final class MinersAdvantageConfigScreen {
    * Invoke optional static networking helper method with one argument.
    */
   private static boolean invokeStaticSingleArgMethod(String className, String methodName, Object argument) {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     try {
       Class<?> owner = Class.forName(className);
-      // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
       for (Method method : owner.getMethods()) {
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!methodName.equals(method.getName()) || method.getParameterCount() != 1) {
           continue;
         }
 
         Class<?> parameterType = method.getParameterTypes()[0];
-        // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
         if (!parameterType.isAssignableFrom(argument.getClass())) {
           continue;
         }
