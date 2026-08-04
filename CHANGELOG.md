@@ -1,5 +1,6 @@
 ## 2.21.0
 
+- Fix publish post-summary output to report each node's actual publish artifact instead of scanning stale jars in the shared `releases/` folder.
 - Fix Single Layer Excavation to avoid crossing air gaps by requiring contiguous in-envelope block connectivity at runtime, and prevent preview/render crashes by keeping world-dependent connectivity checks out of shape precompute.
 - Restore Fabric mouse-wheel shape cycling by wiring `minersadvantage.mixins.json` into Fabric metadata and re-enabling the client scroll interceptor path.
 - Apply live runtime config updates immediately by reloading feature components when authoritative sync config changes.

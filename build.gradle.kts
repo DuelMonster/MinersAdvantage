@@ -328,12 +328,7 @@ tasks.register("publishPostSummary") {
     group = "publishing"
     description = "Prints release jars and publish destinations after publish tasks complete."
     doLast {
-        val releasesDir = rootProject.layout.projectDirectory.dir("releases").asFile
-        val releaseJars = releasesDir
-            .listFiles { f -> f.isFile && f.extension == "jar" }
-            ?.map { it.name }
-            ?.sorted()
-            .orEmpty()
+        val publishArtifact = tasks.named<AbstractArchiveTask>(prodJarTask).get().archiveFile.get().asFile
 
         val destinations = mutableListOf<String>()
         if (!modrinthToken.isNullOrBlank()) {
@@ -349,11 +344,11 @@ tasks.register("publishPostSummary") {
         }
 
         logger.lifecycle("Publish summary for ${project.path}:")
-        if (releaseJars.isEmpty()) {
-            logger.lifecycle("- Release jars: none found in ${releasesDir.absolutePath}")
+        if (publishArtifact.exists()) {
+            logger.lifecycle("- Published artifact: ${publishArtifact.name}")
         } else {
-            logger.lifecycle("- Release jars:")
-            releaseJars.forEach { logger.lifecycle("  - $it") }
+            logger.lifecycle("- Published artifact (configured): ${publishArtifact.name}")
+            logger.lifecycle("  - Local file not found at: ${publishArtifact.absolutePath}")
         }
         logger.lifecycle("- Published to: ${destinations.joinToString(", ")}")
     }
