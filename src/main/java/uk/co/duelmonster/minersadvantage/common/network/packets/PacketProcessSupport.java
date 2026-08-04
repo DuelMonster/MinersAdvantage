@@ -2,6 +2,7 @@ package uk.co.duelmonster.minersadvantage.common.network.packets;
 
 import java.lang.reflect.Method;
 import java.util.UUID;
+import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.player.Player;
@@ -15,10 +16,15 @@ import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
  * PacketProcessSupport is the teammate that keeps this part of the mod understandable and stable.
  * It exists so behavior stays explicit instead of becoming mystery spaghetti at 2 AM.
  */
-final class PacketProcessSupport {
+public final class PacketProcessSupport {
   private static final String FALLBACK_ID = "minecraft:air";
+  private static volatile Predicate<FeatureId> featureEnabledResolver = featureId -> true;
 
   private PacketProcessSupport() {
+  }
+
+  public static void setFeatureEnabledResolver(Predicate<FeatureId> resolver) {
+    featureEnabledResolver = resolver == null ? featureId -> true : resolver;
   }
 
   /**
@@ -81,6 +87,9 @@ final class PacketProcessSupport {
    * In short: one clear job here beats ten confusing side-effects elsewhere.
    */
   private static void dispatchFeature(Object player, FeatureId feature, BlockPos pos, int stateId, String blockIdHint) {
+    if (!featureEnabledResolver.test(feature)) {
+      return;
+    }
     BlockPos safePos = pos == null ? BlockPos.ZERO : pos;
     String blockId = blockIdHint == null || blockIdHint.isBlank() ? resolveBlockId(stateId) : blockIdHint;
     String toolId = resolveToolId(player);

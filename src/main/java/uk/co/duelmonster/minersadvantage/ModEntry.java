@@ -546,7 +546,9 @@ public final class ModEntry implements ModInitializer {
             dropItemId, itemEntity.getItem().getCount());
         boolean gatherDrops = commonConfig(serverPlayer).gatherDrops();
         veinationRuntime.handleItemEntityJoin(level, entity, serverPlayer, veinationConfig(serverPlayer), gatherDrops);
-        toolEvents.onItemPickup(dropItemId, false);
+        if (isFeatureEnabled(FeatureId.CAPTIVATION)) {
+          toolEvents.onItemPickup(dropItemId, false);
+        }
         core.workerRuntimeService().interceptLiveDropForPlayer(
             playerId(serverPlayer),
             "item:" + dropItemId,
@@ -1124,7 +1126,9 @@ public final class ModEntry {
                 String itemId = itemId(itemEntity.getItem());
                 boolean gatherDrops = commonConfig(serverPlayer).gatherDrops();
                 veinationRuntime.handleItemEntityJoin(level, entity, serverPlayer, veinationConfig(serverPlayer), gatherDrops);
+              if (isFeatureEnabled(FeatureId.CAPTIVATION)) {
                 toolEvents.onItemPickup(itemId, false);
+              }
                 core.workerRuntimeService().interceptLiveDropForPlayer(
                     playerId(serverPlayer),
                     "item:" + itemId,

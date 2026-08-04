@@ -17,7 +17,17 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import uk.co.duelmonster.minersadvantage.agent.AgentManager;
+import uk.co.duelmonster.minersadvantage.agent.CaptivationAgent;
+import uk.co.duelmonster.minersadvantage.agent.CropinationAgent;
+import uk.co.duelmonster.minersadvantage.agent.CultivationAgent;
+import uk.co.duelmonster.minersadvantage.agent.ExcavationAgent;
 import uk.co.duelmonster.minersadvantage.agent.IlluminationAgent;
+import uk.co.duelmonster.minersadvantage.agent.LumbinationAgent;
+import uk.co.duelmonster.minersadvantage.agent.PathanationAgent;
+import uk.co.duelmonster.minersadvantage.agent.ShaftanationAgent;
+import uk.co.duelmonster.minersadvantage.agent.SubstitutionAgent;
+import uk.co.duelmonster.minersadvantage.agent.VeinationAgent;
+import uk.co.duelmonster.minersadvantage.agent.VentilationAgent;
 import uk.co.duelmonster.minersadvantage.agent.IlluminationPlaceAgent;
 import uk.co.duelmonster.minersadvantage.common.component.ComponentDescriptor;
 import uk.co.duelmonster.minersadvantage.common.component.ComponentLifecycle;
@@ -56,6 +66,7 @@ import uk.co.duelmonster.minersadvantage.common.network.FeatureDispatchPacket;
 import uk.co.duelmonster.minersadvantage.common.network.IlluminationActionPacket;
 import uk.co.duelmonster.minersadvantage.common.network.PlayerStateSyncPacket;
 import uk.co.duelmonster.minersadvantage.common.network.SupremeVantagePacket;
+import uk.co.duelmonster.minersadvantage.common.network.packets.PacketProcessSupport;
 import uk.co.duelmonster.minersadvantage.common.event.FeatureEventHandler;
 import uk.co.duelmonster.minersadvantage.common.services.core.PlayerStateService;
 import uk.co.duelmonster.minersadvantage.common.services.core.ServerTickOrchestrator;
@@ -101,6 +112,7 @@ public final class MinersAdvantageCore {
   public void bootstrap() {
     LogUtils.logInfo("Bootstrapping core components");
     MAShapeBootstrap.ensureInitialized();
+    PacketProcessSupport.setFeatureEnabledResolver(this::isFeatureEnabled);
     tickOrchestrator.setTpsGuardActive(defaultConfig.common().tpsGuard());
     tickOrchestrator.setProcessingDelay(defaultConfig.common().enableTickDelay(), defaultConfig.common().tickDelay());
     registerFeaturesFromConfig(defaultConfig);
@@ -140,6 +152,40 @@ public final class MinersAdvantageCore {
         entry.getValue().disable();
       }
     }
+
+    if (!config.captivation().enabled()) {
+      clearAgentsForFeature(FeatureId.CAPTIVATION);
+    }
+    if (!config.cropination().enabled()) {
+      clearAgentsForFeature(FeatureId.CROPINATION);
+    }
+    if (!config.cultivation().enabled()) {
+      clearAgentsForFeature(FeatureId.CULTIVATION);
+    }
+    if (!config.excavation().enabled()) {
+      clearAgentsForFeature(FeatureId.EXCAVATION);
+    }
+    if (!config.illumination().enabled()) {
+      clearAgentsForFeature(FeatureId.ILLUMINATION);
+    }
+    if (!config.lumbination().enabled()) {
+      clearAgentsForFeature(FeatureId.LUMBINATION);
+    }
+    if (!config.pathanation().enabled()) {
+      clearAgentsForFeature(FeatureId.PATHANATION);
+    }
+    if (!config.shaftanation().enabled()) {
+      clearAgentsForFeature(FeatureId.SHAFTANATION);
+    }
+    if (!config.substitution().enabled()) {
+      clearAgentsForFeature(FeatureId.SUBSTITUTION);
+    }
+    if (!config.veination().enabled()) {
+      clearAgentsForFeature(FeatureId.VEINATION);
+    }
+    if (!config.ventilation().enabled()) {
+      clearAgentsForFeature(FeatureId.VENTILATION);
+    }
   }
 
   private boolean isComponentManuallyEnabled(ComponentLifecycle component) {
@@ -175,6 +221,7 @@ public final class MinersAdvantageCore {
   public void shutdown() {
     componentRegistry.disableAll();
     componentRegistry.cleanupAll();
+    PacketProcessSupport.setFeatureEnabledResolver(null);
   }
 
   /**
@@ -244,8 +291,25 @@ public final class MinersAdvantageCore {
       component.enable();
     } else {
       component.disable();
+      clearAgentsForFeature(packet.feature());
     }
     return component.isEnabled();
+  }
+
+  private void clearAgentsForFeature(FeatureId featureId) {
+    switch (featureId) {
+      case CAPTIVATION -> AgentManager.get().clearAgentsOfType(CaptivationAgent.class);
+      case CROPINATION -> AgentManager.get().clearAgentsOfType(CropinationAgent.class);
+      case CULTIVATION -> AgentManager.get().clearAgentsOfType(CultivationAgent.class);
+      case EXCAVATION -> AgentManager.get().clearAgentsOfType(ExcavationAgent.class);
+      case ILLUMINATION -> AgentManager.get().clearAgentsOfType(IlluminationAgent.class);
+      case LUMBINATION -> AgentManager.get().clearAgentsOfType(LumbinationAgent.class);
+      case PATHANATION -> AgentManager.get().clearAgentsOfType(PathanationAgent.class);
+      case SHAFTANATION -> AgentManager.get().clearAgentsOfType(ShaftanationAgent.class);
+      case SUBSTITUTION -> AgentManager.get().clearAgentsOfType(SubstitutionAgent.class);
+      case VEINATION -> AgentManager.get().clearAgentsOfType(VeinationAgent.class);
+      case VENTILATION -> AgentManager.get().clearAgentsOfType(VentilationAgent.class);
+    }
   }
 
   /**
@@ -302,6 +366,9 @@ public final class MinersAdvantageCore {
    * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
    */
   public void handleFeatureDispatchPacket(FeatureDispatchPacket packet) {
+    if (!isFeatureEnabled(packet.feature())) {
+      return;
+    }
     LogUtils.logDebug(
         "Handling feature dispatch feature={} tool={} block={} pos=({}, {}, {})",
         packet.feature(),
@@ -949,6 +1016,14 @@ public final class MinersAdvantageCore {
    */
   public SupremeVantageService supremeVantageService() {
     return supremeVantageService;
+  }
+
+  /**
+   * Check whether a feature component is currently enabled.
+   */
+  public boolean isFeatureEnabled(FeatureId featureId) {
+    ComponentLifecycle component = components.get(featureId);
+    return component != null && component.isEnabled();
   }
 
 }

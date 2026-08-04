@@ -26,10 +26,16 @@ public final class CommonEventHandlerImpl implements ToolEventHandler {
    */
   public void onPickaxeUse(int blockX, int blockY, int blockZ, String blockId) {
     if (RegistryPredicates.isStoneLikeBlockId(blockId)) {
+      if (!core.isFeatureEnabled(FeatureId.SHAFTANATION)) {
+        return;
+      }
       FeatureEventHandler.onToolUse(FeatureId.SHAFTANATION, blockX, blockY, blockZ, blockId, "pickaxe");
       return;
     }
     if (RegistryPredicates.isOreLikeBlockId(blockId)) {
+      if (!core.isFeatureEnabled(FeatureId.EXCAVATION)) {
+        return;
+      }
       FeatureEventHandler.onToolUse(FeatureId.EXCAVATION, blockX, blockY, blockZ, blockId, "pickaxe");
     }
   }
@@ -41,6 +47,9 @@ public final class CommonEventHandlerImpl implements ToolEventHandler {
    */
   public void onShovelUse(int blockX, int blockY, int blockZ, String blockId) {
     if (RegistryPredicates.isDirtLikeBlockId(blockId)) {
+      if (!core.isFeatureEnabled(FeatureId.EXCAVATION)) {
+        return;
+      }
       FeatureEventHandler.onToolUse(FeatureId.EXCAVATION, blockX, blockY, blockZ, blockId, "shovel");
     }
   }
@@ -52,8 +61,14 @@ public final class CommonEventHandlerImpl implements ToolEventHandler {
    */
   public void onHoeUse(int blockX, int blockY, int blockZ, String blockId) {
     if (RegistryPredicates.isCropBlockId(blockId)) {
+      if (!core.isFeatureEnabled(FeatureId.CROPINATION)) {
+        return;
+      }
       FeatureEventHandler.onToolUse(FeatureId.CROPINATION, blockX, blockY, blockZ, blockId, "hoe");
     } else if (RegistryPredicates.isDirtLikeBlockId(blockId)) {
+      if (!core.isFeatureEnabled(FeatureId.CULTIVATION)) {
+        return;
+      }
       FeatureEventHandler.onToolUse(FeatureId.CULTIVATION, blockX, blockY, blockZ, blockId, "hoe");
     }
   }
@@ -65,6 +80,9 @@ public final class CommonEventHandlerImpl implements ToolEventHandler {
    */
   public void onAxeUse(int blockX, int blockY, int blockZ, String blockId) {
     if (RegistryPredicates.isLogLikeBlockId(blockId)) {
+      if (!core.isFeatureEnabled(FeatureId.LUMBINATION)) {
+        return;
+      }
       FeatureEventHandler.onToolUse(FeatureId.LUMBINATION, blockX, blockY, blockZ, blockId, "axe");
     }
   }
@@ -75,6 +93,9 @@ public final class CommonEventHandlerImpl implements ToolEventHandler {
    * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
    */
   public void onItemPickup(String itemId, boolean isDirectPickup) {
+    if (!core.isFeatureEnabled(FeatureId.CAPTIVATION)) {
+      return;
+    }
     // Captivation handles item pickup events (future-you will thank present-you).
     FeatureEventHandler.onToolUse(FeatureId.CAPTIVATION, 0, 0, 0, "item:" + itemId, "hand");
   }
