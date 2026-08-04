@@ -1033,7 +1033,7 @@ public final class MinersAdvantageConfigScreen {
           mutable.substitutionBlacklist, currentServerConfig.substitution().blacklist(), gameplayEditable,
           value -> mutable.substitutionBlacklist = value);
       entries.add(entryBuilder
-          .startTextDescription(Component.literal("Selection rules remain file-configured in this version."))
+          .startTextDescription(Component.literal("Selection rules are persisted in the server config file."))
           .build());
     });
   }

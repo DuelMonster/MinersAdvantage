@@ -49,8 +49,7 @@ public class CultivationAgent extends Agent {
       CommonConfig commonConfig) {
     super(player);
     this.origin = origin;
-    int configuredHydrationDistance = config == null ? Math.max(1, radius) : Math.max(1, config.hydrationDistance());
-    this.hydrationDistance = Math.min(4, configuredHydrationDistance);
+    this.hydrationDistance = resolveHydrationDistance(config, radius);
     BlockPos waterSource = findClosestWaterSource(origin, this.hydrationDistance);
     BlockPos patchCenter = waterSource == null ? origin : waterSource;
     int patchRadius = waterSource == null ? 0 : this.hydrationDistance;
@@ -61,6 +60,16 @@ public class CultivationAgent extends Agent {
     int globalBlocksPerTick = commonConfig == null ? 1 : Math.max(1, commonConfig.blocksPerTick());
     this.blocksPerTick = globalBlocksPerTick;
     queue.add(origin);
+  }
+
+  /**
+   * Resolve the effective hydration distance from config or legacy fallback radius.
+   */
+  static int resolveHydrationDistance(CultivationConfig config, int fallbackRadius) {
+    if (config == null) {
+      return Math.max(1, fallbackRadius);
+    }
+    return Math.max(0, config.hydrationDistance());
   }
 
   /**

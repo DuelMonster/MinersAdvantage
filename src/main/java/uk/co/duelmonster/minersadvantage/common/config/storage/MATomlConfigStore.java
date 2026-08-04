@@ -135,7 +135,10 @@ public final class MATomlConfigStore {
             boolValue(serverValues, "substitution.ignore_if_valid_tool", fallback.substitution().ignoreIfValidTool()),
             boolValue(serverValues, "substitution.ignore_passive_mobs", fallback.substitution().ignorePassiveMobs()),
             stringListValue(serverValues, "substitution.blacklist", fallback.substitution().blacklist()),
-            fallback.substitution().selectionRules()),
+            uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig.decodeSelectionRules(
+                stringListValue(serverValues, "substitution.selection_rules",
+                    uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig.encodeSelectionRules(
+                        fallback.substitution().selectionRules())))),
         new VeinationConfig(
             boolValue(serverValues, "veination.enabled", fallback.veination().enabled()),
             intValue(serverValues, "veination.max_vein_distance", fallback.veination().maxVeinDistance(), 1, 64),
@@ -248,6 +251,10 @@ public final class MATomlConfigStore {
     serverValues.put("substitution.ignore_if_valid_tool", formatTomlValue(value.substitution().ignoreIfValidTool()));
     serverValues.put("substitution.ignore_passive_mobs", formatTomlValue(value.substitution().ignorePassiveMobs()));
     serverValues.put("substitution.blacklist", formatTomlValue(value.substitution().blacklist()));
+    serverValues.put("substitution.selection_rules",
+        formatTomlValue(
+            uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig.encodeSelectionRules(
+                value.substitution().selectionRules())));
 
     serverValues.put("veination.enabled", formatTomlValue(value.veination().enabled()));
     serverValues.put("veination.max_vein_distance", formatTomlValue(value.veination().maxVeinDistance()));

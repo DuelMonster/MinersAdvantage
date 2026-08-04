@@ -1,5 +1,8 @@
 package uk.co.duelmonster.minersadvantage.common.config;
 
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 /**
@@ -71,6 +74,104 @@ public record SubstitutionConfig(
             10, false, false, "", "tool_kind:shovel AND correct_tool", 0, 0, false, false),
         new SelectionRule(SubstitutionAction.BREAK, TargetKind.BLOCK_TAG, "minecraft:mineable/hoe", "hoe", 100, 10,
             false, false, "", "tool_kind:hoe AND correct_tool", 0, 0, false, false));
+  }
+
+  /**
+   * Encode selection rules for TOML persistence.
+   */
+  public static List<String> encodeSelectionRules(List<SelectionRule> selectionRules) {
+    if (selectionRules == null || selectionRules.isEmpty()) {
+      return List.of();
+    }
+
+    List<String> encodedRules = new ArrayList<>(selectionRules.size());
+    for (SelectionRule rule : selectionRules) {
+      if (rule != null) {
+        encodedRules.add(encodeSelectionRule(rule));
+      }
+    }
+    return List.copyOf(encodedRules);
+  }
+
+  /**
+   * Decode selection rules from TOML persistence entries.
+   */
+  public static List<SelectionRule> decodeSelectionRules(List<String> encodedRules) {
+    if (encodedRules == null || encodedRules.isEmpty()) {
+      return List.of();
+    }
+
+    List<SelectionRule> decodedRules = new ArrayList<>(encodedRules.size());
+    for (String encodedRule : encodedRules) {
+      SelectionRule rule = decodeSelectionRule(encodedRule);
+      if (rule != null) {
+        decodedRules.add(rule);
+      }
+    }
+    return List.copyOf(decodedRules);
+  }
+
+  private static String encodeSelectionRule(SelectionRule rule) {
+    return String.join("|",
+        "v1",
+        encodeField(rule.action().name()),
+        encodeField(rule.targetKind().name()),
+        encodeField(rule.targetId()),
+        encodeField(rule.requiredToolKind()),
+        encodeField(Integer.toString(rule.targetPriority())),
+        encodeField(Integer.toString(rule.toolPriority())),
+        encodeField(Boolean.toString(rule.preferSilkTouch())),
+        encodeField(Boolean.toString(rule.preferFortune())),
+        encodeField(rule.targetExpression()),
+        encodeField(rule.toolExpression()),
+        encodeField(Integer.toString(rule.minSilkTouch())),
+        encodeField(Integer.toString(rule.minFortune())),
+        encodeField(Boolean.toString(rule.requireMending())),
+        encodeField(Boolean.toString(rule.denyMending())));
+  }
+
+  private static SelectionRule decodeSelectionRule(String encodedRule) {
+    if (encodedRule == null || encodedRule.isBlank()) {
+      return null;
+    }
+
+    String[] parts = encodedRule.split("\\|", -1);
+    if (parts.length != 15 || !"v1".equals(parts[0])) {
+      return null;
+    }
+
+    try {
+      return new SelectionRule(
+          SubstitutionAction.valueOf(decodeField(parts[1])),
+          TargetKind.valueOf(decodeField(parts[2])),
+          decodeField(parts[3]),
+          decodeField(parts[4]),
+          Integer.parseInt(decodeField(parts[5])),
+          Integer.parseInt(decodeField(parts[6])),
+          Boolean.parseBoolean(decodeField(parts[7])),
+          Boolean.parseBoolean(decodeField(parts[8])),
+          decodeField(parts[9]),
+          decodeField(parts[10]),
+          Integer.parseInt(decodeField(parts[11])),
+          Integer.parseInt(decodeField(parts[12])),
+          Boolean.parseBoolean(decodeField(parts[13])),
+          Boolean.parseBoolean(decodeField(parts[14])));
+    } catch (RuntimeException exception) {
+      return null;
+    }
+  }
+
+  private static String encodeField(String value) {
+    return value == null || value.isEmpty()
+        ? ""
+        : Base64.getUrlEncoder().withoutPadding().encodeToString(value.getBytes(StandardCharsets.UTF_8));
+  }
+
+  private static String decodeField(String value) {
+    if (value == null || value.isEmpty()) {
+      return "";
+    }
+    return new String(Base64.getUrlDecoder().decode(value), StandardCharsets.UTF_8);
   }
 
   /**
