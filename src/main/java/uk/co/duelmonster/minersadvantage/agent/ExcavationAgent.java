@@ -1,6 +1,7 @@
 package uk.co.duelmonster.minersadvantage.agent;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
@@ -262,6 +263,13 @@ public class ExcavationAgent extends Agent {
             computed = new java.util.LinkedHashSet<>(computed);
             computed.add(origin.immutable());
           }
+          if (MAShapeIds.EXCAVATION_SINGLE_LAYER.equals(shapeDefinition.id())) {
+            computed = collectConnectedSingleLayerTargets(computed);
+          }
+          if (!computed.contains(origin)) {
+            computed = new java.util.LinkedHashSet<>(computed);
+            computed.add(origin.immutable());
+          }
           return computed;
         })
         .orElse(null);
@@ -517,6 +525,45 @@ public class ExcavationAgent extends Agent {
       }
     }
     return bounded;
+  }
+
+  private Set<BlockPos> collectConnectedSingleLayerTargets(Set<BlockPos> envelope) {
+    java.util.LinkedHashSet<BlockPos> connected = new java.util.LinkedHashSet<>();
+    if (envelope == null || envelope.isEmpty()) {
+      return connected;
+    }
+
+    java.util.HashSet<BlockPos> envelopeSet = new java.util.HashSet<>();
+    for (BlockPos pos : envelope) {
+      envelopeSet.add(pos.immutable());
+    }
+
+    java.util.ArrayDeque<BlockPos> queue = new java.util.ArrayDeque<>();
+    java.util.HashSet<BlockPos> visited = new java.util.HashSet<>();
+    queue.add(origin.immutable());
+
+    while (!queue.isEmpty()) {
+      BlockPos current = queue.poll();
+      if (!envelopeSet.contains(current) || !visited.add(current)) {
+        continue;
+      }
+
+      BlockState state = world.getBlockState(current);
+      boolean originAirSeed = current.equals(origin) && state.isAir();
+      if (!originAirSeed && !isTargetState(state)) {
+        continue;
+      }
+
+      connected.add(current.immutable());
+      for (Direction direction : Direction.values()) {
+        BlockPos neighbor = current.relative(direction).immutable();
+        if (envelopeSet.contains(neighbor) && !visited.contains(neighbor)) {
+          queue.add(neighbor);
+        }
+      }
+    }
+
+    return connected;
   }
 
   private static Set<BlockPos> wideCuboidEnvelopeAt(
