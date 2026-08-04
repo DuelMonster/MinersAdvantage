@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -102,19 +103,57 @@ public final class MinersAdvantageCore {
     MAShapeBootstrap.ensureInitialized();
     tickOrchestrator.setTpsGuardActive(defaultConfig.common().tpsGuard());
     tickOrchestrator.setProcessingDelay(defaultConfig.common().enableTickDelay(), defaultConfig.common().tickDelay());
-    registerFeature(FeatureId.CAPTIVATION, "captivation", defaultConfig::captivation, CaptivationComponent::new);
-    registerFeature(FeatureId.CROPINATION, "cropination", defaultConfig::cropination, CropinationComponent::new);
-    registerFeature(FeatureId.CULTIVATION, "cultivation", defaultConfig::cultivation, CultivationComponent::new);
-    registerFeature(FeatureId.EXCAVATION, "excavation", defaultConfig::excavation, ExcavationComponent::new);
-    registerFeature(FeatureId.ILLUMINATION, "illumination", defaultConfig::illumination, IlluminationComponent::new);
-    registerFeature(FeatureId.LUMBINATION, "lumbination", defaultConfig::lumbination, LumbinationComponent::new);
-    registerFeature(FeatureId.PATHANATION, "pathanation", defaultConfig::pathanation, PathanationComponent::new);
-    registerFeature(FeatureId.SHAFTANATION, "shaftanation", defaultConfig::shaftanation, ShaftanationComponent::new);
-    registerFeature(FeatureId.SUBSTITUTION, "substitution", defaultConfig::substitution, SubstitutionComponent::new);
-    registerFeature(FeatureId.VEINATION, "veination", defaultConfig::veination, VeinationComponent::new);
-    registerFeature(FeatureId.VENTILATION, "ventilation", defaultConfig::ventilation, VentilationComponent::new);
+    registerFeaturesFromConfig(defaultConfig);
     componentRegistry.enableAll();
     LogUtils.logInfo("Bootstrapped {} feature components", components.size());
+  }
+
+  private void registerFeaturesFromConfig(SyncedClientConfig config) {
+    registerFeature(FeatureId.CAPTIVATION, "captivation", config::captivation, CaptivationComponent::new);
+    registerFeature(FeatureId.CROPINATION, "cropination", config::cropination, CropinationComponent::new);
+    registerFeature(FeatureId.CULTIVATION, "cultivation", config::cultivation, CultivationComponent::new);
+    registerFeature(FeatureId.EXCAVATION, "excavation", config::excavation, ExcavationComponent::new);
+    registerFeature(FeatureId.ILLUMINATION, "illumination", config::illumination, IlluminationComponent::new);
+    registerFeature(FeatureId.LUMBINATION, "lumbination", config::lumbination, LumbinationComponent::new);
+    registerFeature(FeatureId.PATHANATION, "pathanation", config::pathanation, PathanationComponent::new);
+    registerFeature(FeatureId.SHAFTANATION, "shaftanation", config::shaftanation, ShaftanationComponent::new);
+    registerFeature(FeatureId.SUBSTITUTION, "substitution", config::substitution, SubstitutionComponent::new);
+    registerFeature(FeatureId.VEINATION, "veination", config::veination, VeinationComponent::new);
+    registerFeature(FeatureId.VENTILATION, "ventilation", config::ventilation, VentilationComponent::new);
+  }
+
+  private void reloadComponentsFromConfig(SyncedClientConfig config) {
+    EnumMap<FeatureId, Boolean> previousEnabledStates = new EnumMap<>(FeatureId.class);
+    for (Map.Entry<FeatureId, ComponentLifecycle> entry : components.entrySet()) {
+      previousEnabledStates.put(entry.getKey(), isComponentManuallyEnabled(entry.getValue()));
+    }
+
+    componentRegistry.disableAll();
+    componentRegistry.cleanupAll();
+    components.clear();
+    registerFeaturesFromConfig(config);
+
+    for (Map.Entry<FeatureId, ComponentLifecycle> entry : components.entrySet()) {
+      if (previousEnabledStates.getOrDefault(entry.getKey(), true)) {
+        entry.getValue().enable();
+      } else {
+        entry.getValue().disable();
+      }
+    }
+  }
+
+  private boolean isComponentManuallyEnabled(ComponentLifecycle component) {
+    try {
+      Field enabledField = component.getClass().getDeclaredField("enabled");
+      enabledField.setAccessible(true);
+      Object value = enabledField.get(component);
+      if (value instanceof Boolean bool) {
+        return bool;
+      }
+    } catch (ReflectiveOperationException ignored) {
+      // Fallback to public lifecycle status when component internals differ.
+    }
+    return component.isEnabled();
   }
 
   /**
@@ -245,8 +284,13 @@ public final class MinersAdvantageCore {
         packet.clientConfig(),
         authoritativeServerConfig,
         policyCoreService);
+    boolean configChanged = !previousSyncState.clientConfig().equals(state.clientConfig())
+        || !previousSyncState.serverConfig().equals(state.serverConfig());
     MAConfig_Base.setClientRootConfig(state.clientConfig());
     MAConfig_Base.setServerRootConfig(state.serverConfig());
+    if (configChanged) {
+      reloadComponentsFromConfig(MAConfig_Base.getGlobalConfig());
+    }
     tickOrchestrator.setTpsGuardActive(state.serverConfig().common().tpsGuard());
     tickOrchestrator.setProcessingDelay(state.serverConfig().common().enableTickDelay(),
         state.serverConfig().common().tickDelay());

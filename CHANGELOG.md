@@ -1,3 +1,9 @@
+## 2.21.0
+
+- Apply live runtime config updates immediately by reloading feature components when authoritative sync config changes.
+- Prevent startup/menu lockup regressions by keeping client sync snapshots lazily initialized until in-world tick flow.
+- Add focused regression coverage for runtime Captivation disable sync behavior and Fabric-only startup snapshot safety.
+
 ## 2.20.0
 
 - Fix startup/menu lockups by hardening client initialization and render-hook behavior.

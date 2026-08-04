@@ -7,8 +7,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assumptions;
 import uk.co.duelmonster.minersadvantage.common.MinersAdvantageCore;
+import uk.co.duelmonster.minersadvantage.common.config.CaptivationConfig;
 import uk.co.duelmonster.minersadvantage.common.config.MAClientRootConfig;
 import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
+import uk.co.duelmonster.minersadvantage.common.config.MAConfig_Base;
 import uk.co.duelmonster.minersadvantage.common.config.SyncedClientConfig;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 import uk.co.duelmonster.minersadvantage.common.services.utility.SupremeVantageService;
@@ -51,6 +53,52 @@ class PlayerStateSyncPacketFlowTest {
     assertTrue(core.handleComponentTogglePacket(new ComponentTogglePacket(FeatureId.CAPTIVATION, false)) == false);
     assertTrue(core.handleComponentTogglePacket(new ComponentTogglePacket(FeatureId.CAPTIVATION, true)));
     assertEquals("ComponentTogglePacket", PacketRegistry.getPacketName(PacketRegistry.COMPONENT_TOGGLE));
+
+    core.shutdown();
+  }
+
+  @Test
+  void playerStateSyncReloadsComponentsWhenServerConfigChanges() {
+    Assumptions.assumeTrue(isSlf4jAvailable());
+    Assumptions.assumeTrue(TestRuntimeAssumptions.canInitializeSoundEvents());
+
+    MinersAdvantageCore core = new MinersAdvantageCore();
+    core.bootstrap();
+
+    assertTrue(core.components().get(FeatureId.CAPTIVATION).isEnabled());
+
+    SyncedClientConfig baseline = MAConfig_Base.getGlobalConfig();
+    SyncedClientConfig serverWithCaptivationDisabled = new SyncedClientConfig(
+        baseline.client(),
+        baseline.common(),
+        new CaptivationConfig(
+            false,
+            baseline.captivation().allowInGUI(),
+            baseline.captivation().radiusHorizontal(),
+            baseline.captivation().radiusVertical(),
+            baseline.captivation().isWhitelist(),
+            baseline.captivation().unconditionalBlacklist(),
+            baseline.captivation().blacklist()),
+        baseline.cropination(),
+        baseline.cultivation(),
+        baseline.excavation(),
+        baseline.pathanation(),
+        baseline.illumination(),
+        baseline.lumbination(),
+        baseline.shaftanation(),
+        baseline.substitution(),
+        baseline.veination(),
+        baseline.ventilation());
+
+    MAConfig_Base.setServerRootConfig(MAServerRootConfig.fromSyncedConfig(serverWithCaptivationDisabled));
+    core.handlePlayerStateSyncPacket(new PlayerStateSyncPacket(
+        17L,
+        MAClientRootConfig.fromSyncedConfig(serverWithCaptivationDisabled),
+        MAServerRootConfig.defaults()));
+
+    assertFalse(core.components().get(FeatureId.CAPTIVATION).isEnabled());
+
+    core.shutdown();
   }
 
   @Test

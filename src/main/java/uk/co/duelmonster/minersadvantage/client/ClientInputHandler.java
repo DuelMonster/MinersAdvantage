@@ -16,6 +16,9 @@ import net.minecraft.client.Minecraft;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.BlockHitResult;
+import uk.co.duelmonster.minersadvantage.common.config.MAClientRootConfig;
+import uk.co.duelmonster.minersadvantage.common.config.MAConfig_Base;
+import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeBootstrap;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeRegistry;
@@ -38,6 +41,8 @@ import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 public final class ClientInputHandler {
   private static ClientInputService.ClientInputState inputState = ClientInputService.ClientInputState.defaults();
   private static ClientInputService.ClientInputState lastSyncedState = ClientInputService.ClientInputState.defaults();
+  private static MAClientRootConfig lastSyncedClientConfig;
+  private static MAServerRootConfig lastSyncedServerConfig;
   private static final SupremeVantageService supremeVantageService = new SupremeVantageService();
   private static SupremeVantageService.ClientState supremeVantageState = SupremeVantageService.ClientState.defaults();
   private static final KeyMapping.Category KEY_CATEGORY = ClientActionInputSupport.createKeyCategory();
@@ -149,6 +154,8 @@ public final class ClientInputHandler {
       return;
     }
 
+    ensureSyncSnapshotsInitialized();
+
     // Collect currently pressed keybindings (future-you will thank present-you).
     Set<KeyBindings.ClientAction> pressedSet = getPressedActions();
 
@@ -201,8 +208,12 @@ public final class ClientInputHandler {
 
     boolean activationStateChanged = ClientActionInputSupport.hasActivationStateChanged(lastSyncedState,
         result.state());
+    boolean configStateChanged = !lastSyncedClientConfig.equals(MAConfig_Base.getClientRootConfig())
+        || !lastSyncedServerConfig.equals(MAConfig_Base.getServerRootConfig());
+    boolean shouldSyncFromInput = activationStateChanged && result.shouldSyncVariables();
+    boolean shouldSyncFromConfig = configStateChanged && result.shouldSyncConfig();
 
-    if (activationStateChanged && (result.shouldSyncConfig() || result.shouldSyncVariables())) {
+    if (shouldSyncFromInput || shouldSyncFromConfig) {
       syncStateToServer(result.state());
     }
   }
@@ -273,6 +284,15 @@ public final class ClientInputHandler {
   private static void syncStateToServer(ClientInputService.ClientInputState state) {
     ClientPlayNetworking.send(ClientActionInputSupport.createPlayerStateSyncPacket(state));
     lastSyncedState = state;
+    lastSyncedClientConfig = MAConfig_Base.getClientRootConfig();
+    lastSyncedServerConfig = MAConfig_Base.getServerRootConfig();
+  }
+
+  private static void ensureSyncSnapshotsInitialized() {
+    if (lastSyncedClientConfig == null || lastSyncedServerConfig == null) {
+      lastSyncedClientConfig = MAConfig_Base.getClientRootConfig();
+      lastSyncedServerConfig = MAConfig_Base.getServerRootConfig();
+    }
   }
 
   private static boolean areAllFeaturesEnabled(ClientInputService.ClientInputState state) {
