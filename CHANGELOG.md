@@ -7,6 +7,7 @@
 - Persist cultivation hydration distance and substitution selection rules across config reloads, with UI copy and round-trip coverage updates.
 - Clear stale agent workers when features are disabled and add cleanup coverage for type-based agent removal.
 - Add regression coverage for cultivation hydration distance above the old cap and substitution selection-rule TOML round-trips.
+- Clear stale agents by type when disabling features and clean up the agent-manager test fixture to avoid compile-time Unsafe imports.
 
 ## 2.20.0
 

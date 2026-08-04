@@ -97,6 +97,20 @@ public class AgentManager {
   }
 
   /**
+   * Clear all active and pending agents of one type across all players.
+   */
+  public void clearAgentsOfType(Class<? extends Agent> agentType) {
+    if (agentType == null) {
+      return;
+    }
+
+    agents.values().forEach(agentList -> agentList.removeIf(agentType::isInstance));
+    pendingAdds.values().forEach(agentList -> agentList.removeIf(agentType::isInstance));
+    agents.entrySet().removeIf(entry -> entry.getValue().isEmpty());
+    pendingAdds.entrySet().removeIf(entry -> entry.getValue().isEmpty());
+  }
+
+  /**
    * Internal clear helper used by both clear entry points.
    */
   private void clearAgents(UUID playerUuid, String playerLabel) {
