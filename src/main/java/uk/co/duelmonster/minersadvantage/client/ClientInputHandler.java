@@ -230,14 +230,71 @@ public final class ClientInputHandler {
       return false;
     }
 
-    Set<KeyBindings.ClientAction> actions = ClientActionInputSupport.collectScrollActions(inputState, scrollY);
-    if (actions.isEmpty()) {
+    boolean excavationActive = isActionKeyHeld(KeyBindings.ClientAction.EXCAVATION_MODE_TOGGLE)
+        && inputState.featureEnabled().getOrDefault(FeatureId.EXCAVATION, false);
+    boolean shaftActive = isActionKeyHeld(KeyBindings.ClientAction.SHAFT_VENT_TOGGLE)
+        && inputState.featureEnabled().getOrDefault(FeatureId.SHAFTANATION, false);
+
+    if (!excavationActive && !shaftActive) {
       return false;
     }
 
-    ClientInputService.ClientInputResult scrollResult = new ClientInputService().process(inputState, actions, false);
+    Set<KeyBindings.ClientAction> actions = new java.util.HashSet<>();
+    if (excavationActive) {
+      actions.add(scrollY > 0.0d ? KeyBindings.ClientAction.EXCAVATION_SHAPE_PREV
+          : KeyBindings.ClientAction.EXCAVATION_SHAPE_NEXT);
+    }
+    if (shaftActive) {
+      actions.add(scrollY > 0.0d ? KeyBindings.ClientAction.SHAFTANATION_SHAPE_PREV
+          : KeyBindings.ClientAction.SHAFTANATION_SHAPE_NEXT);
+    }
+
+    if (actions.isEmpty()) {
+      return false;
+    }
     ClientInputService.ClientInputState previousState = inputState;
-    inputState = scrollResult.state();
+
+    int nextExcavationShapeIndex = previousState.selectedExcavationShapeIndex();
+    int nextShaftanationShapeIndex = previousState.selectedShaftanationShapeIndex();
+
+    if (actions.contains(KeyBindings.ClientAction.EXCAVATION_SHAPE_NEXT)
+        || actions.contains(KeyBindings.ClientAction.EXCAVATION_SHAPE_PREV)) {
+      int excavationShapeCount = MAShapeRegistry.forFeature(FeatureId.EXCAVATION).size();
+      if (excavationShapeCount > 0) {
+        if (actions.contains(KeyBindings.ClientAction.EXCAVATION_SHAPE_NEXT)) {
+          nextExcavationShapeIndex = Math.floorMod(nextExcavationShapeIndex + 1, excavationShapeCount);
+        }
+        if (actions.contains(KeyBindings.ClientAction.EXCAVATION_SHAPE_PREV)) {
+          nextExcavationShapeIndex = Math.floorMod(nextExcavationShapeIndex - 1, excavationShapeCount);
+        }
+      }
+    }
+
+    if (actions.contains(KeyBindings.ClientAction.SHAFTANATION_SHAPE_NEXT)
+        || actions.contains(KeyBindings.ClientAction.SHAFTANATION_SHAPE_PREV)) {
+      int shaftShapeCount = MAShapeRegistry.forFeature(FeatureId.SHAFTANATION).size();
+      if (shaftShapeCount > 0) {
+        if (actions.contains(KeyBindings.ClientAction.SHAFTANATION_SHAPE_NEXT)) {
+          nextShaftanationShapeIndex = Math.floorMod(nextShaftanationShapeIndex + 1, shaftShapeCount);
+        }
+        if (actions.contains(KeyBindings.ClientAction.SHAFTANATION_SHAPE_PREV)) {
+          nextShaftanationShapeIndex = Math.floorMod(nextShaftanationShapeIndex - 1, shaftShapeCount);
+        }
+      }
+    }
+
+    inputState = new ClientInputService.ClientInputState(
+        previousState.featureEnabled(),
+        previousState.excavationToggled(),
+        previousState.shaftVentToggled(),
+        nextExcavationShapeIndex,
+        nextShaftanationShapeIndex);
+
+    if (previousState.selectedExcavationShapeIndex() == inputState.selectedExcavationShapeIndex()
+        && previousState.selectedShaftanationShapeIndex() == inputState.selectedShaftanationShapeIndex()) {
+      return false;
+    }
+
     showShapeHudIfChangedOrActivated(previousState, inputState);
     syncStateToServer(inputState);
     return true;

@@ -1,5 +1,6 @@
 ## 2.21.0
 
+- Restore Fabric mouse-wheel shape cycling by wiring `minersadvantage.mixins.json` into Fabric metadata and re-enabling the client scroll interceptor path.
 - Apply live runtime config updates immediately by reloading feature components when authoritative sync config changes.
 - Prevent startup/menu lockup regressions by keeping client sync snapshots lazily initialized until in-world tick flow.
 - Add focused regression coverage for runtime Captivation disable sync behavior and Fabric-only startup snapshot safety.
