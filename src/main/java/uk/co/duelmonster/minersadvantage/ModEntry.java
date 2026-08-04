@@ -359,7 +359,8 @@ public final class ModEntry implements ModInitializer {
         if (tickCount % 20 == 0) {
           for (ServerPlayer serverPlayer : level.players()) {
             SubstitutionAgent.processSwitchBack(serverPlayer);
-            if (!AgentManager.get().hasAgentType(serverPlayer, CaptivationAgent.class)) {
+            if (isFeatureEnabled(FeatureId.CAPTIVATION)
+                && !AgentManager.get().hasAgentType(serverPlayer, CaptivationAgent.class)) {
               AgentManager.get().addAgent(serverPlayer,
                   new CaptivationAgent(serverPlayer, captivationConfig(serverPlayer)));
             }
