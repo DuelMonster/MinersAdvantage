@@ -143,6 +143,7 @@ public final class NeoForgeClientEvents {
     event.addCustomRenderer((blockOutlineRenderState, bufferSource, poseStack, translucentPass, levelRenderState) -> {
       ShapePreviewRenderer.renderHeldPreview(
           inputState,
+          bufferSource,
           ensurePoseStack(poseStack),
           cameraPosition[0],
           cameraPosition[1],

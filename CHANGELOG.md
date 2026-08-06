@@ -32,6 +32,7 @@
 - Replace common throughput pacing `blocks_per_tick` with `ticks_per_block` plus `max_blocks_per_tick`, including config UI, policy clamps/guardrails, and agent runtime cadence/budget handling.
 - Set common pacing defaults to `ticks_per_block=1` and `max_blocks_per_tick=1`.
 - Fix NeoForge shape cycling feedback parity by restoring scroll-wheel shape-name overlay messaging and direct held-key shape index cycling behavior.
+- Fix NeoForge shape preview outlines by wiring block-outline render callbacks to pass submit-context handles into `ShapePreviewRenderer` and resolving direct submit/buffer render contexts in runtime compat.
 
 ## 2.21.0
 

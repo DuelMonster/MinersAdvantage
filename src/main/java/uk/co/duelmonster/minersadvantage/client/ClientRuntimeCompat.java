@@ -249,6 +249,11 @@ public final class ClientRuntimeCompat {
       return null;
     }
 
+    // NeoForge callbacks can pass the submit collector itself as the context object.
+    if (hasSubmitShapeOutlineMethod(renderContext)) {
+      return renderContext;
+    }
+
     Object collector = invokeNoArg(renderContext, "submitNodeCollector");
     if (collector != null) {
       return collector;
@@ -531,6 +536,11 @@ public final class ClientRuntimeCompat {
       return null;
     }
 
+    // Some render callbacks pass MultiBufferSource directly.
+    if (hasGetBufferMethod(renderContext)) {
+      return renderContext;
+    }
+
     Object direct = invokeNoArg(renderContext, "consumers");
     if (hasGetBufferMethod(direct)) {
       return direct;
@@ -571,6 +581,20 @@ public final class ClientRuntimeCompat {
 
     for (Method method : instance.getClass().getMethods()) {
       if ("getBuffer".equals(method.getName()) && method.getParameterCount() == 1) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  private static boolean hasSubmitShapeOutlineMethod(Object instance) {
+    if (instance == null) {
+      return false;
+    }
+
+    for (Method method : instance.getClass().getMethods()) {
+      if ("submitShapeOutline".equals(method.getName()) && method.getParameterCount() == 6) {
         return true;
       }
     }
