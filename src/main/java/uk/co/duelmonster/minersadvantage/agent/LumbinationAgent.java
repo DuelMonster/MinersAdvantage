@@ -43,6 +43,10 @@ public class LumbinationAgent extends Agent {
   private final Set<BlockPos> visitedLogs = new HashSet<>();
   private final Set<BlockPos> visitedLeaves = new HashSet<>();
   private final Set<BlockPos> harvestedLogs = new HashSet<>();
+  private final Set<BlockPos> queuedLogs = new HashSet<>();
+  private final Set<BlockPos> queuedLeaves = new HashSet<>();
+  private final Set<String> configuredLogs;
+  private final Set<String> configuredLeaves;
   private final int blocksPerTick;
   private Block originLeafBlock = null;
   private boolean harvestedLog = false;
@@ -99,6 +103,8 @@ public class LumbinationAgent extends Agent {
     this.maxLeafRange = Math.max(0, this.config.maxLeafRange());
     int globalBlocksPerTick = commonConfig == null ? 1 : Math.max(1, commonConfig.blocksPerTick());
     this.blocksPerTick = Math.max(1, Math.min(globalBlocksPerTick, this.config.processesPerTick()));
+    this.configuredLogs = normalizeConfiguredIds(this.config.logs());
+    this.configuredLeaves = normalizeConfiguredIds(this.config.leaves());
     this.trunkMinX = origin.getX();
     this.trunkMaxX = origin.getX();
     this.trunkMinY = origin.getY();
@@ -122,7 +128,7 @@ public class LumbinationAgent extends Agent {
     }
 
     initialized = true;
-    queue.add(origin);
+    enqueueLogCandidate(origin);
   }
 
   /**
@@ -157,6 +163,12 @@ public class LumbinationAgent extends Agent {
       BlockPos pos = logsPhaseComplete ? leafQueue.poll() : queue.poll();
       if (pos == null) {
         continue;
+      }
+
+      if (logsPhaseComplete) {
+        queuedLeaves.remove(pos);
+      } else {
+        queuedLogs.remove(pos);
       }
 
       if (logsPhaseComplete) {
@@ -300,6 +312,15 @@ public class LumbinationAgent extends Agent {
 
     leafQueue
         .addAll(orderLeafCandidates(candidateLeaves, trunkMinX, trunkMaxX, trunkMinY, trunkMaxY, trunkMinZ, trunkMaxZ));
+
+    // Keep leaf queue bounded by removing duplicates before processing starts.
+    if (!leafQueue.isEmpty()) {
+      Queue<BlockPos> ordered = new LinkedList<>(leafQueue);
+      leafQueue.clear();
+      for (BlockPos candidate : ordered) {
+        enqueueLeafCandidate(candidate);
+      }
+    }
   }
 
   /**
@@ -309,12 +330,28 @@ public class LumbinationAgent extends Agent {
     for (BlockPos candidate : Functions.connectedNeighbors(pos)) {
       if (toLeafQueue) {
         if (withinLeafCanopyBounds(candidate)) {
-          leafQueue.add(candidate);
+          enqueueLeafCandidate(candidate);
         }
       } else {
-        queue.add(candidate);
+        enqueueLogCandidate(candidate);
       }
     }
+  }
+
+  private void enqueueLogCandidate(BlockPos candidate) {
+    if (candidate == null || visitedLogs.contains(candidate) || queuedLogs.contains(candidate)) {
+      return;
+    }
+    queue.add(candidate);
+    queuedLogs.add(candidate);
+  }
+
+  private void enqueueLeafCandidate(BlockPos candidate) {
+    if (candidate == null || visitedLeaves.contains(candidate) || queuedLeaves.contains(candidate)) {
+      return;
+    }
+    leafQueue.add(candidate);
+    queuedLeaves.add(candidate);
   }
 
   /**
@@ -376,11 +413,8 @@ public class LumbinationAgent extends Agent {
       return false;
     }
 
-    if (!config.logs().isEmpty()) {
-      return config.logs().stream()
-          .filter(value -> value != null && !value.isBlank())
-          .map(value -> value.toLowerCase(Locale.ROOT))
-          .anyMatch(blockId::equals);
+    if (!configuredLogs.isEmpty()) {
+      return configuredLogs.contains(blockId);
     }
 
     if (!state.is(BlockTags.LOGS)) {
@@ -409,12 +443,9 @@ public class LumbinationAgent extends Agent {
       return false;
     }
 
-    if (!config.leaves().isEmpty()) {
+    if (!configuredLeaves.isEmpty()) {
       String blockId = BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString().toLowerCase(Locale.ROOT);
-      return config.leaves().stream()
-          .filter(value -> value != null && !value.isBlank())
-          .map(value -> value.toLowerCase(Locale.ROOT))
-          .anyMatch(blockId::equals);
+      return configuredLeaves.contains(blockId);
     }
 
     Block block = state.getBlock();
@@ -859,6 +890,20 @@ public class LumbinationAgent extends Agent {
 
   private static long columnKey(int x, int z) {
     return (((long) x) << 32) ^ (z & 0xffffffffL);
+  }
+
+  private static Set<String> normalizeConfiguredIds(List<String> configuredValues) {
+    Set<String> normalized = new HashSet<>();
+    if (configuredValues == null || configuredValues.isEmpty()) {
+      return normalized;
+    }
+
+    for (String value : configuredValues) {
+      if (value != null && !value.isBlank()) {
+        normalized.add(value.toLowerCase(Locale.ROOT));
+      }
+    }
+    return normalized;
   }
 
   private static long nearestDistanceSquared(BlockPos candidate, Collection<BlockPos> positions) {

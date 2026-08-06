@@ -14,6 +14,7 @@
 - Normalize `WorkerRuntimeServiceTest` formatting after the TPS-guard optimization stage so staged regression coverage remains hook-clean and style-consistent.
 - Optimize Excavation ordered-shape queue sorting by precomputing layer/spiral sort keys in `ExcavationAgent`, reducing repeated lookup work while preserving traversal targets and ordering semantics.
 - Optimize Veination discovery by introducing a bounded BFS cursor consumed by `VeinationAgent` tick updates, spreading expensive discovery work across ticks while preserving discovered vein membership.
+- Optimize Lumbination hot-path matching and queue churn by caching normalized log/leaf allowlists and deduplicating pending traversal entries before processing.
 
 ## 2.21.0
 
