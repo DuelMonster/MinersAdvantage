@@ -2,6 +2,7 @@
 
 - Start the optimization rebuild sequence from the 2.21 baseline by introducing a diagnostics envelope for ghost-block and credits-roll repro tracking.
 - Add client screen transition diagnostics and server break-face cache hit/miss diagnostics to support staged NeoForge/Fabric parity investigation.
+- Add a commit-2750 replay inventory to the tuning matrix, classifying retain-now, retain-later, and hold-back optimization deltas for staged reapplication.
 
 ## 2.21.0
 
