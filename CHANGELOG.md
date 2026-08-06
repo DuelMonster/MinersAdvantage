@@ -1,3 +1,8 @@
+## 2.22.0
+
+- Start the optimization rebuild sequence from the 2.21 baseline by introducing a diagnostics envelope for ghost-block and credits-roll repro tracking.
+- Add client screen transition diagnostics and server break-face cache hit/miss diagnostics to support staged NeoForge/Fabric parity investigation.
+
 ## 2.21.0
 
 - Fix publish post-summary output to report each node's actual publish artifact instead of scanning stale jars in the shared `releases/` folder.

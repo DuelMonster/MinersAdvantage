@@ -20,6 +20,7 @@ import uk.co.duelmonster.minersadvantage.common.config.MAClientRootConfig;
 import uk.co.duelmonster.minersadvantage.common.config.MAConfig_Base;
 import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
+import uk.co.duelmonster.minersadvantage.common.log.LogUtils;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeBootstrap;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeRegistry;
 //?} else {
@@ -45,6 +46,7 @@ public final class ClientInputHandler {
   private static MAServerRootConfig lastSyncedServerConfig;
   private static final SupremeVantageService supremeVantageService = new SupremeVantageService();
   private static SupremeVantageService.ClientState supremeVantageState = SupremeVantageService.ClientState.defaults();
+  private static String lastObservedScreenClassName;
   private static final KeyMapping.Category KEY_CATEGORY = ClientActionInputSupport.createKeyCategory();
   //? if fabric {
   private static java.util.Map<KeyBindings.ClientAction, KeyMapping> keyMappings = new java.util.EnumMap<>(
@@ -149,6 +151,7 @@ public final class ClientInputHandler {
    */
   public static void tick() {
     Minecraft client = Minecraft.getInstance();
+    logScreenTransition(client);
     // Skip feature input processing until an actual world is loaded.
     if (client.player == null || client.level == null) {
       return;
@@ -359,6 +362,34 @@ public final class ClientInputHandler {
       }
     }
     return true;
+  }
+
+  /**
+   * Log screen class transitions for credits/exit diagnostics without changing behavior.
+   */
+  private static void logScreenTransition(Minecraft client) {
+    if (client == null) {
+      return;
+    }
+
+    var currentScreen = ClientRuntimeCompat.getCurrentScreen(client);
+    String currentName = currentScreen == null ? null : currentScreen.getClass().getName();
+    if (java.util.Objects.equals(lastObservedScreenClassName, currentName)) {
+      return;
+    }
+
+    String previousName = lastObservedScreenClassName == null ? "null" : lastObservedScreenClassName;
+    String nextName = currentName == null ? "null" : currentName;
+    lastObservedScreenClassName = currentName;
+
+    String playerName = client.player == null ? "null" : client.player.getScoreboardName();
+    String dimension = client.level == null ? "null" : client.level.dimension().toString();
+    LogUtils.logDebug(
+        "Screen transition previous={} current={} player={} dimension={}",
+        previousName,
+        nextName,
+        playerName,
+        dimension);
   }
 
   /**

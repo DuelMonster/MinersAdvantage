@@ -577,6 +577,11 @@ public final class ModEntry implements ModInitializer {
       return;
     }
     lastBreakFaces.put(playerId(serverPlayer), new BreakFaceState(pos.immutable(), face));
+    LogUtils.logDebug(
+        "Remembered break face player={} pos={} face={}",
+        serverPlayer.getScoreboardName(),
+        pos,
+        face);
   }
 
   /**
@@ -587,9 +592,27 @@ public final class ModEntry implements ModInitializer {
       return null;
     }
     BreakFaceState state = lastBreakFaces.remove(playerId(serverPlayer));
-    if (state == null || !state.pos().equals(pos)) {
+    if (state == null) {
+      LogUtils.logDebug(
+          "Break face cache miss player={} pos={} reason=no-cached-state",
+          serverPlayer.getScoreboardName(),
+          pos);
       return null;
     }
+    if (!state.pos().equals(pos)) {
+      LogUtils.logDebug(
+          "Break face cache miss player={} pos={} cachedPos={} face={} reason=position-mismatch",
+          serverPlayer.getScoreboardName(),
+          pos,
+          state.pos(),
+          state.face());
+      return null;
+    }
+    LogUtils.logDebug(
+        "Break face cache hit player={} pos={} face={}",
+        serverPlayer.getScoreboardName(),
+        pos,
+        state.face());
     return state.face();
   }
 
