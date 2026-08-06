@@ -17,6 +17,8 @@ import uk.co.duelmonster.minersadvantage.common.log.LogUtils;
 public final class ClientRuntimeCompat {
   private static volatile boolean loggedHudOverlayFallback;
   private static volatile boolean loggedShapeRenderFallback;
+  private static volatile Method cachedCurrentScreenAccessor;
+  private static volatile boolean currentScreenAccessorResolved;
 
   private ClientRuntimeCompat() {
   }
@@ -169,20 +171,43 @@ public final class ClientRuntimeCompat {
       return direct;
     }
 
+    Method accessor = resolveCurrentScreenAccessor(minecraft);
+    if (accessor == null) {
+      return null;
+    }
+
+    try {
+      Object value = accessor.invoke(minecraft);
+      if (value instanceof Screen typed) {
+        return typed;
+      }
+    } catch (ReflectiveOperationException ignored) {
+    }
+
+    return null;
+  }
+
+  private static Method resolveCurrentScreenAccessor(Minecraft minecraft) {
+    if (currentScreenAccessorResolved) {
+      return cachedCurrentScreenAccessor;
+    }
+
+    if (minecraft == null) {
+      currentScreenAccessorResolved = true;
+      return null;
+    }
+
     for (Method method : minecraft.getClass().getMethods()) {
       if (method.getParameterCount() == 0
           && Screen.class.isAssignableFrom(method.getReturnType())
           && method.getName().toLowerCase(java.util.Locale.ROOT).contains("screen")) {
-        try {
-          Object value = method.invoke(minecraft);
-          if (value instanceof Screen typed) {
-            return typed;
-          }
-        } catch (ReflectiveOperationException ignored) {
-        }
+        cachedCurrentScreenAccessor = method;
+        currentScreenAccessorResolved = true;
+        return cachedCurrentScreenAccessor;
       }
     }
 
+    currentScreenAccessorResolved = true;
     return null;
   }
 
