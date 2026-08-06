@@ -698,8 +698,8 @@ public class ExcavationAgent extends Agent {
     }
 
     ordered.sort(
-      Comparator.<OrderedExcavationTarget>comparingInt(
-        entry -> entry.target().layer())
+        Comparator.<OrderedExcavationTarget>comparingInt(
+            entry -> entry.target().layer())
             .thenComparingInt(OrderedExcavationTarget::spiralOrder)
             .thenComparingInt(entry -> entry.target().pos().getY())
             .thenComparingInt(entry -> entry.target().pos().getX())

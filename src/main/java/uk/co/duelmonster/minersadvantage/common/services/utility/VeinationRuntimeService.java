@@ -229,6 +229,21 @@ public final class VeinationRuntimeService {
   }
 
   /**
+   * Build a bounded discovery cursor for callers that spread vein discovery across ticks.
+   */
+  public VeinationCoreService.VeinDiscoveryCursor beginVeinDiscovery(
+      Level level,
+      BlockPos origin,
+      BlockState originStateHint,
+      VeinationConfig config) {
+    BlockState candidateState = resolveOriginState(level, origin, originStateHint);
+    if (!isOreAllowed(config, candidateState)) {
+      return VeinationCoreService.VeinDiscoveryCursor.empty();
+    }
+    return coreService.beginVeinDiscovery(level, origin, originStateHint, config.maxVeinDistance());
+  }
+
+  /**
    * Drop-anchor timestamp payload so stale anchors can be retired without guesswork.
    */
   private record DropAnchor(BlockPos pos, Date timestamp) {

@@ -20,10 +20,95 @@ import uk.co.duelmonster.minersadvantage.common.registry.RegistryPredicates;
  * while trying very hard not to set your server tick budget on fire.
  */
 public final class VeinationCoreService {
+  private static final int FULL_DISCOVERY_BATCH_SIZE = 256;
+
   /**
    * Lightweight coordinate payload used by helper methods and tests that reason about vein nodes.
    */
   public record VeinNode(int x, int y, int z) {
+  }
+
+  /**
+   * Stateful BFS cursor that allows callers to spread discovery work across ticks.
+   */
+  public static final class VeinDiscoveryCursor {
+    private static final VeinDiscoveryCursor EMPTY = new VeinDiscoveryCursor();
+
+    private final Level world;
+    private final BlockPos origin;
+    private final String originFamily;
+    private final int maxDistanceSquared;
+    private final Deque<BlockPos> queue;
+    private final Set<BlockPos> visited;
+    private boolean complete;
+
+    private VeinDiscoveryCursor() {
+      this.world = null;
+      this.origin = BlockPos.ZERO;
+      this.originFamily = "";
+      this.maxDistanceSquared = 0;
+      this.queue = new ArrayDeque<>();
+      this.visited = new HashSet<>();
+      this.complete = true;
+    }
+
+    private VeinDiscoveryCursor(
+        Level world,
+        BlockPos origin,
+        String originFamily,
+        int maxDistanceSquared,
+        Deque<BlockPos> queue,
+        Set<BlockPos> visited) {
+      this.world = world;
+      this.origin = origin;
+      this.originFamily = originFamily;
+      this.maxDistanceSquared = maxDistanceSquared;
+      this.queue = queue;
+      this.visited = visited;
+      this.complete = queue.isEmpty();
+    }
+
+    public static VeinDiscoveryCursor empty() {
+      return EMPTY;
+    }
+
+    public boolean isComplete() {
+      return complete;
+    }
+
+    public List<BlockPos> drainNext(int maxNodes) {
+      if (complete) {
+        return List.of();
+      }
+
+      int boundedMaxNodes = Math.max(1, maxNodes);
+      List<BlockPos> vein = new ArrayList<>(boundedMaxNodes);
+      while (!queue.isEmpty() && vein.size() < boundedMaxNodes) {
+        BlockPos current = queue.removeFirst();
+        if (current.distSqr(origin) > maxDistanceSquared) {
+          continue;
+        }
+
+        BlockState currentState = world.getBlockState(current);
+        if (!RegistryPredicates.isOreLike(currentState)
+            || !originFamily.equals(normalizeOreFamily(blockId(currentState)))) {
+          continue;
+        }
+
+        vein.add(current.immutable());
+        for (BlockPos neighbor : Functions.connectedNeighbors(current)) {
+          if (visited.add(neighbor)) {
+            queue.addLast(neighbor);
+          }
+        }
+      }
+
+      if (queue.isEmpty()) {
+        complete = true;
+      }
+
+      return vein;
+    }
   }
 
   /**
@@ -52,15 +137,31 @@ public final class VeinationCoreService {
    */
   public List<BlockPos> discoverConnectedVein(Level world, BlockPos origin, BlockState originHint,
       int maxVeinDistance) {
+    VeinDiscoveryCursor cursor = beginVeinDiscovery(world, origin, originHint, maxVeinDistance);
+    if (cursor.isComplete()) {
+      return List.of();
+    }
+
     List<BlockPos> vein = new ArrayList<>();
+    while (!cursor.isComplete()) {
+      vein.addAll(cursor.drainNext(FULL_DISCOVERY_BATCH_SIZE));
+    }
+    return vein;
+  }
+
+  /**
+   * Build a stateful discovery cursor for callers that want bounded per-tick BFS work.
+   */
+  public VeinDiscoveryCursor beginVeinDiscovery(Level world, BlockPos origin, BlockState originHint,
+      int maxVeinDistance) {
     if (world == null || origin == null || maxVeinDistance < 0) {
-      return vein;
+      return VeinDiscoveryCursor.empty();
     }
 
     BlockState originState = world.getBlockState(origin);
     BlockState effectiveOriginState = RegistryPredicates.isOreLike(originState) ? originState : originHint;
     if (effectiveOriginState == null || !RegistryPredicates.isOreLike(effectiveOriginState)) {
-      return vein;
+      return VeinDiscoveryCursor.empty();
     }
 
     String originFamily = normalizeOreFamily(blockId(effectiveOriginState));
@@ -84,28 +185,7 @@ public final class VeinationCoreService {
     }
 
     int maxDistanceSquared = maxVeinDistance * maxVeinDistance;
-    // Standard BFS loop with early exits for distance.
-    while (!queue.isEmpty()) {
-      BlockPos current = queue.removeFirst();
-      if (current.distSqr(origin) > maxDistanceSquared) {
-        continue;
-      }
-
-      BlockState currentState = world.getBlockState(current);
-      if (!RegistryPredicates.isOreLike(currentState)
-          || !originFamily.equals(normalizeOreFamily(blockId(currentState)))) {
-        continue;
-      }
-
-      vein.add(current.immutable());
-      for (BlockPos neighbor : Functions.connectedNeighbors(current)) {
-        if (visited.add(neighbor)) {
-          queue.addLast(neighbor);
-        }
-      }
-    }
-
-    return vein;
+    return new VeinDiscoveryCursor(world, origin.immutable(), originFamily, maxDistanceSquared, queue, visited);
   }
 
   /**
