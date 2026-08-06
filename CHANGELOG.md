@@ -21,6 +21,7 @@
 - Add a dedicated release checklist document and link it from technical docs to standardize pre-release gates, matrix checks, and publish handoff steps.
 - Extend the staged optimization replay plan with post-14 commits covering remaining 2750 performance surfaces (shape/predicate caches, substitution paths, packet process support, and Supreme Vantage runtime), each with commit-isolated in-game confirmation gates.
 - Optimize shape/predicate lookup hot paths by restoring direct shape id/index caches in `MAShapeRegistry` and adding bounded block-state lookup caching in `RegistryPredicates` while preserving behavior.
+- Optimize substitution core candidate selection by replacing allocation-heavy stream pipelines with a single-pass filtered selector while preserving ranking and decision outcomes.
 
 ## 2.21.0
 

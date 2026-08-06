@@ -94,14 +94,39 @@ public final class SubstitutionCoreService {
         .thenComparing(ToolCandidate::id);
   }
 
+  private ToolCandidate selectBestCandidate(
+      List<ToolCandidate> candidates,
+      boolean favourSilkTouch,
+      boolean favourFortune,
+      boolean combatContext,
+      Set<String> blacklist,
+      boolean allowMending) {
+    Comparator<ToolCandidate> comparator = comparatorFor(favourSilkTouch, favourFortune, combatContext);
+    ToolCandidate best = null;
+
+    for (ToolCandidate candidate : candidates) {
+      if (candidate.blacklisted()) {
+        continue;
+      }
+      if (blacklist != null && blacklist.contains(candidate.id())) {
+        continue;
+      }
+      if (!allowMending && candidate.mendingProtected()) {
+        continue;
+      }
+      if (best == null || comparator.compare(candidate, best) > 0) {
+        best = candidate;
+      }
+    }
+
+    return best;
+  }
+
   public ToolCandidate selectBest(
       List<ToolCandidate> candidates,
       boolean favourSilkTouch,
       boolean favourFortune) {
-    return candidates.stream()
-        .filter(c -> !c.blacklisted())
-        .max(comparatorFor(favourSilkTouch, favourFortune, false))
-        .orElse(null);
+    return selectBestCandidate(candidates, favourSilkTouch, favourFortune, false, null, true);
   }
 
   public ToolCandidate selectBest(
@@ -111,12 +136,7 @@ public final class SubstitutionCoreService {
       boolean combatContext,
       Set<String> blacklist,
       boolean allowMending) {
-    return candidates.stream()
-        .filter(c -> !c.blacklisted())
-        .filter(c -> blacklist == null || !blacklist.contains(c.id()))
-        .filter(c -> allowMending || !c.mendingProtected())
-        .max(comparatorFor(favourSilkTouch, favourFortune, combatContext))
-        .orElse(null);
+    return selectBestCandidate(candidates, favourSilkTouch, favourFortune, combatContext, blacklist, allowMending);
   }
 
   public SubstitutionDecision decideTool(
@@ -132,11 +152,8 @@ public final class SubstitutionCoreService {
       return new SubstitutionDecision(currentToolId, false, true, mode.name().toLowerCase());
     }
 
-    ToolCandidate best = candidates.stream()
-        .filter(c -> !c.blacklisted())
-        .filter(c -> allowMending || !c.mendingProtected())
-        .max(comparatorFor(favourSilkTouch, favourFortune, combatContext))
-        .orElse(null);
+    ToolCandidate best = selectBestCandidate(candidates, favourSilkTouch, favourFortune, combatContext, null,
+        allowMending);
 
     if (best == null) {
       return new SubstitutionDecision(currentToolId, false, false, "unavailable");
