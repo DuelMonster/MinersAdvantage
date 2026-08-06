@@ -95,3 +95,20 @@ These are replayed only in isolated commits with explicit stop-and-test gates.
 
 - If ghost blocks or credits-roll behavior returns during replay, revert only the latest stage commit under test.
 - Re-scope that stage before continuing; do not batch additional optimizations into the same retry.
+
+## Replay Validation Summary (2.22.0)
+
+The staged replay from the post-2.21 baseline completed through the planned optimization tracks with mandatory in-game gates between commits.
+
+### Accepted Stage Outcomes
+
+- Throughput Track A-D (config parity, budget loop, cadence, TPS guard): accepted with no ghost-block or credits-roll recurrence.
+- Excavation ordering optimization: accepted after 3x3 chaining and larger excavation scenario checks.
+- Veination discovery spread optimization: accepted with bounded per-tick discovery and stable harvested vein behavior.
+- Lumbination canopy/hot-path optimization: accepted in dense-canopy runs with stable tree completion behavior.
+- NeoForge adapter-only adjustments: accepted with shared common logic remaining source-of-truth.
+
+### Final Matrix Notes
+
+- Keep the staged rollback policy: if a future regression appears, revert only the most recent accepted optimization stage and re-test before additional changes.
+- Re-run both Fabric and NeoForge scenario sets when changing throughput knobs, excavation ordering, veination discovery, or lumbination canopy traversal.
