@@ -4,6 +4,8 @@
 - Add client screen transition diagnostics and server break-face cache hit/miss diagnostics to support staged NeoForge/Fabric parity investigation.
 - Add a commit-2750 replay inventory to the tuning matrix, classifying retain-now, retain-later, and hold-back optimization deltas for staged reapplication.
 - Optimize shared client runtime compatibility by caching reflected current-screen accessor lookup instead of scanning methods on every fallback access.
+- Refactor common event dispatch guard checks into shared helper paths to reduce repeated feature-enabled branching while preserving behavior.
+- Improve throughput tuning matrix table readability formatting.
 
 ## 2.21.0
 

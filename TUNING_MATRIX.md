@@ -25,13 +25,13 @@ Log line prefix: `AgentTick`
 
 ## Matrix
 
-| Profile | ticks_per_block | max_blocks_per_tick | Intended Feel | Primary Risk | Notes |
-| ------- | --------------- | ------------------- | ------------- | ------------ | ----- |
-| A (Conservative) | 10 | 1 | Very smooth, low impact | Slow completion | Baseline default |
-| B (Smoother-Moderate) | 5 | 1 | Faster than A, still smooth | Mild backlog in large jobs | Good multiplayer candidate |
-| C (Balanced) | 3 | 2 | Noticeably responsive | Small bursts | Good single-player candidate |
-| D (Responsive) | 2 | 3 | Fast feedback | Occasional spikes | Watch p95 tick cost |
-| E (Bursty) | 1 | 4 | Immediate response | Burst lag in dense operations | Stress profile |
+| Profile               | ticks_per_block | max_blocks_per_tick | Intended Feel               | Primary Risk                  | Notes                        |
+| --------------------- | --------------- | ------------------- | --------------------------- | ----------------------------- | ---------------------------- |
+| A (Conservative)      | 10              | 1                   | Very smooth, low impact     | Slow completion               | Baseline default             |
+| B (Smoother-Moderate) | 5               | 1                   | Faster than A, still smooth | Mild backlog in large jobs    | Good multiplayer candidate   |
+| C (Balanced)          | 3               | 2                   | Noticeably responsive       | Small bursts                  | Good single-player candidate |
+| D (Responsive)        | 2               | 3                   | Fast feedback               | Occasional spikes             | Watch p95 tick cost          |
+| E (Bursty)            | 1               | 4                   | Immediate response          | Burst lag in dense operations | Stress profile               |
 
 ## Scenario Set
 
