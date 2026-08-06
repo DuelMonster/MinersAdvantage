@@ -36,6 +36,7 @@ import uk.co.duelmonster.minersadvantage.common.services.utility.SupremeVantageS
 public final class NeoForgeClientEvents {
   private static final Map<KeyBindings.ClientAction, KeyMapping> KEY_MAPPINGS = new EnumMap<>(
       KeyBindings.ClientAction.class);
+  private static final ClientInputService INPUT_SERVICE = new ClientInputService();
   private static final KeyMapping.Category KEY_CATEGORY = ClientActionInputSupport.createKeyCategory();
   private static ClientInputService.ClientInputState inputState = ClientInputService.ClientInputState.defaults();
   private static ClientInputService.ClientInputState lastSyncedState = ClientInputService.ClientInputState.defaults();
@@ -81,7 +82,7 @@ public final class NeoForgeClientEvents {
 
     Set<KeyBindings.ClientAction> pressedSet = ClientActionInputSupport.collectPressedActions(KEY_MAPPINGS);
 
-    ClientInputService.ClientInputResult result = new ClientInputService().process(
+    ClientInputService.ClientInputResult result = INPUT_SERVICE.process(
         inputState,
         pressedSet,
         false);
@@ -95,7 +96,7 @@ public final class NeoForgeClientEvents {
     supremeVantageState = supremeUpdate.state();
 
     if (supremeUpdate.notifyWorthy()) {
-      ClientRuntimeCompat.showOverlayMessage(Minecraft.getInstance(),
+      ClientRuntimeCompat.showOverlayMessage(client,
           Component.literal("SupremeVantage code accepted"));
     }
 
@@ -173,7 +174,7 @@ public final class NeoForgeClientEvents {
       return false;
     }
 
-    ClientInputService.ClientInputResult scrollResult = new ClientInputService().process(inputState, actions, false);
+    ClientInputService.ClientInputResult scrollResult = INPUT_SERVICE.process(inputState, actions, false);
     inputState = scrollResult.state();
     syncStateToServer(inputState);
     return true;
