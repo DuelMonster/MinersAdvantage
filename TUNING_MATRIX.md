@@ -113,3 +113,48 @@ Docs-only follow-up commits are exempt from in-game gating and proceed after sta
 
 - Keep the staged rollback policy: if a future regression appears, revert only the most recent accepted optimization stage and re-test before additional changes.
 - Re-run both Fabric and NeoForge scenario sets when changing throughput knobs, excavation ordering, veination discovery, or lumbination canopy traversal.
+
+## Optimization Extension Plan (Post-14)
+
+Remaining optimization candidates from commit `2750db1e333e44af4569e019477544dbf6e952b8` are replayed as isolated commits with mandatory in-game confirmation gates between runtime changes.
+
+### Commit 15 - Shape/Predicate Cache Hygiene
+
+- Scope: `MAShapeRegistry`, `RegistryPredicates`
+- Goal: reduce lookup/cache churn without changing classification or shape semantics
+- Gate: compile matrix + in-game preview/runtime parity confirmation
+
+### Commit 16 - Substitution Core Candidate Filtering
+
+- Scope: `SubstitutionCoreService`
+- Goal: low-allocation filtering/ranking improvements with unchanged selection outcomes
+- Gate: substitution regression tests + in-game tool-swap parity confirmation
+
+### Commit 17 - Substitution Agent Runtime Fast Path
+
+- Scope: `SubstitutionAgent`
+- Goal: reduce agent queue/runtime overhead without dispatch behavior change
+- Gate: compile matrix + in-game sustained substitution parity confirmation
+
+### Commit 18 - Packet Process Support Micro-Optimization
+
+- Scope: `PacketProcessSupport`
+- Goal: reduce packet hot-path allocation while preserving authority/sync semantics
+- Gate: packet regression checks + in-game multiplayer parity confirmation
+
+### Commit 19 - Supreme Vantage Runtime Optimization
+
+- Scope: `SupremeVantageService`
+- Goal: reduce runtime overhead while preserving deterministic reward progression
+- Gate: targeted reward-flow tests + in-game confirmation
+
+### Commit 20 - Extension Final Docs/Test Matrix Sync
+
+- Scope: `README`, `TECHNICAL`, `TUNING_MATRIX`, `CHANGELOG`, and missing regression tests
+- Goal: close extension stage with parity docs + full validation
+- Gate: full compile matrix + test suite green
+
+### Stop-and-Wait Rule
+
+- After each optimization/runtime commit (15-19), stop and wait for user in-game confirmation before preparing the next commit.
+- Docs-only commits are exempt from in-game validation and proceed once standard validation gates pass.

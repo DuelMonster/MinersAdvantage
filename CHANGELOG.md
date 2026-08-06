@@ -19,6 +19,7 @@
 - Finalize replay docs/test sync with a staged validation summary in tuning docs and added helper-semantic coverage for veination/lumbination parity checks.
 - Clarify replay workflow docs so in-game validation gates apply to optimization/runtime commits, while docs-only follow-up commits proceed after standard validation checks.
 - Add a dedicated release checklist document and link it from technical docs to standardize pre-release gates, matrix checks, and publish handoff steps.
+- Extend the staged optimization replay plan with post-14 commits covering remaining 2750 performance surfaces (shape/predicate caches, substitution paths, packet process support, and Supreme Vantage runtime), each with commit-isolated in-game confirmation gates.
 
 ## 2.21.0
 
