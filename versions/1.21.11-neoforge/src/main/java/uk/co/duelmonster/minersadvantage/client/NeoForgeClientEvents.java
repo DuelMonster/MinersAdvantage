@@ -2,6 +2,7 @@ package uk.co.duelmonster.minersadvantage.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
+import java.util.HashSet;
 import java.lang.reflect.Method;
 import java.util.EnumMap;
 import java.util.Map;
@@ -20,6 +21,8 @@ import uk.co.duelmonster.minersadvantage.common.network.AbortWorkersPacket;
 import uk.co.duelmonster.minersadvantage.common.network.ComponentTogglePacket;
 import uk.co.duelmonster.minersadvantage.common.network.SupremeVantagePacket;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
+import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeBootstrap;
+import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeRegistry;
 import uk.co.duelmonster.minersadvantage.common.services.input.ClientInputService;
 import uk.co.duelmonster.minersadvantage.common.services.utility.SupremeVantageService;
 
@@ -81,12 +84,14 @@ public final class NeoForgeClientEvents {
     }
 
     Set<KeyBindings.ClientAction> pressedSet = ClientActionInputSupport.collectPressedActions(KEY_MAPPINGS);
+    ClientInputService.ClientInputState previousState = inputState;
 
     ClientInputService.ClientInputResult result = INPUT_SERVICE.process(
         inputState,
         pressedSet,
         false);
     inputState = result.state();
+    showShapeHudIfChangedOrActivated(previousState, inputState);
 
     SupremeVantageService.ClientUpdate supremeUpdate = supremeVantageService.processClientTick(
         supremeVantageState,
@@ -168,16 +173,107 @@ public final class NeoForgeClientEvents {
       return false;
     }
 
-    Set<KeyBindings.ClientAction> actions = ClientActionInputSupport.collectScrollActions(inputState, scrollY);
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
+    boolean excavationActive = isActionKeyHeld(KeyBindings.ClientAction.EXCAVATION_MODE_TOGGLE)
+        && inputState.featureEnabled().getOrDefault(FeatureId.EXCAVATION, false);
+    boolean shaftActive = isActionKeyHeld(KeyBindings.ClientAction.SHAFT_VENT_TOGGLE)
+        && inputState.featureEnabled().getOrDefault(FeatureId.SHAFTANATION, false);
+
+    if (!excavationActive && !shaftActive) {
+      return false;
+    }
+
+    Set<KeyBindings.ClientAction> actions = new HashSet<>();
+    if (excavationActive) {
+      actions.add(scrollY > 0.0d ? KeyBindings.ClientAction.EXCAVATION_SHAPE_PREV
+          : KeyBindings.ClientAction.EXCAVATION_SHAPE_NEXT);
+    }
+    if (shaftActive) {
+      actions.add(scrollY > 0.0d ? KeyBindings.ClientAction.SHAFTANATION_SHAPE_PREV
+          : KeyBindings.ClientAction.SHAFTANATION_SHAPE_NEXT);
+    }
+
     if (actions.isEmpty()) {
       return false;
     }
 
-    ClientInputService.ClientInputResult scrollResult = INPUT_SERVICE.process(inputState, actions, false);
-    inputState = scrollResult.state();
+    ClientInputService.ClientInputState previousState = inputState;
+
+    int nextExcavationShapeIndex = previousState.selectedExcavationShapeIndex();
+    int nextShaftanationShapeIndex = previousState.selectedShaftanationShapeIndex();
+
+    if (actions.contains(KeyBindings.ClientAction.EXCAVATION_SHAPE_NEXT)
+        || actions.contains(KeyBindings.ClientAction.EXCAVATION_SHAPE_PREV)) {
+      int excavationShapeCount = MAShapeRegistry.forFeature(FeatureId.EXCAVATION).size();
+      if (excavationShapeCount > 0) {
+        if (actions.contains(KeyBindings.ClientAction.EXCAVATION_SHAPE_NEXT)) {
+          nextExcavationShapeIndex = Math.floorMod(nextExcavationShapeIndex + 1, excavationShapeCount);
+        }
+        if (actions.contains(KeyBindings.ClientAction.EXCAVATION_SHAPE_PREV)) {
+          nextExcavationShapeIndex = Math.floorMod(nextExcavationShapeIndex - 1, excavationShapeCount);
+        }
+      }
+    }
+
+    if (actions.contains(KeyBindings.ClientAction.SHAFTANATION_SHAPE_NEXT)
+        || actions.contains(KeyBindings.ClientAction.SHAFTANATION_SHAPE_PREV)) {
+      int shaftShapeCount = MAShapeRegistry.forFeature(FeatureId.SHAFTANATION).size();
+      if (shaftShapeCount > 0) {
+        if (actions.contains(KeyBindings.ClientAction.SHAFTANATION_SHAPE_NEXT)) {
+          nextShaftanationShapeIndex = Math.floorMod(nextShaftanationShapeIndex + 1, shaftShapeCount);
+        }
+        if (actions.contains(KeyBindings.ClientAction.SHAFTANATION_SHAPE_PREV)) {
+          nextShaftanationShapeIndex = Math.floorMod(nextShaftanationShapeIndex - 1, shaftShapeCount);
+        }
+      }
+    }
+
+    inputState = new ClientInputService.ClientInputState(
+        previousState.featureEnabled(),
+        previousState.excavationToggled(),
+        previousState.shaftVentToggled(),
+        nextExcavationShapeIndex,
+        nextShaftanationShapeIndex);
+
+    if (previousState.selectedExcavationShapeIndex() == inputState.selectedExcavationShapeIndex()
+        && previousState.selectedShaftanationShapeIndex() == inputState.selectedShaftanationShapeIndex()) {
+      return false;
+    }
+
+    showShapeHudIfChangedOrActivated(previousState, inputState);
     syncStateToServer(inputState);
     return true;
+  }
+
+  private static void showShapeHudIfChangedOrActivated(ClientInputService.ClientInputState previous,
+      ClientInputService.ClientInputState current) {
+    boolean excavationChanged = previous.selectedExcavationShapeIndex() != current.selectedExcavationShapeIndex();
+    boolean shaftChanged = previous.selectedShaftanationShapeIndex() != current.selectedShaftanationShapeIndex();
+    boolean excavationActivated = !previous.excavationToggled() && current.excavationToggled();
+    boolean shaftActivated = !previous.shaftVentToggled() && current.shaftVentToggled();
+    if (!excavationChanged && !shaftChanged && !excavationActivated && !shaftActivated) {
+      return;
+    }
+
+    MAShapeBootstrap.ensureInitialized();
+    StringBuilder message = new StringBuilder();
+    if (excavationChanged || excavationActivated) {
+      String excavationName = MAShapeRegistry.byIndex(FeatureId.EXCAVATION, current.selectedExcavationShapeIndex())
+          .map(shape -> shape.displayName())
+          .orElse("#" + current.selectedExcavationShapeIndex());
+      message.append("Excavation Shape: ").append(excavationName);
+    }
+    if (shaftChanged || shaftActivated) {
+      String shaftName = MAShapeRegistry.byIndex(FeatureId.SHAFTANATION, current.selectedShaftanationShapeIndex())
+          .map(shape -> shape.displayName())
+          .orElse("#" + current.selectedShaftanationShapeIndex());
+      if (!message.isEmpty()) {
+        message.append(" | ");
+      }
+      message.append("Shaft Shape: ").append(shaftName);
+    }
+
+    Minecraft minecraft = Minecraft.getInstance();
+    ClientRuntimeCompat.showOverlayMessage(minecraft, Component.literal(message.toString()));
   }
 
   /**

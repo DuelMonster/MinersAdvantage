@@ -31,6 +31,7 @@
 - Finalize Commit-20 extension closure docs across README, TECHNICAL, and tuning matrix with full validation gate confirmation.
 - Replace common throughput pacing `blocks_per_tick` with `ticks_per_block` plus `max_blocks_per_tick`, including config UI, policy clamps/guardrails, and agent runtime cadence/budget handling.
 - Set common pacing defaults to `ticks_per_block=1` and `max_blocks_per_tick=1`.
+- Fix NeoForge shape cycling feedback parity by restoring scroll-wheel shape-name overlay messaging and direct held-key shape index cycling behavior.
 
 ## 2.21.0
 
