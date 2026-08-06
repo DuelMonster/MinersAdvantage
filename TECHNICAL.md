@@ -243,6 +243,9 @@ After changing the active node, a regular build targets that node:
 - `packageRelease` tasks copy remapped/production jars into `releases/`.
 - See [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md) for end-to-end pre-release and publish gating.
 
+The post-2.21 optimization replay extension (Commits 15-20) is closed in `2.22.0`.
+Runtime optimization commits keep mandatory in-game stop-and-wait gates; docs-only synchronization commits proceed after standard validation gates pass.
+
 ## License
 
 MIT - see [LICENSE.md](LICENSE.md) for the full text.

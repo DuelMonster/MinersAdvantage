@@ -1,5 +1,7 @@
 package uk.co.duelmonster.minersadvantage.common.event;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -19,49 +21,81 @@ import uk.co.duelmonster.minersadvantage.testutil.TestRuntimeAssumptions;
  * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
  */
 class PacketProcessSupportTest {
-    @AfterEach
-    /**
-     * r es et ob se rv er exists so this path stays predictable and easier to debug when things get weird.
-     */
-    void resetObserver() {
-        FeatureEventHandler.resetDispatchObserverForTesting();
-    }
+  @AfterEach
+  /**
+   * r es et ob se rv er exists so this path stays predictable and easier to debug when things get weird.
+   */
+  void resetObserver() {
+    FeatureEventHandler.resetDispatchObserverForTesting();
+  }
 
-    @Test
-    /**
-     * d is ab le d pa ck et di sp at ch st ay s lo ck ed out exists so this path stays predictable and easier to debug when things get weird.
-     */
-    void doesNotDispatchWhenCaptivationIsDisabled() {
-        Assumptions.assumeTrue(TestRuntimeAssumptions.canInitializeSoundEvents());
-        MinersAdvantageCore core = new MinersAdvantageCore();
-        core.bootstrap();
-        core.handleComponentTogglePacket(new ComponentTogglePacket(FeatureId.CAPTIVATION, false));
+  @Test
+  /**
+   * d is ab le d pa ck et di sp at ch st ay s lo ck ed out exists so this path stays predictable and easier to debug when things get weird.
+   */
+  void doesNotDispatchWhenCaptivationIsDisabled() {
+    Assumptions.assumeTrue(TestRuntimeAssumptions.canInitializeSoundEvents());
+    MinersAdvantageCore core = new MinersAdvantageCore();
+    core.bootstrap();
+    core.handleComponentTogglePacket(new ComponentTogglePacket(FeatureId.CAPTIVATION, false));
 
-        AtomicReference<FeatureDispatchContext> captured = new AtomicReference<>();
-        FeatureEventHandler.setDispatchObserverForTesting(captured::set);
+    AtomicReference<FeatureDispatchContext> captured = new AtomicReference<>();
+    FeatureEventHandler.setDispatchObserverForTesting(captured::set);
 
-        PacketCaptivate.process(null, new PacketCaptivate());
+    PacketCaptivate.process(null, new PacketCaptivate());
 
-        assertNull(captured.get());
-        core.shutdown();
-    }
+    assertNull(captured.get());
+    core.shutdown();
+  }
 
-    @Test
-    /**
-     * direct feature dispatch respects disabled state exists so this path stays predictable and easier to debug when things get weird.
-     */
-    void doesNotDispatchCoreFeaturePacketWhenCaptivationIsDisabled() {
-        Assumptions.assumeTrue(TestRuntimeAssumptions.canInitializeSoundEvents());
-        MinersAdvantageCore core = new MinersAdvantageCore();
-        core.bootstrap();
-        core.handleComponentTogglePacket(new ComponentTogglePacket(FeatureId.CAPTIVATION, false));
+  @Test
+  /**
+   * direct feature dispatch respects disabled state exists so this path stays predictable and easier to debug when things get weird.
+   */
+  void doesNotDispatchCoreFeaturePacketWhenCaptivationIsDisabled() {
+    Assumptions.assumeTrue(TestRuntimeAssumptions.canInitializeSoundEvents());
+    MinersAdvantageCore core = new MinersAdvantageCore();
+    core.bootstrap();
+    core.handleComponentTogglePacket(new ComponentTogglePacket(FeatureId.CAPTIVATION, false));
 
-        AtomicReference<FeatureDispatchContext> captured = new AtomicReference<>();
-        FeatureEventHandler.setDispatchObserverForTesting(captured::set);
+    AtomicReference<FeatureDispatchContext> captured = new AtomicReference<>();
+    FeatureEventHandler.setDispatchObserverForTesting(captured::set);
 
-        core.handleFeatureDispatchPacket(new FeatureDispatchPacket(FeatureId.CAPTIVATION, 1, 2, 3, "minecraft:diamond", "minecraft:stick"));
+    core.handleFeatureDispatchPacket(
+        new FeatureDispatchPacket(FeatureId.CAPTIVATION, 1, 2, 3, "minecraft:diamond", "minecraft:stick"));
 
-        assertNull(captured.get());
-        core.shutdown();
-    }
+    assertNull(captured.get());
+    core.shutdown();
+  }
+
+  @Test
+  /**
+   * core feature dispatch forwards payload fields exists so this path stays predictable and easier to debug when things get weird.
+   */
+  void coreFeatureDispatchForwardsPayloadFields() {
+    Assumptions.assumeTrue(TestRuntimeAssumptions.canInitializeSoundEvents());
+    MinersAdvantageCore core = new MinersAdvantageCore();
+    core.bootstrap();
+
+    AtomicReference<FeatureDispatchContext> captured = new AtomicReference<>();
+    FeatureEventHandler.setDispatchObserverForTesting(captured::set);
+
+    core.handleFeatureDispatchPacket(new FeatureDispatchPacket(
+        FeatureId.EXCAVATION,
+        4,
+        5,
+        6,
+        "minecraft:stone",
+        "minecraft:iron_pickaxe"));
+
+    FeatureDispatchContext context = captured.get();
+    assertNotNull(context);
+    assertEquals(FeatureId.EXCAVATION, context.feature());
+    assertEquals(4, context.blockX());
+    assertEquals(5, context.blockY());
+    assertEquals(6, context.blockZ());
+    assertEquals("minecraft:stone", context.blockId());
+    assertEquals("minecraft:iron_pickaxe", context.toolId());
+    core.shutdown();
+  }
 }

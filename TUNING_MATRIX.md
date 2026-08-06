@@ -108,6 +108,7 @@ Docs-only follow-up commits are exempt from in-game gating and proceed after sta
 - Veination discovery spread optimization: accepted with bounded per-tick discovery and stable harvested vein behavior.
 - Lumbination canopy/hot-path optimization: accepted in dense-canopy runs with stable tree completion behavior.
 - NeoForge adapter-only adjustments: accepted with shared common logic remaining source-of-truth.
+- Extension final docs/test sync: accepted with packet dispatch fallback-id regression coverage and full matrix validation.
 
 ### Final Matrix Notes
 

@@ -27,6 +27,8 @@
 - Optimize Supreme Vantage runtime reward/materialization paths by restoring precomputed digit/enchantment constants and removing per-tick/per-call stream/list allocation churn.
 - Fix substitution switch-back ghost-block regressions by restoring field-first game-mode carrier resolution order while keeping reflection-member caching.
 - Fix Fabric integrated-server end-tick crashes during player list mutation by iterating a stable `ServerPlayer` snapshot instead of the live level player collection.
+- Add packet dispatch regression coverage that locks fallback `minecraft:air` block/tool ids when player context lookups are unavailable.
+- Finalize Commit-20 extension closure docs across README, TECHNICAL, and tuning matrix with full validation gate confirmation.
 
 ## 2.21.0
 
