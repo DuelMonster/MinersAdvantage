@@ -19,6 +19,6 @@ public record CommonConfig(
    * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
    */
   public CommonConfig() {
-    this(true, false, true, true, 10, 1, true, 5, 3);
+    this(true, false, true, true, 1, 1, true, 5, 3);
   }
 }

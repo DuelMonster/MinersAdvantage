@@ -30,6 +30,7 @@
 - Add packet dispatch regression coverage that locks fallback `minecraft:air` block/tool ids when player context lookups are unavailable.
 - Finalize Commit-20 extension closure docs across README, TECHNICAL, and tuning matrix with full validation gate confirmation.
 - Replace common throughput pacing `blocks_per_tick` with `ticks_per_block` plus `max_blocks_per_tick`, including config UI, policy clamps/guardrails, and agent runtime cadence/budget handling.
+- Set common pacing defaults to `ticks_per_block=1` and `max_blocks_per_tick=1`.
 
 ## 2.21.0
 

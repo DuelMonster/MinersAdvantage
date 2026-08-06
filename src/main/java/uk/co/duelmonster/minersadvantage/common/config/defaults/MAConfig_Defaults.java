@@ -52,7 +52,7 @@ public final class MAConfig_Defaults {
     public static final boolean gatherDrops = false;
     public static final boolean autoIlluminate = true;
     public static final boolean mineVeins = true;
-    public static final int ticksPerBlock = 10;
+    public static final int ticksPerBlock = 1;
     public static final int maxBlocksPerTick = 1;
     public static final boolean enableTickDelay = true;
     public static final int tickDelay = 5;

@@ -122,7 +122,7 @@ Client options stay local. Gameplay options are server-authoritative in multipla
 | common.gather_drops        | boolean | false   | -                                    | Enables drop gathering helpers where applicable.                   |
 | common.auto_illuminate     | boolean | true    | -                                    | Allows compatible features to trigger Illumination behavior.       |
 | common.mine_veins          | boolean | true    | -                                    | Allows compatible features to trigger Veination behavior.          |
-| common.ticks_per_block     | int     | 10      | input: 1 to 200, effective: 1 to 40  | Shared per-agent cadence; each agent runs once every N ticks.      |
+| common.ticks_per_block     | int     | 1       | input: 1 to 200, effective: 1 to 40  | Shared per-agent cadence; each agent runs once every N ticks.      |
 | common.max_blocks_per_tick | int     | 1       | input: 1 to 1024, effective: 1 to 64 | Shared burst cap applied when an agent processing window executes. |
 | common.enable_tick_delay   | boolean | true    | -                                    | Enables tick-delay pacing.                                         |
 | common.tick_delay          | int     | 5       | input: 0 to 200, effective: 0 to 40  | Extra ticks between processing windows when tick delay is enabled. |
