@@ -3,6 +3,7 @@ package uk.co.duelmonster.minersadvantage;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -356,8 +357,9 @@ public final class ModEntry implements ModInitializer {
       int tickCount = server.getTickCount();
       for (ServerLevel level : server.getAllLevels()) {
         AgentManager.get().tick(level);
+        List<ServerPlayer> playersSnapshot = List.copyOf(level.players());
         if (tickCount % 20 == 0) {
-          for (ServerPlayer serverPlayer : level.players()) {
+          for (ServerPlayer serverPlayer : playersSnapshot) {
             SubstitutionAgent.processSwitchBack(serverPlayer);
             if (isFeatureEnabled(FeatureId.CAPTIVATION)
                 && !AgentManager.get().hasAgentType(serverPlayer, CaptivationAgent.class)) {
@@ -366,7 +368,7 @@ public final class ModEntry implements ModInitializer {
             }
           }
         } else {
-          for (ServerPlayer serverPlayer : level.players()) {
+          for (ServerPlayer serverPlayer : playersSnapshot) {
             SubstitutionAgent.processSwitchBack(serverPlayer);
           }
         }
