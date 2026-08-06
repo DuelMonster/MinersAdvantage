@@ -116,16 +116,16 @@ Client options stay local. Gameplay options are server-authoritative in multipla
 
 ### Common Gameplay (`minersadvantage-server-config.toml`)
 
-| Option                   | Type    | Default | Range                              | Description                                                                 |
-| ------------------------ | ------- | ------- | ---------------------------------- | --------------------------------------------------------------------------- |
-| common.tps_guard         | boolean | true    | -                                  | Reduces aggressive behavior under low TPS conditions.                       |
-| common.gather_drops      | boolean | false   | -                                  | Enables drop gathering helpers where applicable.                            |
-| common.auto_illuminate   | boolean | true    | -                                  | Allows compatible features to trigger Illumination behavior.                |
-| common.mine_veins        | boolean | true    | -                                  | Allows compatible features to trigger Veination behavior.                   |
+| Option                   | Type    | Default | Range                                | Description                                                                   |
+| ------------------------ | ------- | ------- | ------------------------------------ | ----------------------------------------------------------------------------- |
+| common.tps_guard         | boolean | true    | -                                    | Reduces aggressive behavior under low TPS conditions.                         |
+| common.gather_drops      | boolean | false   | -                                    | Enables drop gathering helpers where applicable.                              |
+| common.auto_illuminate   | boolean | true    | -                                    | Allows compatible features to trigger Illumination behavior.                  |
+| common.mine_veins        | boolean | true    | -                                    | Allows compatible features to trigger Veination behavior.                     |
 | common.blocks_per_tick   | int     | 1       | input: 1 to 1024, effective: 1 to 64 | Shared per-tick worker budget cap before feature-specific limits are applied. |
-| common.enable_tick_delay | boolean | true    | -                                  | Enables tick-delay pacing.                                                  |
-| common.tick_delay        | int     | 5       | input: 0 to 200, effective: 0 to 40 | Extra ticks between processing windows when tick delay is enabled.          |
-| common.block_radius      | int     | 3       | input: 1 to 128, effective: 1 to 16 | Shared search radius for relevant feature operations.                       |
+| common.enable_tick_delay | boolean | true    | -                                    | Enables tick-delay pacing.                                                    |
+| common.tick_delay        | int     | 5       | input: 0 to 200, effective: 0 to 40  | Extra ticks between processing windows when tick delay is enabled.            |
+| common.block_radius      | int     | 3       | input: 1 to 128, effective: 1 to 16  | Shared search radius for relevant feature operations.                         |
 
 Effective per-feature worker budget is `min(common.blocks_per_tick, <feature>.processes_per_tick)`.
 
@@ -157,17 +157,17 @@ Effective per-feature worker budget is `min(common.blocks_per_tick, <feature>.pr
 
 ### Excavation (`minersadvantage-server-config.toml`)
 
-| Option                           | Type         | Default | Range    | Description                                              |
-| -------------------------------- | ------------ | ------- | -------- | -------------------------------------------------------- |
-| excavation.enabled               | boolean      | true    | -        | Enables or disables Excavation.                          |
-| excavation.width                 | int          | 3       | 1 to 127 | Excavation width.                                        |
-| excavation.height                | int          | 3       | 1 to 127 | Excavation height.                                       |
-| excavation.depth                 | int          | 3       | 1 to 64  | Excavation depth.                                        |
+| Option                           | Type         | Default | Range                               | Description                                              |
+| -------------------------------- | ------------ | ------- | ----------------------------------- | -------------------------------------------------------- |
+| excavation.enabled               | boolean      | true    | -                                   | Enables or disables Excavation.                          |
+| excavation.width                 | int          | 3       | 1 to 127                            | Excavation width.                                        |
+| excavation.height                | int          | 3       | 1 to 127                            | Excavation height.                                       |
+| excavation.depth                 | int          | 3       | 1 to 64                             | Excavation depth.                                        |
 | excavation.processes_per_tick    | int          | 10      | input: 1 to 512, effective: 1 to 64 | Processing throughput per tick.                          |
-| excavation.toggle_mode           | boolean      | false   | -        | Uses toggle behavior instead of hold behavior when true. |
-| excavation.ignore_block_variants | boolean      | false   | -        | Treats block variants as equivalent for match logic.     |
-| excavation.is_block_whitelist    | boolean      | false   | -        | Treats `block_blacklist` as a whitelist when true.       |
-| excavation.block_blacklist       | list<string> | []      | -        | Block IDs used for blacklist/whitelist filtering.        |
+| excavation.toggle_mode           | boolean      | false   | -                                   | Uses toggle behavior instead of hold behavior when true. |
+| excavation.ignore_block_variants | boolean      | false   | -                                   | Treats block variants as equivalent for match logic.     |
+| excavation.is_block_whitelist    | boolean      | false   | -                                   | Treats `block_blacklist` as a whitelist when true.       |
+| excavation.block_blacklist       | list<string> | []      | -                                   | Block IDs used for blacklist/whitelist filtering.        |
 
 ### Pathanation (`minersadvantage-server-config.toml`)
 
@@ -189,32 +189,32 @@ Effective per-feature worker budget is `min(common.blocks_per_tick, <feature>.pr
 
 ### Lumbination (`minersadvantage-server-config.toml`)
 
-| Option                                  | Type         | Default | Range    | Description                                                   |
-| --------------------------------------- | ------------ | ------- | -------- | ------------------------------------------------------------- |
-| lumbination.enabled                     | boolean      | true    | -        | Enables or disables Lumbination.                              |
-| lumbination.max_trunk_range             | int          | 32      | 1 to 128 | Maximum trunk search range.                                   |
-| lumbination.max_leaf_range              | int          | 6       | 1 to 32  | Maximum leaf search range.                                    |
+| Option                                  | Type         | Default | Range                               | Description                                                   |
+| --------------------------------------- | ------------ | ------- | ----------------------------------- | ------------------------------------------------------------- |
+| lumbination.enabled                     | boolean      | true    | -                                   | Enables or disables Lumbination.                              |
+| lumbination.max_trunk_range             | int          | 32      | 1 to 128                            | Maximum trunk search range.                                   |
+| lumbination.max_leaf_range              | int          | 6       | 1 to 32                             | Maximum leaf search range.                                    |
 | lumbination.processes_per_tick          | int          | 8       | input: 1 to 512, effective: 1 to 64 | Processing throughput per tick.                               |
-| lumbination.chop_tree_below             | boolean      | true    | -        | Continues chopping blocks below starting point when true.     |
-| lumbination.destroy_leaves              | boolean      | true    | -        | Removes leaves during tree processing when true.              |
-| lumbination.leaves_affect_durability    | boolean      | false   | -        | Applies tool durability costs for leaves when true.           |
-| lumbination.replant_saplings            | boolean      | true    | -        | Attempts sapling replanting where possible.                   |
-| lumbination.use_canopy_tool             | boolean      | true    | -        | Uses canopy detection/handling logic for broader tree shapes. |
-| lumbination.ignore_player_placed_leaves | boolean      | true    | -        | Ignores player-placed leaves when identifying natural trees.  |
-| lumbination.logs                        | list<string> | []      | -        | Additional trunk/log block IDs.                               |
-| lumbination.leaves                      | list<string> | []      | -        | Additional leaf block IDs.                                    |
-| lumbination.axes                        | list<string> | []      | -        | Allowed tools list for lumbination behavior.                  |
+| lumbination.chop_tree_below             | boolean      | true    | -                                   | Continues chopping blocks below starting point when true.     |
+| lumbination.destroy_leaves              | boolean      | true    | -                                   | Removes leaves during tree processing when true.              |
+| lumbination.leaves_affect_durability    | boolean      | false   | -                                   | Applies tool durability costs for leaves when true.           |
+| lumbination.replant_saplings            | boolean      | true    | -                                   | Attempts sapling replanting where possible.                   |
+| lumbination.use_canopy_tool             | boolean      | true    | -                                   | Uses canopy detection/handling logic for broader tree shapes. |
+| lumbination.ignore_player_placed_leaves | boolean      | true    | -                                   | Ignores player-placed leaves when identifying natural trees.  |
+| lumbination.logs                        | list<string> | []      | -                                   | Additional trunk/log block IDs.                               |
+| lumbination.leaves                      | list<string> | []      | -                                   | Additional leaf block IDs.                                    |
+| lumbination.axes                        | list<string> | []      | -                                   | Allowed tools list for lumbination behavior.                  |
 
 ### Shaftanation (`minersadvantage-server-config.toml`)
 
-| Option                          | Type    | Default | Range      | Description                                           |
-| ------------------------------- | ------- | ------- | ---------- | ----------------------------------------------------- |
-| shaftanation.enabled            | boolean | true    | -          | Enables or disables Shaftanation.                     |
-| shaftanation.depth              | int     | 16      | 1 to 256   | Shaft length/depth.                                   |
+| Option                          | Type    | Default | Range                               | Description                                           |
+| ------------------------------- | ------- | ------- | ----------------------------------- | ----------------------------------------------------- |
+| shaftanation.enabled            | boolean | true    | -                                   | Enables or disables Shaftanation.                     |
+| shaftanation.depth              | int     | 16      | 1 to 256                            | Shaft length/depth.                                   |
 | shaftanation.processes_per_tick | int     | 10      | input: 1 to 512, effective: 1 to 64 | Processing throughput per tick.                       |
-| shaftanation.width              | int     | 1       | 1 to 7     | Shaft width.                                          |
-| shaftanation.height             | int     | 2       | 1 to 5     | Shaft height.                                         |
-| shaftanation.torch_placement    | enum    | FLOOR   | enum value | Torch placement mode (`FLOOR` and other enum values). |
+| shaftanation.width              | int     | 1       | 1 to 7                              | Shaft width.                                          |
+| shaftanation.height             | int     | 2       | 1 to 5                              | Shaft height.                                         |
+| shaftanation.torch_placement    | enum    | FLOOR   | enum value                          | Torch placement mode (`FLOOR` and other enum values). |
 
 ### Substitution (`minersadvantage-server-config.toml`)
 
@@ -244,14 +244,14 @@ Effective per-feature worker budget is `min(common.blocks_per_tick, <feature>.pr
 
 ### Ventilation (`minersadvantage-server-config.toml`)
 
-| Option                         | Type    | Default | Range    | Description                                      |
-| ------------------------------ | ------- | ------- | -------- | ------------------------------------------------ |
-| ventilation.enabled            | boolean | true    | -        | Enables or disables Ventilation.                 |
-| ventilation.width              | int     | 1       | 1 to 32  | Vent width.                                      |
-| ventilation.height             | int     | 16      | 1 to 64  | Vent height envelope.                            |
-| ventilation.depth              | int     | 1       | 1 to 64  | Vent depth/length.                               |
+| Option                         | Type    | Default | Range                               | Description                                      |
+| ------------------------------ | ------- | ------- | ----------------------------------- | ------------------------------------------------ |
+| ventilation.enabled            | boolean | true    | -                                   | Enables or disables Ventilation.                 |
+| ventilation.width              | int     | 1       | 1 to 32                             | Vent width.                                      |
+| ventilation.height             | int     | 16      | 1 to 64                             | Vent height envelope.                            |
+| ventilation.depth              | int     | 1       | 1 to 64                             | Vent depth/length.                               |
 | ventilation.processes_per_tick | int     | 8       | input: 1 to 512, effective: 1 to 64 | Processing throughput per tick.                  |
-| ventilation.place_ladders      | boolean | true    | -        | Places ladders during vent carving when enabled. |
+| ventilation.place_ladders      | boolean | true    | -                                   | Places ladders during vent carving when enabled. |
 
 ### Advanced Substitution Rule Profile (Runtime Data)
 

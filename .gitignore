@@ -33,3 +33,4 @@ versions/*
 !versions/*/
 versions/*/**
 !versions/*/gradle.properties
+.github/prompts/

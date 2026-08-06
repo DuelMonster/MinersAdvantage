@@ -26,13 +26,13 @@ Log line prefix: `AgentTick`
 
 ## Matrix
 
-| Profile               | blocks_per_tick | enable_tick_delay | tick_delay | Intended Feel               | Primary Risk                  | Notes                        |
-| --------------------- | --------------- | ----------------- | ---------- | --------------------------- | ----------------------------- | ---------------------------- |
-| A (Conservative)      | 1               | true              | 10         | Very smooth, low impact     | Slow completion               | Lowest throughput profile    |
-| B (Smoother-Moderate) | 1               | true              | 5          | Smooth with better cadence  | Mild backlog in large jobs    | Default baseline profile     |
-| C (Balanced)          | 2               | true              | 3          | Noticeably responsive       | Small bursts                  | Good single-player candidate |
-| D (Responsive)        | 3               | true              | 1          | Fast feedback               | Occasional spikes             | Watch p95 tick cost          |
-| E (Bursty)            | 4               | false             | 0          | Immediate response          | Burst lag in dense operations | Stress profile               |
+| Profile               | blocks_per_tick | enable_tick_delay | tick_delay | Intended Feel              | Primary Risk                  | Notes                        |
+| --------------------- | --------------- | ----------------- | ---------- | -------------------------- | ----------------------------- | ---------------------------- |
+| A (Conservative)      | 1               | true              | 10         | Very smooth, low impact    | Slow completion               | Lowest throughput profile    |
+| B (Smoother-Moderate) | 1               | true              | 5          | Smooth with better cadence | Mild backlog in large jobs    | Default baseline profile     |
+| C (Balanced)          | 2               | true              | 3          | Noticeably responsive      | Small bursts                  | Good single-player candidate |
+| D (Responsive)        | 3               | true              | 1          | Fast feedback              | Occasional spikes             | Watch p95 tick cost          |
+| E (Bursty)            | 4               | false             | 0          | Immediate response         | Burst lag in dense operations | Stress profile               |
 
 ## Scenario Set
 

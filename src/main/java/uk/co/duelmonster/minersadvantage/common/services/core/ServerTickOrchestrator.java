@@ -12,6 +12,7 @@ public final class ServerTickOrchestrator {
   private boolean tpsGuardActive;
   private boolean enableTickDelay;
   private int tickDelay;
+  private int processingInterval = 1;
   private long tickCounter = 0;
 
   /**
@@ -47,11 +48,10 @@ public final class ServerTickOrchestrator {
    * s ho ul dp ro ce ss wo rk er st hi st ic k exists so this path stays predictable and easier to debug when things get weird.
    */
   private boolean shouldProcessWorkersThisTick() {
-    if (!enableTickDelay || tickDelay <= 0) {
+    if (processingInterval <= 1) {
       return true;
     }
-    int interval = tickDelay + 1;
-    return tickCounter % interval == 0;
+    return tickCounter % processingInterval == 0;
   }
 
   /**
@@ -84,5 +84,6 @@ public final class ServerTickOrchestrator {
   public void setProcessingDelay(boolean enableTickDelay, int tickDelay) {
     this.enableTickDelay = enableTickDelay;
     this.tickDelay = Math.max(0, tickDelay);
+    this.processingInterval = this.enableTickDelay && this.tickDelay > 0 ? this.tickDelay + 1 : 1;
   }
 }
