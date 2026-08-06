@@ -6,6 +6,7 @@
 - Optimize shared client runtime compatibility by caching reflected current-screen accessor lookup instead of scanning methods on every fallback access.
 - Refactor common event dispatch guard checks into shared helper paths to reduce repeated feature-enabled branching while preserving behavior.
 - Improve throughput tuning matrix table readability formatting.
+- Harden break-face caching to per-player/per-position storage in both Fabric and NeoForge paths to keep rapid adjacent trigger orientation state from being evicted.
 
 ## 2.21.0
 

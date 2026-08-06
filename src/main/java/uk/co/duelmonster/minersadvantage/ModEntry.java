@@ -91,7 +91,7 @@ public final class ModEntry implements ModInitializer {
   private final MinersAdvantageCore core = new MinersAdvantageCore();
   private final ToolEventHandler toolEvents = new CommonEventHandlerImpl(core);
   private final VeinationRuntimeService veinationRuntime = new VeinationRuntimeService();
-  private final Map<Long, BreakFaceState> lastBreakFaces = new ConcurrentHashMap<>();
+  private final Map<Long, Map<BlockPos, Direction>> lastBreakFaces = new ConcurrentHashMap<>();
 
   /**
    * Bootstrap core services and register all Fabric-side gameplay/network/event hooks.
@@ -576,7 +576,9 @@ public final class ModEntry implements ModInitializer {
     if (serverPlayer == null || pos == null || face == null) {
       return;
     }
-    lastBreakFaces.put(playerId(serverPlayer), new BreakFaceState(pos.immutable(), face));
+    lastBreakFaces
+        .computeIfAbsent(playerId(serverPlayer), key -> new ConcurrentHashMap<>())
+        .put(pos.immutable(), face);
     LogUtils.logDebug(
         "Remembered break face player={} pos={} face={}",
         serverPlayer.getScoreboardName(),
@@ -591,35 +593,35 @@ public final class ModEntry implements ModInitializer {
     if (serverPlayer == null || pos == null) {
       return null;
     }
-    BreakFaceState state = lastBreakFaces.remove(playerId(serverPlayer));
-    if (state == null) {
+    long id = playerId(serverPlayer);
+    Map<BlockPos, Direction> playerBreakFaces = lastBreakFaces.get(id);
+    if (playerBreakFaces == null) {
       LogUtils.logDebug(
           "Break face cache miss player={} pos={} reason=no-cached-state",
           serverPlayer.getScoreboardName(),
           pos);
       return null;
     }
-    if (!state.pos().equals(pos)) {
+
+    Direction cachedFace = playerBreakFaces.remove(pos);
+    if (playerBreakFaces.isEmpty()) {
+      lastBreakFaces.remove(id);
+    }
+
+    if (cachedFace == null) {
       LogUtils.logDebug(
-          "Break face cache miss player={} pos={} cachedPos={} face={} reason=position-mismatch",
+          "Break face cache miss player={} pos={} reason=position-mismatch",
           serverPlayer.getScoreboardName(),
-          pos,
-          state.pos(),
-          state.face());
+          pos);
       return null;
     }
+
     LogUtils.logDebug(
         "Break face cache hit player={} pos={} face={}",
         serverPlayer.getScoreboardName(),
         pos,
-        state.face());
-    return state.face();
-  }
-
-  /**
-   * b re ak fa ce st at e exists so this path stays predictable and easier to debug when things get weird.
-   */
-  private record BreakFaceState(BlockPos pos, Direction face) {
+        cachedFace);
+    return cachedFace;
   }
 
   /**
@@ -1080,7 +1082,7 @@ public final class ModEntry {
     private final MinersAdvantageCore core = new MinersAdvantageCore();
     private final ToolEventHandler toolEvents = new CommonEventHandlerImpl(core);
     private final VeinationRuntimeService veinationRuntime = new VeinationRuntimeService();
-    private final Map<Long, BreakFaceState> lastBreakFaces = new ConcurrentHashMap<>();
+    private final Map<Long, Map<BlockPos, Direction>> lastBreakFaces = new ConcurrentHashMap<>();
 
     public ModEntry(IEventBus modEventBus, ModContainer modContainer, Dist dist) {
         LogUtils.applyConfiguredLogging();
@@ -1436,21 +1438,26 @@ public final class ModEntry {
         if (serverPlayer == null || pos == null || face == null) {
             return;
         }
-        lastBreakFaces.put(playerId(serverPlayer), new BreakFaceState(pos.immutable(), face));
+      lastBreakFaces
+        .computeIfAbsent(playerId(serverPlayer), key -> new ConcurrentHashMap<>())
+        .put(pos.immutable(), face);
     }
 
     private Direction consumeBreakFace(ServerPlayer serverPlayer, BlockPos pos) {
         if (serverPlayer == null || pos == null) {
             return null;
         }
-        BreakFaceState state = lastBreakFaces.remove(playerId(serverPlayer));
-        if (state == null || !state.pos().equals(pos)) {
+      long id = playerId(serverPlayer);
+      Map<BlockPos, Direction> playerBreakFaces = lastBreakFaces.get(id);
+      if (playerBreakFaces == null) {
             return null;
         }
-        return state.face();
-    }
 
-    private record BreakFaceState(BlockPos pos, Direction face) {
+      Direction cachedFace = playerBreakFaces.remove(pos);
+      if (playerBreakFaces.isEmpty()) {
+        lastBreakFaces.remove(id);
+      }
+      return cachedFace;
     }
 
     private void routeToolUse(ItemStack stack, BlockPos pos, BlockState state) {
