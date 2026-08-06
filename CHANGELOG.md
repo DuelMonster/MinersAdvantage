@@ -22,6 +22,7 @@
 - Extend the staged optimization replay plan with post-14 commits covering remaining 2750 performance surfaces (shape/predicate caches, substitution paths, packet process support, and Supreme Vantage runtime), each with commit-isolated in-game confirmation gates.
 - Optimize shape/predicate lookup hot paths by restoring direct shape id/index caches in `MAShapeRegistry` and adding bounded block-state lookup caching in `RegistryPredicates` while preserving behavior.
 - Optimize substitution core candidate selection by replacing allocation-heavy stream pipelines with a single-pass filtered selector while preserving ranking and decision outcomes.
+- Optimize substitution agent runtime paths by caching reflection-member discovery per player class and replacing stream-based candidate max selection with a comparator-driven single-pass loop.
 
 ## 2.21.0
 

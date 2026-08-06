@@ -50,6 +50,20 @@ public class SubstitutionAgent extends Agent {
   private static final int QUEUE_DEDUPE_TICKS = 1;
   private static final ConcurrentMap<RestoreKey, RestoreState> RESTORE_STATES = new ConcurrentHashMap<>();
   private static final ConcurrentMap<QueueKey, QueueState> QUEUE_STATES = new ConcurrentHashMap<>();
+  private static final ClassValue<PlayerReflectionSnapshot> PLAYER_REFLECTIONS = new ClassValue<>() {
+    @Override
+    protected PlayerReflectionSnapshot computeValue(Class<?> type) {
+      return new PlayerReflectionSnapshot(
+          resolveGameModeCarrierAccessors(type),
+          resolveGameModeCarrierFields(type),
+          resolveBooleanAccessors(type),
+          resolveBooleanFields(type),
+          resolveBlockPosAccessors(type),
+          resolveBlockPosFields(type),
+          resolveSwingBooleanAccessors(type),
+          resolveSwingIntegerAccessors(type));
+    }
+  };
 
   private static final Comparator<Candidate> CANDIDATE_COMPARATOR = Comparator.comparingInt(Candidate::targetPriority)
       .thenComparing(Candidate::targetMatch)
@@ -98,25 +112,8 @@ public class SubstitutionAgent extends Agent {
    * Resolve game mode object across mappings by trying fields then accessors.
    */
   private static Object resolvePlayerGameMode(ServerPlayer player) {
-    for (Field field : player.getClass().getFields()) {
-      Object value = readField(player, field);
-      if (value != null && isLikelyGameModeCarrier(value.getClass())) {
-        return value;
-      }
-    }
-
-    for (Field field : player.getClass().getDeclaredFields()) {
-      field.setAccessible(true);
-      Object value = readField(player, field);
-      if (value != null && isLikelyGameModeCarrier(value.getClass())) {
-        return value;
-      }
-    }
-
-    for (Method method : player.getClass().getMethods()) {
-      if (method.getParameterCount() != 0) {
-        continue;
-      }
+    PlayerReflectionSnapshot reflection = PLAYER_REFLECTIONS.get(player.getClass());
+    for (Method method : reflection.gameModeMethods()) {
       try {
         Object value = method.invoke(player);
         if (value != null && isLikelyGameModeCarrier(value.getClass())) {
@@ -124,6 +121,13 @@ public class SubstitutionAgent extends Agent {
         }
       } catch (ReflectiveOperationException ignored) {
         // keep searching alternative accessors.
+      }
+    }
+
+    for (Field field : reflection.gameModeFields()) {
+      Object value = readField(player, field);
+      if (value != null && isLikelyGameModeCarrier(value.getClass())) {
+        return value;
       }
     }
     return null;
@@ -168,13 +172,8 @@ public class SubstitutionAgent extends Agent {
    * Read a boolean member by hint names from methods and fields.
    */
   private static boolean readBooleanMember(Object owner, String... hints) {
-    for (Method method : owner.getClass().getMethods()) {
-      if (method.getParameterCount() != 0) {
-        continue;
-      }
-      if (!boolean.class.equals(method.getReturnType()) && !Boolean.class.equals(method.getReturnType())) {
-        continue;
-      }
+    PlayerReflectionSnapshot reflection = PLAYER_REFLECTIONS.get(owner.getClass());
+    for (Method method : reflection.booleanMethods()) {
       String lowered = method.getName().toLowerCase(Locale.ROOT);
       for (String hint : hints) {
         if (lowered.contains(hint.toLowerCase(Locale.ROOT))) {
@@ -190,15 +189,11 @@ public class SubstitutionAgent extends Agent {
       }
     }
 
-    for (Field field : owner.getClass().getDeclaredFields()) {
-      if (!boolean.class.equals(field.getType()) && !Boolean.class.equals(field.getType())) {
-        continue;
-      }
+    for (Field field : reflection.booleanFields()) {
       String lowered = field.getName().toLowerCase(Locale.ROOT);
       for (String hint : hints) {
         if (lowered.contains(hint.toLowerCase(Locale.ROOT))) {
           try {
-            field.setAccessible(true);
             if (field.getBoolean(owner)) {
               return true;
             }
@@ -215,13 +210,8 @@ public class SubstitutionAgent extends Agent {
    * Read a BlockPos member by hint names from methods and fields.
    */
   private static BlockPos readBlockPosMember(Object owner, String... hints) {
-    for (Method method : owner.getClass().getMethods()) {
-      if (method.getParameterCount() != 0) {
-        continue;
-      }
-      if (!BlockPos.class.isAssignableFrom(method.getReturnType())) {
-        continue;
-      }
+    PlayerReflectionSnapshot reflection = PLAYER_REFLECTIONS.get(owner.getClass());
+    for (Method method : reflection.blockPosMethods()) {
       String lowered = method.getName().toLowerCase(Locale.ROOT);
       for (String hint : hints) {
         if (lowered.contains(hint.toLowerCase(Locale.ROOT))) {
@@ -237,15 +227,11 @@ public class SubstitutionAgent extends Agent {
       }
     }
 
-    for (Field field : owner.getClass().getDeclaredFields()) {
-      if (!BlockPos.class.isAssignableFrom(field.getType())) {
-        continue;
-      }
+    for (Field field : reflection.blockPosFields()) {
       String lowered = field.getName().toLowerCase(Locale.ROOT);
       for (String hint : hints) {
         if (lowered.contains(hint.toLowerCase(Locale.ROOT))) {
           try {
-            field.setAccessible(true);
             Object value = field.get(owner);
             if (value instanceof BlockPos pos) {
               return pos;
@@ -412,7 +398,12 @@ public class SubstitutionAgent extends Agent {
       return finish("no candidate tools");
     }
 
-    Candidate best = candidates.stream().max(CANDIDATE_COMPARATOR).orElse(null);
+    Candidate best = null;
+    for (Candidate candidate : candidates) {
+      if (best == null || CANDIDATE_COMPARATOR.compare(candidate, best) > 0) {
+        best = candidate;
+      }
+    }
     if (best == null) {
       return finish("no best substitution candidate");
     }
@@ -1173,19 +1164,8 @@ public class SubstitutionAgent extends Agent {
       return true;
     }
 
-    for (Method method : player.getClass().getMethods()) {
-      if (method.getParameterCount() != 0) {
-        continue;
-      }
-      if (!boolean.class.equals(method.getReturnType()) && !Boolean.class.equals(method.getReturnType())) {
-        continue;
-      }
-
-      String name = method.getName();
-      String lowered = name.toLowerCase(Locale.ROOT);
-      if (!lowered.contains("swing")) {
-        continue;
-      }
+    PlayerReflectionSnapshot reflection = PLAYER_REFLECTIONS.get(player.getClass());
+    for (Method method : reflection.swingBooleanMethods()) {
 
       try {
         Object value = method.invoke(player);
@@ -1197,18 +1177,7 @@ public class SubstitutionAgent extends Agent {
       }
     }
 
-    for (Method method : player.getClass().getMethods()) {
-      if (method.getParameterCount() != 0) {
-        continue;
-      }
-      if (!int.class.equals(method.getReturnType()) && !Integer.class.equals(method.getReturnType())) {
-        continue;
-      }
-
-      String lowered = method.getName().toLowerCase(Locale.ROOT);
-      if (!lowered.contains("swing")) {
-        continue;
-      }
+    for (Method method : reflection.swingIntegerMethods()) {
 
       try {
         Object value = method.invoke(player);
@@ -1552,6 +1521,114 @@ public class SubstitutionAgent extends Agent {
           .filter(token -> !token.isBlank())
           .toList();
     }
+  }
+
+  private record PlayerReflectionSnapshot(
+      List<Method> gameModeMethods,
+      List<Field> gameModeFields,
+      List<Method> booleanMethods,
+      List<Field> booleanFields,
+      List<Method> blockPosMethods,
+      List<Field> blockPosFields,
+      List<Method> swingBooleanMethods,
+      List<Method> swingIntegerMethods) {
+  }
+
+  private static List<Method> resolveGameModeCarrierAccessors(Class<?> ownerType) {
+    List<Method> methods = new ArrayList<>();
+    for (Method method : ownerType.getMethods()) {
+      if (method.getParameterCount() == 0) {
+        methods.add(method);
+      }
+    }
+    return List.copyOf(methods);
+  }
+
+  private static List<Field> resolveGameModeCarrierFields(Class<?> ownerType) {
+    List<Field> fields = new ArrayList<>();
+    for (Field field : ownerType.getFields()) {
+      fields.add(field);
+    }
+    for (Field field : ownerType.getDeclaredFields()) {
+      field.setAccessible(true);
+      fields.add(field);
+    }
+    return List.copyOf(fields);
+  }
+
+  private static List<Method> resolveBooleanAccessors(Class<?> ownerType) {
+    List<Method> methods = new ArrayList<>();
+    for (Method method : ownerType.getMethods()) {
+      if (method.getParameterCount() == 0
+          && (boolean.class.equals(method.getReturnType()) || Boolean.class.equals(method.getReturnType()))) {
+        methods.add(method);
+      }
+    }
+    return List.copyOf(methods);
+  }
+
+  private static List<Field> resolveBooleanFields(Class<?> ownerType) {
+    List<Field> fields = new ArrayList<>();
+    for (Field field : ownerType.getDeclaredFields()) {
+      if (boolean.class.equals(field.getType()) || Boolean.class.equals(field.getType())) {
+        field.setAccessible(true);
+        fields.add(field);
+      }
+    }
+    return List.copyOf(fields);
+  }
+
+  private static List<Method> resolveBlockPosAccessors(Class<?> ownerType) {
+    List<Method> methods = new ArrayList<>();
+    for (Method method : ownerType.getMethods()) {
+      if (method.getParameterCount() == 0 && BlockPos.class.isAssignableFrom(method.getReturnType())) {
+        methods.add(method);
+      }
+    }
+    return List.copyOf(methods);
+  }
+
+  private static List<Field> resolveBlockPosFields(Class<?> ownerType) {
+    List<Field> fields = new ArrayList<>();
+    for (Field field : ownerType.getDeclaredFields()) {
+      if (BlockPos.class.isAssignableFrom(field.getType())) {
+        field.setAccessible(true);
+        fields.add(field);
+      }
+    }
+    return List.copyOf(fields);
+  }
+
+  private static List<Method> resolveSwingBooleanAccessors(Class<?> ownerType) {
+    List<Method> methods = new ArrayList<>();
+    for (Method method : ownerType.getMethods()) {
+      if (method.getParameterCount() != 0) {
+        continue;
+      }
+      if (!boolean.class.equals(method.getReturnType()) && !Boolean.class.equals(method.getReturnType())) {
+        continue;
+      }
+      if (method.getName().toLowerCase(Locale.ROOT).contains("swing")) {
+        methods.add(method);
+      }
+    }
+    return List.copyOf(methods);
+  }
+
+  private static List<Method> resolveSwingIntegerAccessors(Class<?> ownerType) {
+    List<Method> methods = new ArrayList<>();
+    for (Method method : ownerType.getMethods()) {
+      if (method.getParameterCount() != 0) {
+        continue;
+      }
+      if (!int.class.equals(method.getReturnType()) && !Integer.class.equals(method.getReturnType())) {
+        continue;
+      }
+      if (method.getName().toLowerCase(Locale.ROOT).contains("swing")) {
+        methods.add(method);
+      }
+    }
+    return List.copyOf(methods);
   }
 
   /**
