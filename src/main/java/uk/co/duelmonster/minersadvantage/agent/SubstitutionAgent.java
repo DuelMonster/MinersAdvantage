@@ -113,6 +113,13 @@ public class SubstitutionAgent extends Agent {
    */
   private static Object resolvePlayerGameMode(ServerPlayer player) {
     PlayerReflectionSnapshot reflection = PLAYER_REFLECTIONS.get(player.getClass());
+    for (Field field : reflection.gameModeFields()) {
+      Object value = readField(player, field);
+      if (value != null && isLikelyGameModeCarrier(value.getClass())) {
+        return value;
+      }
+    }
+
     for (Method method : reflection.gameModeMethods()) {
       try {
         Object value = method.invoke(player);
@@ -121,13 +128,6 @@ public class SubstitutionAgent extends Agent {
         }
       } catch (ReflectiveOperationException ignored) {
         // keep searching alternative accessors.
-      }
-    }
-
-    for (Field field : reflection.gameModeFields()) {
-      Object value = readField(player, field);
-      if (value != null && isLikelyGameModeCarrier(value.getClass())) {
-        return value;
       }
     }
     return null;

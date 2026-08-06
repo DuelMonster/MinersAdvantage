@@ -23,6 +23,7 @@
 - Optimize shape/predicate lookup hot paths by restoring direct shape id/index caches in `MAShapeRegistry` and adding bounded block-state lookup caching in `RegistryPredicates` while preserving behavior.
 - Optimize substitution core candidate selection by replacing allocation-heavy stream pipelines with a single-pass filtered selector while preserving ranking and decision outcomes.
 - Optimize substitution agent runtime paths by caching reflection-member discovery per player class and replacing stream-based candidate max selection with a comparator-driven single-pass loop.
+- Fix substitution switch-back ghost-block regressions by restoring field-first game-mode carrier resolution order while keeping reflection-member caching.
 - Fix Fabric integrated-server end-tick crashes during player list mutation by iterating a stable `ServerPlayer` snapshot instead of the live level player collection.
 
 ## 2.21.0
