@@ -10,6 +10,8 @@
 - Align throughput configuration terminology and effective clamp documentation across README, tuning matrix, and config-screen labels/ranges.
 - Optimize throughput processing internals by tightening `ProcessingCoreService` queue drain loops and adding a `WorkerRuntimeService` TPS-guard fast path with no behavior change.
 - Optimize tick-delay cadence checks in `ServerTickOrchestrator` by caching the effective processing interval while preserving runtime behavior.
+- Optimize `WorkerRuntimeService` TPS-guard tick handling by short-circuiting no-worker/guarded ticks before allocation-heavy paths and lazily allocating completion tracking when needed.
+- Normalize `WorkerRuntimeServiceTest` formatting after the TPS-guard optimization stage so staged regression coverage remains hook-clean and style-consistent.
 
 ## 2.21.0
 

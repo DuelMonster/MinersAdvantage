@@ -206,15 +206,20 @@ public final class WorkerRuntimeService {
    * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
    */
   public WorkerTickResult tick(boolean tpsGuardActive) {
+    int workerCount = workers.size();
+    if (workerCount == 0) {
+      return new WorkerTickResult(0, 0, 0, 0);
+    }
+
+    if (tpsGuardActive) {
+      return new WorkerTickResult(0, 0, workerCount, 0);
+    }
+
     int processedActions = 0;
     int completedWorkers = 0;
     int pausedWorkers = 0;
     int flushedDrops = 0;
-    List<UUID> completed = new ArrayList<>();
-
-    if (tpsGuardActive) {
-      return new WorkerTickResult(0, 0, workers.size(), 0);
-    }
+    List<UUID> completed = null;
 
     for (ActiveWorker worker : workers.values()) {
       if (playerStateService.getPlayerState(worker.handle.playerId()).hungerGuardActive()) {
@@ -228,13 +233,18 @@ public final class WorkerRuntimeService {
         List<DropCoreService.CapturedDrop> flushed = worker.drops.flush();
         flushedDrops += flushed.size();
         queueSpawnDrops(worker.handle.playerId(), flushed);
+        if (completed == null) {
+          completed = new ArrayList<>();
+        }
         completed.add(worker.handle.workerId());
         completedWorkers++;
       }
     }
 
-    for (UUID workerId : completed) {
-      workers.remove(workerId);
+    if (completed != null) {
+      for (UUID workerId : completed) {
+        workers.remove(workerId);
+      }
     }
 
     return new WorkerTickResult(processedActions, completedWorkers, pausedWorkers, flushedDrops);
