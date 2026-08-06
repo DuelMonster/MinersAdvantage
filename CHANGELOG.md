@@ -17,6 +17,7 @@
 - Optimize Lumbination hot-path matching and queue churn by caching normalized log/leaf allowlists and deduplicating pending traversal entries before processing.
 - Optimize NeoForge adapter client tick handling by reusing a shared `ClientInputService` instance across 1.21.11/26.1.2/26.2 adapter event bridges to avoid per-tick service allocation churn.
 - Finalize replay docs/test sync with a staged validation summary in tuning docs and added helper-semantic coverage for veination/lumbination parity checks.
+- Clarify replay workflow docs so in-game validation gates apply to optimization/runtime commits, while docs-only follow-up commits proceed after standard validation checks.
 
 ## 2.21.0
 

@@ -98,7 +98,8 @@ These are replayed only in isolated commits with explicit stop-and-test gates.
 
 ## Replay Validation Summary (2.22.0)
 
-The staged replay from the post-2.21 baseline completed through the planned optimization tracks with mandatory in-game gates between commits.
+The staged replay from the post-2.21 baseline completed through the planned optimization tracks with mandatory in-game gates between optimization/runtime commits.
+Docs-only follow-up commits are exempt from in-game gating and proceed after standard validation checks pass.
 
 ### Accepted Stage Outcomes
 

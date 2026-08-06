@@ -137,7 +137,8 @@ The staged post-2.21 optimization replay is complete and accepted after per-stag
 - Excavation ordering, veination discovery spread, and lumbination hot-path optimizations are active.
 - NeoForge adapter adjustments remain adapter-only; shared/common logic stays authoritative.
 
-When tuning or extending these paths, keep staged commit boundaries and in-game validation gates so regressions can be bisected quickly.
+When tuning or extending these paths, keep staged commit boundaries and in-game validation gates for optimization/runtime changes so regressions can be bisected quickly.
+Docs-only commits do not require in-game validation and can proceed after standard validation gates pass.
 
 ### Captivation (`minersadvantage-server-config.toml`)
 
