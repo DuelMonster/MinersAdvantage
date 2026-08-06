@@ -8,6 +8,7 @@
 - Improve throughput tuning matrix table readability formatting.
 - Harden break-face caching to per-player/per-position storage in both Fabric and NeoForge paths to keep rapid adjacent trigger orientation state from being evicted.
 - Align throughput configuration terminology and effective clamp documentation across README, tuning matrix, and config-screen labels/ranges.
+- Optimize throughput processing internals by tightening `ProcessingCoreService` queue drain loops and adding a `WorkerRuntimeService` TPS-guard fast path with no behavior change.
 
 ## 2.21.0
 

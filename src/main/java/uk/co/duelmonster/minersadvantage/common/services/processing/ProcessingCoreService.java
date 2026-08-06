@@ -34,12 +34,20 @@ public final class ProcessingCoreService<T> {
    * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
    */
   public int processTick(Consumer<T> consumer) {
-    int processed = 0;
-    while (processed < blocksPerTick && !queue.isEmpty()) {
-      consumer.accept(queue.removeFirst());
-      processed++;
+    if (queue.isEmpty()) {
+      return 0;
     }
-    return processed;
+
+    int remainingBudget = blocksPerTick;
+    while (remainingBudget > 0) {
+      T next = queue.pollFirst();
+      if (next == null) {
+        break;
+      }
+      consumer.accept(next);
+      remainingBudget--;
+    }
+    return blocksPerTick - remainingBudget;
   }
 
   /**

@@ -212,8 +212,12 @@ public final class WorkerRuntimeService {
     int flushedDrops = 0;
     List<UUID> completed = new ArrayList<>();
 
+    if (tpsGuardActive) {
+      return new WorkerTickResult(0, 0, workers.size(), 0);
+    }
+
     for (ActiveWorker worker : workers.values()) {
-      if (tpsGuardActive || playerStateService.getPlayerState(worker.handle.playerId()).hungerGuardActive()) {
+      if (playerStateService.getPlayerState(worker.handle.playerId()).hungerGuardActive()) {
         pausedWorkers++;
         continue;
       }
