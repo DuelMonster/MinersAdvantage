@@ -188,13 +188,15 @@ public final class MinersAdvantageConfigScreen {
     addGameplayBoolean(generalCategory, entryBuilder, "Mine Veins", "Permit connected ore mining logic.",
         mutable.mineVeins, currentServerConfig.common().mineVeins(), gameplayEditable,
         value -> mutable.mineVeins = value);
-    addGameplayInt(generalCategory, entryBuilder, "Blocks Per Tick", "Maximum blocks processed each server tick.",
-        mutable.blocksPerTick, currentServerConfig.common().blocksPerTick(), 1, 8, gameplayEditable,
+    addGameplayInt(generalCategory, entryBuilder, "Blocks Per Tick",
+      "Common worker cap per processing window before feature-specific processes-per-tick limits are applied.",
+      mutable.blocksPerTick, currentServerConfig.common().blocksPerTick(), 1, 64, gameplayEditable,
         value -> mutable.blocksPerTick = value);
     addGameplayBoolean(generalCategory, entryBuilder, "Enable Tick Delay",
         "Enable an additional delay between processing steps.", mutable.enableTickDelay,
         currentServerConfig.common().enableTickDelay(), gameplayEditable, value -> mutable.enableTickDelay = value);
-    addGameplayInt(generalCategory, entryBuilder, "Tick Delay", "Delay in ticks used when tick delay is enabled.",
+    addGameplayInt(generalCategory, entryBuilder, "Tick Delay",
+      "Additional ticks between processing windows when tick delay is enabled.",
         mutable.tickDelay, currentServerConfig.common().tickDelay(), 0, 40, gameplayEditable,
         value -> mutable.tickDelay = value);
     addGameplayInt(generalCategory, entryBuilder, "Block Radius",
@@ -474,13 +476,15 @@ public final class MinersAdvantageConfigScreen {
     addGameplayBoolean(generalCategory, entryBuilder, "Mine Veins", "Permit connected ore mining logic.",
         mutable.mineVeins, currentServerConfig.common().mineVeins(), gameplayEditable,
         value -> mutable.mineVeins = value);
-    addGameplayInt(generalCategory, entryBuilder, "Blocks Per Tick", "Maximum blocks processed each server tick.",
-        mutable.blocksPerTick, currentServerConfig.common().blocksPerTick(), 1, 8, gameplayEditable,
+    addGameplayInt(generalCategory, entryBuilder, "Blocks Per Tick",
+      "Common worker cap per processing window before feature-specific processes-per-tick limits are applied.",
+      mutable.blocksPerTick, currentServerConfig.common().blocksPerTick(), 1, 64, gameplayEditable,
         value -> mutable.blocksPerTick = value);
     addGameplayBoolean(generalCategory, entryBuilder, "Enable Tick Delay",
         "Enable an additional delay between processing steps.", mutable.enableTickDelay,
         currentServerConfig.common().enableTickDelay(), gameplayEditable, value -> mutable.enableTickDelay = value);
-    addGameplayInt(generalCategory, entryBuilder, "Tick Delay", "Delay in ticks used when tick delay is enabled.",
+    addGameplayInt(generalCategory, entryBuilder, "Tick Delay",
+      "Additional ticks between processing windows when tick delay is enabled.",
         mutable.tickDelay, currentServerConfig.common().tickDelay(), 0, 40, gameplayEditable,
         value -> mutable.tickDelay = value);
     addGameplayInt(generalCategory, entryBuilder, "Block Radius",

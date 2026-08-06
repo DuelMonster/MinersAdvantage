@@ -2,8 +2,9 @@
 
 This matrix is for controlled in-game comparisons of the new common pacing knobs:
 
-- `common.ticks_per_block`
-- `common.max_blocks_per_tick`
+- `common.blocks_per_tick`
+- `common.enable_tick_delay`
+- `common.tick_delay`
 
 ## Instrumentation Output
 
@@ -25,13 +26,13 @@ Log line prefix: `AgentTick`
 
 ## Matrix
 
-| Profile               | ticks_per_block | max_blocks_per_tick | Intended Feel               | Primary Risk                  | Notes                        |
-| --------------------- | --------------- | ------------------- | --------------------------- | ----------------------------- | ---------------------------- |
-| A (Conservative)      | 10              | 1                   | Very smooth, low impact     | Slow completion               | Baseline default             |
-| B (Smoother-Moderate) | 5               | 1                   | Faster than A, still smooth | Mild backlog in large jobs    | Good multiplayer candidate   |
-| C (Balanced)          | 3               | 2                   | Noticeably responsive       | Small bursts                  | Good single-player candidate |
-| D (Responsive)        | 2               | 3                   | Fast feedback               | Occasional spikes             | Watch p95 tick cost          |
-| E (Bursty)            | 1               | 4                   | Immediate response          | Burst lag in dense operations | Stress profile               |
+| Profile               | blocks_per_tick | enable_tick_delay | tick_delay | Intended Feel               | Primary Risk                  | Notes                        |
+| --------------------- | --------------- | ----------------- | ---------- | --------------------------- | ----------------------------- | ---------------------------- |
+| A (Conservative)      | 1               | true              | 10         | Very smooth, low impact     | Slow completion               | Lowest throughput profile    |
+| B (Smoother-Moderate) | 1               | true              | 5          | Smooth with better cadence  | Mild backlog in large jobs    | Default baseline profile     |
+| C (Balanced)          | 2               | true              | 3          | Noticeably responsive       | Small bursts                  | Good single-player candidate |
+| D (Responsive)        | 3               | true              | 1          | Fast feedback               | Occasional spikes             | Watch p95 tick cost          |
+| E (Bursty)            | 4               | false             | 0          | Immediate response          | Burst lag in dense operations | Stress profile               |
 
 ## Scenario Set
 
@@ -54,14 +55,15 @@ Use this order when judging outcomes:
 
 ## Guardrail Notes
 
-Runtime now applies a burst guardrail:
+Effective worker budget for a feature is computed as:
 
-- Effective budget per processing window is capped by `floor(256 / ticks_per_block)`.
+- `min(common.blocks_per_tick, <feature>.processes_per_tick)`
 
-Server policy also applies the same guardrail after clamping:
+Server policy applies authoritative clamps to common pacing fields:
 
-- `ticks_per_block`: `1..40`
-- `max_blocks_per_tick`: `1..64`, then reduced by guardrail when needed.
+- `common.blocks_per_tick`: input supports `1..1024`, effective runtime clamp is `1..64`
+- `common.tick_delay`: input supports `0..200`, effective runtime clamp is `0..40`
+- `common.block_radius`: input supports `1..128`, effective runtime clamp is `1..16`
 
 This prevents pathological settings that defer work for long periods and then release oversized bursts.
 
@@ -77,7 +79,7 @@ This section defines what we will and will not replay from the original hot-path
 
 ### Retain Later (needs stage isolation + in-game gate)
 
-- Throughput-path optimizations (`ticks_per_block`, `max_blocks_per_tick`, tick-delay cadence, TPS guard internals).
+- Throughput-path optimizations (`blocks_per_tick`, `enable_tick_delay`, `tick_delay`, TPS guard internals).
 - Excavation ordering/precompute efficiency improvements.
 - Veination/Lumbination bounded work spreading and low-allocation hot-loop cleanups.
 

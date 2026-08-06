@@ -7,6 +7,7 @@
 - Refactor common event dispatch guard checks into shared helper paths to reduce repeated feature-enabled branching while preserving behavior.
 - Improve throughput tuning matrix table readability formatting.
 - Harden break-face caching to per-player/per-position storage in both Fabric and NeoForge paths to keep rapid adjacent trigger orientation state from being evicted.
+- Align throughput configuration terminology and effective clamp documentation across README, tuning matrix, and config-screen labels/ranges.
 
 ## 2.21.0
 
