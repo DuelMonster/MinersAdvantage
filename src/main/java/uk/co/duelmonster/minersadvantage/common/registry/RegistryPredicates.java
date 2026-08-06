@@ -14,12 +14,16 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.NetherWartBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Friendly pile of registry checks that answer questions like "is this block ore-ish?" without
  * forcing every caller to reinvent the same brittle string and tag logic.
  */
 public final class RegistryPredicates {
+  private static final int BLOCK_STATE_LOOKUP_CACHE_MAX_ENTRIES = 4096;
   private static final TagKey<Block> COMMON_ORES = blockTag("c", "ores");
   private static final TagKey<Block> NEOFORGE_ORES = blockTag("neoforge", "ores");
   private static final TagKey<Block> FORGE_ORES = blockTag("forge", "ores");
@@ -31,6 +35,7 @@ public final class RegistryPredicates {
   private static final TagKey<Block> MINECRAFT_EMERALD_ORES = blockTag("minecraft", "emerald_ores");
   private static final TagKey<Block> MINECRAFT_LAPIS_ORES = blockTag("minecraft", "lapis_ores");
   private static final TagKey<Block> MINECRAFT_DIAMOND_ORES = blockTag("minecraft", "diamond_ores");
+  private static final Map<String, Optional<BlockState>> BLOCK_STATE_LOOKUP_CACHE = new ConcurrentHashMap<>();
 
   /**
    * Utility class only; no instances, no drama, no accidental state.
@@ -249,19 +254,35 @@ public final class RegistryPredicates {
       return null;
     }
 
+    Optional<BlockState> cached = BLOCK_STATE_LOOKUP_CACHE.get(blockId);
+    if (cached != null) {
+      return cached.orElse(null);
+    }
+
+    Optional<BlockState> resolved = resolveBlockStateUncached(blockId);
+    if (BLOCK_STATE_LOOKUP_CACHE.size() >= BLOCK_STATE_LOOKUP_CACHE_MAX_ENTRIES) {
+      // Keep this bounded for long-running worlds where lookups may span many transient ids.
+      BLOCK_STATE_LOOKUP_CACHE.clear();
+    }
+    BLOCK_STATE_LOOKUP_CACHE.put(blockId, resolved);
+    return resolved.orElse(null);
+  }
+
+  private static Optional<BlockState> resolveBlockStateUncached(String blockId) {
+
     try {
       // Yes, this is a linear scan. It's deliberate because this path is defensive lookup code,
       // not hot-loop geometry math, and we value "works everywhere" over fancy indexing here.
       for (Block block : BuiltInRegistries.BLOCK) {
         if (BuiltInRegistries.BLOCK.getKey(block).toString().equals(blockId)) {
-          return block.defaultBlockState();
+          return Optional.of(block.defaultBlockState());
         }
       }
     } catch (RuntimeException | LinkageError ignored) {
       // Some test runtimes show up without a fully bootstrapped registry and pretend that's normal.
       // We swallow it so tests can keep moving instead of exploding over lookup plumbing.
     }
-    return null;
+    return Optional.empty();
   }
 
   /**

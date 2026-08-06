@@ -117,6 +117,22 @@ class MAShapeProcessorParityTest {
   }
 
   /**
+   * Known ids should resolve through direct-id lookup and agree with index lookup.
+   */
+  @Test
+  /**
+   * Validate id lookup/index parity for known shapes.
+   */
+  void knownShapeIdLookupMatchesFeatureIndexResolution() {
+    var known = MAShapeRegistry.get(MAShapeIds.EXCAVATION_SHAPELESS);
+    assertTrue(known.isPresent());
+
+    int index = MAShapeRegistry.indexOf(FeatureId.EXCAVATION, MAShapeIds.EXCAVATION_SHAPELESS);
+    assertTrue(index >= 0);
+    assertEquals(known.get().id(), MAShapeRegistry.byIndex(FeatureId.EXCAVATION, index).orElseThrow().id());
+  }
+
+  /**
    * North/South hit axis should generate XY plane offsets with no Z depth spread.
    */
   @Test

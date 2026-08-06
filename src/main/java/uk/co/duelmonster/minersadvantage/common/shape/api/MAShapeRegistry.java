@@ -5,6 +5,7 @@ import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -16,11 +17,14 @@ public final class MAShapeRegistry {
   private static final List<MAShapeDefinition> ALL_SHAPES = new ArrayList<>();
   private static final List<MAShapeDefinition> ALL_SHAPES_VIEW = Collections.unmodifiableList(ALL_SHAPES);
   private static final Map<FeatureId, List<MAShapeDefinition>> SHAPES_BY_FEATURE = new EnumMap<>(FeatureId.class);
+  private static final Map<String, MAShapeDefinition> SHAPE_BY_ID = new HashMap<>();
+  private static final Map<FeatureId, Map<String, Integer>> SHAPE_INDEX_BY_FEATURE = new EnumMap<>(FeatureId.class);
 
   static {
     // Pre-seed every feature bucket once so registration code can stay simple and null-free.
     for (FeatureId feature : FeatureId.values()) {
       SHAPES_BY_FEATURE.put(feature, new ArrayList<>());
+      SHAPE_INDEX_BY_FEATURE.put(feature, new HashMap<>());
     }
   }
 
@@ -34,12 +38,16 @@ public final class MAShapeRegistry {
    * Register a new shape definition, rejecting duplicate ids early to avoid subtle selection bugs.
    */
   public static synchronized MAShapeDefinition register(MAShapeDefinition definition) {
-    if (get(definition.id()).isPresent()) {
+    if (SHAPE_BY_ID.containsKey(definition.id())) {
       throw new IllegalArgumentException("Duplicate MinersAdvantage shape id: " + definition.id());
     }
 
     ALL_SHAPES.add(definition);
-    SHAPES_BY_FEATURE.get(definition.feature()).add(definition);
+    SHAPE_BY_ID.put(definition.id(), definition);
+
+    List<MAShapeDefinition> featureShapes = SHAPES_BY_FEATURE.get(definition.feature());
+    featureShapes.add(definition);
+    SHAPE_INDEX_BY_FEATURE.get(definition.feature()).put(definition.id(), featureShapes.size() - 1);
     return definition;
   }
 
@@ -65,12 +73,7 @@ public final class MAShapeRegistry {
    * Look up shape by id.
    */
   public static synchronized Optional<MAShapeDefinition> get(String id) {
-    for (MAShapeDefinition shape : ALL_SHAPES) {
-      if (shape.id().equals(id)) {
-        return Optional.of(shape);
-      }
-    }
-    return Optional.empty();
+    return Optional.ofNullable(SHAPE_BY_ID.get(id));
   }
 
   /**
@@ -88,16 +91,11 @@ public final class MAShapeRegistry {
    * Return index of shape id inside a feature bucket, or -1 when absent.
    */
   public static synchronized int indexOf(FeatureId feature, String id) {
-    List<MAShapeDefinition> featureShapes = SHAPES_BY_FEATURE.get(feature);
-    if (featureShapes == null || featureShapes.isEmpty()) {
+    Map<String, Integer> indexes = SHAPE_INDEX_BY_FEATURE.get(feature);
+    if (indexes == null || indexes.isEmpty()) {
       return -1;
     }
-    for (int i = 0; i < featureShapes.size(); i++) {
-      if (featureShapes.get(i).id().equals(id)) {
-        return i;
-      }
-    }
-    return -1;
+    return indexes.getOrDefault(id, -1);
   }
 
   /**
