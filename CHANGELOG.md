@@ -12,6 +12,7 @@
 - Optimize tick-delay cadence checks in `ServerTickOrchestrator` by caching the effective processing interval while preserving runtime behavior.
 - Optimize `WorkerRuntimeService` TPS-guard tick handling by short-circuiting no-worker/guarded ticks before allocation-heavy paths and lazily allocating completion tracking when needed.
 - Normalize `WorkerRuntimeServiceTest` formatting after the TPS-guard optimization stage so staged regression coverage remains hook-clean and style-consistent.
+- Optimize Excavation ordered-shape queue sorting by precomputing layer/spiral sort keys in `ExcavationAgent`, reducing repeated lookup work while preserving traversal targets and ordering semantics.
 
 ## 2.21.0
 

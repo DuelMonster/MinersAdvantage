@@ -606,6 +606,9 @@ public class ExcavationAgent extends Agent {
   private record ExcavationLocal(int layer, int axisA, int axisB) {
   }
 
+  private record OrderedExcavationTarget(ExcavationTarget target, int spiralOrder) {
+  }
+
   private static List<ExcavationTarget> orderExcavationPositions(
       String shapeId,
       Set<BlockPos> positions,
@@ -682,26 +685,32 @@ public class ExcavationAgent extends Agent {
         0,
         0);
 
-    ArrayList<ExcavationTarget> ordered = new ArrayList<>(positions.size());
+    ArrayList<OrderedExcavationTarget> ordered = new ArrayList<>(positions.size());
     ArrayList<ExcavationTarget> overflow = new ArrayList<>();
     for (BlockPos pos : positions) {
-      if (localByPos.containsKey(pos)) {
-        ordered.add(new ExcavationTarget(pos.immutable(), localByPos.get(pos).layer()));
+      ExcavationLocal local = localByPos.get(pos);
+      if (local != null) {
+        int spiralOrder = spiralIndex.getOrDefault(pairKey(local.axisA(), local.axisB()), Integer.MAX_VALUE);
+        ordered.add(new OrderedExcavationTarget(new ExcavationTarget(pos.immutable(), local.layer()), spiralOrder));
       } else {
         overflow.add(new ExcavationTarget(pos.immutable(), Integer.MAX_VALUE));
       }
     }
 
     ordered.sort(
-        Comparator
-            .comparingInt(ExcavationTarget::layer)
-            .thenComparingInt(target -> spiralIndex.getOrDefault(
-                pairKey(localByPos.get(target.pos()).axisA(), localByPos.get(target.pos()).axisB()), Integer.MAX_VALUE))
-            .thenComparingInt(target -> target.pos().getY())
-            .thenComparingInt(target -> target.pos().getX())
-            .thenComparingInt(target -> target.pos().getZ()));
-    ordered.addAll(overflow);
-    return ordered;
+      Comparator.<OrderedExcavationTarget>comparingInt(
+        entry -> entry.target().layer())
+            .thenComparingInt(OrderedExcavationTarget::spiralOrder)
+            .thenComparingInt(entry -> entry.target().pos().getY())
+            .thenComparingInt(entry -> entry.target().pos().getX())
+            .thenComparingInt(entry -> entry.target().pos().getZ()));
+
+    ArrayList<ExcavationTarget> result = new ArrayList<>(positions.size());
+    for (OrderedExcavationTarget entry : ordered) {
+      result.add(entry.target());
+    }
+    result.addAll(overflow);
+    return result;
   }
 
   private static Map<Long, Integer> clockwiseSpiralIndex(
