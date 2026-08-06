@@ -241,6 +241,7 @@ After changing the active node, a regular build targets that node:
 - `chiseledBuild` is the canonical multi-node compile gate.
 - `chiseledPublishAll` and publication blocks support artifact publishing workflows.
 - `packageRelease` tasks copy remapped/production jars into `releases/`.
+- See [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md) for end-to-end pre-release and publish gating.
 
 ## License
 
