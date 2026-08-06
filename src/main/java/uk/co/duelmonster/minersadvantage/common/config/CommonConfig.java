@@ -9,16 +9,16 @@ public record CommonConfig(
     boolean gatherDrops,
     boolean autoIlluminate,
     boolean mineVeins,
-    int blocksPerTick,
+    int ticksPerBlock,
+    int maxBlocksPerTick,
     boolean enableTickDelay,
     int tickDelay,
-    int blockRadius
-) {
-    /**
-     * CommonConfig exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    public CommonConfig() {
-        this(true, false, true, true, 1, true, 5, 3);
-    }
+    int blockRadius) {
+  /**
+   * CommonConfig exists so this code path does one job clearly instead of spreading chaos across callers.
+   * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+   */
+  public CommonConfig() {
+    this(true, false, true, true, 10, 1, true, 5, 3);
+  }
 }

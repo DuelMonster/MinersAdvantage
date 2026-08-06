@@ -50,7 +50,8 @@ public class ShaftanationAgent extends Agent {
   private final int targetDepth;
   private final int shaftWidth;
   private final int shaftHeight;
-  private final int blocksPerTick;
+  private final int ticksPerBlock;
+  private final int maxBlocksPerTick;
   private final boolean autoIlluminate;
   private final int torchLowestLightLevel;
   private final boolean mineVeins;
@@ -193,8 +194,9 @@ public class ShaftanationAgent extends Agent {
     this.shaftWidth = Math.max(1, this.config.width());
     this.shaftHeight = Math.max(1, this.config.height());
 
-    int globalBlocksPerTick = commonConfig == null ? 1 : Math.max(1, commonConfig.blocksPerTick());
-    this.blocksPerTick = Math.max(1, Math.min(globalBlocksPerTick, this.config.processesPerTick()));
+    this.ticksPerBlock = commonConfig == null ? 1 : Math.max(1, commonConfig.ticksPerBlock());
+    int globalMaxBlocksPerTick = commonConfig == null ? 1 : Math.max(1, commonConfig.maxBlocksPerTick());
+    this.maxBlocksPerTick = Math.max(1, Math.min(globalMaxBlocksPerTick, this.config.processesPerTick()));
     this.autoIlluminate = commonConfig == null || commonConfig.autoIlluminate();
     this.torchLowestLightLevel = Math.max(0, torchLowestLightLevel);
     this.mineVeins = commonConfig == null || commonConfig.mineVeins();
@@ -527,8 +529,12 @@ public class ShaftanationAgent extends Agent {
    * t ic k exists so this path stays predictable and easier to debug when things get weird.
    */
   public boolean tick() {
+    if (!shouldProcessThisTick(ticksPerBlock)) {
+      return false;
+    }
+
     int count = 0;
-    while (!queue.isEmpty() && count < blocksPerTick) {
+    while (!queue.isEmpty() && count < maxBlocksPerTick) {
       ShaftTarget target = queue.poll();
       if (target == null) {
         continue;

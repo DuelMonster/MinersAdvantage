@@ -29,6 +29,7 @@
 - Fix Fabric integrated-server end-tick crashes during player list mutation by iterating a stable `ServerPlayer` snapshot instead of the live level player collection.
 - Add packet dispatch regression coverage that locks fallback `minecraft:air` block/tool ids when player context lookups are unavailable.
 - Finalize Commit-20 extension closure docs across README, TECHNICAL, and tuning matrix with full validation gate confirmation.
+- Replace common throughput pacing `blocks_per_tick` with `ticks_per_block` plus `max_blocks_per_tick`, including config UI, policy clamps/guardrails, and agent runtime cadence/budget handling.
 
 ## 2.21.0
 

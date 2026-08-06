@@ -47,7 +47,8 @@ public class LumbinationAgent extends Agent {
   private final Set<BlockPos> queuedLeaves = new HashSet<>();
   private final Set<String> configuredLogs;
   private final Set<String> configuredLeaves;
-  private final int blocksPerTick;
+  private final int ticksPerBlock;
+  private final int maxBlocksPerTick;
   private Block originLeafBlock = null;
   private boolean harvestedLog = false;
   private boolean logsPhaseComplete = false;
@@ -101,8 +102,9 @@ public class LumbinationAgent extends Agent {
     this.config = config == null ? MAServerRootConfig.defaults().lumbination() : config;
     this.maxTrunkRange = Math.max(0, this.config.maxTrunkRange());
     this.maxLeafRange = Math.max(0, this.config.maxLeafRange());
-    int globalBlocksPerTick = commonConfig == null ? 1 : Math.max(1, commonConfig.blocksPerTick());
-    this.blocksPerTick = Math.max(1, Math.min(globalBlocksPerTick, this.config.processesPerTick()));
+    this.ticksPerBlock = commonConfig == null ? 1 : Math.max(1, commonConfig.ticksPerBlock());
+    int globalMaxBlocksPerTick = commonConfig == null ? 1 : Math.max(1, commonConfig.maxBlocksPerTick());
+    this.maxBlocksPerTick = Math.max(1, Math.min(globalMaxBlocksPerTick, this.config.processesPerTick()));
     this.configuredLogs = normalizeConfiguredIds(this.config.logs());
     this.configuredLeaves = normalizeConfiguredIds(this.config.leaves());
     this.trunkMinX = origin.getX();
@@ -143,8 +145,12 @@ public class LumbinationAgent extends Agent {
       return finish("no valid tree canopy detected");
     }
 
+    if (!shouldProcessThisTick(ticksPerBlock)) {
+      return false;
+    }
+
     int count = 0;
-    while (count < blocksPerTick) {
+    while (count < maxBlocksPerTick) {
       if (logsPhaseComplete && !leafCandidatesSeeded) {
         // Seed leaf candidates exactly once after trunk pass is done.
         seedLeafQueueFromCanopyBounds();

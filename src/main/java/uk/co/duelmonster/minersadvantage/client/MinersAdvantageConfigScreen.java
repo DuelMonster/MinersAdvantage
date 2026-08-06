@@ -188,10 +188,14 @@ public final class MinersAdvantageConfigScreen {
     addGameplayBoolean(generalCategory, entryBuilder, "Mine Veins", "Permit connected ore mining logic.",
         mutable.mineVeins, currentServerConfig.common().mineVeins(), gameplayEditable,
         value -> mutable.mineVeins = value);
-    addGameplayInt(generalCategory, entryBuilder, "Blocks Per Tick",
-        "Common worker cap per processing window before feature-specific processes-per-tick limits are applied.",
-        mutable.blocksPerTick, currentServerConfig.common().blocksPerTick(), 1, 64, gameplayEditable,
-        value -> mutable.blocksPerTick = value);
+    addGameplayInt(generalCategory, entryBuilder, "Ticks Per Block",
+        "Process each agent every N ticks. Higher values spread work over time.",
+        mutable.ticksPerBlock, currentServerConfig.common().ticksPerBlock(), 1, 40, gameplayEditable,
+        value -> mutable.ticksPerBlock = value);
+    addGameplayInt(generalCategory, entryBuilder, "Max Blocks Per Tick",
+        "Maximum blocks processed when an agent's processing window executes.",
+        mutable.maxBlocksPerTick, currentServerConfig.common().maxBlocksPerTick(), 1, 64, gameplayEditable,
+        value -> mutable.maxBlocksPerTick = value);
     addGameplayBoolean(generalCategory, entryBuilder, "Enable Tick Delay",
         "Enable an additional delay between processing steps.", mutable.enableTickDelay,
         currentServerConfig.common().enableTickDelay(), gameplayEditable, value -> mutable.enableTickDelay = value);
@@ -476,10 +480,14 @@ public final class MinersAdvantageConfigScreen {
     addGameplayBoolean(generalCategory, entryBuilder, "Mine Veins", "Permit connected ore mining logic.",
         mutable.mineVeins, currentServerConfig.common().mineVeins(), gameplayEditable,
         value -> mutable.mineVeins = value);
-    addGameplayInt(generalCategory, entryBuilder, "Blocks Per Tick",
-        "Common worker cap per processing window before feature-specific processes-per-tick limits are applied.",
-        mutable.blocksPerTick, currentServerConfig.common().blocksPerTick(), 1, 64, gameplayEditable,
-        value -> mutable.blocksPerTick = value);
+    addGameplayInt(generalCategory, entryBuilder, "Ticks Per Block",
+        "Process each agent every N ticks. Higher values spread work over time.",
+        mutable.ticksPerBlock, currentServerConfig.common().ticksPerBlock(), 1, 40, gameplayEditable,
+        value -> mutable.ticksPerBlock = value);
+    addGameplayInt(generalCategory, entryBuilder, "Max Blocks Per Tick",
+        "Maximum blocks processed when an agent's processing window executes.",
+        mutable.maxBlocksPerTick, currentServerConfig.common().maxBlocksPerTick(), 1, 64, gameplayEditable,
+        value -> mutable.maxBlocksPerTick = value);
     addGameplayBoolean(generalCategory, entryBuilder, "Enable Tick Delay",
         "Enable an additional delay between processing steps.", mutable.enableTickDelay,
         currentServerConfig.common().enableTickDelay(), gameplayEditable, value -> mutable.enableTickDelay = value);
@@ -1430,7 +1438,8 @@ public final class MinersAdvantageConfigScreen {
     private boolean gatherDrops;
     private boolean autoIlluminate;
     private boolean mineVeins;
-    private int blocksPerTick;
+    private int ticksPerBlock;
+    private int maxBlocksPerTick;
     private boolean enableTickDelay;
     private int tickDelay;
     private int blockRadius;
@@ -1530,7 +1539,8 @@ public final class MinersAdvantageConfigScreen {
       this.gatherDrops = config.common().gatherDrops();
       this.autoIlluminate = config.common().autoIlluminate();
       this.mineVeins = config.common().mineVeins();
-      this.blocksPerTick = config.common().blocksPerTick();
+      this.ticksPerBlock = config.common().ticksPerBlock();
+      this.maxBlocksPerTick = config.common().maxBlocksPerTick();
       this.enableTickDelay = config.common().enableTickDelay();
       this.tickDelay = config.common().tickDelay();
       this.blockRadius = config.common().blockRadius();
@@ -1952,7 +1962,8 @@ public final class MinersAdvantageConfigScreen {
           gatherDrops,
           autoIlluminate,
           mineVeins,
-          blocksPerTick,
+          ticksPerBlock,
+          maxBlocksPerTick,
           enableTickDelay,
           tickDelay,
           blockRadius);

@@ -32,7 +32,8 @@ public class VentilationAgent extends Agent {
   private final Queue<VentTarget> queue = new LinkedList<>();
   private final Deque<BlockPos> ladderQueue = new LinkedList<>();
   private int dug = 0;
-  private final int blocksPerTick;
+  private final int ticksPerBlock;
+  private final int maxBlocksPerTick;
   private final boolean mineVeins;
   private final CommonConfig commonConfig;
   private final VeinationRuntimeService veinationRuntime;
@@ -99,8 +100,9 @@ public class VentilationAgent extends Agent {
     this.config = config == null ? MAServerRootConfig.defaults().ventilation() : config;
     int ventDepth = Math.max(1, this.config.height());
 
-    int globalBlocksPerTick = commonConfig == null ? 1 : Math.max(1, commonConfig.blocksPerTick());
-    this.blocksPerTick = Math.max(1, Math.min(globalBlocksPerTick, this.config.processesPerTick()));
+    this.ticksPerBlock = commonConfig == null ? 1 : Math.max(1, commonConfig.ticksPerBlock());
+    int globalMaxBlocksPerTick = commonConfig == null ? 1 : Math.max(1, commonConfig.maxBlocksPerTick());
+    this.maxBlocksPerTick = Math.max(1, Math.min(globalMaxBlocksPerTick, this.config.processesPerTick()));
     this.mineVeins = commonConfig == null || commonConfig.mineVeins();
     this.commonConfig = commonConfig;
     this.veinationRuntime = veinationRuntime;
@@ -124,8 +126,12 @@ public class VentilationAgent extends Agent {
    * t ic k exists so this path stays predictable and easier to debug when things get weird.
    */
   public boolean tick() {
+    if (!shouldProcessThisTick(ticksPerBlock)) {
+      return false;
+    }
+
     int count = 0;
-    while (!queue.isEmpty() && count < blocksPerTick) {
+    while (!queue.isEmpty() && count < maxBlocksPerTick) {
       VentTarget target = queue.poll();
       BlockPos pos = target == null ? null : target.pos();
       if (target == null) {
@@ -166,7 +172,7 @@ public class VentilationAgent extends Agent {
 
     boolean diggingComplete = queue.isEmpty();
     if (diggingComplete) {
-      if (direction == Direction.DOWN && !bottomTorchProcessed && count < blocksPerTick) {
+      if (direction == Direction.DOWN && !bottomTorchProcessed && count < maxBlocksPerTick) {
         bottomTorchProcessed = true;
         if (lowestDugPos != null) {
           ladderQueue.remove(lowestDugPos);
@@ -175,7 +181,7 @@ public class VentilationAgent extends Agent {
         count++;
       }
 
-      while (count < blocksPerTick && !ladderQueue.isEmpty()) {
+      while (count < maxBlocksPerTick && !ladderQueue.isEmpty()) {
         BlockPos ladderPos = ladderQueue.pollFirst();
         tryPlaceLadder(ladderPos);
         count++;

@@ -59,7 +59,8 @@ public final class MATomlConfigStore {
             boolValue(serverValues, "common.gather_drops", fallback.common().gatherDrops()),
             boolValue(serverValues, "common.auto_illuminate", fallback.common().autoIlluminate()),
             boolValue(serverValues, "common.mine_veins", fallback.common().mineVeins()),
-            intValue(serverValues, "common.blocks_per_tick", fallback.common().blocksPerTick(), 1, 1024),
+            intValue(serverValues, "common.ticks_per_block", fallback.common().ticksPerBlock(), 1, 200),
+            intValue(serverValues, "common.max_blocks_per_tick", fallback.common().maxBlocksPerTick(), 1, 1024),
             boolValue(serverValues, "common.enable_tick_delay", fallback.common().enableTickDelay()),
             intValue(serverValues, "common.tick_delay", fallback.common().tickDelay(), 0, 200),
             intValue(serverValues, "common.block_radius", fallback.common().blockRadius(), 1, 128)),
@@ -180,7 +181,8 @@ public final class MATomlConfigStore {
     serverValues.put("common.gather_drops", formatTomlValue(value.common().gatherDrops()));
     serverValues.put("common.auto_illuminate", formatTomlValue(value.common().autoIlluminate()));
     serverValues.put("common.mine_veins", formatTomlValue(value.common().mineVeins()));
-    serverValues.put("common.blocks_per_tick", formatTomlValue(value.common().blocksPerTick()));
+    serverValues.put("common.ticks_per_block", formatTomlValue(value.common().ticksPerBlock()));
+    serverValues.put("common.max_blocks_per_tick", formatTomlValue(value.common().maxBlocksPerTick()));
     serverValues.put("common.enable_tick_delay", formatTomlValue(value.common().enableTickDelay()));
     serverValues.put("common.tick_delay", formatTomlValue(value.common().tickDelay()));
     serverValues.put("common.block_radius", formatTomlValue(value.common().blockRadius()));

@@ -2,7 +2,8 @@
 
 This matrix is for controlled in-game comparisons of the new common pacing knobs:
 
-- `common.blocks_per_tick`
+- `common.ticks_per_block`
+- `common.max_blocks_per_tick`
 - `common.enable_tick_delay`
 - `common.tick_delay`
 
@@ -26,13 +27,13 @@ Log line prefix: `AgentTick`
 
 ## Matrix
 
-| Profile               | blocks_per_tick | enable_tick_delay | tick_delay | Intended Feel              | Primary Risk                  | Notes                        |
-| --------------------- | --------------- | ----------------- | ---------- | -------------------------- | ----------------------------- | ---------------------------- |
-| A (Conservative)      | 1               | true              | 10         | Very smooth, low impact    | Slow completion               | Lowest throughput profile    |
-| B (Smoother-Moderate) | 1               | true              | 5          | Smooth with better cadence | Mild backlog in large jobs    | Default baseline profile     |
-| C (Balanced)          | 2               | true              | 3          | Noticeably responsive      | Small bursts                  | Good single-player candidate |
-| D (Responsive)        | 3               | true              | 1          | Fast feedback              | Occasional spikes             | Watch p95 tick cost          |
-| E (Bursty)            | 4               | false             | 0          | Immediate response         | Burst lag in dense operations | Stress profile               |
+| Profile               | ticks_per_block | max_blocks_per_tick | enable_tick_delay | tick_delay | Intended Feel              | Primary Risk                  | Notes                        |
+| --------------------- | --------------- | ------------------- | ----------------- | ---------- | -------------------------- | ----------------------------- |
+| A (Conservative)      | 10              | 1                   | true              | 10         | Very smooth, low impact    | Slow completion               | Lowest throughput profile    |
+| B (Smoother-Moderate) | 6               | 1                   | true              | 5          | Smooth with better cadence | Mild backlog in large jobs    | Default baseline profile     |
+| C (Balanced)          | 3               | 2                   | true              | 3          | Noticeably responsive      | Small bursts                  | Good single-player candidate |
+| D (Responsive)        | 2               | 3                   | true              | 1          | Fast feedback              | Occasional spikes             | Watch p95 tick cost          |
+| E (Bursty)            | 1               | 4                   | false             | 0          | Immediate response         | Burst lag in dense operations | Stress profile               |
 
 ## Scenario Set
 
@@ -57,11 +58,14 @@ Use this order when judging outcomes:
 
 Effective worker budget for a feature is computed as:
 
-- `min(common.blocks_per_tick, <feature>.processes_per_tick)`
+- `min(common.max_blocks_per_tick, <feature>.processes_per_tick)`
+
+Agent cadence uses `common.ticks_per_block` (each worker processes once every N ticks).
 
 Server policy applies authoritative clamps to common pacing fields:
 
-- `common.blocks_per_tick`: input supports `1..1024`, effective runtime clamp is `1..64`
+- `common.ticks_per_block`: input supports `1..200`, effective runtime clamp is `1..40`
+- `common.max_blocks_per_tick`: input supports `1..1024`, effective runtime clamp is `1..64`
 - `common.tick_delay`: input supports `0..200`, effective runtime clamp is `0..40`
 - `common.block_radius`: input supports `1..128`, effective runtime clamp is `1..16`
 
@@ -79,7 +83,7 @@ This section defines what we will and will not replay from the original hot-path
 
 ### Retain Later (needs stage isolation + in-game gate)
 
-- Throughput-path optimizations (`blocks_per_tick`, `enable_tick_delay`, `tick_delay`, TPS guard internals).
+- Throughput-path optimizations (`ticks_per_block`, `max_blocks_per_tick`, `enable_tick_delay`, `tick_delay`, TPS guard internals).
 - Excavation ordering/precompute efficiency improvements.
 - Veination/Lumbination bounded work spreading and low-allocation hot-loop cleanups.
 

@@ -33,7 +33,8 @@ public class CultivationAgent extends Agent {
   private final Queue<BlockPos> queue = new LinkedList<>();
   private final Queue<DelayedUpdate> delayedUpdates = new LinkedList<>();
   private final Set<BlockPos> visited = new HashSet<>();
-  private final int blocksPerTick;
+  private final int ticksPerBlock;
+  private final int maxBlocksPerTick;
 
   /**
    * Convenience constructor using default server/common config values.
@@ -57,8 +58,8 @@ public class CultivationAgent extends Agent {
     this.maxX = patchCenter.getX() + patchRadius;
     this.minZ = patchCenter.getZ() - patchRadius;
     this.maxZ = patchCenter.getZ() + patchRadius;
-    int globalBlocksPerTick = commonConfig == null ? 1 : Math.max(1, commonConfig.blocksPerTick());
-    this.blocksPerTick = globalBlocksPerTick;
+    this.ticksPerBlock = commonConfig == null ? 1 : Math.max(1, commonConfig.ticksPerBlock());
+    this.maxBlocksPerTick = commonConfig == null ? 1 : Math.max(1, commonConfig.maxBlocksPerTick());
     queue.add(origin);
   }
 
@@ -80,8 +81,13 @@ public class CultivationAgent extends Agent {
    * t ic k exists so this path stays predictable and easier to debug when things get weird.
    */
   public boolean tick() {
+    if (!shouldProcessThisTick(ticksPerBlock)) {
+      processDelayedUpdates();
+      return false;
+    }
+
     int count = 0;
-    while (!queue.isEmpty() && count < blocksPerTick) {
+    while (!queue.isEmpty() && count < maxBlocksPerTick) {
       BlockPos pos = queue.poll();
       if (pos == null || !visited.add(pos) || !withinFarmPatch(pos)) {
         continue;

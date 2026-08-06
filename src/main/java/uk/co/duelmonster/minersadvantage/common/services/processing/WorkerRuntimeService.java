@@ -62,9 +62,9 @@ public final class WorkerRuntimeService {
      * ActiveWorker exists so this code path does one job clearly instead of spreading chaos across callers.
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
-    private ActiveWorker(WorkerHandle handle, int blocksPerTick) {
+    private ActiveWorker(WorkerHandle handle, int perTickBudget) {
       this.handle = handle;
-      this.queue = new ProcessingCoreService<>(blocksPerTick);
+      this.queue = new ProcessingCoreService<>(perTickBudget);
       this.drops = new DropCoreService();
     }
   }
@@ -84,9 +84,9 @@ public final class WorkerRuntimeService {
    * startWorker exists so this code path does one job clearly instead of spreading chaos across callers.
    * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
    */
-  public WorkerHandle startWorker(long playerId, FeatureId feature, int blocksPerTick) {
+  public WorkerHandle startWorker(long playerId, FeatureId feature, int perTickBudget) {
     WorkerHandle handle = new WorkerHandle(UUID.randomUUID(), playerId, feature);
-    workers.put(handle.workerId(), new ActiveWorker(handle, blocksPerTick));
+    workers.put(handle.workerId(), new ActiveWorker(handle, perTickBudget));
     return handle;
   }
 

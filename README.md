@@ -116,18 +116,19 @@ Client options stay local. Gameplay options are server-authoritative in multipla
 
 ### Common Gameplay (`minersadvantage-server-config.toml`)
 
-| Option                   | Type    | Default | Range                                | Description                                                                   |
-| ------------------------ | ------- | ------- | ------------------------------------ | ----------------------------------------------------------------------------- |
-| common.tps_guard         | boolean | true    | -                                    | Reduces aggressive behavior under low TPS conditions.                         |
-| common.gather_drops      | boolean | false   | -                                    | Enables drop gathering helpers where applicable.                              |
-| common.auto_illuminate   | boolean | true    | -                                    | Allows compatible features to trigger Illumination behavior.                  |
-| common.mine_veins        | boolean | true    | -                                    | Allows compatible features to trigger Veination behavior.                     |
-| common.blocks_per_tick   | int     | 1       | input: 1 to 1024, effective: 1 to 64 | Shared per-tick worker budget cap before feature-specific limits are applied. |
-| common.enable_tick_delay | boolean | true    | -                                    | Enables tick-delay pacing.                                                    |
-| common.tick_delay        | int     | 5       | input: 0 to 200, effective: 0 to 40  | Extra ticks between processing windows when tick delay is enabled.            |
-| common.block_radius      | int     | 3       | input: 1 to 128, effective: 1 to 16  | Shared search radius for relevant feature operations.                         |
+| Option                     | Type    | Default | Range                                | Description                                                        |
+| -------------------------- | ------- | ------- | ------------------------------------ | ------------------------------------------------------------------ |
+| common.tps_guard           | boolean | true    | -                                    | Reduces aggressive behavior under low TPS conditions.              |
+| common.gather_drops        | boolean | false   | -                                    | Enables drop gathering helpers where applicable.                   |
+| common.auto_illuminate     | boolean | true    | -                                    | Allows compatible features to trigger Illumination behavior.       |
+| common.mine_veins          | boolean | true    | -                                    | Allows compatible features to trigger Veination behavior.          |
+| common.ticks_per_block     | int     | 10      | input: 1 to 200, effective: 1 to 40  | Shared per-agent cadence; each agent runs once every N ticks.      |
+| common.max_blocks_per_tick | int     | 1       | input: 1 to 1024, effective: 1 to 64 | Shared burst cap applied when an agent processing window executes. |
+| common.enable_tick_delay   | boolean | true    | -                                    | Enables tick-delay pacing.                                         |
+| common.tick_delay          | int     | 5       | input: 0 to 200, effective: 0 to 40  | Extra ticks between processing windows when tick delay is enabled. |
+| common.block_radius        | int     | 3       | input: 1 to 128, effective: 1 to 16  | Shared search radius for relevant feature operations.              |
 
-Effective per-feature worker budget is `min(common.blocks_per_tick, <feature>.processes_per_tick)`.
+Effective per-feature worker budget is `min(common.max_blocks_per_tick, <feature>.processes_per_tick)` and cadence is driven by `common.ticks_per_block`.
 
 ### Optimization Replay Status (`2.22.0`)
 

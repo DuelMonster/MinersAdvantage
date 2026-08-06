@@ -31,6 +31,7 @@ import java.lang.reflect.Method;
  */
 public abstract class Agent {
   private static volatile boolean useItemOnLookupWarned = false;
+  private int ticksUntilNextProcessingWindow = 0;
 
   protected record BreakOutcome(boolean broken, ItemStack toolAfterBreak) {
   }
@@ -72,6 +73,24 @@ public abstract class Agent {
       LogUtils.logDebug("Completed {} for player={} reason={}", getClass().getSimpleName(), player.getScoreboardName(),
           reason);
     }
+    return true;
+  }
+
+  /**
+   * Applies per-agent cadence so heavy workers can run every N ticks instead of every tick.
+   */
+  protected boolean shouldProcessThisTick(int ticksPerBlock) {
+    int effectiveTicksPerBlock = Math.max(1, ticksPerBlock);
+    if (effectiveTicksPerBlock <= 1) {
+      return true;
+    }
+
+    if (ticksUntilNextProcessingWindow > 0) {
+      ticksUntilNextProcessingWindow--;
+      return false;
+    }
+
+    ticksUntilNextProcessingWindow = effectiveTicksPerBlock - 1;
     return true;
   }
 

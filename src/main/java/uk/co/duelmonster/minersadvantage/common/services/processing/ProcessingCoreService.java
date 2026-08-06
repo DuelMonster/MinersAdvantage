@@ -10,14 +10,14 @@ import java.util.function.Consumer;
  */
 public final class ProcessingCoreService<T> {
   private final Deque<T> queue = new ArrayDeque<>();
-  private final int blocksPerTick;
+  private final int perTickBudget;
 
   /**
    * ProcessingCoreService exists so this code path does one job clearly instead of spreading chaos across callers.
    * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
    */
-  public ProcessingCoreService(int blocksPerTick) {
-    this.blocksPerTick = blocksPerTick;
+  public ProcessingCoreService(int perTickBudget) {
+    this.perTickBudget = perTickBudget;
   }
 
   /**
@@ -38,7 +38,7 @@ public final class ProcessingCoreService<T> {
       return 0;
     }
 
-    int remainingBudget = blocksPerTick;
+    int remainingBudget = perTickBudget;
     while (remainingBudget > 0) {
       T next = queue.pollFirst();
       if (next == null) {
@@ -47,7 +47,7 @@ public final class ProcessingCoreService<T> {
       consumer.accept(next);
       remainingBudget--;
     }
-    return blocksPerTick - remainingBudget;
+    return perTickBudget - remainingBudget;
   }
 
   /**

@@ -52,7 +52,8 @@ public class ExcavationAgent extends Agent {
   private final int depth;
   private final Queue<ExcavationTarget> queue = new LinkedList<>();
   private final Set<BlockPos> visited = new HashSet<>();
-  private final int blocksPerTick;
+  private final int ticksPerBlock;
+  private final int maxBlocksPerTick;
   private final CommonConfig commonConfig;
   private final IlluminationConfig illuminationConfig;
   private final boolean mineVeins;
@@ -217,8 +218,9 @@ public class ExcavationAgent extends Agent {
     this.width = Math.max(1, width);
     this.height = Math.max(1, height);
     this.depth = Math.max(1, depth);
-    int globalBlocksPerTick = Math.max(1, this.commonConfig.blocksPerTick());
-    this.blocksPerTick = Math.max(1, Math.min(globalBlocksPerTick, this.config.processesPerTick()));
+    this.ticksPerBlock = Math.max(1, this.commonConfig.ticksPerBlock());
+    int globalMaxBlocksPerTick = Math.max(1, this.commonConfig.maxBlocksPerTick());
+    this.maxBlocksPerTick = Math.max(1, Math.min(globalMaxBlocksPerTick, this.config.processesPerTick()));
     this.mineVeins = this.commonConfig.mineVeins();
     this.veinationRuntime = veinationRuntime;
     this.veinationConfig = veinationConfig;
@@ -329,8 +331,12 @@ public class ExcavationAgent extends Agent {
    * t ic k exists so this path stays predictable and easier to debug when things get weird.
    */
   public boolean tick() {
+    if (!shouldProcessThisTick(ticksPerBlock)) {
+      return false;
+    }
+
     int count = 0;
-    while (!queue.isEmpty() && count < blocksPerTick) {
+    while (!queue.isEmpty() && count < maxBlocksPerTick) {
       ExcavationTarget target = queue.poll();
       BlockPos pos = target == null ? null : target.pos();
       if (pos == null || !visited.add(pos)) {

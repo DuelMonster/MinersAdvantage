@@ -22,7 +22,8 @@ public class VeinationAgent extends Agent {
   private final VeinationCoreService.VeinDiscoveryCursor discoveryCursor;
   private final VeinationRuntimeService runtime;
   private final VeinationConfig config;
-  private final int blocksPerTick;
+  private final int ticksPerBlock;
+  private final int maxBlocksPerTick;
   private final int discoveryBatchSize;
   private ItemStack breakTool;
 
@@ -56,8 +57,9 @@ public class VeinationAgent extends Agent {
     super(player);
     this.runtime = runtime;
     this.config = config;
-    this.blocksPerTick = commonConfig == null ? 1 : Math.max(1, commonConfig.blocksPerTick());
-    this.discoveryBatchSize = Math.max(MIN_DISCOVERY_BATCH_SIZE, this.blocksPerTick * 2);
+    this.ticksPerBlock = commonConfig == null ? 1 : Math.max(1, commonConfig.ticksPerBlock());
+    this.maxBlocksPerTick = commonConfig == null ? 1 : Math.max(1, commonConfig.maxBlocksPerTick());
+    this.discoveryBatchSize = Math.max(MIN_DISCOVERY_BATCH_SIZE, this.maxBlocksPerTick * 2);
     this.breakTool = breakTool == null ? ItemStack.EMPTY : breakTool.copy();
     this.discoveryCursor = runtime.beginVeinDiscovery(world, origin, originStateHint, config);
     queue.addAll(discoveryCursor.drainNext(discoveryBatchSize));
@@ -68,12 +70,16 @@ public class VeinationAgent extends Agent {
    * t ic k exists so this path stays predictable and easier to debug when things get weird.
    */
   public boolean tick() {
+    if (!shouldProcessThisTick(ticksPerBlock)) {
+      return false;
+    }
+
     if (queue.isEmpty() && !discoveryCursor.isComplete()) {
       queue.addAll(discoveryCursor.drainNext(discoveryBatchSize));
     }
 
     int count = 0;
-    while (!queue.isEmpty() && count < blocksPerTick) {
+    while (!queue.isEmpty() && count < maxBlocksPerTick) {
       BlockPos pos = queue.poll();
       if (world.getBlockState(pos).isAir()) {
         continue;
@@ -85,7 +91,7 @@ public class VeinationAgent extends Agent {
         count++;
       }
 
-      if (queue.isEmpty() && !discoveryCursor.isComplete() && count < blocksPerTick) {
+      if (queue.isEmpty() && !discoveryCursor.isComplete() && count < maxBlocksPerTick) {
         queue.addAll(discoveryCursor.drainNext(discoveryBatchSize));
       }
     }

@@ -23,7 +23,8 @@ public class PathanationAgent extends Agent {
   private final int pathWidth;
   private final Queue<BlockPos> queue = new LinkedList<>();
   private int placed = 0;
-  private final int blocksPerTick;
+  private final int ticksPerBlock;
+  private final int maxBlocksPerTick;
 
   /**
    * Convenience constructor using player facing and default configs.
@@ -44,7 +45,8 @@ public class PathanationAgent extends Agent {
     PathanationConfig effectiveConfig = config == null ? MAServerRootConfig.defaults().pathanation() : config;
     this.length = Math.max(1, effectiveConfig.targetBlockRange());
     this.pathWidth = Math.max(1, effectiveConfig.pathWidth());
-    this.blocksPerTick = commonConfig == null ? 1 : Math.max(1, commonConfig.blocksPerTick());
+    this.ticksPerBlock = commonConfig == null ? 1 : Math.max(1, commonConfig.ticksPerBlock());
+    this.maxBlocksPerTick = commonConfig == null ? 1 : Math.max(1, commonConfig.maxBlocksPerTick());
 
     // Pre-seed queue with full footprint so tick loop stays simple and predictable.
     int halfWidth = pathWidth / 2;
@@ -72,8 +74,12 @@ public class PathanationAgent extends Agent {
    * t ic k exists so this path stays predictable and easier to debug when things get weird.
    */
   public boolean tick() {
+    if (!shouldProcessThisTick(ticksPerBlock)) {
+      return false;
+    }
+
     int count = 0;
-    while (!queue.isEmpty() && count < blocksPerTick) {
+    while (!queue.isEmpty() && count < maxBlocksPerTick) {
       BlockPos pos = queue.poll();
       BlockState state = world.getBlockState(pos);
       // Only convert dirt-like surfaces with open/replaceable headspace above.

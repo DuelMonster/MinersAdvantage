@@ -21,7 +21,8 @@ public class IlluminationAgent extends Agent {
   private final IlluminationConfig config;
   private final Queue<BlockPos> queue = new LinkedList<>();
   private int placed = 0;
-  private final int blocksPerTick;
+  private final int ticksPerBlock;
+  private final int maxBlocksPerTick;
 
   /**
    * Convenience constructor that delegates to default illumination config.
@@ -37,8 +38,8 @@ public class IlluminationAgent extends Agent {
     super(player);
     this.origin = new BlockPos((int) area.minX, (int) area.minY, (int) area.minZ);
     this.config = config == null ? MAServerRootConfig.defaults().illumination() : config;
-    int globalBlocksPerTick = commonConfig == null ? 1 : Math.max(1, commonConfig.blocksPerTick());
-    this.blocksPerTick = globalBlocksPerTick;
+    this.ticksPerBlock = commonConfig == null ? 1 : Math.max(1, commonConfig.ticksPerBlock());
+    this.maxBlocksPerTick = commonConfig == null ? 1 : Math.max(1, commonConfig.maxBlocksPerTick());
 
     for (BlockPos pos : Functions.getAllPositionsInArea(area)) {
       queue.add(pos.immutable());
@@ -54,8 +55,8 @@ public class IlluminationAgent extends Agent {
     BlockPos first = (positions == null || positions.isEmpty()) ? player.blockPosition() : positions.iterator().next();
     this.origin = first.immutable();
     this.config = config == null ? MAServerRootConfig.defaults().illumination() : config;
-    int globalBlocksPerTick = commonConfig == null ? 1 : Math.max(1, commonConfig.blocksPerTick());
-    this.blocksPerTick = globalBlocksPerTick;
+    this.ticksPerBlock = commonConfig == null ? 1 : Math.max(1, commonConfig.ticksPerBlock());
+    this.maxBlocksPerTick = commonConfig == null ? 1 : Math.max(1, commonConfig.maxBlocksPerTick());
 
     if (positions != null) {
       for (BlockPos pos : positions) {
@@ -73,8 +74,8 @@ public class IlluminationAgent extends Agent {
     super(player);
     this.origin = origin;
     this.config = config == null ? MAServerRootConfig.defaults().illumination() : config;
-    int globalBlocksPerTick = commonConfig == null ? 1 : Math.max(1, commonConfig.blocksPerTick());
-    this.blocksPerTick = globalBlocksPerTick;
+    this.ticksPerBlock = commonConfig == null ? 1 : Math.max(1, commonConfig.ticksPerBlock());
+    this.maxBlocksPerTick = commonConfig == null ? 1 : Math.max(1, commonConfig.maxBlocksPerTick());
 
     int horizontal = Math.max(0, this.config.radiusHorizontal());
     int vertical = Math.max(0, this.config.radiusVertical());
@@ -98,8 +99,12 @@ public class IlluminationAgent extends Agent {
    * t ic k exists so this path stays predictable and easier to debug when things get weird.
    */
   public boolean tick() {
+    if (!shouldProcessThisTick(ticksPerBlock)) {
+      return false;
+    }
+
     int count = 0;
-    while (!queue.isEmpty() && count < blocksPerTick) {
+    while (!queue.isEmpty() && count < maxBlocksPerTick) {
       if (!playerHasTorches()) {
         return finish("illumination area stopped: no torches in inventory");
       }

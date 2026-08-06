@@ -36,7 +36,8 @@ public class CropinationAgent extends Agent {
   private final boolean hasWaterSource;
   private final boolean allowNoWaterFallback;
   private final Queue<BlockPos> queue = new LinkedList<>();
-  private final int blocksPerTick;
+  private final int ticksPerBlock;
+  private final int maxBlocksPerTick;
   private final boolean harvestSeeds;
 
   /**
@@ -80,8 +81,8 @@ public class CropinationAgent extends Agent {
       this.maxZ = origin.getZ();
     }
 
-    int globalBlocksPerTick = commonConfig == null ? 1 : Math.max(1, commonConfig.blocksPerTick());
-    this.blocksPerTick = globalBlocksPerTick;
+    this.ticksPerBlock = commonConfig == null ? 1 : Math.max(1, commonConfig.ticksPerBlock());
+    this.maxBlocksPerTick = commonConfig == null ? 1 : Math.max(1, commonConfig.maxBlocksPerTick());
     this.harvestSeeds = effectiveConfig.harvestSeeds();
   }
 
@@ -97,9 +98,13 @@ public class CropinationAgent extends Agent {
       return finish("no nearby water source");
     }
 
+    if (!shouldProcessThisTick(ticksPerBlock)) {
+      return false;
+    }
+
     int count = 0;
     // Process queued crop positions until tick budget is consumed.
-    while (!queue.isEmpty() && count < blocksPerTick) {
+    while (!queue.isEmpty() && count < maxBlocksPerTick) {
       BlockPos pos = queue.poll();
       if (pos == null || !withinFarmPatch(pos)) {
         continue;
