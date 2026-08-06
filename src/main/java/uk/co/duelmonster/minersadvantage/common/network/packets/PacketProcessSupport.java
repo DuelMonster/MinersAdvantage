@@ -1,7 +1,9 @@
 package uk.co.duelmonster.minersadvantage.common.network.packets;
 
 import java.lang.reflect.Method;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -18,7 +20,15 @@ import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
  */
 public final class PacketProcessSupport {
   private static final String FALLBACK_ID = "minecraft:air";
+  private static final Map<Integer, String> BLOCK_ID_CACHE = new ConcurrentHashMap<>();
   private static volatile Predicate<FeatureId> featureEnabledResolver = featureId -> true;
+  private static final ClassValue<ResolvedMethods> RESOLVED_METHODS = new ClassValue<>() {
+    @Override
+    protected ResolvedMethods computeValue(Class<?> type) {
+      return new ResolvedMethods(findZeroArgMethodReturning(type, ItemStack.class),
+          findZeroArgMethodReturning(type, UUID.class));
+    }
+  };
 
   private PacketProcessSupport() {
   }
@@ -108,6 +118,10 @@ public final class PacketProcessSupport {
    * In short: one clear job here beats ten confusing side-effects elsewhere.
    */
   private static String resolveBlockId(int stateId) {
+    return BLOCK_ID_CACHE.computeIfAbsent(stateId, PacketProcessSupport::resolveBlockIdSlow);
+  }
+
+  private static String resolveBlockIdSlow(int stateId) {
     if (stateId > 0) {
       try {
         return BuiltInRegistries.BLOCK.getKey(Block.stateById(stateId).getBlock()).toString();
@@ -128,7 +142,7 @@ public final class PacketProcessSupport {
     }
 
     try {
-      Method method = player == null ? null : findZeroArgMethodReturning(player.getClass(), ItemStack.class);
+      Method method = player == null ? null : RESOLVED_METHODS.get(player.getClass()).itemStackMethod();
       Object result = method == null ? null : method.invoke(player);
       if (result instanceof ItemStack stack) {
         return toolIdFromStack(stack);
@@ -173,7 +187,7 @@ public final class PacketProcessSupport {
     }
 
     try {
-      Method method = player == null ? null : findZeroArgMethodReturning(player.getClass(), UUID.class);
+      Method method = player == null ? null : RESOLVED_METHODS.get(player.getClass()).uuidMethod();
       Object result = method == null ? null : method.invoke(player);
       if (result instanceof UUID uuid) {
         return uuid;
@@ -196,5 +210,8 @@ public final class PacketProcessSupport {
       return method;
     }
     return null;
+  }
+
+  private record ResolvedMethods(Method itemStackMethod, Method uuidMethod) {
   }
 }
