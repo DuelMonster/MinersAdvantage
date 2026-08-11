@@ -10,6 +10,7 @@ import java.util.Set;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -19,6 +20,7 @@ import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import uk.co.duelmonster.minersadvantage.common.network.AbortWorkersPacket;
 import uk.co.duelmonster.minersadvantage.common.network.ComponentTogglePacket;
+import uk.co.duelmonster.minersadvantage.common.network.IlluminationActionPacket;
 import uk.co.duelmonster.minersadvantage.common.network.SupremeVantagePacket;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeBootstrap;
@@ -115,6 +117,13 @@ public final class NeoForgeClientEvents {
     // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     for (ComponentTogglePacket packet : result.togglePackets()) {
       ClientPacketDistributor.sendToServer(packet);
+    }
+
+    if (result.illuminatePlace()) {
+      sendIlluminationAction(false);
+    }
+    if (result.illuminateArea()) {
+      sendIlluminationAction(true);
     }
 
     // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
@@ -300,6 +309,18 @@ public final class NeoForgeClientEvents {
    */
   private static InputConstants.Key parseKeyToken(String token) {
     return ClientActionInputSupport.parseKeyToken(token);
+  }
+
+  private static void sendIlluminationAction(boolean area) {
+    Minecraft client = Minecraft.getInstance();
+    if (!(client.hitResult instanceof BlockHitResult blockHit)) {
+      return;
+    }
+
+    var hitFace = blockHit.getDirection();
+    var pos = area ? blockHit.getBlockPos() : blockHit.getBlockPos().relative(hitFace);
+    ClientPacketDistributor
+        .sendToServer(new IlluminationActionPacket(pos.getX(), pos.getY(), pos.getZ(), area, hitFace));
   }
 
   private static PoseStack ensurePoseStack(PoseStack poseStack) {
