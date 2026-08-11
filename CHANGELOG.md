@@ -1,3 +1,8 @@
+## 2.23.0
+
+- Reduce NeoForge/Fabric held-preview render-thread load by throttling unchanged outline resubmission for short frame windows.
+- Extract preview render-throttle decision logic into a dedicated helper and add regression coverage for unchanged-vs-changed signature behavior.
+
 ## 2.22.0
 
 - Start the optimization rebuild sequence from the 2.21 baseline by introducing a diagnostics envelope for ghost-block and credits-roll repro tracking.

@@ -61,6 +61,7 @@ import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeRegistry;
  */
 public final class ShapePreviewRenderer {
   private static final int SHAPELESS_BUILD_STEPS_PER_FRAME = 24;
+  private static final int PREVIEW_RENDER_THROTTLE_FRAMES = 2;
   private static final double OUTLINE_INFLATE = 0.005d;
   private static final int OUTLINE_OPTIMIZE_MAX_BLOCKS = 96;
   private static final int OUTLINE_CACHE_MAX_ENTRIES = 64;
@@ -97,6 +98,8 @@ public final class ShapePreviewRenderer {
   private static final RenderType LINES_TRANSLUCENT_NO_DEPTH_TEST = createLinesTranslucentNoDepthTestRenderType();
 
   private static final OutlineCache CACHE = new OutlineCache();
+  private static final Map<FeatureId, PreviewRenderThrottle.State> PREVIEW_RENDER_STATES = new HashMap<>();
+  private static int previewRenderFrameCounter;
 
   private record OutlineKey(
       FeatureId feature,
@@ -127,6 +130,28 @@ public final class ShapePreviewRenderer {
       this.combinedShape = combinedShape;
       this.pendingShapelessBuild = pendingShapelessBuild;
     }
+  }
+
+  private static PreviewRenderThrottle.Signature toThrottleSignature(
+      FeatureId feature,
+      String shapeId,
+      int shapeIndex,
+      int width,
+      int height,
+      int depth,
+      BlockPos origin,
+      Direction hitFace,
+      Direction playerFacing) {
+    return new PreviewRenderThrottle.Signature(
+        feature,
+        shapeId,
+        shapeIndex,
+        width,
+        height,
+        depth,
+        origin == null ? null : origin.toShortString(),
+        hitFace == null ? null : hitFace.getName(),
+        playerFacing == null ? null : playerFacing.getName());
   }
 
   private static final class OutlineCache {
@@ -210,7 +235,7 @@ public final class ShapePreviewRenderer {
     builder = applyMc26LineVertexFormat(builder);
     RenderPipeline.Snippet snippet = builder
       .withDepthStencilState(new DepthStencilState(CompareOp.ALWAYS_PASS, false))
-      .buildSnippet();
+        .buildSnippet();
 
     RenderPipeline pipeline = RenderPipeline.builder(snippet)
         .withLocation("pipeline/minersadvantage_lines_translucent_no_depth")
@@ -321,6 +346,7 @@ public final class ShapePreviewRenderer {
     MAShapeBootstrap.ensureInitialized();
     Player player = minecraft.player;
     var syncedConfig = MAConfig_Base.getGlobalConfig();
+    int renderFrameIndex = ++previewRenderFrameCounter;
     BlockPos origin = blockHit.getBlockPos();
     Direction hitFace = blockHit.getDirection();
     Direction playerFacing = player.getDirection();
@@ -375,7 +401,8 @@ public final class ShapePreviewRenderer {
                 poseStack,
                 cameraX,
                 cameraY,
-                cameraZ);
+                cameraZ,
+                renderFrameIndex);
           });
     }
 
@@ -407,7 +434,8 @@ public final class ShapePreviewRenderer {
               poseStack,
               cameraX,
               cameraY,
-              cameraZ));
+              cameraZ,
+              renderFrameIndex));
     }
 
     if (ventilationPreview) {
@@ -436,7 +464,8 @@ public final class ShapePreviewRenderer {
           poseStack,
           cameraX,
           cameraY,
-          cameraZ);
+          cameraZ,
+          renderFrameIndex);
     }
 
     logSlowOperation("renderHeldPreview.total", frameStartNanos, DIAGNOSTIC_SLOW_RENDER_MS,
@@ -462,7 +491,8 @@ public final class ShapePreviewRenderer {
       PoseStack poseStack,
       double cameraX,
       double cameraY,
-      double cameraZ) {
+      double cameraZ,
+      int renderFrameIndex) {
     boolean cacheable = true;
     BlockPos cacheOrigin = SHAPE_ID_SHAPELESS.equals(shapeId) ? origin.immutable() : null;
     CachedOutline outline = cacheable
@@ -477,7 +507,24 @@ public final class ShapePreviewRenderer {
             playerFacing)
         : null;
     boolean cacheHit = outline != null;
+    PreviewRenderThrottle.Signature signature = toThrottleSignature(
+        feature,
+        shapeId,
+        shapeIndex,
+        dimensions.width(),
+        dimensions.height(),
+        dimensions.depth(),
+        origin,
+        hitFace,
+        playerFacing);
+    PreviewRenderThrottle.State lastRenderState = PREVIEW_RENDER_STATES.get(feature);
+    boolean shouldRender = PreviewRenderThrottle.shouldRender(lastRenderState, signature, renderFrameIndex,
+        PREVIEW_RENDER_THROTTLE_FRAMES);
     long outlineStartNanos = System.nanoTime();
+
+    if (!shouldRender) {
+      return;
+    }
 
     if (outline == null) {
       long positionsStartNanos = System.nanoTime();
@@ -568,6 +615,10 @@ public final class ShapePreviewRenderer {
           dimensions.depth(),
           hitFace,
           playerFacing);
+    }
+
+    if (!shouldRender) {
+      return;
     }
 
     // Continue incremental shapeless merge on the render thread with a small per-frame budget.
@@ -692,6 +743,7 @@ public final class ShapePreviewRenderer {
         dimensions.width(),
         dimensions.height(),
         dimensions.depth());
+    PREVIEW_RENDER_STATES.put(feature, new PreviewRenderThrottle.State(signature, renderFrameIndex));
   }
 
   /**
