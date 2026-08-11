@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -46,9 +47,11 @@ public class SubstitutionAgent extends Agent {
   private static final int RESTORE_IDLE_TICKS = 3;
   private static final int ATTACK_RESTORE_IDLE_TICKS = 12;
   private static final int BREAK_FALLBACK_ACTIVE_TICKS = 10;
+  private static final int RESTORE_DEFER_LOG_INTERVAL_TICKS = 20;
   private static final double TARGET_RANGE_SQ = 36.0;
   private static final int QUEUE_DEDUPE_TICKS = 1;
   private static final ConcurrentMap<RestoreKey, RestoreState> RESTORE_STATES = new ConcurrentHashMap<>();
+  private static final ConcurrentMap<RestoreKey, DeferredRestoreLogState> RESTORE_DEFER_LOG_STATES = new ConcurrentHashMap<>();
   private static final ConcurrentMap<QueueKey, QueueState> QUEUE_STATES = new ConcurrentHashMap<>();
   private static final ClassValue<PlayerReflectionSnapshot> PLAYER_REFLECTIONS = new ClassValue<>() {
     @Override
@@ -1027,6 +1030,7 @@ public class SubstitutionAgent extends Agent {
     clearRestoreState(player, InteractionHand.MAIN_HAND);
     clearRestoreState(player, InteractionHand.OFF_HAND);
     QUEUE_STATES.keySet().removeIf(key -> key.playerId().equals(player.getUUID()));
+    RESTORE_DEFER_LOG_STATES.keySet().removeIf(key -> key.playerId().equals(player.getUUID()));
   }
 
   /**
@@ -1042,7 +1046,7 @@ public class SubstitutionAgent extends Agent {
     if (AgentManager.get().hasBlockingAutomationAgent(player)) {
       long now = player.level().getGameTime();
       RESTORE_STATES.put(key, state.withLastActivityTick(now));
-      LogUtils.logDebug(
+      logRestoreDeferredIfDue(key, "automation-agent-active", now,
           "Substitution restore deferred player={} hand={} reason=automation-agent-active action={}",
           player.getScoreboardName(),
           hand,
@@ -1053,7 +1057,7 @@ public class SubstitutionAgent extends Agent {
     long now = player.level().getGameTime();
     int restoreIdleTicks = restoreIdleTicksForAction(state.action());
     if (now - state.lastActivityTick() <= restoreIdleTicks) {
-      LogUtils.logDebug(
+      logRestoreDeferredIfDue(key, "idle-window", now,
           "Substitution restore deferred player={} hand={} reason=idle-window action={} lastActivity={} now={}",
           player.getScoreboardName(),
           hand,
@@ -1066,7 +1070,7 @@ public class SubstitutionAgent extends Agent {
     QueueState queueState = QUEUE_STATES.get(new QueueKey(player.getUUID(), hand, state.action()));
     if (state.action() == SubstitutionAction.BREAK && hasActiveBreakTarget(player, queueState, now)) {
       RESTORE_STATES.put(key, state.withLastActivityTick(now));
-      LogUtils.logDebug(
+      logRestoreDeferredIfDue(key, "active-break-target", now,
           "Substitution restore deferred player={} hand={} reason=active-break-target action={} pos={}",
           player.getScoreboardName(),
           hand,
@@ -1077,7 +1081,7 @@ public class SubstitutionAgent extends Agent {
 
     if (queueState != null && now - queueState.lastSeenTick() <= restoreIdleTicks) {
       RESTORE_STATES.put(key, state.withLastActivityTick(now));
-      LogUtils.logDebug(
+      logRestoreDeferredIfDue(key, "recent-queue-activity", now,
           "Substitution restore deferred player={} hand={} reason=recent-queue-activity action={} lastSeen={} now={} pos={}",
           player.getScoreboardName(),
           hand,
@@ -1090,7 +1094,7 @@ public class SubstitutionAgent extends Agent {
 
     if (isStillUsingTool(player)) {
       RESTORE_STATES.put(key, state.withLastActivityTick(now));
-      LogUtils.logDebug(
+      logRestoreDeferredIfDue(key, "still-using-tool", now,
           "Substitution restore deferred player={} hand={} reason=still-using-tool action={}",
           player.getScoreboardName(),
           hand,
@@ -1101,7 +1105,7 @@ public class SubstitutionAgent extends Agent {
     if (hand == InteractionHand.MAIN_HAND) {
       int selectedSlot = selectedHotbarSlot(player);
       if (selectedSlot != state.switchedToSlot()) {
-        RESTORE_STATES.remove(key);
+        clearRestoreTracking(key);
         LogUtils.logDebug(
             "Substitution restore skipped player={} hand={} reason=selected-slot-changed expected={} current={}",
             player.getScoreboardName(),
@@ -1114,7 +1118,7 @@ public class SubstitutionAgent extends Agent {
 
     if (state.previousSelectedSlot() < 0
         || state.previousSelectedSlot() >= Math.min(HOTBAR_TOOL_SLOTS, player.getInventory().getContainerSize())) {
-      RESTORE_STATES.remove(key);
+      clearRestoreTracking(key);
       LogUtils.logDebug(
           "Substitution restore aborted player={} hand={} reason=invalid-previous-slot previousSlot={} switchedTo={} action={}",
           player.getScoreboardName(),
@@ -1126,7 +1130,7 @@ public class SubstitutionAgent extends Agent {
     }
 
     if (!setSelectedHotbarSlot(player, state.previousSelectedSlot())) {
-      RESTORE_STATES.remove(key);
+      clearRestoreTracking(key);
       LogUtils.logDebug(
           "Substitution restore aborted player={} hand={} reason=set-selected-slot-failed previousSlot={} action={}",
           player.getScoreboardName(),
@@ -1135,7 +1139,7 @@ public class SubstitutionAgent extends Agent {
           state.action());
       return;
     }
-    RESTORE_STATES.remove(key);
+    clearRestoreTracking(key);
 
     LogUtils.logDebug(
         "Substitution restored player={} hand={} slot={} action={}",
@@ -1149,11 +1153,28 @@ public class SubstitutionAgent extends Agent {
     return action == SubstitutionAction.ATTACK ? ATTACK_RESTORE_IDLE_TICKS : RESTORE_IDLE_TICKS;
   }
 
+  private static void clearRestoreTracking(RestoreKey key) {
+    RESTORE_STATES.remove(key);
+    RESTORE_DEFER_LOG_STATES.remove(key);
+  }
+
+  private static void logRestoreDeferredIfDue(RestoreKey key, String reason, long now, String format,
+      Object... args) {
+    DeferredRestoreLogState previous = RESTORE_DEFER_LOG_STATES.get(key);
+    if (previous != null
+        && Objects.equals(previous.reason(), reason)
+        && now - previous.lastLoggedTick() < RESTORE_DEFER_LOG_INTERVAL_TICKS) {
+      return;
+    }
+    RESTORE_DEFER_LOG_STATES.put(key, new DeferredRestoreLogState(reason, now));
+    LogUtils.logDebug(format, args);
+  }
+
   /**
    * Remove restore-state entry for one hand.
    */
   private static void clearRestoreState(ServerPlayer player, InteractionHand hand) {
-    RESTORE_STATES.remove(new RestoreKey(player.getUUID(), hand));
+    clearRestoreTracking(new RestoreKey(player.getUUID(), hand));
   }
 
   /**
@@ -1379,6 +1400,12 @@ public class SubstitutionAgent extends Agent {
     private RestoreState withLastActivityTick(long tick) {
       return new RestoreState(previousSelectedSlot, switchedToSlot, tick, action);
     }
+  }
+
+  /**
+   * Tracks the last deferred-reason log per restore key to avoid per-tick spam.
+   */
+  private record DeferredRestoreLogState(String reason, long lastLoggedTick) {
   }
 
   /**

@@ -2,6 +2,7 @@
 
 - Reduce NeoForge/Fabric held-preview render-thread load by throttling unchanged outline resubmission for short frame windows.
 - Extract preview render-throttle decision logic into a dedicated helper and add regression coverage for unchanged-vs-changed signature behavior.
+- Reduce substitution restore debug spam by rate-limiting repeated deferred-reason logs during switch-back idle polling.
 
 ## 2.22.0
 
