@@ -213,6 +213,7 @@ public final class PolicyCoreService {
         selected.ignoreIfValidTool(),
         selected.ignorePassiveMobs(),
         selected.blacklist(),
+        selected.blockBlacklist(),
         selected.selectionRules());
   }
 

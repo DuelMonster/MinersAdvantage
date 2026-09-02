@@ -189,6 +189,8 @@
   "minersadvantage.substitution.ignore_passive.comment": "Ignore Passive Mobs when deciding to substitute to a weapon.",
   "minersadvantage.substitution.blacklist": "Blacklist",
   "minersadvantage.substitution.blacklist.comment": "List of blacklisted Tool IDs. Default is empty.",
+  "minersadvantage.substitution.block_blacklist": "Block Blacklist",
+  "minersadvantage.substitution.block_blacklist.comment": "List of blacklisted Block IDs. Default is empty.",
 
   "minersadvantage.veination.comment": "Veination configuration for MinersAdvantage",
   "minersadvantage.veination.enabled": "Veination Enabled",

@@ -127,6 +127,7 @@ public record SyncedClientConfig(
             MAConfig_Defaults.Substitution.ignoreIfValidTool,
             MAConfig_Defaults.Substitution.ignorePassiveMobs,
             MAConfig_Defaults.Substitution.blacklist,
+            MAConfig_Defaults.Substitution.blockBlacklist,
             MAConfig_Defaults.Substitution.selectionRules),
         new VeinationConfig(
             MAConfig_Defaults.Veination.enabled,

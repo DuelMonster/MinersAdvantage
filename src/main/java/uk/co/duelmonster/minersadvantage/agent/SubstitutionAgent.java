@@ -279,6 +279,7 @@ public class SubstitutionAgent extends Agent {
   private final InteractionHand hand;
   private final SubstitutionConfig config;
   private final Set<String> blacklist;
+  private final Set<String> blockBlacklist;
   private final String targetEntityTypeId;
 
   /**
@@ -332,6 +333,7 @@ public class SubstitutionAgent extends Agent {
     this.hand = hand;
     this.config = config == null ? new SubstitutionConfig() : config;
     this.blacklist = Set.copyOf(this.config.blacklist());
+    this.blockBlacklist = Set.copyOf(this.config.blockBlacklist());
     this.targetEntityTypeId = targetEntityTypeId == null ? "" : targetEntityTypeId.toLowerCase(Locale.ROOT);
   }
 
@@ -366,6 +368,10 @@ public class SubstitutionAgent extends Agent {
 
     if (!config.enabled()) {
       return finish("substitution disabled");
+    }
+
+    if (blockBlacklist.contains(BuiltInRegistries.BLOCK.getKey(targetState.getBlock()).toString())) {
+      return finish("target block blacklisted");
     }
 
     RuleResolution rule = resolveRule(held);

@@ -50,6 +50,7 @@ class MATomlConfigStoreTest {
             true,
             true,
             java.util.List.of("minecraft:diamond_pickaxe"),
+            java.util.List.of("minecraft:bedrock"),
             java.util.List.of(
                 new SubstitutionConfig.SelectionRule(
                     SubstitutionConfig.SubstitutionAction.BREAK,
@@ -80,6 +81,7 @@ class MATomlConfigStoreTest {
     assertEquals(3, loaded.shaftanation().height());
     assertEquals(TorchPlacement.BOTH_WALLS, loaded.shaftanation().torchPlacement());
     assertEquals(java.util.List.of("minecraft:diamond_pickaxe"), loaded.substitution().blacklist());
+    assertEquals(java.util.List.of("minecraft:bedrock"), loaded.substitution().blockBlacklist());
     assertEquals(1, loaded.substitution().selectionRules().size());
     assertEquals("minecraft:mineable/pickaxe", loaded.substitution().selectionRules().get(0).targetId());
     assertEquals(120, loaded.substitution().selectionRules().get(0).targetPriority());

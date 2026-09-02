@@ -197,6 +197,7 @@ public final class MAConfig_Defaults {
     public static final boolean ignoreIfValidTool = true;
     public static final boolean ignorePassiveMobs = true;
     public static final List<String> blacklist = List.of();
+    public static final List<String> blockBlacklist = List.of();
     public static final List<SelectionRule> selectionRules = uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig
         .defaultSelectionRules();
   }

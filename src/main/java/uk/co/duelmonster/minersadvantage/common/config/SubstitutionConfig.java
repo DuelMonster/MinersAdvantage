@@ -18,12 +18,13 @@ public record SubstitutionConfig(
     boolean ignoreIfValidTool,
     boolean ignorePassiveMobs,
     List<String> blacklist,
+    List<String> blockBlacklist,
     List<SelectionRule> selectionRules) {
   /**
    * s ub st it ut io nc on fi g exists so this path stays predictable and easier to debug when things get weird.
    */
   public SubstitutionConfig() {
-    this(true, false, false, true, true, true, true, List.of(), defaultSelectionRules());
+    this(true, false, false, true, true, true, true, List.of(), List.of(), defaultSelectionRules());
   }
 
   /**
@@ -31,7 +32,8 @@ public record SubstitutionConfig(
    * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
    */
   public SubstitutionConfig(boolean enabled, boolean allowMending, boolean prioritizeSilkTouch) {
-    this(enabled, allowMending, prioritizeSilkTouch, true, true, true, true, List.of(), defaultSelectionRules());
+    this(enabled, allowMending, prioritizeSilkTouch, true, true, true, true, List.of(), List.of(),
+        defaultSelectionRules());
   }
 
   public SubstitutionConfig(
@@ -44,11 +46,26 @@ public record SubstitutionConfig(
       boolean ignorePassiveMobs,
       List<String> blacklist) {
     this(enabled, allowMending, prioritizeSilkTouch, switchBack, favourFortune, ignoreIfValidTool, ignorePassiveMobs,
-        blacklist, defaultSelectionRules());
+        blacklist, List.of(), defaultSelectionRules());
+  }
+
+  public SubstitutionConfig(
+      boolean enabled,
+      boolean allowMending,
+      boolean prioritizeSilkTouch,
+      boolean switchBack,
+      boolean favourFortune,
+      boolean ignoreIfValidTool,
+      boolean ignorePassiveMobs,
+      List<String> blacklist,
+      List<String> blockBlacklist) {
+    this(enabled, allowMending, prioritizeSilkTouch, switchBack, favourFortune, ignoreIfValidTool, ignorePassiveMobs,
+        blacklist, blockBlacklist, defaultSelectionRules());
   }
 
   public SubstitutionConfig {
     blacklist = blacklist == null ? List.of() : List.copyOf(blacklist);
+    blockBlacklist = blockBlacklist == null ? List.of() : List.copyOf(blockBlacklist);
     selectionRules = selectionRules == null || selectionRules.isEmpty() ? defaultSelectionRules()
         : List.copyOf(selectionRules);
   }
@@ -59,6 +76,14 @@ public record SubstitutionConfig(
    */
   public boolean favourSilkTouch() {
     return prioritizeSilkTouch;
+  }
+
+  /**
+   * isBlockBlacklisted exists so this code path does one job clearly instead of spreading chaos across callers.
+   * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+   */
+  public boolean isBlockBlacklisted(String blockId) {
+    return blockId != null && blockBlacklist.contains(blockId);
   }
 
   /**

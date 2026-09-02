@@ -241,6 +241,7 @@ Docs-only commits do not require in-game validation and can proceed after standa
 | substitution.ignore_if_valid_tool  | boolean      | true    | Skips substitution if currently held tool is already valid. |
 | substitution.ignore_passive_mobs   | boolean      | true    | Prevents passive-mob attack swapping behavior when true.    |
 | substitution.blacklist             | list<string> | []      | Item IDs excluded from substitution consideration.          |
+| substitution.block_blacklist       | list<string> | []      | Block IDs that are never eligible for substitution.         |
 
 ### Veination (`minersadvantage-server-config.toml`)
 

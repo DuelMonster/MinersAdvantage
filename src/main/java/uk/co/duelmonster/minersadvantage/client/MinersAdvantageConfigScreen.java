@@ -1048,6 +1048,9 @@ public final class MinersAdvantageConfigScreen {
       addGameplayStringList(entries, entryBuilder, "Blacklist", "Item ids excluded from substitution.",
           mutable.substitutionBlacklist, currentServerConfig.substitution().blacklist(), gameplayEditable,
           value -> mutable.substitutionBlacklist = value);
+      addGameplayStringList(entries, entryBuilder, "Block Blacklist", "Block ids excluded from substitution.",
+          mutable.substitutionBlockBlacklist, currentServerConfig.substitution().blockBlacklist(), gameplayEditable,
+          value -> mutable.substitutionBlockBlacklist = value);
       entries.add(entryBuilder
           .startTextDescription(Component.literal("Selection rules are persisted in the server config file."))
           .build());
@@ -1562,6 +1565,7 @@ public final class MinersAdvantageConfigScreen {
     private boolean substitutionIgnoreIfValidTool;
     private boolean substitutionIgnorePassiveMobs;
     private List<String> substitutionBlacklist;
+    private List<String> substitutionBlockBlacklist;
 
     private boolean veinationEnabled;
     private int veinationMaxVeinDistance;
@@ -1674,6 +1678,7 @@ public final class MinersAdvantageConfigScreen {
       this.substitutionIgnoreIfValidTool = config.substitution().ignoreIfValidTool();
       this.substitutionIgnorePassiveMobs = config.substitution().ignorePassiveMobs();
       this.substitutionBlacklist = new ArrayList<>(config.substitution().blacklist());
+      this.substitutionBlockBlacklist = new ArrayList<>(config.substitution().blockBlacklist());
 
       this.veinationEnabled = config.veination().enabled();
       this.veinationMaxVeinDistance = config.veination().maxVeinDistance();
@@ -1927,7 +1932,8 @@ public final class MinersAdvantageConfigScreen {
           || substitutionFavourFortune != defaults.favourFortune()
           || substitutionIgnoreIfValidTool != defaults.ignoreIfValidTool()
           || substitutionIgnorePassiveMobs != defaults.ignorePassiveMobs()
-          || !substitutionBlacklist.equals(defaults.blacklist());
+          || !substitutionBlacklist.equals(defaults.blacklist())
+          || !substitutionBlockBlacklist.equals(defaults.blockBlacklist());
     }
 
     /**
@@ -1944,6 +1950,7 @@ public final class MinersAdvantageConfigScreen {
       substitutionIgnoreIfValidTool = defaults.ignoreIfValidTool();
       substitutionIgnorePassiveMobs = defaults.ignorePassiveMobs();
       substitutionBlacklist = new ArrayList<>(defaults.blacklist());
+      substitutionBlockBlacklist = new ArrayList<>(defaults.blockBlacklist());
     }
 
     /**
@@ -2122,6 +2129,7 @@ public final class MinersAdvantageConfigScreen {
               substitutionIgnoreIfValidTool,
               substitutionIgnorePassiveMobs,
               substitutionBlacklist,
+              substitutionBlockBlacklist,
               baseline.substitution().selectionRules()),
           new uk.co.duelmonster.minersadvantage.common.config.VeinationConfig(
               veinationEnabled,
