@@ -17,7 +17,7 @@ public record ExcavationConfig(
     boolean isBlockWhitelist,
     List<String> blockBlacklist,
     int maxActiveAgents,
-    boolean dedupeAgent) {
+    boolean enforceAgentLimit) {
   /**
    * ExcavationConfig exists so this code path does one job clearly instead of spreading chaos across callers.
    * Think of it as a guardrail for correctness, minus the dramatic cliff scene.

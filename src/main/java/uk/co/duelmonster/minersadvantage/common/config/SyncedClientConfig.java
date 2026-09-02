@@ -20,6 +20,9 @@ public record SyncedClientConfig(
     SubstitutionConfig substitution,
     VeinationConfig veination,
     VentilationConfig ventilation) {
+  // Fixed cap used for features without a configurable agent limit (Captivation, Substitution).
+  private static final int DEFAULT_MAX_ACTIVE_AGENTS = 4;
+
   /**
    * defaults exists so this code path does one job clearly instead of spreading chaos across callers.
    * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
@@ -48,19 +51,17 @@ public record SyncedClientConfig(
             MAConfig_Defaults.Captivation.radiusVertical,
             MAConfig_Defaults.Captivation.isWhitelist,
             MAConfig_Defaults.Captivation.unconditionalBlacklist,
-            MAConfig_Defaults.Captivation.blacklist,
-            MAConfig_Defaults.Captivation.maxActiveAgents,
-            MAConfig_Defaults.Captivation.dedupeAgent),
+            MAConfig_Defaults.Captivation.blacklist),
         new CropinationConfig(
             MAConfig_Defaults.Cropination.enabled,
             MAConfig_Defaults.Cropination.harvestSeeds,
             MAConfig_Defaults.Cropination.maxActiveAgents,
-            MAConfig_Defaults.Cropination.dedupeAgent),
+            MAConfig_Defaults.Cropination.enforceAgentLimit),
         new CultivationConfig(
             MAConfig_Defaults.Cultivation.enabled,
             MAConfig_Defaults.Cultivation.hydrationDistance,
             MAConfig_Defaults.Cultivation.maxActiveAgents,
-            MAConfig_Defaults.Cultivation.dedupeAgent),
+            MAConfig_Defaults.Cultivation.enforceAgentLimit),
         new ExcavationConfig(
             MAConfig_Defaults.Excavation.enabled,
             MAConfig_Defaults.Excavation.width,
@@ -72,13 +73,13 @@ public record SyncedClientConfig(
             MAConfig_Defaults.Excavation.isBlockWhitelist,
             MAConfig_Defaults.Excavation.blockBlacklist,
             MAConfig_Defaults.Excavation.maxActiveAgents,
-            MAConfig_Defaults.Excavation.dedupeAgent),
+            MAConfig_Defaults.Excavation.enforceAgentLimit),
         new PathanationConfig(
             MAConfig_Defaults.Pathanation.enabled,
             MAConfig_Defaults.Pathanation.targetBlockRange,
             MAConfig_Defaults.Pathanation.pathWidth,
             MAConfig_Defaults.Pathanation.maxActiveAgents,
-            MAConfig_Defaults.Pathanation.dedupeAgent),
+            MAConfig_Defaults.Pathanation.enforceAgentLimit),
         new IlluminationConfig(
             MAConfig_Defaults.Illumination.enabled,
             MAConfig_Defaults.Illumination.radiusHorizontal,
@@ -86,7 +87,7 @@ public record SyncedClientConfig(
             MAConfig_Defaults.Illumination.lowestLightLevel,
             MAConfig_Defaults.Illumination.useBlockLight,
             MAConfig_Defaults.Illumination.maxActiveAgents,
-            MAConfig_Defaults.Illumination.dedupeAgent),
+            MAConfig_Defaults.Illumination.enforceAgentLimit),
         new LumbinationConfig(
             MAConfig_Defaults.Lumbination.enabled,
             MAConfig_Defaults.Lumbination.maxTrunkRange,
@@ -102,7 +103,7 @@ public record SyncedClientConfig(
             MAConfig_Defaults.Lumbination.leaves,
             MAConfig_Defaults.Lumbination.axes,
             MAConfig_Defaults.Lumbination.maxActiveAgents,
-            MAConfig_Defaults.Lumbination.dedupeAgent),
+            MAConfig_Defaults.Lumbination.enforceAgentLimit),
         new ShaftanationConfig(
             MAConfig_Defaults.Shaftanation.enabled,
             MAConfig_Defaults.Shaftanation.depth,
@@ -111,7 +112,7 @@ public record SyncedClientConfig(
             MAConfig_Defaults.Shaftanation.height,
             MAConfig_Defaults.Shaftanation.torchPlacement,
             MAConfig_Defaults.Shaftanation.maxActiveAgents,
-            MAConfig_Defaults.Shaftanation.dedupeAgent),
+            MAConfig_Defaults.Shaftanation.enforceAgentLimit),
         new SubstitutionConfig(
             MAConfig_Defaults.Substitution.enabled,
             MAConfig_Defaults.Substitution.allowMending,
@@ -122,9 +123,7 @@ public record SyncedClientConfig(
             MAConfig_Defaults.Substitution.ignorePassiveMobs,
             MAConfig_Defaults.Substitution.blacklist,
             MAConfig_Defaults.Substitution.blockBlacklist,
-            MAConfig_Defaults.Substitution.selectionRules,
-            MAConfig_Defaults.Substitution.maxActiveAgents,
-            MAConfig_Defaults.Substitution.dedupeAgent),
+            MAConfig_Defaults.Substitution.selectionRules),
         new VeinationConfig(
             MAConfig_Defaults.Veination.enabled,
             MAConfig_Defaults.Veination.maxVeinDistance,
@@ -135,7 +134,7 @@ public record SyncedClientConfig(
             MAConfig_Defaults.Veination.increasedHarvestingTimePerOreModifier,
             MAConfig_Defaults.Veination.pickaxeBlacklist,
             MAConfig_Defaults.Veination.maxActiveAgents,
-            MAConfig_Defaults.Veination.dedupeAgent),
+            MAConfig_Defaults.Veination.enforceAgentLimit),
         new VentilationConfig(
             MAConfig_Defaults.Ventilation.enabled,
             MAConfig_Defaults.Ventilation.width,
@@ -144,45 +143,44 @@ public record SyncedClientConfig(
             MAConfig_Defaults.Ventilation.processesPerTick,
             MAConfig_Defaults.Ventilation.placeLadders,
             MAConfig_Defaults.Ventilation.maxActiveAgents,
-            MAConfig_Defaults.Ventilation.dedupeAgent));
+            MAConfig_Defaults.Ventilation.enforceAgentLimit));
   }
 
   /**
-   * Resolve whether a given runtime agent type is allowed to dedupe to a single instance.
+   * Resolve whether the configured max-active-agents cap should be enforced for a given runtime agent type.
+   * When disabled, that agent type may queue an unlimited number of concurrent instances.
    */
-  public boolean isAgentTypeDeduplicationEnabled(Class<?> agentType) {
+  public boolean isAgentLimitEnforced(Class<?> agentType) {
     if (agentType == null) {
       return true;
     }
 
     String simpleName = agentType.getSimpleName();
     return switch (simpleName) {
-      case "CaptivationAgent" -> captivation.dedupeAgent();
-      case "CropinationAgent" -> cropination.dedupeAgent();
-      case "CultivationAgent" -> cultivation.dedupeAgent();
-      case "ExcavationAgent" -> excavation.dedupeAgent();
-      case "IlluminationAgent" -> illumination.dedupeAgent();
-      case "LumbinationAgent" -> lumbination.dedupeAgent();
-      case "PathanationAgent" -> pathanation.dedupeAgent();
-      case "ShaftanationAgent" -> shaftanation.dedupeAgent();
-      case "SubstitutionAgent" -> substitution.dedupeAgent();
-      case "VeinationAgent" -> veination.dedupeAgent();
-      case "VentilationAgent" -> ventilation.dedupeAgent();
+      case "CropinationAgent" -> cropination.enforceAgentLimit();
+      case "CultivationAgent" -> cultivation.enforceAgentLimit();
+      case "ExcavationAgent" -> excavation.enforceAgentLimit();
+      case "IlluminationAgent" -> illumination.enforceAgentLimit();
+      case "LumbinationAgent" -> lumbination.enforceAgentLimit();
+      case "PathanationAgent" -> pathanation.enforceAgentLimit();
+      case "ShaftanationAgent" -> shaftanation.enforceAgentLimit();
+      case "VeinationAgent" -> veination.enforceAgentLimit();
+      case "VentilationAgent" -> ventilation.enforceAgentLimit();
       default -> true;
     };
   }
 
   /**
    * Resolve the configured concurrent-instance cap for a given runtime agent type.
+   * Features without a configurable cap (e.g. Captivation, Substitution) fall back to a fixed default.
    */
   public int maxActiveAgentsForType(Class<?> agentType) {
     if (agentType == null) {
-      return 1;
+      return DEFAULT_MAX_ACTIVE_AGENTS;
     }
 
     String simpleName = agentType.getSimpleName();
     return switch (simpleName) {
-      case "CaptivationAgent" -> captivation.maxActiveAgents();
       case "CropinationAgent" -> cropination.maxActiveAgents();
       case "CultivationAgent" -> cultivation.maxActiveAgents();
       case "ExcavationAgent" -> excavation.maxActiveAgents();
@@ -190,11 +188,9 @@ public record SyncedClientConfig(
       case "LumbinationAgent" -> lumbination.maxActiveAgents();
       case "PathanationAgent" -> pathanation.maxActiveAgents();
       case "ShaftanationAgent" -> shaftanation.maxActiveAgents();
-      case "SubstitutionAgent" -> substitution.maxActiveAgents();
       case "VeinationAgent" -> veination.maxActiveAgents();
       case "VentilationAgent" -> ventilation.maxActiveAgents();
-      default -> 1;
+      default -> DEFAULT_MAX_ACTIVE_AGENTS;
     };
   }
 }
-

@@ -812,13 +812,6 @@ public final class MinersAdvantageConfigScreen {
       addGameplayStringList(entries, entryBuilder, "Blacklist", "Item ids used by Captivation filtering.",
           mutable.captivationBlacklist, currentServerConfig.captivation().blacklist(), gameplayEditable,
           value -> mutable.captivationBlacklist = value);
-      addSectionHeading(entries, entryBuilder, "Scheduling");
-      addGameplayInt(entries, entryBuilder, "Max Active Agents", "Maximum concurrent agents per player.",
-          mutable.captivationMaxActiveAgents, currentServerConfig.captivation().maxActiveAgents(), 1, 256,
-          gameplayEditable, value -> mutable.captivationMaxActiveAgents = value);
-      addGameplayBoolean(entries, entryBuilder, "Dedupe", "Limit to a single active agent instance per player.",
-          mutable.captivationDedupeAgent, currentServerConfig.captivation().dedupeAgent(), gameplayEditable,
-          value -> mutable.captivationDedupeAgent = value);
     });
   }
 
@@ -838,9 +831,10 @@ public final class MinersAdvantageConfigScreen {
       addGameplayInt(entries, entryBuilder, "Max Active Agents", "Maximum concurrent agents per player.",
           mutable.cropinationMaxActiveAgents, currentServerConfig.cropination().maxActiveAgents(), 1, 256,
           gameplayEditable, value -> mutable.cropinationMaxActiveAgents = value);
-      addGameplayBoolean(entries, entryBuilder, "Dedupe", "Limit to a single active agent instance per player.",
-          mutable.cropinationDedupeAgent, currentServerConfig.cropination().dedupeAgent(), gameplayEditable,
-          value -> mutable.cropinationDedupeAgent = value);
+      addGameplayBoolean(entries, entryBuilder, "Enforce Agent Limit",
+          "When enabled, caps concurrent agents at Max Active Agents; when disabled, no limit is applied.",
+          mutable.cropinationEnforceAgentLimit, currentServerConfig.cropination().enforceAgentLimit(), gameplayEditable,
+          value -> mutable.cropinationEnforceAgentLimit = value);
     });
   }
 
@@ -860,9 +854,10 @@ public final class MinersAdvantageConfigScreen {
       addGameplayInt(entries, entryBuilder, "Max Active Agents", "Maximum concurrent agents per player.",
           mutable.cultivationMaxActiveAgents, currentServerConfig.cultivation().maxActiveAgents(), 1, 256,
           gameplayEditable, value -> mutable.cultivationMaxActiveAgents = value);
-      addGameplayBoolean(entries, entryBuilder, "Dedupe", "Limit to a single active agent instance per player.",
-          mutable.cultivationDedupeAgent, currentServerConfig.cultivation().dedupeAgent(), gameplayEditable,
-          value -> mutable.cultivationDedupeAgent = value);
+      addGameplayBoolean(entries, entryBuilder, "Enforce Agent Limit",
+          "When enabled, caps concurrent agents at Max Active Agents; when disabled, no limit is applied.",
+          mutable.cultivationEnforceAgentLimit, currentServerConfig.cultivation().enforceAgentLimit(), gameplayEditable,
+          value -> mutable.cultivationEnforceAgentLimit = value);
     });
   }
 
@@ -906,9 +901,10 @@ public final class MinersAdvantageConfigScreen {
       addGameplayInt(entries, entryBuilder, "Max Active Agents", "Maximum concurrent agents per player.",
           mutable.excavationMaxActiveAgents, currentServerConfig.excavation().maxActiveAgents(), 1, 256,
           gameplayEditable, value -> mutable.excavationMaxActiveAgents = value);
-      addGameplayBoolean(entries, entryBuilder, "Dedupe", "Limit to a single active agent instance per player.",
-          mutable.excavationDedupeAgent, currentServerConfig.excavation().dedupeAgent(), gameplayEditable,
-          value -> mutable.excavationDedupeAgent = value);
+      addGameplayBoolean(entries, entryBuilder, "Enforce Agent Limit",
+          "When enabled, caps concurrent agents at Max Active Agents; when disabled, no limit is applied.",
+          mutable.excavationEnforceAgentLimit, currentServerConfig.excavation().enforceAgentLimit(), gameplayEditable,
+          value -> mutable.excavationEnforceAgentLimit = value);
     });
   }
 
@@ -931,9 +927,10 @@ public final class MinersAdvantageConfigScreen {
       addGameplayInt(entries, entryBuilder, "Max Active Agents", "Maximum concurrent agents per player.",
           mutable.pathanationMaxActiveAgents, currentServerConfig.pathanation().maxActiveAgents(), 1, 256,
           gameplayEditable, value -> mutable.pathanationMaxActiveAgents = value);
-      addGameplayBoolean(entries, entryBuilder, "Dedupe", "Limit to a single active agent instance per player.",
-          mutable.pathanationDedupeAgent, currentServerConfig.pathanation().dedupeAgent(), gameplayEditable,
-          value -> mutable.pathanationDedupeAgent = value);
+      addGameplayBoolean(entries, entryBuilder, "Enforce Agent Limit",
+          "When enabled, caps concurrent agents at Max Active Agents; when disabled, no limit is applied.",
+          mutable.pathanationEnforceAgentLimit, currentServerConfig.pathanation().enforceAgentLimit(), gameplayEditable,
+          value -> mutable.pathanationEnforceAgentLimit = value);
     });
   }
 
@@ -964,9 +961,10 @@ public final class MinersAdvantageConfigScreen {
       addGameplayInt(entries, entryBuilder, "Max Active Agents", "Maximum concurrent agents per player.",
           mutable.illuminationMaxActiveAgents, currentServerConfig.illumination().maxActiveAgents(), 1, 256,
           gameplayEditable, value -> mutable.illuminationMaxActiveAgents = value);
-      addGameplayBoolean(entries, entryBuilder, "Dedupe", "Limit to a single active agent instance per player.",
-          mutable.illuminationDedupeAgent, currentServerConfig.illumination().dedupeAgent(), gameplayEditable,
-          value -> mutable.illuminationDedupeAgent = value);
+      addGameplayBoolean(entries, entryBuilder, "Enforce Agent Limit",
+          "When enabled, caps concurrent agents at Max Active Agents; when disabled, no limit is applied.",
+          mutable.illuminationEnforceAgentLimit, currentServerConfig.illumination().enforceAgentLimit(), gameplayEditable,
+          value -> mutable.illuminationEnforceAgentLimit = value);
     });
   }
 
@@ -1023,9 +1021,10 @@ public final class MinersAdvantageConfigScreen {
       addGameplayInt(entries, entryBuilder, "Max Active Agents", "Maximum concurrent agents per player.",
           mutable.lumbinationMaxActiveAgents, currentServerConfig.lumbination().maxActiveAgents(), 1, 256,
           gameplayEditable, value -> mutable.lumbinationMaxActiveAgents = value);
-      addGameplayBoolean(entries, entryBuilder, "Dedupe", "Limit to a single active agent instance per player.",
-          mutable.lumbinationDedupeAgent, currentServerConfig.lumbination().dedupeAgent(), gameplayEditable,
-          value -> mutable.lumbinationDedupeAgent = value);
+      addGameplayBoolean(entries, entryBuilder, "Enforce Agent Limit",
+          "When enabled, caps concurrent agents at Max Active Agents; when disabled, no limit is applied.",
+          mutable.lumbinationEnforceAgentLimit, currentServerConfig.lumbination().enforceAgentLimit(), gameplayEditable,
+          value -> mutable.lumbinationEnforceAgentLimit = value);
     });
   }
 
@@ -1059,9 +1058,10 @@ public final class MinersAdvantageConfigScreen {
       addGameplayInt(entries, entryBuilder, "Max Active Agents", "Maximum concurrent agents per player.",
           mutable.shaftanationMaxActiveAgents, currentServerConfig.shaftanation().maxActiveAgents(), 1, 256,
           gameplayEditable, value -> mutable.shaftanationMaxActiveAgents = value);
-      addGameplayBoolean(entries, entryBuilder, "Dedupe", "Limit to a single active agent instance per player.",
-          mutable.shaftanationDedupeAgent, currentServerConfig.shaftanation().dedupeAgent(), gameplayEditable,
-          value -> mutable.shaftanationDedupeAgent = value);
+      addGameplayBoolean(entries, entryBuilder, "Enforce Agent Limit",
+          "When enabled, caps concurrent agents at Max Active Agents; when disabled, no limit is applied.",
+          mutable.shaftanationEnforceAgentLimit, currentServerConfig.shaftanation().enforceAgentLimit(), gameplayEditable,
+          value -> mutable.shaftanationEnforceAgentLimit = value);
     });
   }
 
@@ -1106,13 +1106,6 @@ public final class MinersAdvantageConfigScreen {
       entries.add(entryBuilder
           .startTextDescription(Component.literal("Selection rules are persisted in the server config file."))
           .build());
-      addSectionHeading(entries, entryBuilder, "Scheduling");
-      addGameplayInt(entries, entryBuilder, "Max Active Agents", "Maximum concurrent agents per player.",
-          mutable.substitutionMaxActiveAgents, currentServerConfig.substitution().maxActiveAgents(), 1, 256,
-          gameplayEditable, value -> mutable.substitutionMaxActiveAgents = value);
-      addGameplayBoolean(entries, entryBuilder, "Dedupe", "Limit to a single active agent instance per player.",
-          mutable.substitutionDedupeAgent, currentServerConfig.substitution().dedupeAgent(), gameplayEditable,
-          value -> mutable.substitutionDedupeAgent = value);
     });
   }
 
@@ -1155,9 +1148,10 @@ public final class MinersAdvantageConfigScreen {
       addGameplayInt(entries, entryBuilder, "Max Active Agents", "Maximum concurrent agents per player.",
           mutable.veinationMaxActiveAgents, currentServerConfig.veination().maxActiveAgents(), 1, 256,
           gameplayEditable, value -> mutable.veinationMaxActiveAgents = value);
-      addGameplayBoolean(entries, entryBuilder, "Dedupe", "Limit to a single active agent instance per player.",
-          mutable.veinationDedupeAgent, currentServerConfig.veination().dedupeAgent(), gameplayEditable,
-          value -> mutable.veinationDedupeAgent = value);
+      addGameplayBoolean(entries, entryBuilder, "Enforce Agent Limit",
+          "When enabled, caps concurrent agents at Max Active Agents; when disabled, no limit is applied.",
+          mutable.veinationEnforceAgentLimit, currentServerConfig.veination().enforceAgentLimit(), gameplayEditable,
+          value -> mutable.veinationEnforceAgentLimit = value);
     });
   }
 
@@ -1190,9 +1184,10 @@ public final class MinersAdvantageConfigScreen {
       addGameplayInt(entries, entryBuilder, "Max Active Agents", "Maximum concurrent agents per player.",
           mutable.ventilationMaxActiveAgents, currentServerConfig.ventilation().maxActiveAgents(), 1, 256,
           gameplayEditable, value -> mutable.ventilationMaxActiveAgents = value);
-      addGameplayBoolean(entries, entryBuilder, "Dedupe", "Limit to a single active agent instance per player.",
-          mutable.ventilationDedupeAgent, currentServerConfig.ventilation().dedupeAgent(), gameplayEditable,
-          value -> mutable.ventilationDedupeAgent = value);
+      addGameplayBoolean(entries, entryBuilder, "Enforce Agent Limit",
+          "When enabled, caps concurrent agents at Max Active Agents; when disabled, no limit is applied.",
+          mutable.ventilationEnforceAgentLimit, currentServerConfig.ventilation().enforceAgentLimit(), gameplayEditable,
+          value -> mutable.ventilationEnforceAgentLimit = value);
     });
   }
 
@@ -1531,18 +1526,16 @@ public final class MinersAdvantageConfigScreen {
     private boolean captivationWhitelist;
     private boolean captivationUnconditionalBlacklist;
     private List<String> captivationBlacklist;
-    private int captivationMaxActiveAgents;
-    private boolean captivationDedupeAgent;
 
     private boolean cropinationEnabled;
     private boolean cropinationHarvestSeeds;
     private int cropinationMaxActiveAgents;
-    private boolean cropinationDedupeAgent;
+    private boolean cropinationEnforceAgentLimit;
 
     private boolean cultivationEnabled;
     private int cultivationHydrationDistance;
     private int cultivationMaxActiveAgents;
-    private boolean cultivationDedupeAgent;
+    private boolean cultivationEnforceAgentLimit;
 
     private boolean excavationEnabled;
     private int excavationRadiusHorizontal;
@@ -1554,13 +1547,13 @@ public final class MinersAdvantageConfigScreen {
     private boolean excavationBlockWhitelist;
     private List<String> excavationBlockBlacklist;
     private int excavationMaxActiveAgents;
-    private boolean excavationDedupeAgent;
+    private boolean excavationEnforceAgentLimit;
 
     private boolean pathanationEnabled;
     private int pathanationTargetBlockRange;
     private int pathanationPathWidth;
     private int pathanationMaxActiveAgents;
-    private boolean pathanationDedupeAgent;
+    private boolean pathanationEnforceAgentLimit;
 
     private boolean illuminationEnabled;
     private int illuminationRadiusHorizontal;
@@ -1568,7 +1561,7 @@ public final class MinersAdvantageConfigScreen {
     private int illuminationLowestLightLevel;
     private boolean illuminationUseBlockLight;
     private int illuminationMaxActiveAgents;
-    private boolean illuminationDedupeAgent;
+    private boolean illuminationEnforceAgentLimit;
 
     private boolean lumbinationEnabled;
     private int lumbinationMaxTrunkRange;
@@ -1584,7 +1577,7 @@ public final class MinersAdvantageConfigScreen {
     private List<String> lumbinationLeaves;
     private List<String> lumbinationAxes;
     private int lumbinationMaxActiveAgents;
-    private boolean lumbinationDedupeAgent;
+    private boolean lumbinationEnforceAgentLimit;
 
     private boolean shaftanationEnabled;
     private int shaftanationMaxDepth;
@@ -1593,7 +1586,7 @@ public final class MinersAdvantageConfigScreen {
     private int shaftanationShaftHeight;
     private TorchPlacement shaftanationTorchPlacement;
     private int shaftanationMaxActiveAgents;
-    private boolean shaftanationDedupeAgent;
+    private boolean shaftanationEnforceAgentLimit;
 
     private boolean substitutionEnabled;
     private boolean substitutionAllowMending;
@@ -1604,8 +1597,6 @@ public final class MinersAdvantageConfigScreen {
     private boolean substitutionIgnorePassiveMobs;
     private List<String> substitutionBlacklist;
     private List<String> substitutionBlockBlacklist;
-    private int substitutionMaxActiveAgents;
-    private boolean substitutionDedupeAgent;
 
     private boolean veinationEnabled;
     private int veinationMaxVeinDistance;
@@ -1616,7 +1607,7 @@ public final class MinersAdvantageConfigScreen {
     private double veinationHarvestTimeModifier;
     private List<String> veinationPickaxeBlacklist;
     private int veinationMaxActiveAgents;
-    private boolean veinationDedupeAgent;
+    private boolean veinationEnforceAgentLimit;
 
     private boolean ventilationEnabled;
     private int ventilationRadiusHorizontal;
@@ -1625,7 +1616,7 @@ public final class MinersAdvantageConfigScreen {
     private int ventilationProcessesPerTick;
     private boolean ventilationPlaceLadders;
     private int ventilationMaxActiveAgents;
-    private boolean ventilationDedupeAgent;
+    private boolean ventilationEnforceAgentLimit;
 
     /**
      * MutableConfig exists so this code path does one job clearly instead of spreading chaos across callers.
@@ -1655,18 +1646,16 @@ public final class MinersAdvantageConfigScreen {
       this.captivationWhitelist = config.captivation().isWhitelist();
       this.captivationUnconditionalBlacklist = config.captivation().unconditionalBlacklist();
       this.captivationBlacklist = new ArrayList<>(config.captivation().blacklist());
-      this.captivationMaxActiveAgents = config.captivation().maxActiveAgents();
-      this.captivationDedupeAgent = config.captivation().dedupeAgent();
 
       this.cropinationEnabled = config.cropination().enabled();
       this.cropinationHarvestSeeds = config.cropination().harvestSeeds();
       this.cropinationMaxActiveAgents = config.cropination().maxActiveAgents();
-      this.cropinationDedupeAgent = config.cropination().dedupeAgent();
+      this.cropinationEnforceAgentLimit = config.cropination().enforceAgentLimit();
 
       this.cultivationEnabled = config.cultivation().enabled();
       this.cultivationHydrationDistance = config.cultivation().hydrationDistance();
       this.cultivationMaxActiveAgents = config.cultivation().maxActiveAgents();
-      this.cultivationDedupeAgent = config.cultivation().dedupeAgent();
+      this.cultivationEnforceAgentLimit = config.cultivation().enforceAgentLimit();
 
       this.excavationEnabled = config.excavation().enabled();
       this.excavationRadiusHorizontal = config.excavation().width();
@@ -1678,13 +1667,13 @@ public final class MinersAdvantageConfigScreen {
       this.excavationBlockWhitelist = config.excavation().isBlockWhitelist();
       this.excavationBlockBlacklist = new ArrayList<>(config.excavation().blockBlacklist());
       this.excavationMaxActiveAgents = config.excavation().maxActiveAgents();
-      this.excavationDedupeAgent = config.excavation().dedupeAgent();
+      this.excavationEnforceAgentLimit = config.excavation().enforceAgentLimit();
 
       this.pathanationEnabled = config.pathanation().enabled();
       this.pathanationTargetBlockRange = config.pathanation().targetBlockRange();
       this.pathanationPathWidth = config.pathanation().pathWidth();
       this.pathanationMaxActiveAgents = config.pathanation().maxActiveAgents();
-      this.pathanationDedupeAgent = config.pathanation().dedupeAgent();
+      this.pathanationEnforceAgentLimit = config.pathanation().enforceAgentLimit();
 
       this.illuminationEnabled = config.illumination().enabled();
       this.illuminationRadiusHorizontal = config.illumination().radiusHorizontal();
@@ -1692,7 +1681,7 @@ public final class MinersAdvantageConfigScreen {
       this.illuminationLowestLightLevel = config.illumination().lowestLightLevel();
       this.illuminationUseBlockLight = config.illumination().useBlockLight();
       this.illuminationMaxActiveAgents = config.illumination().maxActiveAgents();
-      this.illuminationDedupeAgent = config.illumination().dedupeAgent();
+      this.illuminationEnforceAgentLimit = config.illumination().enforceAgentLimit();
 
       this.lumbinationEnabled = config.lumbination().enabled();
       this.lumbinationMaxTrunkRange = config.lumbination().maxTrunkRange();
@@ -1708,7 +1697,7 @@ public final class MinersAdvantageConfigScreen {
       this.lumbinationLeaves = new ArrayList<>(config.lumbination().leaves());
       this.lumbinationAxes = new ArrayList<>(config.lumbination().axes());
       this.lumbinationMaxActiveAgents = config.lumbination().maxActiveAgents();
-      this.lumbinationDedupeAgent = config.lumbination().dedupeAgent();
+      this.lumbinationEnforceAgentLimit = config.lumbination().enforceAgentLimit();
 
       this.shaftanationEnabled = config.shaftanation().enabled();
       this.shaftanationMaxDepth = config.shaftanation().depth();
@@ -1717,7 +1706,7 @@ public final class MinersAdvantageConfigScreen {
       this.shaftanationShaftHeight = config.shaftanation().height();
       this.shaftanationTorchPlacement = config.shaftanation().torchPlacement();
       this.shaftanationMaxActiveAgents = config.shaftanation().maxActiveAgents();
-      this.shaftanationDedupeAgent = config.shaftanation().dedupeAgent();
+      this.shaftanationEnforceAgentLimit = config.shaftanation().enforceAgentLimit();
 
       this.substitutionEnabled = config.substitution().enabled();
       this.substitutionAllowMending = config.substitution().allowMending();
@@ -1728,8 +1717,6 @@ public final class MinersAdvantageConfigScreen {
       this.substitutionIgnorePassiveMobs = config.substitution().ignorePassiveMobs();
       this.substitutionBlacklist = new ArrayList<>(config.substitution().blacklist());
       this.substitutionBlockBlacklist = new ArrayList<>(config.substitution().blockBlacklist());
-      this.substitutionMaxActiveAgents = config.substitution().maxActiveAgents();
-      this.substitutionDedupeAgent = config.substitution().dedupeAgent();
 
       this.veinationEnabled = config.veination().enabled();
       this.veinationMaxVeinDistance = config.veination().maxVeinDistance();
@@ -1740,7 +1727,7 @@ public final class MinersAdvantageConfigScreen {
       this.veinationHarvestTimeModifier = config.veination().increasedHarvestingTimePerOreModifier();
       this.veinationPickaxeBlacklist = new ArrayList<>(config.veination().pickaxeBlacklist());
       this.veinationMaxActiveAgents = config.veination().maxActiveAgents();
-      this.veinationDedupeAgent = config.veination().dedupeAgent();
+      this.veinationEnforceAgentLimit = config.veination().enforceAgentLimit();
 
       this.ventilationEnabled = config.ventilation().enabled();
       this.ventilationRadiusHorizontal = config.ventilation().width();
@@ -1749,7 +1736,7 @@ public final class MinersAdvantageConfigScreen {
       this.ventilationProcessesPerTick = config.ventilation().processesPerTick();
       this.ventilationPlaceLadders = config.ventilation().placeLadders();
       this.ventilationMaxActiveAgents = config.ventilation().maxActiveAgents();
-      this.ventilationDedupeAgent = config.ventilation().dedupeAgent();
+      this.ventilationEnforceAgentLimit = config.ventilation().enforceAgentLimit();
     }
 
     /**
@@ -1764,9 +1751,7 @@ public final class MinersAdvantageConfigScreen {
           || captivationRadiusVertical != defaults.radiusVertical()
           || captivationWhitelist != defaults.isWhitelist()
           || captivationUnconditionalBlacklist != defaults.unconditionalBlacklist()
-          || !captivationBlacklist.equals(defaults.blacklist())
-          || captivationMaxActiveAgents != defaults.maxActiveAgents()
-          || captivationDedupeAgent != defaults.dedupeAgent();
+          || !captivationBlacklist.equals(defaults.blacklist());
     }
 
     /**
@@ -1782,8 +1767,6 @@ public final class MinersAdvantageConfigScreen {
       captivationWhitelist = defaults.isWhitelist();
       captivationUnconditionalBlacklist = defaults.unconditionalBlacklist();
       captivationBlacklist = new ArrayList<>(defaults.blacklist());
-      captivationMaxActiveAgents = defaults.maxActiveAgents();
-      captivationDedupeAgent = defaults.dedupeAgent();
     }
 
     /**
@@ -1795,7 +1778,7 @@ public final class MinersAdvantageConfigScreen {
       return cropinationEnabled != defaults.enabled()
           || cropinationHarvestSeeds != defaults.harvestSeeds()
           || cropinationMaxActiveAgents != defaults.maxActiveAgents()
-          || cropinationDedupeAgent != defaults.dedupeAgent();
+          || cropinationEnforceAgentLimit != defaults.enforceAgentLimit();
     }
 
     /**
@@ -1807,7 +1790,7 @@ public final class MinersAdvantageConfigScreen {
       cropinationEnabled = defaults.enabled();
       cropinationHarvestSeeds = defaults.harvestSeeds();
       cropinationMaxActiveAgents = defaults.maxActiveAgents();
-      cropinationDedupeAgent = defaults.dedupeAgent();
+      cropinationEnforceAgentLimit = defaults.enforceAgentLimit();
     }
 
     /**
@@ -1819,7 +1802,7 @@ public final class MinersAdvantageConfigScreen {
       return cultivationEnabled != defaults.enabled()
           || cultivationHydrationDistance != defaults.hydrationDistance()
           || cultivationMaxActiveAgents != defaults.maxActiveAgents()
-          || cultivationDedupeAgent != defaults.dedupeAgent();
+          || cultivationEnforceAgentLimit != defaults.enforceAgentLimit();
     }
 
     /**
@@ -1831,7 +1814,7 @@ public final class MinersAdvantageConfigScreen {
       cultivationEnabled = defaults.enabled();
       cultivationHydrationDistance = defaults.hydrationDistance();
       cultivationMaxActiveAgents = defaults.maxActiveAgents();
-      cultivationDedupeAgent = defaults.dedupeAgent();
+      cultivationEnforceAgentLimit = defaults.enforceAgentLimit();
     }
 
     /**
@@ -1850,7 +1833,7 @@ public final class MinersAdvantageConfigScreen {
           || excavationBlockWhitelist != defaults.isBlockWhitelist()
           || !excavationBlockBlacklist.equals(defaults.blockBlacklist())
           || excavationMaxActiveAgents != defaults.maxActiveAgents()
-          || excavationDedupeAgent != defaults.dedupeAgent();
+          || excavationEnforceAgentLimit != defaults.enforceAgentLimit();
     }
 
     /**
@@ -1869,7 +1852,7 @@ public final class MinersAdvantageConfigScreen {
       excavationBlockWhitelist = defaults.isBlockWhitelist();
       excavationBlockBlacklist = new ArrayList<>(defaults.blockBlacklist());
       excavationMaxActiveAgents = defaults.maxActiveAgents();
-      excavationDedupeAgent = defaults.dedupeAgent();
+      excavationEnforceAgentLimit = defaults.enforceAgentLimit();
     }
 
     /**
@@ -1882,7 +1865,7 @@ public final class MinersAdvantageConfigScreen {
           || pathanationTargetBlockRange != defaults.targetBlockRange()
           || pathanationPathWidth != defaults.pathWidth()
           || pathanationMaxActiveAgents != defaults.maxActiveAgents()
-          || pathanationDedupeAgent != defaults.dedupeAgent();
+          || pathanationEnforceAgentLimit != defaults.enforceAgentLimit();
     }
 
     /**
@@ -1895,7 +1878,7 @@ public final class MinersAdvantageConfigScreen {
       pathanationTargetBlockRange = defaults.targetBlockRange();
       pathanationPathWidth = defaults.pathWidth();
       pathanationMaxActiveAgents = defaults.maxActiveAgents();
-      pathanationDedupeAgent = defaults.dedupeAgent();
+      pathanationEnforceAgentLimit = defaults.enforceAgentLimit();
     }
 
     /**
@@ -1910,7 +1893,7 @@ public final class MinersAdvantageConfigScreen {
           || illuminationLowestLightLevel != defaults.lowestLightLevel()
           || illuminationUseBlockLight != defaults.useBlockLight()
           || illuminationMaxActiveAgents != defaults.maxActiveAgents()
-          || illuminationDedupeAgent != defaults.dedupeAgent();
+          || illuminationEnforceAgentLimit != defaults.enforceAgentLimit();
     }
 
     /**
@@ -1925,7 +1908,7 @@ public final class MinersAdvantageConfigScreen {
       illuminationLowestLightLevel = defaults.lowestLightLevel();
       illuminationUseBlockLight = defaults.useBlockLight();
       illuminationMaxActiveAgents = defaults.maxActiveAgents();
-      illuminationDedupeAgent = defaults.dedupeAgent();
+      illuminationEnforceAgentLimit = defaults.enforceAgentLimit();
     }
 
     /**
@@ -1948,7 +1931,7 @@ public final class MinersAdvantageConfigScreen {
           || !lumbinationLeaves.equals(defaults.leaves())
           || !lumbinationAxes.equals(defaults.axes())
           || lumbinationMaxActiveAgents != defaults.maxActiveAgents()
-          || lumbinationDedupeAgent != defaults.dedupeAgent();
+          || lumbinationEnforceAgentLimit != defaults.enforceAgentLimit();
     }
 
     /**
@@ -1971,7 +1954,7 @@ public final class MinersAdvantageConfigScreen {
       lumbinationLeaves = new ArrayList<>(defaults.leaves());
       lumbinationAxes = new ArrayList<>(defaults.axes());
       lumbinationMaxActiveAgents = defaults.maxActiveAgents();
-      lumbinationDedupeAgent = defaults.dedupeAgent();
+      lumbinationEnforceAgentLimit = defaults.enforceAgentLimit();
     }
 
     /**
@@ -1987,7 +1970,7 @@ public final class MinersAdvantageConfigScreen {
           || shaftanationShaftHeight != defaults.height()
           || shaftanationTorchPlacement != defaults.torchPlacement()
           || shaftanationMaxActiveAgents != defaults.maxActiveAgents()
-          || shaftanationDedupeAgent != defaults.dedupeAgent();
+          || shaftanationEnforceAgentLimit != defaults.enforceAgentLimit();
     }
 
     /**
@@ -2003,7 +1986,7 @@ public final class MinersAdvantageConfigScreen {
       shaftanationShaftHeight = defaults.height();
       shaftanationTorchPlacement = defaults.torchPlacement();
       shaftanationMaxActiveAgents = defaults.maxActiveAgents();
-      shaftanationDedupeAgent = defaults.dedupeAgent();
+      shaftanationEnforceAgentLimit = defaults.enforceAgentLimit();
     }
 
     /**
@@ -2020,9 +2003,7 @@ public final class MinersAdvantageConfigScreen {
           || substitutionIgnoreIfValidTool != defaults.ignoreIfValidTool()
           || substitutionIgnorePassiveMobs != defaults.ignorePassiveMobs()
           || !substitutionBlacklist.equals(defaults.blacklist())
-          || !substitutionBlockBlacklist.equals(defaults.blockBlacklist())
-          || substitutionMaxActiveAgents != defaults.maxActiveAgents()
-          || substitutionDedupeAgent != defaults.dedupeAgent();
+          || !substitutionBlockBlacklist.equals(defaults.blockBlacklist());
     }
 
     /**
@@ -2040,8 +2021,6 @@ public final class MinersAdvantageConfigScreen {
       substitutionIgnorePassiveMobs = defaults.ignorePassiveMobs();
       substitutionBlacklist = new ArrayList<>(defaults.blacklist());
       substitutionBlockBlacklist = new ArrayList<>(defaults.blockBlacklist());
-      substitutionMaxActiveAgents = defaults.maxActiveAgents();
-      substitutionDedupeAgent = defaults.dedupeAgent();
     }
 
     /**
@@ -2059,7 +2038,7 @@ public final class MinersAdvantageConfigScreen {
           || Double.compare(veinationHarvestTimeModifier, defaults.increasedHarvestingTimePerOreModifier()) != 0
           || !veinationPickaxeBlacklist.equals(defaults.pickaxeBlacklist())
           || veinationMaxActiveAgents != defaults.maxActiveAgents()
-          || veinationDedupeAgent != defaults.dedupeAgent();
+          || veinationEnforceAgentLimit != defaults.enforceAgentLimit();
     }
 
     /**
@@ -2077,7 +2056,7 @@ public final class MinersAdvantageConfigScreen {
       veinationHarvestTimeModifier = defaults.increasedHarvestingTimePerOreModifier();
       veinationPickaxeBlacklist = new ArrayList<>(defaults.pickaxeBlacklist());
       veinationMaxActiveAgents = defaults.maxActiveAgents();
-      veinationDedupeAgent = defaults.dedupeAgent();
+      veinationEnforceAgentLimit = defaults.enforceAgentLimit();
     }
 
     /**
@@ -2093,7 +2072,7 @@ public final class MinersAdvantageConfigScreen {
           || ventilationProcessesPerTick != defaults.processesPerTick()
           || ventilationPlaceLadders != defaults.placeLadders()
           || ventilationMaxActiveAgents != defaults.maxActiveAgents()
-          || ventilationDedupeAgent != defaults.dedupeAgent();
+          || ventilationEnforceAgentLimit != defaults.enforceAgentLimit();
     }
 
     /**
@@ -2109,7 +2088,7 @@ public final class MinersAdvantageConfigScreen {
       ventilationProcessesPerTick = defaults.processesPerTick();
       ventilationPlaceLadders = defaults.placeLadders();
       ventilationMaxActiveAgents = defaults.maxActiveAgents();
-      ventilationDedupeAgent = defaults.dedupeAgent();
+      ventilationEnforceAgentLimit = defaults.enforceAgentLimit();
     }
 
     /**
@@ -2149,19 +2128,17 @@ public final class MinersAdvantageConfigScreen {
               captivationRadiusVertical,
               captivationWhitelist,
               captivationUnconditionalBlacklist,
-              captivationBlacklist,
-              captivationMaxActiveAgents,
-              captivationDedupeAgent),
+              captivationBlacklist),
           new uk.co.duelmonster.minersadvantage.common.config.CropinationConfig(
               cropinationEnabled,
               cropinationHarvestSeeds,
               cropinationMaxActiveAgents,
-              cropinationDedupeAgent),
+              cropinationEnforceAgentLimit),
           new uk.co.duelmonster.minersadvantage.common.config.CultivationConfig(
               cultivationEnabled,
               cultivationHydrationDistance,
               cultivationMaxActiveAgents,
-              cultivationDedupeAgent),
+              cultivationEnforceAgentLimit),
           new uk.co.duelmonster.minersadvantage.common.config.ExcavationConfig(
               excavationEnabled,
               excavationRadiusHorizontal,
@@ -2173,13 +2150,13 @@ public final class MinersAdvantageConfigScreen {
               excavationBlockWhitelist,
               excavationBlockBlacklist,
               excavationMaxActiveAgents,
-              excavationDedupeAgent),
+              excavationEnforceAgentLimit),
           new uk.co.duelmonster.minersadvantage.common.config.PathanationConfig(
               pathanationEnabled,
               pathanationTargetBlockRange,
               pathanationPathWidth,
               pathanationMaxActiveAgents,
-              pathanationDedupeAgent),
+              pathanationEnforceAgentLimit),
           new uk.co.duelmonster.minersadvantage.common.config.IlluminationConfig(
               illuminationEnabled,
               illuminationRadiusHorizontal,
@@ -2187,7 +2164,7 @@ public final class MinersAdvantageConfigScreen {
               illuminationLowestLightLevel,
               illuminationUseBlockLight,
               illuminationMaxActiveAgents,
-              illuminationDedupeAgent),
+              illuminationEnforceAgentLimit),
           new uk.co.duelmonster.minersadvantage.common.config.LumbinationConfig(
               lumbinationEnabled,
               lumbinationMaxTrunkRange,
@@ -2203,7 +2180,7 @@ public final class MinersAdvantageConfigScreen {
               lumbinationLeaves,
               lumbinationAxes,
               lumbinationMaxActiveAgents,
-              lumbinationDedupeAgent),
+              lumbinationEnforceAgentLimit),
           new uk.co.duelmonster.minersadvantage.common.config.ShaftanationConfig(
               shaftanationEnabled,
               shaftanationMaxDepth,
@@ -2212,7 +2189,7 @@ public final class MinersAdvantageConfigScreen {
               shaftanationShaftHeight,
               shaftanationTorchPlacement,
               shaftanationMaxActiveAgents,
-              shaftanationDedupeAgent),
+              shaftanationEnforceAgentLimit),
           new uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig(
               substitutionEnabled,
               substitutionAllowMending,
@@ -2223,9 +2200,7 @@ public final class MinersAdvantageConfigScreen {
               substitutionIgnorePassiveMobs,
               substitutionBlacklist,
               substitutionBlockBlacklist,
-              baseline.substitution().selectionRules(),
-              substitutionMaxActiveAgents,
-              substitutionDedupeAgent),
+              baseline.substitution().selectionRules()),
           new uk.co.duelmonster.minersadvantage.common.config.VeinationConfig(
               veinationEnabled,
               veinationMaxVeinDistance,
@@ -2236,7 +2211,7 @@ public final class MinersAdvantageConfigScreen {
               veinationHarvestTimeModifier,
               veinationPickaxeBlacklist,
               veinationMaxActiveAgents,
-              veinationDedupeAgent),
+              veinationEnforceAgentLimit),
           new uk.co.duelmonster.minersadvantage.common.config.VentilationConfig(
               ventilationEnabled,
               ventilationRadiusHorizontal,
@@ -2245,7 +2220,7 @@ public final class MinersAdvantageConfigScreen {
               ventilationProcessesPerTick,
               ventilationPlaceLadders,
               ventilationMaxActiveAgents,
-              ventilationDedupeAgent));
+              ventilationEnforceAgentLimit));
     }
   }
 }

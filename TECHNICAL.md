@@ -89,7 +89,7 @@ Gameplay config categories in the server root:
 - veination
 - ventilation
 
-Each feature config also controls its own agent scheduler behavior: a deduplication flag and a maximum concurrent-instance limit, both enforced by `AgentManager` across its active and pending queues. Defaults enable deduplication and allow four concurrent instances per agent type. The in-game configuration screen exposes these limits inline within each feature's own settings screen, under a `Scheduling` section.
+Each block-affecting feature config (Cropination, Cultivation, Excavation, Illumination, Lumbination, Pathanation, Shaftanation, Veination, Ventilation) also controls its own agent scheduler behavior: an enforce-limit flag and a maximum concurrent-instance cap, both applied by `AgentManager` across its active and pending queues. When the enforce-limit flag is disabled, that feature may queue an unlimited number of concurrent agents regardless of the max value. Defaults enable enforcement and allow four concurrent instances per agent type. The in-game configuration screen exposes these controls inline within each feature's own settings screen, under a `Scheduling` section. Captivation and Substitution don't affect blocks and don't expose these controls; they use a fixed internal cap instead.
 
 ### Validation and Clamping
 

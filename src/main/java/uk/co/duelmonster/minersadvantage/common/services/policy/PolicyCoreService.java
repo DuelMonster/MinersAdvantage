@@ -80,9 +80,7 @@ public final class PolicyCoreService {
         clampRange(selected.radiusVertical(), 1, 64),
         selected.isWhitelist(),
         selected.unconditionalBlacklist(),
-        selected.blacklist(),
-        clampRange(selected.maxActiveAgents(), 1, 256),
-        selected.dedupeAgent());
+        selected.blacklist());
   }
 
   /**
@@ -91,7 +89,7 @@ public final class PolicyCoreService {
    */
   private CropinationConfig sanitizeCropination(CropinationConfig selected) {
     return new CropinationConfig(selected.enabled(), selected.harvestSeeds(),
-        clampRange(selected.maxActiveAgents(), 1, 256), selected.dedupeAgent());
+        clampRange(selected.maxActiveAgents(), 1, 256), selected.enforceAgentLimit());
   }
 
   /**
@@ -103,7 +101,7 @@ public final class PolicyCoreService {
         selected.enabled(),
         clampRange(selected.hydrationDistance(), 0, 16),
         clampRange(selected.maxActiveAgents(), 1, 256),
-        selected.dedupeAgent());
+        selected.enforceAgentLimit());
   }
 
   /**
@@ -122,7 +120,7 @@ public final class PolicyCoreService {
         selected.isBlockWhitelist(),
         selected.blockBlacklist(),
         clampRange(selected.maxActiveAgents(), 1, 256),
-        selected.dedupeAgent());
+        selected.enforceAgentLimit());
   }
 
   /**
@@ -135,7 +133,7 @@ public final class PolicyCoreService {
         clampRange(selected.targetBlockRange(), 1, 64),
         clampRange(selected.pathWidth(), 1, 64),
         clampRange(selected.maxActiveAgents(), 1, 256),
-        selected.dedupeAgent());
+        selected.enforceAgentLimit());
   }
 
   /**
@@ -150,7 +148,7 @@ public final class PolicyCoreService {
         clampRange(selected.lowestLightLevel(), 0, 16),
         selected.useBlockLight(),
         clampRange(selected.maxActiveAgents(), 1, 256),
-        selected.dedupeAgent());
+        selected.enforceAgentLimit());
   }
 
   /**
@@ -173,7 +171,7 @@ public final class PolicyCoreService {
         selected.leaves(),
         selected.axes(),
         clampRange(selected.maxActiveAgents(), 1, 256),
-        selected.dedupeAgent());
+        selected.enforceAgentLimit());
   }
 
   /**
@@ -189,7 +187,7 @@ public final class PolicyCoreService {
         clampRange(selected.height(), 1, 64),
         selected.torchPlacement(),
         clampRange(selected.maxActiveAgents(), 1, 256),
-        selected.dedupeAgent());
+        selected.enforceAgentLimit());
   }
 
   /**
@@ -207,9 +205,7 @@ public final class PolicyCoreService {
         selected.ignorePassiveMobs(),
         selected.blacklist(),
         selected.blockBlacklist(),
-        selected.selectionRules(),
-        clampRange(selected.maxActiveAgents(), 1, 256),
-        selected.dedupeAgent());
+        selected.selectionRules());
   }
 
   /**
@@ -227,7 +223,7 @@ public final class PolicyCoreService {
         selected.increasedHarvestingTimePerOreModifier(),
         selected.pickaxeBlacklist(),
         clampRange(selected.maxActiveAgents(), 1, 256),
-        selected.dedupeAgent());
+        selected.enforceAgentLimit());
   }
 
   /**
@@ -243,6 +239,6 @@ public final class PolicyCoreService {
         clampRange(selected.processesPerTick(), 1, 64),
         selected.placeLadders(),
         clampRange(selected.maxActiveAgents(), 1, 256),
-        selected.dedupeAgent());
+        selected.enforceAgentLimit());
   }
 }

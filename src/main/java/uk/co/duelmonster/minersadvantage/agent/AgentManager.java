@@ -22,7 +22,7 @@ public class AgentManager {
   private static final int DEFAULT_MAX_ACTIVE_AGENTS = 4;
   private final Map<UUID, List<Agent>> agents = new ConcurrentHashMap<>();
   private final Map<UUID, List<Agent>> pendingAdds = new ConcurrentHashMap<>();
-  private final Map<Class<? extends Agent>, Boolean> runtimeAgentTypeDeduplication = new ConcurrentHashMap<>();
+  private final Map<Class<? extends Agent>, Boolean> runtimeAgentLimitEnforcement = new ConcurrentHashMap<>();
   private final Map<Class<? extends Agent>, Integer> runtimeMaxActiveAgents = new ConcurrentHashMap<>();
   private final AtomicBoolean ticking = new AtomicBoolean(false);
 
@@ -44,22 +44,14 @@ public class AgentManager {
     SyncedClientConfig config = MAConfig_Base.getPlayerConfig(player.getUUID());
     int activeTypeCount = countAgentsOfType(agent.getClass(), agents);
     int pendingTypeCount = countAgentsOfType(agent.getClass(), pendingAdds);
-    if (isAgentTypeDeduplicationEnabled(agent.getClass(), config) && hasAgentType(player, agent.getClass())) {
-      LogUtils.logDebug(
-          "Skipped queueing {} for player={} reason=type-deduped activeTypeCount={} maxActiveAgents={} dedupeEnabled=true",
-          agent.getClass().getSimpleName(), player.getScoreboardName(), activeTypeCount + pendingTypeCount,
-          effectiveMaxActiveAgents(agent.getClass(), config));
-      return;
-    }
-
     if (!canQueueAgent(agent.getClass(), activeTypeCount, pendingTypeCount, config)) {
       LogUtils.logDebug(
-          "Skipped queueing {} for player={} reason=max-active-agent-limit reached activeTypeCount={} maxActiveAgents={} dedupeEnabled={}",
+          "Skipped queueing {} for player={} reason=max-active-agent-limit reached activeTypeCount={} maxActiveAgents={} limitEnforced={}",
           agent.getClass().getSimpleName(),
           player.getScoreboardName(),
           activeTypeCount + pendingTypeCount,
           effectiveMaxActiveAgents(agent.getClass(), config),
-          isAgentTypeDeduplicationEnabled(agent.getClass(), config));
+          isAgentLimitEnforced(agent.getClass(), config));
       return;
     }
 
@@ -170,16 +162,16 @@ public class AgentManager {
   }
 
   /**
-   * Toggle deduplication for one runtime agent type. Disabled means multiple agents of that type may coexist.
+   * Toggle limit enforcement for one runtime agent type. Disabled means that type may queue unlimited instances.
    */
-  public void setAgentTypeDeduplication(Class<? extends Agent> agentType, boolean enabled) {
+  public void setAgentLimitEnforced(Class<? extends Agent> agentType, boolean enabled) {
     if (agentType == null) {
       return;
     }
     if (enabled) {
-      runtimeAgentTypeDeduplication.remove(agentType);
+      runtimeAgentLimitEnforcement.remove(agentType);
     } else {
-      runtimeAgentTypeDeduplication.put(agentType, false);
+      runtimeAgentLimitEnforcement.put(agentType, false);
     }
   }
 
@@ -195,6 +187,7 @@ public class AgentManager {
 
   /**
    * Returns true if the local runtime config and per-type cap allow taking another queue entry.
+   * When limit enforcement is disabled for the type, an unlimited number of instances may queue.
    */
   public boolean canQueueAgent(Class<? extends Agent> agentType, int activeCount, int pendingCount,
       SyncedClientConfig config) {
@@ -208,17 +201,13 @@ public class AgentManager {
       pendingCount = 0;
     }
 
-    int activeTypeCount = activeCount + pendingCount;
-    int maxAgents = effectiveMaxActiveAgents(agentType, config);
-    if (activeTypeCount >= maxAgents) {
-      return false;
-    }
-
-    if (!isAgentTypeDeduplicationEnabled(agentType, config)) {
+    if (!isAgentLimitEnforced(agentType, config)) {
       return true;
     }
 
-    return activeTypeCount == 0;
+    int activeTypeCount = activeCount + pendingCount;
+    int maxAgents = effectiveMaxActiveAgents(agentType, config);
+    return activeTypeCount < maxAgents;
   }
 
   /**
@@ -226,10 +215,6 @@ public class AgentManager {
    */
   public boolean hasAgentType(ServerPlayer player, Class<? extends Agent> agentType) {
     if (player == null || agentType == null) {
-      return false;
-    }
-    SyncedClientConfig config = MAConfig_Base.getPlayerConfig(player.getUUID());
-    if (!isAgentTypeDeduplicationEnabled(agentType, config)) {
       return false;
     }
 
@@ -254,16 +239,16 @@ public class AgentManager {
     return false;
   }
 
-  private boolean isAgentTypeDeduplicationEnabled(Class<? extends Agent> agentType, SyncedClientConfig config) {
+  private boolean isAgentLimitEnforced(Class<? extends Agent> agentType, SyncedClientConfig config) {
     if (agentType == null) {
       return true;
     }
-    Boolean runtimeOverride = runtimeAgentTypeDeduplication.get(agentType);
+    Boolean runtimeOverride = runtimeAgentLimitEnforcement.get(agentType);
     if (runtimeOverride != null) {
       return runtimeOverride;
     }
     SyncedClientConfig effectiveConfig = config == null ? MAConfig_Base.getGlobalConfig() : config;
-    return effectiveConfig.isAgentTypeDeduplicationEnabled(agentType);
+    return effectiveConfig.isAgentLimitEnforced(agentType);
   }
 
   private int effectiveMaxActiveAgents(Class<? extends Agent> agentType, SyncedClientConfig config) {

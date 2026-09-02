@@ -72,20 +72,18 @@ public final class MATomlConfigStore {
             boolValue(serverValues, "captivation.is_whitelist", fallback.captivation().isWhitelist()),
             boolValue(serverValues, "captivation.unconditional_blacklist",
                 fallback.captivation().unconditionalBlacklist()),
-            stringListValue(serverValues, "captivation.blacklist", fallback.captivation().blacklist()),
-            intValue(serverValues, "captivation.max_active_agents", fallback.captivation().maxActiveAgents(), 1, 256),
-            boolValue(serverValues, "captivation.dedupe_agent", fallback.captivation().dedupeAgent())),
+            stringListValue(serverValues, "captivation.blacklist", fallback.captivation().blacklist())),
         new CropinationConfig(
             boolValue(serverValues, "cropination.enabled", fallback.cropination().enabled()),
             boolValue(serverValues, "cropination.harvest_seeds", fallback.cropination().harvestSeeds()),
             intValue(serverValues, "cropination.max_active_agents", fallback.cropination().maxActiveAgents(), 1, 256),
-            boolValue(serverValues, "cropination.dedupe_agent", fallback.cropination().dedupeAgent())),
+            boolValue(serverValues, "cropination.enforce_agent_limit", fallback.cropination().enforceAgentLimit())),
         new CultivationConfig(
             boolValue(serverValues, "cultivation.enabled", fallback.cultivation().enabled()),
             intValue(serverValues, "cultivation.hydration_distance", fallback.cultivation().hydrationDistance(), 1,
                 16),
             intValue(serverValues, "cultivation.max_active_agents", fallback.cultivation().maxActiveAgents(), 1, 256),
-            boolValue(serverValues, "cultivation.dedupe_agent", fallback.cultivation().dedupeAgent())),
+            boolValue(serverValues, "cultivation.enforce_agent_limit", fallback.cultivation().enforceAgentLimit())),
         new ExcavationConfig(
             boolValue(serverValues, "excavation.enabled", fallback.excavation().enabled()),
             intValue(serverValues, "excavation.width", fallback.excavation().width(), 1, 127),
@@ -97,13 +95,13 @@ public final class MATomlConfigStore {
             boolValue(serverValues, "excavation.is_block_whitelist", fallback.excavation().isBlockWhitelist()),
             stringListValue(serverValues, "excavation.block_blacklist", fallback.excavation().blockBlacklist()),
             intValue(serverValues, "excavation.max_active_agents", fallback.excavation().maxActiveAgents(), 1, 256),
-            boolValue(serverValues, "excavation.dedupe_agent", fallback.excavation().dedupeAgent())),
+            boolValue(serverValues, "excavation.enforce_agent_limit", fallback.excavation().enforceAgentLimit())),
         new PathanationConfig(
             boolValue(serverValues, "pathanation.enabled", fallback.pathanation().enabled()),
             intValue(serverValues, "pathanation.path_length", fallback.pathanation().pathLength(), 1, 64),
             intValue(serverValues, "pathanation.path_width", fallback.pathanation().pathWidth(), 1, 9),
             intValue(serverValues, "pathanation.max_active_agents", fallback.pathanation().maxActiveAgents(), 1, 256),
-            boolValue(serverValues, "pathanation.dedupe_agent", fallback.pathanation().dedupeAgent())),
+            boolValue(serverValues, "pathanation.enforce_agent_limit", fallback.pathanation().enforceAgentLimit())),
         new IlluminationConfig(
             boolValue(serverValues, "illumination.enabled", fallback.illumination().enabled()),
             intValue(serverValues, "illumination.radius_horizontal", fallback.illumination().radiusHorizontal(), 1, 64),
@@ -113,7 +111,7 @@ public final class MATomlConfigStore {
             boolValue(serverValues, "illumination.use_block_light", fallback.illumination().useBlockLight()),
             intValue(serverValues, "illumination.max_active_agents", fallback.illumination().maxActiveAgents(), 1,
                 256),
-            boolValue(serverValues, "illumination.dedupe_agent", fallback.illumination().dedupeAgent())),
+            boolValue(serverValues, "illumination.enforce_agent_limit", fallback.illumination().enforceAgentLimit())),
         new LumbinationConfig(
             boolValue(serverValues, "lumbination.enabled", fallback.lumbination().enabled()),
             intValue(serverValues, "lumbination.max_trunk_range", fallback.lumbination().maxTrunkRange(), 1, 128),
@@ -131,7 +129,7 @@ public final class MATomlConfigStore {
             stringListValue(serverValues, "lumbination.leaves", fallback.lumbination().leaves()),
             stringListValue(serverValues, "lumbination.axes", fallback.lumbination().axes()),
             intValue(serverValues, "lumbination.max_active_agents", fallback.lumbination().maxActiveAgents(), 1, 256),
-            boolValue(serverValues, "lumbination.dedupe_agent", fallback.lumbination().dedupeAgent())),
+            boolValue(serverValues, "lumbination.enforce_agent_limit", fallback.lumbination().enforceAgentLimit())),
         new ShaftanationConfig(
             boolValue(serverValues, "shaftanation.enabled", fallback.shaftanation().enabled()),
             intValue(serverValues, "shaftanation.depth", fallback.shaftanation().depth(), 1, 256),
@@ -143,7 +141,7 @@ public final class MATomlConfigStore {
                 fallback.shaftanation().torchPlacement()),
             intValue(serverValues, "shaftanation.max_active_agents", fallback.shaftanation().maxActiveAgents(), 1,
                 256),
-            boolValue(serverValues, "shaftanation.dedupe_agent", fallback.shaftanation().dedupeAgent())),
+            boolValue(serverValues, "shaftanation.enforce_agent_limit", fallback.shaftanation().enforceAgentLimit())),
         new SubstitutionConfig(
             boolValue(serverValues, "substitution.enabled", fallback.substitution().enabled()),
             boolValue(serverValues, "substitution.allow_mending", fallback.substitution().allowMending()),
@@ -158,10 +156,7 @@ public final class MATomlConfigStore {
             uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig.decodeSelectionRules(
                 stringListValue(serverValues, "substitution.selection_rules",
                     uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig.encodeSelectionRules(
-                        fallback.substitution().selectionRules()))),
-            intValue(serverValues, "substitution.max_active_agents", fallback.substitution().maxActiveAgents(), 1,
-                256),
-            boolValue(serverValues, "substitution.dedupe_agent", fallback.substitution().dedupeAgent())),
+                        fallback.substitution().selectionRules())))),
         new VeinationConfig(
             boolValue(serverValues, "veination.enabled", fallback.veination().enabled()),
             intValue(serverValues, "veination.max_vein_distance", fallback.veination().maxVeinDistance(), 1, 64),
@@ -176,7 +171,7 @@ public final class MATomlConfigStore {
                 fallback.veination().increasedHarvestingTimePerOreModifier(), 0.01D, 10.0D),
             stringListValue(serverValues, "veination.pickaxe_blacklist", fallback.veination().pickaxeBlacklist()),
             intValue(serverValues, "veination.max_active_agents", fallback.veination().maxActiveAgents(), 1, 256),
-            boolValue(serverValues, "veination.dedupe_agent", fallback.veination().dedupeAgent())),
+            boolValue(serverValues, "veination.enforce_agent_limit", fallback.veination().enforceAgentLimit())),
         new VentilationConfig(
             boolValue(serverValues, "ventilation.enabled", fallback.ventilation().enabled()),
             intValue(serverValues, "ventilation.width", fallback.ventilation().width(), 1, 32),
@@ -185,7 +180,7 @@ public final class MATomlConfigStore {
             intValue(serverValues, "ventilation.processes_per_tick", fallback.ventilation().processesPerTick(), 1, 512),
             boolValue(serverValues, "ventilation.place_ladders", fallback.ventilation().placeLadders()),
             intValue(serverValues, "ventilation.max_active_agents", fallback.ventilation().maxActiveAgents(), 1, 256),
-            boolValue(serverValues, "ventilation.dedupe_agent", fallback.ventilation().dedupeAgent())));
+            boolValue(serverValues, "ventilation.enforce_agent_limit", fallback.ventilation().enforceAgentLimit())));
   }
 
   /**
@@ -221,18 +216,16 @@ public final class MATomlConfigStore {
     serverValues.put("captivation.unconditional_blacklist",
         formatTomlValue(value.captivation().unconditionalBlacklist()));
     serverValues.put("captivation.blacklist", formatTomlValue(value.captivation().blacklist()));
-    serverValues.put("captivation.max_active_agents", formatTomlValue(value.captivation().maxActiveAgents()));
-    serverValues.put("captivation.dedupe_agent", formatTomlValue(value.captivation().dedupeAgent()));
 
     serverValues.put("cropination.enabled", formatTomlValue(value.cropination().enabled()));
     serverValues.put("cropination.harvest_seeds", formatTomlValue(value.cropination().harvestSeeds()));
     serverValues.put("cropination.max_active_agents", formatTomlValue(value.cropination().maxActiveAgents()));
-    serverValues.put("cropination.dedupe_agent", formatTomlValue(value.cropination().dedupeAgent()));
+    serverValues.put("cropination.enforce_agent_limit", formatTomlValue(value.cropination().enforceAgentLimit()));
 
     serverValues.put("cultivation.enabled", formatTomlValue(value.cultivation().enabled()));
     serverValues.put("cultivation.hydration_distance", formatTomlValue(value.cultivation().hydrationDistance()));
     serverValues.put("cultivation.max_active_agents", formatTomlValue(value.cultivation().maxActiveAgents()));
-    serverValues.put("cultivation.dedupe_agent", formatTomlValue(value.cultivation().dedupeAgent()));
+    serverValues.put("cultivation.enforce_agent_limit", formatTomlValue(value.cultivation().enforceAgentLimit()));
 
     serverValues.put("excavation.enabled", formatTomlValue(value.excavation().enabled()));
     serverValues.put("excavation.width", formatTomlValue(value.excavation().width()));
@@ -244,13 +237,13 @@ public final class MATomlConfigStore {
     serverValues.put("excavation.is_block_whitelist", formatTomlValue(value.excavation().isBlockWhitelist()));
     serverValues.put("excavation.block_blacklist", formatTomlValue(value.excavation().blockBlacklist()));
     serverValues.put("excavation.max_active_agents", formatTomlValue(value.excavation().maxActiveAgents()));
-    serverValues.put("excavation.dedupe_agent", formatTomlValue(value.excavation().dedupeAgent()));
+    serverValues.put("excavation.enforce_agent_limit", formatTomlValue(value.excavation().enforceAgentLimit()));
 
     serverValues.put("pathanation.enabled", formatTomlValue(value.pathanation().enabled()));
     serverValues.put("pathanation.path_length", formatTomlValue(value.pathanation().pathLength()));
     serverValues.put("pathanation.path_width", formatTomlValue(value.pathanation().pathWidth()));
     serverValues.put("pathanation.max_active_agents", formatTomlValue(value.pathanation().maxActiveAgents()));
-    serverValues.put("pathanation.dedupe_agent", formatTomlValue(value.pathanation().dedupeAgent()));
+    serverValues.put("pathanation.enforce_agent_limit", formatTomlValue(value.pathanation().enforceAgentLimit()));
 
     serverValues.put("illumination.enabled", formatTomlValue(value.illumination().enabled()));
     serverValues.put("illumination.radius_horizontal", formatTomlValue(value.illumination().radiusHorizontal()));
@@ -258,7 +251,7 @@ public final class MATomlConfigStore {
     serverValues.put("illumination.lowest_light_level", formatTomlValue(value.illumination().lowestLightLevel()));
     serverValues.put("illumination.use_block_light", formatTomlValue(value.illumination().useBlockLight()));
     serverValues.put("illumination.max_active_agents", formatTomlValue(value.illumination().maxActiveAgents()));
-    serverValues.put("illumination.dedupe_agent", formatTomlValue(value.illumination().dedupeAgent()));
+    serverValues.put("illumination.enforce_agent_limit", formatTomlValue(value.illumination().enforceAgentLimit()));
 
     serverValues.put("lumbination.enabled", formatTomlValue(value.lumbination().enabled()));
     serverValues.put("lumbination.max_trunk_range", formatTomlValue(value.lumbination().maxTrunkRange()));
@@ -276,7 +269,7 @@ public final class MATomlConfigStore {
     serverValues.put("lumbination.leaves", formatTomlValue(value.lumbination().leaves()));
     serverValues.put("lumbination.axes", formatTomlValue(value.lumbination().axes()));
     serverValues.put("lumbination.max_active_agents", formatTomlValue(value.lumbination().maxActiveAgents()));
-    serverValues.put("lumbination.dedupe_agent", formatTomlValue(value.lumbination().dedupeAgent()));
+    serverValues.put("lumbination.enforce_agent_limit", formatTomlValue(value.lumbination().enforceAgentLimit()));
 
     serverValues.put("shaftanation.enabled", formatTomlValue(value.shaftanation().enabled()));
     serverValues.put("shaftanation.depth", formatTomlValue(value.shaftanation().depth()));
@@ -285,7 +278,7 @@ public final class MATomlConfigStore {
     serverValues.put("shaftanation.height", formatTomlValue(value.shaftanation().height()));
     serverValues.put("shaftanation.torch_placement", formatTomlValue(value.shaftanation().torchPlacement().name()));
     serverValues.put("shaftanation.max_active_agents", formatTomlValue(value.shaftanation().maxActiveAgents()));
-    serverValues.put("shaftanation.dedupe_agent", formatTomlValue(value.shaftanation().dedupeAgent()));
+    serverValues.put("shaftanation.enforce_agent_limit", formatTomlValue(value.shaftanation().enforceAgentLimit()));
 
     serverValues.put("substitution.enabled", formatTomlValue(value.substitution().enabled()));
     serverValues.put("substitution.allow_mending", formatTomlValue(value.substitution().allowMending()));
@@ -300,8 +293,6 @@ public final class MATomlConfigStore {
         formatTomlValue(
             uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig.encodeSelectionRules(
                 value.substitution().selectionRules())));
-    serverValues.put("substitution.max_active_agents", formatTomlValue(value.substitution().maxActiveAgents()));
-    serverValues.put("substitution.dedupe_agent", formatTomlValue(value.substitution().dedupeAgent()));
 
     serverValues.put("veination.enabled", formatTomlValue(value.veination().enabled()));
     serverValues.put("veination.max_vein_distance", formatTomlValue(value.veination().maxVeinDistance()));
@@ -316,7 +307,7 @@ public final class MATomlConfigStore {
         formatTomlValue(value.veination().increasedHarvestingTimePerOreModifier()));
     serverValues.put("veination.pickaxe_blacklist", formatTomlValue(value.veination().pickaxeBlacklist()));
     serverValues.put("veination.max_active_agents", formatTomlValue(value.veination().maxActiveAgents()));
-    serverValues.put("veination.dedupe_agent", formatTomlValue(value.veination().dedupeAgent()));
+    serverValues.put("veination.enforce_agent_limit", formatTomlValue(value.veination().enforceAgentLimit()));
 
     serverValues.put("ventilation.enabled", formatTomlValue(value.ventilation().enabled()));
     serverValues.put("ventilation.width", formatTomlValue(value.ventilation().width()));
@@ -325,7 +316,7 @@ public final class MATomlConfigStore {
     serverValues.put("ventilation.processes_per_tick", formatTomlValue(value.ventilation().processesPerTick()));
     serverValues.put("ventilation.place_ladders", formatTomlValue(value.ventilation().placeLadders()));
     serverValues.put("ventilation.max_active_agents", formatTomlValue(value.ventilation().maxActiveAgents()));
-    serverValues.put("ventilation.dedupe_agent", formatTomlValue(value.ventilation().dedupeAgent()));
+    serverValues.put("ventilation.enforce_agent_limit", formatTomlValue(value.ventilation().enforceAgentLimit()));
 
     writeToml(clientFile, clientValues, "MinersAdvantage client configuration");
     writeToml(serverFile, serverValues, "MinersAdvantage server configuration");

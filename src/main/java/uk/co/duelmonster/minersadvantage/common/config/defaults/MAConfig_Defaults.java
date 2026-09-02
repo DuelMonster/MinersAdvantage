@@ -71,8 +71,6 @@ public final class MAConfig_Defaults {
     public static final boolean isWhitelist = false;
     public static final boolean unconditionalBlacklist = false;
     public static final List<String> blacklist = List.of("minecraft:rotten_flesh", "minecraft:egg");
-    public static final int maxActiveAgents = 4;
-    public static final boolean dedupeAgent = true;
   }
 
   /**
@@ -83,7 +81,7 @@ public final class MAConfig_Defaults {
     public static final boolean enabled = true;
     public static final boolean harvestSeeds = true;
     public static final int maxActiveAgents = 4;
-    public static final boolean dedupeAgent = true;
+    public static final boolean enforceAgentLimit = true;
   }
 
   /**
@@ -94,7 +92,7 @@ public final class MAConfig_Defaults {
     public static final boolean enabled = true;
     public static final int hydrationDistance = 4;
     public static final int maxActiveAgents = 4;
-    public static final boolean dedupeAgent = true;
+    public static final boolean enforceAgentLimit = true;
   }
 
   /**
@@ -112,7 +110,7 @@ public final class MAConfig_Defaults {
     public static final boolean isBlockWhitelist = false;
     public static final List<String> blockBlacklist = List.of();
     public static final int maxActiveAgents = 4;
-    public static final boolean dedupeAgent = true;
+    public static final boolean enforceAgentLimit = true;
   }
 
   /**
@@ -124,7 +122,7 @@ public final class MAConfig_Defaults {
     public static final int targetBlockRange = 6;
     public static final int pathWidth = 1;
     public static final int maxActiveAgents = 4;
-    public static final boolean dedupeAgent = true;
+    public static final boolean enforceAgentLimit = true;
   }
 
   /**
@@ -138,7 +136,7 @@ public final class MAConfig_Defaults {
     public static final int lowestLightLevel = 1;
     public static final boolean useBlockLight = true;
     public static final int maxActiveAgents = 4;
-    public static final boolean dedupeAgent = true;
+    public static final boolean enforceAgentLimit = true;
   }
 
   /**
@@ -160,7 +158,7 @@ public final class MAConfig_Defaults {
     public static final List<String> leaves = List.of();
     public static final List<String> axes = List.of();
     public static final int maxActiveAgents = 4;
-    public static final boolean dedupeAgent = true;
+    public static final boolean enforceAgentLimit = true;
   }
 
   /**
@@ -175,7 +173,7 @@ public final class MAConfig_Defaults {
     public static final int depth = 16;
     public static final TorchPlacement torchPlacement = TorchPlacement.FLOOR;
     public static final int maxActiveAgents = 4;
-    public static final boolean dedupeAgent = true;
+    public static final boolean enforceAgentLimit = true;
   }
 
   /**
@@ -194,8 +192,6 @@ public final class MAConfig_Defaults {
     public static final List<String> blockBlacklist = List.of();
     public static final List<SelectionRule> selectionRules = uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig
         .defaultSelectionRules();
-    public static final int maxActiveAgents = 4;
-    public static final boolean dedupeAgent = true;
   }
 
   /**
@@ -212,7 +208,7 @@ public final class MAConfig_Defaults {
     public static final double increasedHarvestingTimePerOreModifier = 0.2D;
     public static final List<String> pickaxeBlacklist = List.of();
     public static final int maxActiveAgents = 4;
-    public static final boolean dedupeAgent = true;
+    public static final boolean enforceAgentLimit = true;
   }
 
   /**
@@ -227,6 +223,6 @@ public final class MAConfig_Defaults {
     public static final int processesPerTick = 8;
     public static final boolean placeLadders = true;
     public static final int maxActiveAgents = 4;
-    public static final boolean dedupeAgent = true;
+    public static final boolean enforceAgentLimit = true;
   }
 }

@@ -130,7 +130,7 @@ Client options stay local. Gameplay options are server-authoritative in multipla
 
 Effective per-feature worker budget is `min(common.max_blocks_per_tick, <feature>.processes_per_tick)` and cadence is driven by `common.ticks_per_block`.
 
-Every feature also owns its own agent-scheduling pair: `<feature>.max_active_agents` (int, default `4`, range 1 to 256) caps concurrent agent instances per player, and `<feature>.dedupe_agent` (boolean, default `true`) limits that feature to a single active/pending agent per player regardless of the max value. Both are editable from that feature's own settings screen under its `Scheduling` section.
+Every block-affecting feature (Cropination, Cultivation, Excavation, Illumination, Lumbination, Pathanation, Shaftanation, Veination, Ventilation) also owns its own agent-scheduling pair: `<feature>.max_active_agents` (int, default `4`, range 1 to 256) caps concurrent agent instances per player, and `<feature>.enforce_agent_limit` (boolean, default `true`) controls whether that cap is applied — disabling it allows an unlimited number of concurrent agents for that feature. Both are editable from that feature's own settings screen under its `Scheduling` section. Captivation and Substitution don't affect blocks, so they don't expose these controls.
 
 ### Optimization Replay Status (`2.22.0`)
 

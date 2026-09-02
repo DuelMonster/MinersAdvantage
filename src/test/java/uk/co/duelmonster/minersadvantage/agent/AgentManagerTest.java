@@ -52,18 +52,19 @@ class AgentManagerTest {
   }
 
   @Test
-  void canQueueAgent_allowsMultipleAgentsWhenTypeDeduplicationDisabled() {
+  void canQueueAgent_allowsUnlimitedAgentsWhenLimitEnforcementDisabled() {
     AgentManager manager = AgentManager.get();
-    manager.setAgentTypeDeduplication(SubstitutionAgent.class, false);
+    manager.setAgentLimitEnforced(SubstitutionAgent.class, false);
+    manager.setMaxActiveAgents(SubstitutionAgent.class, 4);
 
-    assertTrue(manager.canQueueAgent(SubstitutionAgent.class, 1, 0, MAConfig_Base.getGlobalConfig()));
-    assertTrue(manager.canQueueAgent(SubstitutionAgent.class, 2, 0, MAConfig_Base.getGlobalConfig()));
+    assertTrue(manager.canQueueAgent(SubstitutionAgent.class, 4, 0, MAConfig_Base.getGlobalConfig()));
+    assertTrue(manager.canQueueAgent(SubstitutionAgent.class, 40, 0, MAConfig_Base.getGlobalConfig()));
   }
 
   @Test
-  void canQueueAgent_respectsMaxActiveAgentsLimit() {
+  void canQueueAgent_respectsMaxActiveAgentsLimitWhenEnforced() {
     AgentManager manager = AgentManager.get();
-    manager.setAgentTypeDeduplication(SubstitutionAgent.class, false);
+    manager.setAgentLimitEnforced(SubstitutionAgent.class, true);
     manager.setMaxActiveAgents(SubstitutionAgent.class, 4);
 
     assertTrue(manager.canQueueAgent(SubstitutionAgent.class, 3, 0, MAConfig_Base.getGlobalConfig()));
@@ -76,12 +77,12 @@ class AgentManagerTest {
   }
 
   private static void clearRuntimeOverrides() throws ReflectiveOperationException {
-    Field runtimeDeduplicationField = AgentManager.class.getDeclaredField("runtimeAgentTypeDeduplication");
-    runtimeDeduplicationField.setAccessible(true);
+    Field runtimeEnforcementField = AgentManager.class.getDeclaredField("runtimeAgentLimitEnforcement");
+    runtimeEnforcementField.setAccessible(true);
     @SuppressWarnings("unchecked")
-    Map<Class<? extends Agent>, Boolean> runtimeDeduplication = (Map<Class<? extends Agent>, Boolean>) runtimeDeduplicationField
+    Map<Class<? extends Agent>, Boolean> runtimeEnforcement = (Map<Class<? extends Agent>, Boolean>) runtimeEnforcementField
         .get(AgentManager.get());
-    runtimeDeduplication.clear();
+    runtimeEnforcement.clear();
 
     Field runtimeMaxActiveAgentsField = AgentManager.class.getDeclaredField("runtimeMaxActiveAgents");
     runtimeMaxActiveAgentsField.setAccessible(true);

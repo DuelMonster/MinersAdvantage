@@ -13,24 +13,18 @@ public record CaptivationConfig(
     int radiusVertical,
     boolean isWhitelist,
     boolean unconditionalBlacklist,
-    List<String> blacklist,
-    int maxActiveAgents,
-    boolean dedupeAgent
-) {
-    /**
-     * CaptivationConfig exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    public CaptivationConfig(boolean enabled, boolean allowInGUI, int radiusHorizontal, int radiusVertical, boolean isWhitelist, boolean unconditionalBlacklist) {
-        this(enabled, allowInGUI, radiusHorizontal, radiusVertical, isWhitelist, unconditionalBlacklist, List.of("minecraft:rotten_flesh", "minecraft:egg"), 4, true);
-    }
+    List<String> blacklist) {
+  /**
+   * CaptivationConfig exists so this code path does one job clearly instead of spreading chaos across callers.
+   * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+   */
+  public CaptivationConfig(boolean enabled, boolean allowInGUI, int radiusHorizontal, int radiusVertical,
+      boolean isWhitelist, boolean unconditionalBlacklist) {
+    this(enabled, allowInGUI, radiusHorizontal, radiusVertical, isWhitelist, unconditionalBlacklist,
+        List.of("minecraft:rotten_flesh", "minecraft:egg"));
+  }
 
-    public CaptivationConfig(boolean enabled, boolean allowInGUI, int radiusHorizontal, int radiusVertical, boolean isWhitelist, boolean unconditionalBlacklist, List<String> blacklist) {
-        this(enabled, allowInGUI, radiusHorizontal, radiusVertical, isWhitelist, unconditionalBlacklist, blacklist, 4, true);
-    }
-
-    public CaptivationConfig {
-        blacklist = blacklist == null ? List.of() : List.copyOf(blacklist);
-        maxActiveAgents = Math.max(1, maxActiveAgents);
-    }
+  public CaptivationConfig {
+    blacklist = blacklist == null ? List.of() : List.copyOf(blacklist);
+  }
 }

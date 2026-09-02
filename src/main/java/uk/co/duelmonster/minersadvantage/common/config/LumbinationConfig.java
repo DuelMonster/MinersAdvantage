@@ -21,45 +21,45 @@ public record LumbinationConfig(
     List<String> leaves,
     List<String> axes,
     int maxActiveAgents,
-    boolean dedupeAgent
-) {
-    /**
-     * LumbinationConfig exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    public LumbinationConfig(boolean enabled, int maxTrunkRange, int maxLeafRange, int processesPerTick) {
-        this(enabled, maxTrunkRange, maxLeafRange, processesPerTick, true, true, false, true, true, true, List.of(), List.of(), List.of(), 4, true);
-    }
+    boolean enforceAgentLimit) {
+  /**
+   * LumbinationConfig exists so this code path does one job clearly instead of spreading chaos across callers.
+   * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+   */
+  public LumbinationConfig(boolean enabled, int maxTrunkRange, int maxLeafRange, int processesPerTick) {
+    this(enabled, maxTrunkRange, maxLeafRange, processesPerTick, true, true, false, true, true, true, List.of(),
+        List.of(), List.of(), 4, true);
+  }
 
-    public LumbinationConfig(boolean enabled, int maxTrunkRange, int maxLeafRange, int processesPerTick,
-            boolean chopTreeBelow, boolean destroyLeaves, boolean leavesAffectDurability, boolean replantSaplings,
-            boolean useCanopyTool, boolean ignorePlayerPlacedLeaves, List<String> logs, List<String> leaves,
-            List<String> axes) {
-        this(enabled, maxTrunkRange, maxLeafRange, processesPerTick, chopTreeBelow, destroyLeaves,
-            leavesAffectDurability, replantSaplings, useCanopyTool, ignorePlayerPlacedLeaves, logs, leaves, axes, 4,
-            true);
-    }
+  public LumbinationConfig(boolean enabled, int maxTrunkRange, int maxLeafRange, int processesPerTick,
+      boolean chopTreeBelow, boolean destroyLeaves, boolean leavesAffectDurability, boolean replantSaplings,
+      boolean useCanopyTool, boolean ignorePlayerPlacedLeaves, List<String> logs, List<String> leaves,
+      List<String> axes) {
+    this(enabled, maxTrunkRange, maxLeafRange, processesPerTick, chopTreeBelow, destroyLeaves,
+        leavesAffectDurability, replantSaplings, useCanopyTool, ignorePlayerPlacedLeaves, logs, leaves, axes, 4,
+        true);
+  }
 
-    public LumbinationConfig {
-        logs = logs == null ? List.of() : List.copyOf(logs);
-        leaves = leaves == null ? List.of() : List.copyOf(leaves);
-        axes = axes == null ? List.of() : List.copyOf(axes);
-        maxActiveAgents = Math.max(1, maxActiveAgents);
-    }
+  public LumbinationConfig {
+    logs = logs == null ? List.of() : List.copyOf(logs);
+    leaves = leaves == null ? List.of() : List.copyOf(leaves);
+    axes = axes == null ? List.of() : List.copyOf(axes);
+    maxActiveAgents = Math.max(1, maxActiveAgents);
+  }
 
-    /**
-     * trunkRange exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    public int trunkRange() {
-        return maxTrunkRange;
-    }
+  /**
+   * trunkRange exists so this code path does one job clearly instead of spreading chaos across callers.
+   * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+   */
+  public int trunkRange() {
+    return maxTrunkRange;
+  }
 
-    /**
-     * leafRange exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    public int leafRange() {
-        return maxLeafRange;
-    }
+  /**
+   * leafRange exists so this code path does one job clearly instead of spreading chaos across callers.
+   * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+   */
+  public int leafRange() {
+    return maxLeafRange;
+  }
 }
