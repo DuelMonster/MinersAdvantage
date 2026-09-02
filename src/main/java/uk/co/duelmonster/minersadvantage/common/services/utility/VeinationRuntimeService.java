@@ -34,14 +34,14 @@ public final class VeinationRuntimeService {
   private final Set<Item> allowedPickaxes = new HashSet<>();
   private final Map<UUID, DropAnchor> dropAnchors = new HashMap<>();
   private final Map<UUID, CachedVeinCount> cachedVeinCounts = new HashMap<>();
-  private boolean allowlistInitialized = false;
+  private Set<String> allowlistBuiltFromBlacklist;
 
   /**
-   * Build the pickaxe allowlist once from config blacklist rules; after that we reuse it to avoid
-   * repeated registry scans that would just waste cycles.
+   * Build the pickaxe allowlist from config blacklist rules, rebuilding whenever the configured
+   * blacklist changes so runtime config edits take effect without a server restart.
    */
   public void initializePickaxeAllowlist(Level level, VeinationConfig config) {
-    if (allowlistInitialized || level == null) {
+    if (level == null) {
       return;
     }
 
@@ -52,6 +52,11 @@ public final class VeinationRuntimeService {
       }
     }
 
+    if (blocked.equals(allowlistBuiltFromBlacklist)) {
+      return;
+    }
+
+    allowedPickaxes.clear();
     for (Item item : BuiltInRegistries.ITEM) {
       String itemId = BuiltInRegistries.ITEM.getKey(item).toString();
       if (itemId.endsWith("_pickaxe") && !blocked.contains(itemId.toLowerCase(Locale.ROOT))) {
@@ -59,7 +64,7 @@ public final class VeinationRuntimeService {
       }
     }
 
-    allowlistInitialized = true;
+    allowlistBuiltFromBlacklist = blocked;
   }
 
   /**
