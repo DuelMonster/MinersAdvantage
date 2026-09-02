@@ -55,6 +55,8 @@ Run the same validations enforced by hooks:
    - `26.2-neoforge`
 2. Confirm platform metadata (icon/mod metadata) remains valid across loaders.
 3. Confirm no known high-severity regressions are open for this release cut.
+4. Preview the release notes that will be uploaded (spans every changelog section newer than the version already live on Modrinth):
+   - `./gradlew :1.21.11-fabric:printReleaseChangelog`
 
 ## Release Record
 

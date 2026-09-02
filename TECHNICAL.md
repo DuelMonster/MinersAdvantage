@@ -243,6 +243,18 @@ After changing the active node, a regular build targets that node:
 - `packageRelease` tasks copy remapped/production jars into `releases/`.
 - See [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md) for end-to-end pre-release and publish gating.
 
+Release notes uploaded to Modrinth and CurseForge are not the whole `CHANGELOG.md`. At configuration time the build queries the public Modrinth version list (`https://api.modrinth.com/v2/project/<id>/version`) for the highest `version_number` already released, strips the `+<mc>-<loader>` suffix, and uploads every `## <version>` section newer than it. That covers the case where `mod_version` is bumped several times between publishes. The lookup runs once per build and is shared across all Stonecutter nodes.
+
+CurseForge is not used as the source of truth: the upload API authenticates uploads but cannot be queried for existing files with the upload token, so it would require a separate CurseForge Core API key.
+
+If the lookup fails (offline, missing/blank project ID, unpublished project), the build logs a notice and falls back to the newest `## <version>` section only.
+
+Preview what would be uploaded without publishing:
+
+```bash
+./gradlew :1.21.11-fabric:printReleaseChangelog
+```
+
 The post-2.21 optimization replay extension (Commits 15-20) is closed in `2.22.0`.
 Runtime optimization commits keep mandatory in-game stop-and-wait gates; docs-only synchronization commits proceed after standard validation gates pass.
 

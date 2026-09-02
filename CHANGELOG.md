@@ -1,3 +1,10 @@
+## 2.24.0
+
+- Publish only the `CHANGELOG.md` version sections newer than the release already live on Modrinth as the Modrinth and CurseForge release notes, instead of uploading the entire file.
+- Resolve the last published version from the public Modrinth version list, falling back to the newest changelog section when the lookup is unavailable.
+- Add `printReleaseChangelog` to preview the release notes without publishing.
+- Document the release-notes range in TECHNICAL and add a release-notes preview step to the release checklist.
+
 ## 2.23.0
 
 - Fix NeoForge illumination keybind packet flow by wiring client tick illumination dispatch and payload registration/handling across supported NeoForge versions.

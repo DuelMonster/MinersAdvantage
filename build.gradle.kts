@@ -1,4 +1,7 @@
 import java.io.File
+import java.net.HttpURLConnection
+import java.net.URI
+import java.util.Comparator
 
 plugins {
     id("dev.isxander.modstitch.base") version "0.8.5"
@@ -304,6 +307,54 @@ publishing {
 
 val prodJarTask: String = if (tasks.findByName("remapJar") != null) "remapJar" else "jar"
 
+// `mod_version` can be bumped several times between publishes, so release notes must span every
+// CHANGELOG section newer than the version already live on the store, not just the newest one.
+fun changelogSectionsSince(full: String, publishedVersion: String?): String {
+    val lines = full.lines()
+    val headings = lines.indices.filter { lines[it].startsWith("## ") }
+    if (headings.isEmpty()) return full.trim()
+    val newestOnly = headings.getOrElse(1) { lines.size }
+    val stop = publishedVersion
+        ?.let { published -> headings.firstOrNull { lines[it].removePrefix("## ").trim() == published } }
+        ?.takeIf { it > headings.first() }
+        ?: newestOnly
+    return lines.subList(headings.first(), stop).joinToString("\n").trim()
+}
+
+fun compareModVersions(left: String, right: String): Int {
+    fun parts(v: String) = v.split('.').map { it.takeWhile(Char::isDigit).toIntOrNull() ?: 0 }
+    val a = parts(left)
+    val b = parts(right)
+    for (i in 0 until maxOf(a.size, b.size)) {
+        val cmp = a.getOrElse(i) { 0 }.compareTo(b.getOrElse(i) { 0 })
+        if (cmp != 0) return cmp
+    }
+    return 0
+}
+
+// Modrinth's public version list is the only queryable source for the live version: the CurseForge
+// upload API accepts uploads but cannot be queried with the upload token.
+fun fetchPublishedModVersion(projectId: String): String? {
+    if (projectId.isBlank()) return null
+    return runCatching {
+        val connection = URI("https://api.modrinth.com/v2/project/$projectId/version")
+            .toURL().openConnection() as HttpURLConnection
+        connection.connectTimeout = 5_000
+        connection.readTimeout = 5_000
+        connection.setRequestProperty("User-Agent", "MinersAdvantage/publish")
+        val body = try {
+            connection.inputStream.bufferedReader().use { it.readText() }
+        } finally {
+            connection.disconnect()
+        }
+        Regex("\"version_number\"\\s*:\\s*\"([^\"]+)\"").findAll(body)
+            .map { it.groupValues[1].substringBefore('+') }
+            .distinct()
+            .toList()
+            .maxWithOrNull(Comparator { a: String, b: String -> compareModVersions(a, b) })
+    }.getOrNull()
+}
+
 // Modrinth + CurseForge publishing via mod-publish-plugin.
 // Tasks are configured only when publishing tokens are available.
 val modrinthToken = System.getenv("MODRINTH_TOKEN")
@@ -364,6 +415,32 @@ tasks.configureEach {
 if (!modrinthToken.isNullOrBlank() || !curseForgeToken.isNullOrBlank()) {
     apply(plugin = "me.modmuss50.mod-publish-plugin")
 
+    val modrinthProjectId = findProperty("modrinth_project_id") as? String ?: ""
+    // Resolved once per build and shared across all Stonecutter nodes.
+    val publishedCacheKey = "minersAdvantage.publishedModVersion"
+    val publishedVersion = if (rootProject.extra.has(publishedCacheKey)) {
+        rootProject.extra[publishedCacheKey] as String
+    } else {
+        fetchPublishedModVersion(modrinthProjectId).orEmpty().also {
+            rootProject.extra[publishedCacheKey] = it
+            if (it.isBlank()) {
+                logger.lifecycle("[publish] Could not resolve the published version from Modrinth; using the newest CHANGELOG section only.")
+            } else {
+                logger.lifecycle("[publish] Last published version on Modrinth: $it")
+            }
+        }
+    }.ifBlank { null }
+
+    val releaseChangelog: Provider<String> =
+        providers.fileContents(rootProject.layout.projectDirectory.file("CHANGELOG.md"))
+            .asText.map { changelogSectionsSince(it, publishedVersion) }.orElse("")
+
+    tasks.register("printReleaseChangelog") {
+        group = "publishing"
+        description = "Prints the release notes that would be uploaded to Modrinth and CurseForge."
+        doLast { println(releaseChangelog.get()) }
+    }
+
     @Suppress("UnstableApiUsage")
     configure<me.modmuss50.mpp.ModPublishExtension> {
         val modVer = property("mod_version") as String
@@ -378,8 +455,7 @@ if (!modrinthToken.isNullOrBlank() || !curseForgeToken.isNullOrBlank()) {
                 version = "$modVer+$minecraft-$loader"
                 type = me.modmuss50.mpp.ReleaseType.STABLE
                 file = tasks.named<AbstractArchiveTask>(prodJarTask).map { it.archiveFile.get() }
-                changelog = providers.fileContents(rootProject.layout.projectDirectory.file("CHANGELOG.md"))
-                    .asText.orElse("")
+                changelog = releaseChangelog
                 requires("cloth-config")
             }
         }
@@ -396,8 +472,7 @@ if (!modrinthToken.isNullOrBlank() || !curseForgeToken.isNullOrBlank()) {
                 version = "$modVer+$minecraft-$loader"
                 type = me.modmuss50.mpp.ReleaseType.STABLE
                 file = tasks.named<AbstractArchiveTask>(prodJarTask).map { it.archiveFile.get() }
-                changelog = providers.fileContents(rootProject.layout.projectDirectory.file("CHANGELOG.md"))
-                    .asText.orElse("")
+                changelog = releaseChangelog
                 requires("cloth-config")
             }
         }
