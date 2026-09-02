@@ -10,11 +10,13 @@ import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import uk.co.duelmonster.minersadvantage.common.config.MAConfig_Base;
 
 class AgentManagerTest {
   @AfterEach
   void clearAgentManagerState() throws ReflectiveOperationException {
     clearMaps();
+    clearRuntimeOverrides();
   }
 
   @Test
@@ -49,9 +51,44 @@ class AgentManagerTest {
     assertTrue(active.get(playerId).stream().allMatch(agent -> agent instanceof CaptivationAgent));
   }
 
+  @Test
+  void canQueueAgent_allowsMultipleAgentsWhenTypeDeduplicationDisabled() {
+    AgentManager manager = AgentManager.get();
+    manager.setAgentTypeDeduplication(SubstitutionAgent.class, false);
+
+    assertTrue(manager.canQueueAgent(SubstitutionAgent.class, 1, 0, MAConfig_Base.getGlobalConfig()));
+    assertTrue(manager.canQueueAgent(SubstitutionAgent.class, 2, 0, MAConfig_Base.getGlobalConfig()));
+  }
+
+  @Test
+  void canQueueAgent_respectsMaxActiveAgentsLimit() {
+    AgentManager manager = AgentManager.get();
+    manager.setAgentTypeDeduplication(SubstitutionAgent.class, false);
+    manager.setMaxActiveAgents(SubstitutionAgent.class, 4);
+
+    assertTrue(manager.canQueueAgent(SubstitutionAgent.class, 3, 0, MAConfig_Base.getGlobalConfig()));
+    assertFalse(manager.canQueueAgent(SubstitutionAgent.class, 4, 0, MAConfig_Base.getGlobalConfig()));
+  }
+
   private static void clearMaps() throws ReflectiveOperationException {
     agentsMap().clear();
     pendingMap().clear();
+  }
+
+  private static void clearRuntimeOverrides() throws ReflectiveOperationException {
+    Field runtimeDeduplicationField = AgentManager.class.getDeclaredField("runtimeAgentTypeDeduplication");
+    runtimeDeduplicationField.setAccessible(true);
+    @SuppressWarnings("unchecked")
+    Map<Class<? extends Agent>, Boolean> runtimeDeduplication = (Map<Class<? extends Agent>, Boolean>) runtimeDeduplicationField
+        .get(AgentManager.get());
+    runtimeDeduplication.clear();
+
+    Field runtimeMaxActiveAgentsField = AgentManager.class.getDeclaredField("runtimeMaxActiveAgents");
+    runtimeMaxActiveAgentsField.setAccessible(true);
+    @SuppressWarnings("unchecked")
+    Map<Class<? extends Agent>, Integer> runtimeMaxActiveAgents = (Map<Class<? extends Agent>, Integer>) runtimeMaxActiveAgentsField
+        .get(AgentManager.get());
+    runtimeMaxActiveAgents.clear();
   }
 
   @SuppressWarnings("unchecked")

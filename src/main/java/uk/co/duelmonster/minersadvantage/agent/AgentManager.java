@@ -2,6 +2,8 @@ package uk.co.duelmonster.minersadvantage.agent;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
+import uk.co.duelmonster.minersadvantage.common.config.MAConfig_Base;
+import uk.co.duelmonster.minersadvantage.common.config.SyncedClientConfig;
 import uk.co.duelmonster.minersadvantage.common.log.LogUtils;
 
 import java.util.ArrayList;
@@ -17,8 +19,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class AgentManager {
   private static final AgentManager INSTANCE = new AgentManager();
+  private static final int DEFAULT_MAX_ACTIVE_AGENTS = 4;
   private final Map<UUID, List<Agent>> agents = new ConcurrentHashMap<>();
   private final Map<UUID, List<Agent>> pendingAdds = new ConcurrentHashMap<>();
+  private final Map<Class<? extends Agent>, Boolean> runtimeAgentTypeDeduplication = new ConcurrentHashMap<>();
+  private final Map<Class<? extends Agent>, Integer> runtimeMaxActiveAgents = new ConcurrentHashMap<>();
   private final AtomicBoolean ticking = new AtomicBoolean(false);
 
   /**
@@ -32,6 +37,32 @@ public class AgentManager {
    * Queue agent immediately unless we are mid-tick, in which case stage it for post-loop merge.
    */
   public void addAgent(ServerPlayer player, Agent agent) {
+    if (player == null || agent == null) {
+      return;
+    }
+
+    SyncedClientConfig config = MAConfig_Base.getPlayerConfig(player.getUUID());
+    int activeTypeCount = countAgentsOfType(agent.getClass(), agents);
+    int pendingTypeCount = countAgentsOfType(agent.getClass(), pendingAdds);
+    if (isAgentTypeDeduplicationEnabled(agent.getClass(), config) && hasAgentType(player, agent.getClass())) {
+      LogUtils.logDebug(
+          "Skipped queueing {} for player={} reason=type-deduped activeTypeCount={} maxActiveAgents={} dedupeEnabled=true",
+          agent.getClass().getSimpleName(), player.getScoreboardName(), activeTypeCount + pendingTypeCount,
+          effectiveMaxActiveAgents(agent.getClass(), config));
+      return;
+    }
+
+    if (!canQueueAgent(agent.getClass(), activeTypeCount, pendingTypeCount, config)) {
+      LogUtils.logDebug(
+          "Skipped queueing {} for player={} reason=max-active-agent-limit reached activeTypeCount={} maxActiveAgents={} dedupeEnabled={}",
+          agent.getClass().getSimpleName(),
+          player.getScoreboardName(),
+          activeTypeCount + pendingTypeCount,
+          effectiveMaxActiveAgents(agent.getClass(), config),
+          isAgentTypeDeduplicationEnabled(agent.getClass(), config));
+      return;
+    }
+
     Map<UUID, List<Agent>> target = ticking.get() ? pendingAdds : agents;
     List<Agent> agentList = target.computeIfAbsent(player.getUUID(), k -> new ArrayList<>());
     agentList.add(agent);
@@ -139,9 +170,69 @@ public class AgentManager {
   }
 
   /**
+   * Toggle deduplication for one runtime agent type. Disabled means multiple agents of that type may coexist.
+   */
+  public void setAgentTypeDeduplication(Class<? extends Agent> agentType, boolean enabled) {
+    if (agentType == null) {
+      return;
+    }
+    if (enabled) {
+      runtimeAgentTypeDeduplication.remove(agentType);
+    } else {
+      runtimeAgentTypeDeduplication.put(agentType, false);
+    }
+  }
+
+  /**
+   * Set the maximum number of active agent instances allowed for one runtime agent type.
+   */
+  public void setMaxActiveAgents(Class<? extends Agent> agentType, int maxActiveAgents) {
+    if (agentType == null) {
+      return;
+    }
+    this.runtimeMaxActiveAgents.put(agentType, Math.max(1, maxActiveAgents));
+  }
+
+  /**
+   * Returns true if the local runtime config and per-type cap allow taking another queue entry.
+   */
+  public boolean canQueueAgent(Class<? extends Agent> agentType, int activeCount, int pendingCount,
+      SyncedClientConfig config) {
+    if (agentType == null) {
+      return false;
+    }
+    if (activeCount < 0) {
+      activeCount = 0;
+    }
+    if (pendingCount < 0) {
+      pendingCount = 0;
+    }
+
+    int activeTypeCount = activeCount + pendingCount;
+    int maxAgents = effectiveMaxActiveAgents(agentType, config);
+    if (activeTypeCount >= maxAgents) {
+      return false;
+    }
+
+    if (!isAgentTypeDeduplicationEnabled(agentType, config)) {
+      return true;
+    }
+
+    return activeTypeCount == 0;
+  }
+
+  /**
    * Check both active and pending queues for an agent type so duplicate fan-out workers can be avoided.
    */
   public boolean hasAgentType(ServerPlayer player, Class<? extends Agent> agentType) {
+    if (player == null || agentType == null) {
+      return false;
+    }
+    SyncedClientConfig config = MAConfig_Base.getPlayerConfig(player.getUUID());
+    if (!isAgentTypeDeduplicationEnabled(agentType, config)) {
+      return false;
+    }
+
     List<Agent> agentList = agents.get(player.getUUID());
     if (agentList != null && !agentList.isEmpty()) {
       for (Agent agent : agentList) {
@@ -161,6 +252,69 @@ public class AgentManager {
     }
 
     return false;
+  }
+
+  private boolean isAgentTypeDeduplicationEnabled(Class<? extends Agent> agentType, SyncedClientConfig config) {
+    if (agentType == null) {
+      return true;
+    }
+    Boolean runtimeOverride = runtimeAgentTypeDeduplication.get(agentType);
+    if (runtimeOverride != null) {
+      return runtimeOverride;
+    }
+    SyncedClientConfig effectiveConfig = config == null ? MAConfig_Base.getGlobalConfig() : config;
+    return effectiveConfig.common().isAgentTypeDeduplicationEnabled(agentType);
+  }
+
+  private int effectiveMaxActiveAgents(Class<? extends Agent> agentType, SyncedClientConfig config) {
+    SyncedClientConfig effectiveConfig = config == null ? MAConfig_Base.getGlobalConfig() : config;
+    if (agentType == null) {
+      return DEFAULT_MAX_ACTIVE_AGENTS;
+    }
+    Integer runtimeOverride = runtimeMaxActiveAgents.get(agentType);
+    if (runtimeOverride != null) {
+      return runtimeOverride;
+    }
+    return Math.max(1, effectiveConfig.common().maxActiveAgentsForType(agentType));
+  }
+
+  private static int countAgentsOfType(Class<? extends Agent> agentType, Map<UUID, List<Agent>> map) {
+    if (agentType == null || map == null || map.isEmpty()) {
+      return 0;
+    }
+
+    int count = 0;
+    for (List<Agent> agentList : map.values()) {
+      if (agentList == null || agentList.isEmpty()) {
+        continue;
+      }
+      for (Agent agent : agentList) {
+        if (agentType.isInstance(agent)) {
+          count++;
+        }
+      }
+    }
+    return count;
+  }
+
+  private int totalActiveAgents() {
+    int total = 0;
+    for (List<Agent> agentList : agents.values()) {
+      if (agentList != null) {
+        total += agentList.size();
+      }
+    }
+    return total;
+  }
+
+  private int totalPendingAgents() {
+    int total = 0;
+    for (List<Agent> agentList : pendingAdds.values()) {
+      if (agentList != null) {
+        total += agentList.size();
+      }
+    }
+    return total;
   }
 
   /**

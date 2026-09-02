@@ -65,7 +65,29 @@ public final class PolicyCoreService {
         maxBlocksPerTick,
         config.enableTickDelay(),
         clampRange(config.tickDelay(), 0, 40),
-        clampRange(config.blockRadius(), 1, 16));
+        clampRange(config.blockRadius(), 1, 16),
+        Math.max(1, config.maxActiveCaptivationAgent()),
+        Math.max(1, config.maxActiveCropinationAgent()),
+        Math.max(1, config.maxActiveCultivationAgent()),
+        Math.max(1, config.maxActiveExcavationAgent()),
+        Math.max(1, config.maxActiveIlluminationAgent()),
+        Math.max(1, config.maxActiveLumbinationAgent()),
+        Math.max(1, config.maxActivePathanationAgent()),
+        Math.max(1, config.maxActiveShaftanationAgent()),
+        Math.max(1, config.maxActiveSubstitutionAgent()),
+        Math.max(1, config.maxActiveVeinationAgent()),
+        Math.max(1, config.maxActiveVentilationAgent()),
+        config.dedupeCaptivationAgent(),
+        config.dedupeCropinationAgent(),
+        config.dedupeCultivationAgent(),
+        config.dedupeExcavationAgent(),
+        config.dedupeIlluminationAgent(),
+        config.dedupeLumbinationAgent(),
+        config.dedupePathanationAgent(),
+        config.dedupeShaftanationAgent(),
+        config.dedupeSubstitutionAgent(),
+        config.dedupeVeinationAgent(),
+        config.dedupeVentilationAgent());
   }
 
   /**

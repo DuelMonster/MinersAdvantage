@@ -57,6 +57,28 @@ public final class MAConfig_Defaults {
     public static final boolean enableTickDelay = true;
     public static final int tickDelay = 5;
     public static final int blockRadius = Constants.DEFAULT_BLOCKRADIUS;
+    public static final int maxActiveCaptivationAgent = 4;
+    public static final int maxActiveCropinationAgent = 4;
+    public static final int maxActiveCultivationAgent = 4;
+    public static final int maxActiveExcavationAgent = 4;
+    public static final int maxActiveIlluminationAgent = 4;
+    public static final int maxActiveLumbinationAgent = 4;
+    public static final int maxActivePathanationAgent = 4;
+    public static final int maxActiveShaftanationAgent = 4;
+    public static final int maxActiveSubstitutionAgent = 4;
+    public static final int maxActiveVeinationAgent = 4;
+    public static final int maxActiveVentilationAgent = 4;
+    public static final boolean dedupeCaptivationAgent = true;
+    public static final boolean dedupeCropinationAgent = true;
+    public static final boolean dedupeCultivationAgent = true;
+    public static final boolean dedupeExcavationAgent = true;
+    public static final boolean dedupeIlluminationAgent = true;
+    public static final boolean dedupeLumbinationAgent = true;
+    public static final boolean dedupePathanationAgent = true;
+    public static final boolean dedupeShaftanationAgent = true;
+    public static final boolean dedupeSubstitutionAgent = true;
+    public static final boolean dedupeVeinationAgent = true;
+    public static final boolean dedupeVentilationAgent = true;
   }
 
   /**

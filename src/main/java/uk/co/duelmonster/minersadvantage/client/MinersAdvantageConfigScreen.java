@@ -57,6 +57,7 @@ public final class MinersAdvantageConfigScreen {
     ConfigEntryBuilder entryBuilder = builder.entryBuilder();
 
     ConfigCategory generalCategory = builder.getOrCreateCategory(Component.literal("General"));
+    ConfigCategory agentLimitsCategory = builder.getOrCreateCategory(Component.literal("Agent Limits"));
     ConfigCategory featuresCategory = builder.getOrCreateCategory(Component.literal("Features"));
     ConfigCategory clientCategory = builder.getOrCreateCategory(Component.literal("Client only"));
 
@@ -206,6 +207,7 @@ public final class MinersAdvantageConfigScreen {
     addGameplayInt(generalCategory, entryBuilder, "Block Radius",
         "Configured radius used by radius-limited operations.", mutable.blockRadius,
         currentServerConfig.common().blockRadius(), 1, 16, gameplayEditable, value -> mutable.blockRadius = value);
+    addAgentLimitSettings(agentLimitsCategory, entryBuilder, mutable, gameplayEditable);
 
     builder.setSavingRunnable(() -> saveMutableConfig(mutable, gameplayEditable));
     Screen screen = builder.build();
@@ -464,6 +466,7 @@ public final class MinersAdvantageConfigScreen {
         .setTitle(Component.literal("MinersAdvantage - General"));
     ConfigEntryBuilder entryBuilder = builder.entryBuilder();
     ConfigCategory generalCategory = builder.getOrCreateCategory(Component.literal("General"));
+    ConfigCategory agentLimitsCategory = builder.getOrCreateCategory(Component.literal("Agent Limits"));
 
     if (!gameplayEditable) {
       generalCategory.addEntry(authorityNoticeEntry(entryBuilder));
@@ -498,6 +501,7 @@ public final class MinersAdvantageConfigScreen {
     addGameplayInt(generalCategory, entryBuilder, "Block Radius",
         "Configured radius used by radius-limited operations.", mutable.blockRadius,
         currentServerConfig.common().blockRadius(), 1, 16, gameplayEditable, value -> mutable.blockRadius = value);
+    addAgentLimitSettings(agentLimitsCategory, entryBuilder, mutable, gameplayEditable);
 
     builder.setSavingRunnable(() -> saveMutableConfig(mutable, gameplayEditable));
     return builder.build();
@@ -1218,6 +1222,46 @@ public final class MinersAdvantageConfigScreen {
         .build());
   }
 
+      private static void addAgentLimitSettings(
+        ConfigCategory category,
+        ConfigEntryBuilder entryBuilder,
+        MutableConfig mutable,
+        boolean gameplayEditable) {
+      addGameplayInt(category, entryBuilder, "Captivation", "Concurrent agents per player.",
+        mutable.maxActiveCaptivationAgent, currentServerConfig.common().maxActiveCaptivationAgent(), 1, 256,
+        gameplayEditable, value -> mutable.maxActiveCaptivationAgent = value);
+      addGameplayInt(category, entryBuilder, "Cropination", "Concurrent agents per player.",
+        mutable.maxActiveCropinationAgent, currentServerConfig.common().maxActiveCropinationAgent(), 1, 256,
+        gameplayEditable, value -> mutable.maxActiveCropinationAgent = value);
+      addGameplayInt(category, entryBuilder, "Cultivation", "Concurrent agents per player.",
+        mutable.maxActiveCultivationAgent, currentServerConfig.common().maxActiveCultivationAgent(), 1, 256,
+        gameplayEditable, value -> mutable.maxActiveCultivationAgent = value);
+      addGameplayInt(category, entryBuilder, "Excavation", "Concurrent agents per player.",
+        mutable.maxActiveExcavationAgent, currentServerConfig.common().maxActiveExcavationAgent(), 1, 256,
+        gameplayEditable, value -> mutable.maxActiveExcavationAgent = value);
+      addGameplayInt(category, entryBuilder, "Illumination", "Concurrent agents per player.",
+        mutable.maxActiveIlluminationAgent, currentServerConfig.common().maxActiveIlluminationAgent(), 1, 256,
+        gameplayEditable, value -> mutable.maxActiveIlluminationAgent = value);
+      addGameplayInt(category, entryBuilder, "Lumbination", "Concurrent agents per player.",
+        mutable.maxActiveLumbinationAgent, currentServerConfig.common().maxActiveLumbinationAgent(), 1, 256,
+        gameplayEditable, value -> mutable.maxActiveLumbinationAgent = value);
+      addGameplayInt(category, entryBuilder, "Pathanation", "Concurrent agents per player.",
+        mutable.maxActivePathanationAgent, currentServerConfig.common().maxActivePathanationAgent(), 1, 256,
+        gameplayEditable, value -> mutable.maxActivePathanationAgent = value);
+      addGameplayInt(category, entryBuilder, "Shaftanation", "Concurrent agents per player.",
+        mutable.maxActiveShaftanationAgent, currentServerConfig.common().maxActiveShaftanationAgent(), 1, 256,
+        gameplayEditable, value -> mutable.maxActiveShaftanationAgent = value);
+      addGameplayInt(category, entryBuilder, "Substitution", "Concurrent agents per player.",
+        mutable.maxActiveSubstitutionAgent, currentServerConfig.common().maxActiveSubstitutionAgent(), 1, 256,
+        gameplayEditable, value -> mutable.maxActiveSubstitutionAgent = value);
+      addGameplayInt(category, entryBuilder, "Veination", "Concurrent agents per player.",
+        mutable.maxActiveVeinationAgent, currentServerConfig.common().maxActiveVeinationAgent(), 1, 256,
+        gameplayEditable, value -> mutable.maxActiveVeinationAgent = value);
+      addGameplayInt(category, entryBuilder, "Ventilation", "Concurrent agents per player.",
+        mutable.maxActiveVentilationAgent, currentServerConfig.common().maxActiveVentilationAgent(), 1, 256,
+        gameplayEditable, value -> mutable.maxActiveVentilationAgent = value);
+      }
+
   private static void addGameplayDouble(
       List<AbstractConfigListEntry<?>> entries,
       ConfigEntryBuilder entryBuilder,
@@ -1443,6 +1487,17 @@ public final class MinersAdvantageConfigScreen {
     private boolean enableTickDelay;
     private int tickDelay;
     private int blockRadius;
+    private int maxActiveCaptivationAgent;
+    private int maxActiveCropinationAgent;
+    private int maxActiveCultivationAgent;
+    private int maxActiveExcavationAgent;
+    private int maxActiveIlluminationAgent;
+    private int maxActiveLumbinationAgent;
+    private int maxActivePathanationAgent;
+    private int maxActiveShaftanationAgent;
+    private int maxActiveSubstitutionAgent;
+    private int maxActiveVeinationAgent;
+    private int maxActiveVentilationAgent;
 
     private boolean captivationEnabled;
     private boolean captivationAllowInGui;
@@ -1544,6 +1599,17 @@ public final class MinersAdvantageConfigScreen {
       this.enableTickDelay = config.common().enableTickDelay();
       this.tickDelay = config.common().tickDelay();
       this.blockRadius = config.common().blockRadius();
+      this.maxActiveCaptivationAgent = config.common().maxActiveCaptivationAgent();
+      this.maxActiveCropinationAgent = config.common().maxActiveCropinationAgent();
+      this.maxActiveCultivationAgent = config.common().maxActiveCultivationAgent();
+      this.maxActiveExcavationAgent = config.common().maxActiveExcavationAgent();
+      this.maxActiveIlluminationAgent = config.common().maxActiveIlluminationAgent();
+      this.maxActiveLumbinationAgent = config.common().maxActiveLumbinationAgent();
+      this.maxActivePathanationAgent = config.common().maxActivePathanationAgent();
+      this.maxActiveShaftanationAgent = config.common().maxActiveShaftanationAgent();
+      this.maxActiveSubstitutionAgent = config.common().maxActiveSubstitutionAgent();
+      this.maxActiveVeinationAgent = config.common().maxActiveVeinationAgent();
+      this.maxActiveVentilationAgent = config.common().maxActiveVentilationAgent();
 
       this.captivationEnabled = config.captivation().enabled();
       this.captivationAllowInGui = config.captivation().allowInGUI();
@@ -1966,7 +2032,29 @@ public final class MinersAdvantageConfigScreen {
           maxBlocksPerTick,
           enableTickDelay,
           tickDelay,
-          blockRadius);
+          blockRadius,
+          maxActiveCaptivationAgent,
+          maxActiveCropinationAgent,
+          maxActiveCultivationAgent,
+          maxActiveExcavationAgent,
+          maxActiveIlluminationAgent,
+          maxActiveLumbinationAgent,
+          maxActivePathanationAgent,
+          maxActiveShaftanationAgent,
+          maxActiveSubstitutionAgent,
+          maxActiveVeinationAgent,
+          maxActiveVentilationAgent,
+          baseline.common().dedupeCaptivationAgent(),
+          baseline.common().dedupeCropinationAgent(),
+          baseline.common().dedupeCultivationAgent(),
+          baseline.common().dedupeExcavationAgent(),
+          baseline.common().dedupeIlluminationAgent(),
+          baseline.common().dedupeLumbinationAgent(),
+          baseline.common().dedupePathanationAgent(),
+          baseline.common().dedupeShaftanationAgent(),
+          baseline.common().dedupeSubstitutionAgent(),
+          baseline.common().dedupeVeinationAgent(),
+          baseline.common().dedupeVentilationAgent());
 
       return new MAServerRootConfig(
           updatedCommon,

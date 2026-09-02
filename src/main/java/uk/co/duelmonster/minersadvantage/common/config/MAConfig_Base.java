@@ -184,7 +184,12 @@ public class MAConfig_Base {
       LogUtils.logDebug("Skipped shape precompute warmup on render thread to avoid startup/menu stalls");
       return;
     }
-    MAShapePrecomputeCache.warmupFromConfig(value);
+    try {
+      MAShapePrecomputeCache.warmupFromConfig(value);
+    } catch (LinkageError | RuntimeException exception) {
+      LogUtils.logDebug("Skipped shape precompute warmup due to missing runtime dependencies: {}",
+          exception.getMessage());
+    }
   }
 
   private static boolean isRenderThread() {

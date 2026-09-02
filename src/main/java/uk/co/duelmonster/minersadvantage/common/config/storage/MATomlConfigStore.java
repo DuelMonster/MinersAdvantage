@@ -63,7 +63,40 @@ public final class MATomlConfigStore {
             intValue(serverValues, "common.max_blocks_per_tick", fallback.common().maxBlocksPerTick(), 1, 1024),
             boolValue(serverValues, "common.enable_tick_delay", fallback.common().enableTickDelay()),
             intValue(serverValues, "common.tick_delay", fallback.common().tickDelay(), 0, 200),
-            intValue(serverValues, "common.block_radius", fallback.common().blockRadius(), 1, 128)),
+            intValue(serverValues, "common.block_radius", fallback.common().blockRadius(), 1, 128),
+            intValue(serverValues, "common.max_active_captivation_agent",
+                fallback.common().maxActiveCaptivationAgent(), 1, 256),
+            intValue(serverValues, "common.max_active_cropination_agent",
+                fallback.common().maxActiveCropinationAgent(), 1, 256),
+            intValue(serverValues, "common.max_active_cultivation_agent",
+                fallback.common().maxActiveCultivationAgent(), 1, 256),
+            intValue(serverValues, "common.max_active_excavation_agent",
+                fallback.common().maxActiveExcavationAgent(), 1, 256),
+            intValue(serverValues, "common.max_active_illumination_agent",
+                fallback.common().maxActiveIlluminationAgent(), 1, 256),
+            intValue(serverValues, "common.max_active_lumbination_agent",
+                fallback.common().maxActiveLumbinationAgent(), 1, 256),
+            intValue(serverValues, "common.max_active_pathanation_agent",
+                fallback.common().maxActivePathanationAgent(), 1, 256),
+            intValue(serverValues, "common.max_active_shaftanation_agent",
+                fallback.common().maxActiveShaftanationAgent(), 1, 256),
+            intValue(serverValues, "common.max_active_substitution_agent",
+                fallback.common().maxActiveSubstitutionAgent(), 1, 256),
+            intValue(serverValues, "common.max_active_veination_agent",
+                fallback.common().maxActiveVeinationAgent(), 1, 256),
+            intValue(serverValues, "common.max_active_ventilation_agent",
+                fallback.common().maxActiveVentilationAgent(), 1, 256),
+            boolValue(serverValues, "common.dedupe_captivation_agent", fallback.common().dedupeCaptivationAgent()),
+            boolValue(serverValues, "common.dedupe_cropination_agent", fallback.common().dedupeCropinationAgent()),
+            boolValue(serverValues, "common.dedupe_cultivation_agent", fallback.common().dedupeCultivationAgent()),
+            boolValue(serverValues, "common.dedupe_excavation_agent", fallback.common().dedupeExcavationAgent()),
+            boolValue(serverValues, "common.dedupe_illumination_agent", fallback.common().dedupeIlluminationAgent()),
+            boolValue(serverValues, "common.dedupe_lumbination_agent", fallback.common().dedupeLumbinationAgent()),
+            boolValue(serverValues, "common.dedupe_pathanation_agent", fallback.common().dedupePathanationAgent()),
+            boolValue(serverValues, "common.dedupe_shaftanation_agent", fallback.common().dedupeShaftanationAgent()),
+            boolValue(serverValues, "common.dedupe_substitution_agent", fallback.common().dedupeSubstitutionAgent()),
+            boolValue(serverValues, "common.dedupe_veination_agent", fallback.common().dedupeVeinationAgent()),
+            boolValue(serverValues, "common.dedupe_ventilation_agent", fallback.common().dedupeVentilationAgent())),
         new CaptivationConfig(
             boolValue(serverValues, "captivation.enabled", fallback.captivation().enabled()),
             boolValue(serverValues, "captivation.allow_in_gui", fallback.captivation().allowInGUI()),
@@ -186,6 +219,37 @@ public final class MATomlConfigStore {
     serverValues.put("common.enable_tick_delay", formatTomlValue(value.common().enableTickDelay()));
     serverValues.put("common.tick_delay", formatTomlValue(value.common().tickDelay()));
     serverValues.put("common.block_radius", formatTomlValue(value.common().blockRadius()));
+    serverValues.put("common.max_active_captivation_agent",
+        formatTomlValue(value.common().maxActiveCaptivationAgent()));
+    serverValues.put("common.max_active_cropination_agent",
+        formatTomlValue(value.common().maxActiveCropinationAgent()));
+    serverValues.put("common.max_active_cultivation_agent",
+        formatTomlValue(value.common().maxActiveCultivationAgent()));
+    serverValues.put("common.max_active_excavation_agent", formatTomlValue(value.common().maxActiveExcavationAgent()));
+    serverValues.put("common.max_active_illumination_agent",
+        formatTomlValue(value.common().maxActiveIlluminationAgent()));
+    serverValues.put("common.max_active_lumbination_agent",
+        formatTomlValue(value.common().maxActiveLumbinationAgent()));
+    serverValues.put("common.max_active_pathanation_agent",
+        formatTomlValue(value.common().maxActivePathanationAgent()));
+    serverValues.put("common.max_active_shaftanation_agent",
+        formatTomlValue(value.common().maxActiveShaftanationAgent()));
+    serverValues.put("common.max_active_substitution_agent",
+        formatTomlValue(value.common().maxActiveSubstitutionAgent()));
+    serverValues.put("common.max_active_veination_agent", formatTomlValue(value.common().maxActiveVeinationAgent()));
+    serverValues.put("common.max_active_ventilation_agent",
+        formatTomlValue(value.common().maxActiveVentilationAgent()));
+    serverValues.put("common.dedupe_captivation_agent", formatTomlValue(value.common().dedupeCaptivationAgent()));
+    serverValues.put("common.dedupe_cropination_agent", formatTomlValue(value.common().dedupeCropinationAgent()));
+    serverValues.put("common.dedupe_cultivation_agent", formatTomlValue(value.common().dedupeCultivationAgent()));
+    serverValues.put("common.dedupe_excavation_agent", formatTomlValue(value.common().dedupeExcavationAgent()));
+    serverValues.put("common.dedupe_illumination_agent", formatTomlValue(value.common().dedupeIlluminationAgent()));
+    serverValues.put("common.dedupe_lumbination_agent", formatTomlValue(value.common().dedupeLumbinationAgent()));
+    serverValues.put("common.dedupe_pathanation_agent", formatTomlValue(value.common().dedupePathanationAgent()));
+    serverValues.put("common.dedupe_shaftanation_agent", formatTomlValue(value.common().dedupeShaftanationAgent()));
+    serverValues.put("common.dedupe_substitution_agent", formatTomlValue(value.common().dedupeSubstitutionAgent()));
+    serverValues.put("common.dedupe_veination_agent", formatTomlValue(value.common().dedupeVeinationAgent()));
+    serverValues.put("common.dedupe_ventilation_agent", formatTomlValue(value.common().dedupeVentilationAgent()));
 
     serverValues.put("captivation.enabled", formatTomlValue(value.captivation().enabled()));
     serverValues.put("captivation.allow_in_gui", formatTomlValue(value.captivation().allowInGUI()));
