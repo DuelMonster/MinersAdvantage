@@ -10,13 +10,23 @@ public record VentilationConfig(
     int height,
     int depth,
     int processesPerTick,
-    boolean placeLadders
+    boolean placeLadders,
+    int maxActiveAgents,
+    boolean dedupeAgent
 ) {
     /**
      * VentilationConfig exists so this code path does one job clearly instead of spreading chaos across callers.
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public VentilationConfig(boolean enabled, int width, int height, int depth, int processesPerTick) {
-        this(enabled, width, height, depth, processesPerTick, true);
+        this(enabled, width, height, depth, processesPerTick, true, 4, true);
+    }
+
+    public VentilationConfig(boolean enabled, int width, int height, int depth, int processesPerTick, boolean placeLadders) {
+        this(enabled, width, height, depth, processesPerTick, placeLadders, 4, true);
+    }
+
+    public VentilationConfig {
+        maxActiveAgents = Math.max(1, maxActiveAgents);
     }
 }

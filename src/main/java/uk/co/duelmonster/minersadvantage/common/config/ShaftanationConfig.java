@@ -12,14 +12,24 @@ public record ShaftanationConfig(
     int processesPerTick,
     int width,
     int height,
-    TorchPlacement torchPlacement
+    TorchPlacement torchPlacement,
+    int maxActiveAgents,
+    boolean dedupeAgent
 ) {
     /**
      * ShaftanationConfig exists so this code path does one job clearly instead of spreading chaos across callers.
      * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
      */
     public ShaftanationConfig(boolean enabled, int depth, int processesPerTick) {
-        this(enabled, depth, processesPerTick, 1, 2, TorchPlacement.FLOOR);
+        this(enabled, depth, processesPerTick, 1, 2, TorchPlacement.FLOOR, 4, true);
+    }
+
+    public ShaftanationConfig(boolean enabled, int depth, int processesPerTick, int width, int height, TorchPlacement torchPlacement) {
+        this(enabled, depth, processesPerTick, width, height, torchPlacement, 4, true);
+    }
+
+    public ShaftanationConfig {
+        maxActiveAgents = Math.max(1, maxActiveAgents);
     }
 
     /**

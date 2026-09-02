@@ -130,6 +130,8 @@ Client options stay local. Gameplay options are server-authoritative in multipla
 
 Effective per-feature worker budget is `min(common.max_blocks_per_tick, <feature>.processes_per_tick)` and cadence is driven by `common.ticks_per_block`.
 
+Every feature also owns its own agent-scheduling pair: `<feature>.max_active_agents` (int, default `4`, range 1 to 256) caps concurrent agent instances per player, and `<feature>.dedupe_agent` (boolean, default `true`) limits that feature to a single active/pending agent per player regardless of the max value. Both are editable from that feature's own settings screen under its `Scheduling` section.
+
 ### Optimization Replay Status (`2.22.0`)
 
 The staged post-2.21 optimization replay is complete and accepted after per-stage in-game validation on both Fabric and NeoForge.

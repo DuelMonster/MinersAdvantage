@@ -19,12 +19,14 @@ public record SubstitutionConfig(
     boolean ignorePassiveMobs,
     List<String> blacklist,
     List<String> blockBlacklist,
-    List<SelectionRule> selectionRules) {
+    List<SelectionRule> selectionRules,
+    int maxActiveAgents,
+    boolean dedupeAgent) {
   /**
    * s ub st it ut io nc on fi g exists so this path stays predictable and easier to debug when things get weird.
    */
   public SubstitutionConfig() {
-    this(true, false, false, true, true, true, true, List.of(), List.of(), defaultSelectionRules());
+    this(true, false, false, true, true, true, true, List.of(), List.of(), defaultSelectionRules(), 4, true);
   }
 
   /**
@@ -33,7 +35,7 @@ public record SubstitutionConfig(
    */
   public SubstitutionConfig(boolean enabled, boolean allowMending, boolean prioritizeSilkTouch) {
     this(enabled, allowMending, prioritizeSilkTouch, true, true, true, true, List.of(), List.of(),
-        defaultSelectionRules());
+        defaultSelectionRules(), 4, true);
   }
 
   public SubstitutionConfig(
@@ -46,7 +48,7 @@ public record SubstitutionConfig(
       boolean ignorePassiveMobs,
       List<String> blacklist) {
     this(enabled, allowMending, prioritizeSilkTouch, switchBack, favourFortune, ignoreIfValidTool, ignorePassiveMobs,
-        blacklist, List.of(), defaultSelectionRules());
+        blacklist, List.of(), defaultSelectionRules(), 4, true);
   }
 
   public SubstitutionConfig(
@@ -60,7 +62,22 @@ public record SubstitutionConfig(
       List<String> blacklist,
       List<String> blockBlacklist) {
     this(enabled, allowMending, prioritizeSilkTouch, switchBack, favourFortune, ignoreIfValidTool, ignorePassiveMobs,
-        blacklist, blockBlacklist, defaultSelectionRules());
+        blacklist, blockBlacklist, defaultSelectionRules(), 4, true);
+  }
+
+  public SubstitutionConfig(
+      boolean enabled,
+      boolean allowMending,
+      boolean prioritizeSilkTouch,
+      boolean switchBack,
+      boolean favourFortune,
+      boolean ignoreIfValidTool,
+      boolean ignorePassiveMobs,
+      List<String> blacklist,
+      List<String> blockBlacklist,
+      List<SelectionRule> selectionRules) {
+    this(enabled, allowMending, prioritizeSilkTouch, switchBack, favourFortune, ignoreIfValidTool, ignorePassiveMobs,
+        blacklist, blockBlacklist, selectionRules, 4, true);
   }
 
   public SubstitutionConfig {
@@ -68,6 +85,7 @@ public record SubstitutionConfig(
     blockBlacklist = blockBlacklist == null ? List.of() : List.copyOf(blockBlacklist);
     selectionRules = selectionRules == null || selectionRules.isEmpty() ? defaultSelectionRules()
         : List.copyOf(selectionRules);
+    maxActiveAgents = Math.max(1, maxActiveAgents);
   }
 
   /**

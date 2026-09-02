@@ -1,11 +1,11 @@
 ## 2.24.0
 
+- Move each feature's agent scheduling settings (max active agents, dedupe) out of the shared Common config and into that feature's own config, and expose both controls directly in each feature's settings screen instead of a separate Agent Limits screen.
+- Fix the per-agent deduplication toggle being unreachable from the config GUI, which made the max active agents setting appear to have no effect since dedupe always capped concurrent agents at one.
 - Add a Substitution block blacklist so specific blocks can be excluded from tool-swapping consideration entirely.
 - Fix Substitution ignoring its blacklist when the currently held tool was already valid, letting a blacklisted tool stay equipped instead of being swapped out.
 - Fix Veination's pickaxe blacklist being locked in at server start, so blacklist changes made without a restart now take effect immediately.
 - Add per-agent scheduler controls: a deduplication toggle and a maximum concurrent instance limit for every agent type, both defaulting to enabled and four respectively.
-- Add an Agent Limits config category with individual capacity controls for each agent type.
-- Normalize Agent Limits UI helper formatting.
 - Reduce repeated Substitution restore-defer debug messages.
 - Publish only the `CHANGELOG.md` version sections newer than the release already live on Modrinth as the Modrinth and CurseForge release notes, instead of uploading the entire file.
 - Resolve the last published version from the public Modrinth version list, falling back to the newest changelog section when the lookup is unavailable.

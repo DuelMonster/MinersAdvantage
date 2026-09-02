@@ -6,5 +6,19 @@ package uk.co.duelmonster.minersadvantage.common.config;
  */
 public record CultivationConfig(
     boolean enabled,
-    int hydrationDistance
-) {}
+    int hydrationDistance,
+    int maxActiveAgents,
+    boolean dedupeAgent
+) {
+    /**
+     * CultivationConfig exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
+    public CultivationConfig(boolean enabled, int hydrationDistance) {
+        this(enabled, hydrationDistance, 4, true);
+    }
+
+    public CultivationConfig {
+        maxActiveAgents = Math.max(1, maxActiveAgents);
+    }
+}

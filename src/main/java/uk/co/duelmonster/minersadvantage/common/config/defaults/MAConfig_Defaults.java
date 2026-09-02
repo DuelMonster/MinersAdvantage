@@ -57,28 +57,6 @@ public final class MAConfig_Defaults {
     public static final boolean enableTickDelay = true;
     public static final int tickDelay = 5;
     public static final int blockRadius = Constants.DEFAULT_BLOCKRADIUS;
-    public static final int maxActiveCaptivationAgent = 4;
-    public static final int maxActiveCropinationAgent = 4;
-    public static final int maxActiveCultivationAgent = 4;
-    public static final int maxActiveExcavationAgent = 4;
-    public static final int maxActiveIlluminationAgent = 4;
-    public static final int maxActiveLumbinationAgent = 4;
-    public static final int maxActivePathanationAgent = 4;
-    public static final int maxActiveShaftanationAgent = 4;
-    public static final int maxActiveSubstitutionAgent = 4;
-    public static final int maxActiveVeinationAgent = 4;
-    public static final int maxActiveVentilationAgent = 4;
-    public static final boolean dedupeCaptivationAgent = true;
-    public static final boolean dedupeCropinationAgent = true;
-    public static final boolean dedupeCultivationAgent = true;
-    public static final boolean dedupeExcavationAgent = true;
-    public static final boolean dedupeIlluminationAgent = true;
-    public static final boolean dedupeLumbinationAgent = true;
-    public static final boolean dedupePathanationAgent = true;
-    public static final boolean dedupeShaftanationAgent = true;
-    public static final boolean dedupeSubstitutionAgent = true;
-    public static final boolean dedupeVeinationAgent = true;
-    public static final boolean dedupeVentilationAgent = true;
   }
 
   /**
@@ -93,6 +71,8 @@ public final class MAConfig_Defaults {
     public static final boolean isWhitelist = false;
     public static final boolean unconditionalBlacklist = false;
     public static final List<String> blacklist = List.of("minecraft:rotten_flesh", "minecraft:egg");
+    public static final int maxActiveAgents = 4;
+    public static final boolean dedupeAgent = true;
   }
 
   /**
@@ -102,6 +82,8 @@ public final class MAConfig_Defaults {
   public static final class Cropination {
     public static final boolean enabled = true;
     public static final boolean harvestSeeds = true;
+    public static final int maxActiveAgents = 4;
+    public static final boolean dedupeAgent = true;
   }
 
   /**
@@ -111,6 +93,8 @@ public final class MAConfig_Defaults {
   public static final class Cultivation {
     public static final boolean enabled = true;
     public static final int hydrationDistance = 4;
+    public static final int maxActiveAgents = 4;
+    public static final boolean dedupeAgent = true;
   }
 
   /**
@@ -127,6 +111,8 @@ public final class MAConfig_Defaults {
     public static final boolean ignoreBlockVariants = false;
     public static final boolean isBlockWhitelist = false;
     public static final List<String> blockBlacklist = List.of();
+    public static final int maxActiveAgents = 4;
+    public static final boolean dedupeAgent = true;
   }
 
   /**
@@ -137,6 +123,8 @@ public final class MAConfig_Defaults {
     public static final boolean enabled = true;
     public static final int targetBlockRange = 6;
     public static final int pathWidth = 1;
+    public static final int maxActiveAgents = 4;
+    public static final boolean dedupeAgent = true;
   }
 
   /**
@@ -149,6 +137,8 @@ public final class MAConfig_Defaults {
     public static final int radiusVertical = 4;
     public static final int lowestLightLevel = 1;
     public static final boolean useBlockLight = true;
+    public static final int maxActiveAgents = 4;
+    public static final boolean dedupeAgent = true;
   }
 
   /**
@@ -169,6 +159,8 @@ public final class MAConfig_Defaults {
     public static final List<String> logs = List.of();
     public static final List<String> leaves = List.of();
     public static final List<String> axes = List.of();
+    public static final int maxActiveAgents = 4;
+    public static final boolean dedupeAgent = true;
   }
 
   /**
@@ -182,6 +174,8 @@ public final class MAConfig_Defaults {
     public static final int height = 2;
     public static final int depth = 16;
     public static final TorchPlacement torchPlacement = TorchPlacement.FLOOR;
+    public static final int maxActiveAgents = 4;
+    public static final boolean dedupeAgent = true;
   }
 
   /**
@@ -200,6 +194,8 @@ public final class MAConfig_Defaults {
     public static final List<String> blockBlacklist = List.of();
     public static final List<SelectionRule> selectionRules = uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig
         .defaultSelectionRules();
+    public static final int maxActiveAgents = 4;
+    public static final boolean dedupeAgent = true;
   }
 
   /**
@@ -215,6 +211,8 @@ public final class MAConfig_Defaults {
     public static final boolean increaseHarvestingTimePerOre = true;
     public static final double increasedHarvestingTimePerOreModifier = 0.2D;
     public static final List<String> pickaxeBlacklist = List.of();
+    public static final int maxActiveAgents = 4;
+    public static final boolean dedupeAgent = true;
   }
 
   /**
@@ -228,5 +226,7 @@ public final class MAConfig_Defaults {
     public static final int depth = 1;
     public static final int processesPerTick = 8;
     public static final boolean placeLadders = true;
+    public static final int maxActiveAgents = 4;
+    public static final boolean dedupeAgent = true;
   }
 }

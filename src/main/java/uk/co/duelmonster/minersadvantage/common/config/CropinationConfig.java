@@ -6,5 +6,19 @@ package uk.co.duelmonster.minersadvantage.common.config;
  */
 public record CropinationConfig(
     boolean enabled,
-    boolean harvestSeeds
-) {}
+    boolean harvestSeeds,
+    int maxActiveAgents,
+    boolean dedupeAgent
+) {
+    /**
+     * CropinationConfig exists so this code path does one job clearly instead of spreading chaos across callers.
+     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+     */
+    public CropinationConfig(boolean enabled, boolean harvestSeeds) {
+        this(enabled, harvestSeeds, 4, true);
+    }
+
+    public CropinationConfig {
+        maxActiveAgents = Math.max(1, maxActiveAgents);
+    }
+}

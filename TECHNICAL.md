@@ -89,7 +89,7 @@ Gameplay config categories in the server root:
 - veination
 - ventilation
 
-The `common` category also controls scheduler behavior per agent type. Each type has a deduplication flag and a maximum concurrent-instance limit, both enforced by `AgentManager` across its active and pending queues. Defaults enable deduplication and allow four concurrent instances per agent type. The in-game configuration screen exposes these limits in its `Agent Limits` category.
+Each feature config also controls its own agent scheduler behavior: a deduplication flag and a maximum concurrent-instance limit, both enforced by `AgentManager` across its active and pending queues. Defaults enable deduplication and allow four concurrent instances per agent type. The in-game configuration screen exposes these limits inline within each feature's own settings screen, under a `Scheduling` section.
 
 ### Validation and Clamping
 

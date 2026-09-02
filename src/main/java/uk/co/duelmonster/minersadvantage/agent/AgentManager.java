@@ -263,7 +263,7 @@ public class AgentManager {
       return runtimeOverride;
     }
     SyncedClientConfig effectiveConfig = config == null ? MAConfig_Base.getGlobalConfig() : config;
-    return effectiveConfig.common().isAgentTypeDeduplicationEnabled(agentType);
+    return effectiveConfig.isAgentTypeDeduplicationEnabled(agentType);
   }
 
   private int effectiveMaxActiveAgents(Class<? extends Agent> agentType, SyncedClientConfig config) {
@@ -275,7 +275,7 @@ public class AgentManager {
     if (runtimeOverride != null) {
       return runtimeOverride;
     }
-    return Math.max(1, effectiveConfig.common().maxActiveAgentsForType(agentType));
+    return Math.max(1, effectiveConfig.maxActiveAgentsForType(agentType));
   }
 
   private static int countAgentsOfType(Class<? extends Agent> agentType, Map<UUID, List<Agent>> map) {
