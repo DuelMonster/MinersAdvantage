@@ -1,5 +1,6 @@
 ## 2.24.0
 
+- Fix Substitution ignoring its blacklist when the currently held tool was already valid, letting a blacklisted tool stay equipped instead of being swapped out.
 - Add per-agent scheduler controls: a deduplication toggle and a maximum concurrent instance limit for every agent type, both defaulting to enabled and four respectively.
 - Add an Agent Limits config category with individual capacity controls for each agent type.
 - Normalize Agent Limits UI helper formatting.

@@ -391,7 +391,8 @@ public class SubstitutionAgent extends Agent {
 
     ToolKind requiredKind = rule.requiredKind() == null ? inferRequiredToolKind(held, targetState)
         : rule.requiredKind();
-    if (config.ignoreIfValidTool() && matchesToolKind(held, requiredKind) && held.isCorrectToolForDrops(targetState)) {
+    if (config.ignoreIfValidTool() && !blacklist.contains(itemId(held)) && matchesToolKind(held, requiredKind)
+        && held.isCorrectToolForDrops(targetState)) {
       return finish("held tool already valid");
     }
 
