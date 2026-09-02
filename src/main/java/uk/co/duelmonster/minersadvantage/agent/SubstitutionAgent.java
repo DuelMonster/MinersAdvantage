@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -47,7 +46,7 @@ public class SubstitutionAgent extends Agent {
   private static final int RESTORE_IDLE_TICKS = 3;
   private static final int ATTACK_RESTORE_IDLE_TICKS = 12;
   private static final int BREAK_FALLBACK_ACTIVE_TICKS = 10;
-  private static final int RESTORE_DEFER_LOG_INTERVAL_TICKS = 20;
+  private static final int RESTORE_DEFER_LOG_INTERVAL_TICKS = 100;
   private static final double TARGET_RANGE_SQ = 36.0;
   private static final int QUEUE_DEDUPE_TICKS = 1;
   private static final ConcurrentMap<RestoreKey, RestoreState> RESTORE_STATES = new ConcurrentHashMap<>();
@@ -1161,9 +1160,7 @@ public class SubstitutionAgent extends Agent {
   private static void logRestoreDeferredIfDue(RestoreKey key, String reason, long now, String format,
       Object... args) {
     DeferredRestoreLogState previous = RESTORE_DEFER_LOG_STATES.get(key);
-    if (previous != null
-        && Objects.equals(previous.reason(), reason)
-        && now - previous.lastLoggedTick() < RESTORE_DEFER_LOG_INTERVAL_TICKS) {
+    if (previous != null && now - previous.lastLoggedTick() < RESTORE_DEFER_LOG_INTERVAL_TICKS) {
       return;
     }
     RESTORE_DEFER_LOG_STATES.put(key, new DeferredRestoreLogState(reason, now));

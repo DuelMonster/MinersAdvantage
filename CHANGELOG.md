@@ -2,6 +2,7 @@
 
 - Add per-agent scheduler controls: a deduplication toggle and a maximum concurrent instance limit for every agent type, both defaulting to enabled and four respectively.
 - Add an Agent Limits config category with individual capacity controls for each agent type.
+- Reduce repeated Substitution restore-defer debug messages.
 - Publish only the `CHANGELOG.md` version sections newer than the release already live on Modrinth as the Modrinth and CurseForge release notes, instead of uploading the entire file.
 - Resolve the last published version from the public Modrinth version list, falling back to the newest changelog section when the lookup is unavailable.
 - Add `printReleaseChangelog` to preview the release notes without publishing.
