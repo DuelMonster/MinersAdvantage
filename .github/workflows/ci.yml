@@ -1,5 +1,8 @@
 name: CI
 
+# Builds all Stonecutter nodes (Fabric + NeoForge) on every push/PR.
+# Publish tasks are reserved for the release workflow.
+
 on:
   push:
     branches: [ main, master, develop ]
@@ -9,22 +12,25 @@ on:
 
 env:
   GRADLE_OPTS: -Dorg.gradle.jvmargs=-Xmx3G
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   build:
     name: Build all nodes
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - name: Set up JDK 25
-        uses: actions/setup-java@v4
+      - name: Set up JDK
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '25'
+          java-version: |
+            21
+            25
 
       - name: Cache Gradle
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.gradle/caches
@@ -35,11 +41,26 @@ jobs:
       - name: Grant execute permissions for gradlew
         run: chmod +x ./gradlew
 
+      # chiseledBuild runs build for ALL registered Stonecutter nodes in one shot.
       - name: Build all Stonecutter nodes
-        run: ./gradlew chiseledBuild --no-daemon
+        run: ./gradlew chiseledBuild -i --no-daemon
 
-      - name: Upload release jars
-        uses: actions/upload-artifact@v4
+      - name: Upload Fabric artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: fabric-jar
+          path: versions/1.21.11-fabric/build/libs/*.jar
+          if-no-files-found: warn
+
+      - name: Upload NeoForge artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: neoforge-jar
+          path: versions/1.21.11-neoforge/build/libs/*.jar
+          if-no-files-found: warn
+
+      - name: Upload all node jars
+        uses: actions/upload-artifact@v7
         with:
           name: minersadvantage-jars
           path: versions/**/build/libs/*.jar

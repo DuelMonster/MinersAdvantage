@@ -1,5 +1,9 @@
 name: Release
 
+# Triggered on GitHub tag push (v*) or manually.
+# Builds all Stonecutter nodes, then publishes to Modrinth, CurseForge,
+# Maven (GitHub Packages), and creates a GitHub Release.
+
 on:
   push:
     tags:
@@ -8,26 +12,29 @@ on:
 
 env:
   GRADLE_OPTS: -Dorg.gradle.jvmargs=-Xmx3G
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   build_and_publish:
     name: Build and publish all nodes
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-      packages: write
+      contents: write      # needed for GitHub Release creation
+      packages: write      # needed for GitHub Packages Maven publish
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - name: Set up JDK 25
-        uses: actions/setup-java@v4
+      - name: Set up JDK
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '25'
+          java-version: |
+            21
+            25
 
       - name: Cache Gradle
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.gradle/caches
@@ -38,23 +45,46 @@ jobs:
       - name: Grant execute permissions for gradlew
         run: chmod +x ./gradlew
 
+      # Build all loader×version combinations in one chiseledBuild pass
       - name: Build all Stonecutter nodes
         run: ./gradlew chiseledBuild --no-daemon
 
-      - name: Stage release jars
+      # Copy production JARs into releases/ (mirrors old MultiLoader behaviour)
+      - name: Stage release JARs into releases/
         run: ./gradlew chiseledPackageRelease --no-daemon
 
-      - name: Publish all publications to local repository
+      # Publish the production JARs to the local Maven staging directory
+      - name: Publish to local Maven staging
         run: ./gradlew chiseledPublishAllPublicationsToLocalRepository --no-daemon
 
-      - name: Publish mods to platforms
-        run: ./gradlew chiseledPublishMods --no-daemon
+      # Publish to Modrinth (both Fabric and NeoForge nodes)
+      - name: Publish to Modrinth
+        if: ${{ env.MODRINTH_TOKEN != '' }}
+        run: ./gradlew chiseledPublishAll --no-daemon
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
 
+      # Publish to CurseForge (both Fabric and NeoForge nodes)
+      - name: Publish to CurseForge
+        if: ${{ env.CURSEFORGE_TOKEN != '' }}
+        run: ./gradlew chiseledPublishAll --no-daemon
+        env:
+          CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+
+      # Publish to GitHub Packages Maven repository
+      - name: Publish to GitHub Packages
+        run: ./gradlew chiseledPublishAllPublicationsToGitHubPackagesRepository --no-daemon
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_ACTOR: ${{ github.actor }}
+
+      # Read mod_version for the release tag display name
       - name: Read mod_version
         id: mod_version
         run: |
           echo "mod_version=$(grep -E '^mod_version=' gradle.properties | cut -d'=' -f2 | tr -d '\r')" >> $GITHUB_OUTPUT
 
+      # Create the GitHub Release and attach the built JARs from releases/
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:

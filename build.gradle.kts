@@ -1,11 +1,13 @@
+import java.io.DataInputStream
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URI
 import java.util.Comparator
+import java.util.zip.ZipFile
 
 plugins {
     id("dev.isxander.modstitch.base") version "0.8.5"
-    id("me.modmuss50.mod-publish-plugin") version "0.8.4" apply false
+    id("me.modmuss50.mod-publish-plugin") version "2.2.0" apply false
     id("maven-publish")
 }
 
@@ -162,6 +164,45 @@ tasks.matching { it.name == "createMinecraftArtifacts" }.configureEach {
     dependsOn("stonecutterGenerate")
 }
 
+// Verify that the built production jar uses the expected class file major version:
+// Java 21 -> 65, Java 25 -> 69.
+tasks.register("verifyJarBytecode") {
+    group = "verification"
+    description = "Verifies that production jar bytecode matches the expected Java target for this node."
+
+    val productionJarTaskName = if (tasks.findByName("remapJar") != null) "remapJar" else "jar"
+    dependsOn(productionJarTaskName)
+
+    doLast {
+        val jarTask = tasks.named<org.gradle.jvm.tasks.Jar>(productionJarTaskName).get()
+        val jarFile = jarTask.archiveFile.get().asFile
+        check(jarFile.exists()) { "Expected production jar not found: ${jarFile.absolutePath}" }
+
+        val expectedMajor = javaRelease + 44
+        var checkedClassCount = 0
+
+        ZipFile(jarFile).use { zip ->
+            val entries = zip.entries().asSequence().filter { !it.isDirectory && it.name.endsWith(".class") }
+            entries.forEach { entry ->
+                zip.getInputStream(entry).use { input ->
+                    val data = DataInputStream(input)
+                    val magic = data.readInt()
+                    check(magic == 0xCAFEBABE.toInt()) { "Invalid class header in ${entry.name} (${jarFile.name})" }
+                    data.readUnsignedShort() // minor version
+                    val major = data.readUnsignedShort()
+                    check(major == expectedMajor) {
+                        "Unexpected class file major version in ${entry.name}: got $major, expected $expectedMajor (${jarFile.name})"
+                    }
+                    checkedClassCount++
+                }
+            }
+        }
+
+        check(checkedClassCount > 0) { "No .class files found in ${jarFile.name}" }
+        logger.lifecycle("Verified ${jarFile.name}: $checkedClassCount classes at major version $expectedMajor")
+    }
+}
+
 if (tasks.findByName("compile") == null) {
     tasks.register("compile") {
         group = "build"
@@ -256,6 +297,54 @@ if (isNeoForge) {
         if (name == "neoForgeIdeSync") {
             enabled = false
         }
+    }
+
+    fun sanitizeVscodeLaunchJsonFile() {
+        val launchFile = rootProject.file(".vscode/launch.json")
+        if (!launchFile.exists()) return
+
+        try {
+            val original = launchFile.readText()
+            val parsed = groovy.json.JsonSlurper().parseText(original)
+            val root = parsed as? MutableMap<*, *> ?: return
+            val configurations = root["configurations"] as? List<*> ?: return
+
+            val filtered = configurations.filterNot { entry ->
+                val mapEntry = entry as? Map<*, *> ?: return@filterNot false
+                val name = mapEntry["name"] as? String ?: return@filterNot false
+                name.startsWith("NeoForge ")
+            }
+
+            if (filtered.size != configurations.size) {
+                val mutableRoot = root.toMutableMap()
+                mutableRoot["configurations"] = filtered
+                val cleaned = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(mutableRoot))
+                launchFile.writeText(cleaned + System.lineSeparator())
+            }
+        } catch (_: Exception) {
+            // Never fail a build because of launch.json sanitization.
+        }
+    }
+
+    tasks.register("sanitizeVscodeLaunchJson") {
+        group = "ide"
+        description = "Removes auto-generated NeoForge launch profiles from .vscode/launch.json."
+
+        doLast {
+            sanitizeVscodeLaunchJsonFile()
+        }
+    }
+
+    tasks.matching {
+        it.name == "neoForgeIdeSync" ||
+        it.name == "prepareClientRun" ||
+        it.name == "prepareServerRun"
+    }.configureEach {
+        finalizedBy("sanitizeVscodeLaunchJson")
+    }
+
+    gradle.buildFinished {
+        sanitizeVscodeLaunchJsonFile()
     }
 }
 
@@ -466,8 +555,9 @@ if (!modrinthToken.isNullOrBlank() || !curseForgeToken.isNullOrBlank()) {
                 projectId = findProperty("curseforge_project_id") as? String ?: ""
                 minecraftVersions.add(minecraft)
                 modLoaders.add(loader)
-                clientRequired.set(true)
-                serverRequired.set(true)
+                // CurseForge now requires an environment selection in addition to version/loader.
+                client.set(true)
+                server.set(true)
                 displayName = "MinersAdvantage $modVer+$minecraft-$loader"
                 version = "$modVer+$minecraft-$loader"
                 type = me.modmuss50.mpp.ReleaseType.STABLE
@@ -513,12 +603,4 @@ tasks.register<Copy>("packageRelease") {
 
 tasks.named("build") {
     finalizedBy("packageRelease")
-}
-
-if (isNeoForge) {
-    tasks.configureEach {
-        if (name == "neoForgeIdeSync") {
-            enabled = false
-        }
-    }
 }

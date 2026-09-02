@@ -7,6 +7,14 @@
 - Resolve the last published version from the public Modrinth version list, falling back to the newest changelog section when the lookup is unavailable.
 - Add `printReleaseChangelog` to preview the release notes without publishing.
 - Document the release-notes range in TECHNICAL and add a release-notes preview step to the release checklist.
+- Align the build and governance tooling with the Forget-Me-Crops repository so both projects behave identically.
+- Upgrade the mod publish plugin to `2.2.0` and switch the CurseForge environment flags to the current API.
+- Add a `verifyJarBytecode` task that checks production jar class-file versions against the node's Java target.
+- Simplify `.vscode/launch.json` by removing generated NeoForge profiles and duplicate `neoForgeIdeSync` disablement.
+- Register `chiseledPublishAllPublicationsToLocalRepository` and the GitHub Packages equivalent so the release workflow resolves the tasks it invokes.
+- Correct the release workflow to call `chiseledPublishAll` instead of the non-existent `chiseledPublishMods`.
+- Adopt the richer CI and release workflows, including multi-JDK setup and split platform publish steps.
+- Add `AGENTS.md` describing the repository workflow rules for coding agents.
 
 ## 2.23.0
 
