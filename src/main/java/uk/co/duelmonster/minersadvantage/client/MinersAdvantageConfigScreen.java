@@ -1222,45 +1222,45 @@ public final class MinersAdvantageConfigScreen {
         .build());
   }
 
-      private static void addAgentLimitSettings(
-        ConfigCategory category,
-        ConfigEntryBuilder entryBuilder,
-        MutableConfig mutable,
-        boolean gameplayEditable) {
-      addGameplayInt(category, entryBuilder, "Captivation", "Concurrent agents per player.",
+  private static void addAgentLimitSettings(
+      ConfigCategory category,
+      ConfigEntryBuilder entryBuilder,
+      MutableConfig mutable,
+      boolean gameplayEditable) {
+    addGameplayInt(category, entryBuilder, "Captivation", "Concurrent agents per player.",
         mutable.maxActiveCaptivationAgent, currentServerConfig.common().maxActiveCaptivationAgent(), 1, 256,
         gameplayEditable, value -> mutable.maxActiveCaptivationAgent = value);
-      addGameplayInt(category, entryBuilder, "Cropination", "Concurrent agents per player.",
+    addGameplayInt(category, entryBuilder, "Cropination", "Concurrent agents per player.",
         mutable.maxActiveCropinationAgent, currentServerConfig.common().maxActiveCropinationAgent(), 1, 256,
         gameplayEditable, value -> mutable.maxActiveCropinationAgent = value);
-      addGameplayInt(category, entryBuilder, "Cultivation", "Concurrent agents per player.",
+    addGameplayInt(category, entryBuilder, "Cultivation", "Concurrent agents per player.",
         mutable.maxActiveCultivationAgent, currentServerConfig.common().maxActiveCultivationAgent(), 1, 256,
         gameplayEditable, value -> mutable.maxActiveCultivationAgent = value);
-      addGameplayInt(category, entryBuilder, "Excavation", "Concurrent agents per player.",
+    addGameplayInt(category, entryBuilder, "Excavation", "Concurrent agents per player.",
         mutable.maxActiveExcavationAgent, currentServerConfig.common().maxActiveExcavationAgent(), 1, 256,
         gameplayEditable, value -> mutable.maxActiveExcavationAgent = value);
-      addGameplayInt(category, entryBuilder, "Illumination", "Concurrent agents per player.",
+    addGameplayInt(category, entryBuilder, "Illumination", "Concurrent agents per player.",
         mutable.maxActiveIlluminationAgent, currentServerConfig.common().maxActiveIlluminationAgent(), 1, 256,
         gameplayEditable, value -> mutable.maxActiveIlluminationAgent = value);
-      addGameplayInt(category, entryBuilder, "Lumbination", "Concurrent agents per player.",
+    addGameplayInt(category, entryBuilder, "Lumbination", "Concurrent agents per player.",
         mutable.maxActiveLumbinationAgent, currentServerConfig.common().maxActiveLumbinationAgent(), 1, 256,
         gameplayEditable, value -> mutable.maxActiveLumbinationAgent = value);
-      addGameplayInt(category, entryBuilder, "Pathanation", "Concurrent agents per player.",
+    addGameplayInt(category, entryBuilder, "Pathanation", "Concurrent agents per player.",
         mutable.maxActivePathanationAgent, currentServerConfig.common().maxActivePathanationAgent(), 1, 256,
         gameplayEditable, value -> mutable.maxActivePathanationAgent = value);
-      addGameplayInt(category, entryBuilder, "Shaftanation", "Concurrent agents per player.",
+    addGameplayInt(category, entryBuilder, "Shaftanation", "Concurrent agents per player.",
         mutable.maxActiveShaftanationAgent, currentServerConfig.common().maxActiveShaftanationAgent(), 1, 256,
         gameplayEditable, value -> mutable.maxActiveShaftanationAgent = value);
-      addGameplayInt(category, entryBuilder, "Substitution", "Concurrent agents per player.",
+    addGameplayInt(category, entryBuilder, "Substitution", "Concurrent agents per player.",
         mutable.maxActiveSubstitutionAgent, currentServerConfig.common().maxActiveSubstitutionAgent(), 1, 256,
         gameplayEditable, value -> mutable.maxActiveSubstitutionAgent = value);
-      addGameplayInt(category, entryBuilder, "Veination", "Concurrent agents per player.",
+    addGameplayInt(category, entryBuilder, "Veination", "Concurrent agents per player.",
         mutable.maxActiveVeinationAgent, currentServerConfig.common().maxActiveVeinationAgent(), 1, 256,
         gameplayEditable, value -> mutable.maxActiveVeinationAgent = value);
-      addGameplayInt(category, entryBuilder, "Ventilation", "Concurrent agents per player.",
+    addGameplayInt(category, entryBuilder, "Ventilation", "Concurrent agents per player.",
         mutable.maxActiveVentilationAgent, currentServerConfig.common().maxActiveVentilationAgent(), 1, 256,
         gameplayEditable, value -> mutable.maxActiveVentilationAgent = value);
-      }
+  }
 
   private static void addGameplayDouble(
       List<AbstractConfigListEntry<?>> entries,
