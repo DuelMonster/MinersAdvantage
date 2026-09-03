@@ -47,7 +47,9 @@ modstitch {
                 "mod_author" to "DuelMonster",
                 "mod_homepage" to "https://github.com/duelmonster/MinersAdvantage",
                 "mod_issue_tracker" to "https://github.com/duelmonster/MinersAdvantage/issues",
-                "minecraft_version_range" to "[1.21.11,)",
+                // Per-node range — a fixed literal here made neoforge.mods.toml (and thus the
+                // built jar) byte-identical across MC version nodes for the same loader.
+                "minecraft_version_range" to "[$minecraft,)",
                 "cloth_config_version_range" to "[$clothConfigVersion,)",
                 "neoforge_loader_range" to "[10,)"
             )
