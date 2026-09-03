@@ -1,5 +1,12 @@
 ## 2.25.0
 
+- Add a toggle keybinding for every feature, listed under the MinersAdvantage category of the vanilla Controls screen. None are bound by default, so pick whatever keys suit you; pressing one enables or disables that feature and shows a confirmation above the hotbar. Cultivation, Pathanation and Ventilation gain toggles for the first time, and the existing eight toggles were never actually registered, so none of them could be bound or used before now.
+- In single player, a feature toggled by keybind is written to the config file, so it survives a restart and shows correctly in the config screen. In multiplayer the server config is never rewritten, so the toggle only lasts for the session.
+- Add a client option, "Disable Keybind Config Persistence" (default off), for players who want feature toggle keybinds to apply for the current session only and never touch the config file.
+- Move the loader-specific Fabric and NeoForge event classes into the shared source tree so every version node is built from the same code. They previously lived in per-node folders that were only partially tracked, which meant the 26.2 copies existed on one machine and would have gone missing from a fresh checkout.
+- Replace the Cancel and Save buttons on each feature's config screen with a single Back button. Feature changes are now only written to the config files when Save is clicked on the main config screen, so backing out of a feature screen no longer commits anything on its own.
+- Fix the main config screen's Save button staying greyed out after changing values on a feature screen and returning.
+- Fix opening a second feature screen after returning from the first one sending you back to the previous feature screen instead of the main config screen.
 - Fix Lumbination (and the same underlying issue in Veination, Shaftanation, and Excavation) sometimes only firing once per session: breaking more blocks from a job already being processed queued a brand new agent instead of letting the existing one keep working, which quickly exhausted the per-player agent limit and silently dropped triggers elsewhere until the backlog cleared. Each feature now recognizes when an in-flight agent already owns the position being broken and skips the duplicate, while still allowing multiple concurrent jobs up to the configured Max Active Agents.
 - Ensure generated mod metadata uses the correct Minecraft version range for each version node.
 

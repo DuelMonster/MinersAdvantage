@@ -10,18 +10,18 @@ public record ClientConfig(
     boolean disableParticleEffects,
     boolean debugLogging,
     int outlineForegroundColor,
-    int outlineSeeThroughColor
-) {
-    /**
-     * ClientConfig exists so this code path does one job clearly instead of spreading chaos across callers.
-     * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-     */
-    public ClientConfig() {
-        this(
-            MAConfig_Defaults.Client.disableParticleEffects,
-            MAConfig_Defaults.Client.debugLogging,
-            MAConfig_Defaults.Client.outlineForegroundColorArgb,
-            MAConfig_Defaults.Client.outlineSeeThroughColorArgb
-        );
-    }
+    int outlineSeeThroughColor,
+    boolean disableKeybindConfigPersistence) {
+  /**
+   * ClientConfig exists so this code path does one job clearly instead of spreading chaos across callers.
+   * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+   */
+  public ClientConfig() {
+    this(
+        MAConfig_Defaults.Client.disableParticleEffects,
+        MAConfig_Defaults.Client.debugLogging,
+        MAConfig_Defaults.Client.outlineForegroundColorArgb,
+        MAConfig_Defaults.Client.outlineSeeThroughColorArgb,
+        MAConfig_Defaults.Client.disableKeybindConfigPersistence);
+  }
 }

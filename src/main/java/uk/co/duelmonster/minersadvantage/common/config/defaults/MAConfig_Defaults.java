@@ -22,6 +22,7 @@ public final class MAConfig_Defaults {
     public static final boolean debugLogging = false;
     public static final int outlineForegroundColorArgb = 0xFF40D9C0;
     public static final int outlineSeeThroughColorArgb = 0x4B40D9C0;
+    public static final boolean disableKeybindConfigPersistence = false;
   }
 
   /**

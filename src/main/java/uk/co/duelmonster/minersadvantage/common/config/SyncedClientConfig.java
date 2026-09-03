@@ -33,7 +33,8 @@ public record SyncedClientConfig(
             MAConfig_Defaults.Client.disableParticleEffects,
             MAConfig_Defaults.Client.debugLogging,
             MAConfig_Defaults.Client.outlineForegroundColorArgb,
-            MAConfig_Defaults.Client.outlineSeeThroughColorArgb),
+            MAConfig_Defaults.Client.outlineSeeThroughColorArgb,
+            MAConfig_Defaults.Client.disableKeybindConfigPersistence),
         new CommonConfig(
             MAConfig_Defaults.Common.tpsGuard,
             MAConfig_Defaults.Common.gatherDrops,

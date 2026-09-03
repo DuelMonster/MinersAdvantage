@@ -8,8 +8,11 @@
   "minersadvantage.illumination.area": "Illuminate Area",
 
   "key.minersadvantage.captivation_toggle": "Toggle Captivation",
+  "key.minersadvantage.cropination_toggle": "Toggle Cropination",
+  "key.minersadvantage.cultivation_toggle": "Toggle Cultivation",
   "key.minersadvantage.excavation_toggle": "Toggle Excavation",
   "key.minersadvantage.excavation_mode_toggle": "Toggle Excavation Mode",
+  "key.minersadvantage.pathanation_toggle": "Toggle Pathanation",
   "key.minersadvantage.illumination_toggle": "Toggle Illumination",
   "key.minersadvantage.illumination_place": "Place Torch",
   "key.minersadvantage.illumination_area": "Illuminate Area",
@@ -18,7 +21,7 @@
   "key.minersadvantage.shaft_vent_toggle": "Toggle Shaftanation/Ventilation",
   "key.minersadvantage.substitution_toggle": "Toggle Substitution",
   "key.minersadvantage.veination_toggle": "Toggle Veination",
-  "key.minersadvantage.cropination_toggle": "Toggle Cropination",
+  "key.minersadvantage.ventilation_toggle": "Toggle Ventilation",
   "key.minersadvantage.abort_workers": "Abort Processes",
 
   "minersadvantage.config.gui.close": "Close",
@@ -31,6 +34,8 @@
   "minersadvantage.client.comment": "Client configuration for MinersAdvantage",
   "minersadvantage.client.disable_particle_effects": "Disable Particle Effects",
   "minersadvantage.client.disable_particle_effects.comment": "Disable Particle Effects generated during block harvesting.",
+  "minersadvantage.client.disable_keybind_config_persistence": "Disable Keybind Config Persistence",
+  "minersadvantage.client.disable_keybind_config_persistence.comment": "When enabled, the feature toggle keybinds only change a feature for the current session and never write the enabled flag to the config file.",
 
   "minersadvantage.server.comment": "Server configuration for MinersAdvantage",
   "minersadvantage.server.override_client": "Override Client Feature Enablement",
@@ -119,6 +124,10 @@
   "minersadvantage.excavation.is_block_whitelist.comment": "If 'true' Excavation will only work when harvesting Blocks within the Blacklist.",
   "minersadvantage.excavation.block_blacklist": "Block Blacklist",
   "minersadvantage.excavation.block_blacklist.comment": "List of blacklisted Block IDs. Default is empty.",
+
+  "minersadvantage.cultivation.comment": "Cultivation configuration for MinersAdvantage",
+  "minersadvantage.cultivation.enabled": "Cultivation Enabled",
+  "minersadvantage.cultivation.enabled.comment": "Enable/Disable Cultivation",
 
   "minersadvantage.pathanation.comment": "Pathanation configuration for MinersAdvantage",
   "minersadvantage.pathanation.enabled": "Pathanation Enabled",

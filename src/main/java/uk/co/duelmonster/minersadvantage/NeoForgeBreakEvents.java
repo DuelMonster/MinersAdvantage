@@ -1,3 +1,5 @@
+//? if neoforge {
+/*
 package uk.co.duelmonster.minersadvantage;
 
 import net.minecraft.core.BlockPos;
@@ -5,7 +7,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.IEventBus;
+//? if mc1 {
 import net.neoforged.neoforge.event.level.BlockEvent;
+//?} else {
+/^import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
+^///?}
 
 public final class NeoForgeBreakEvents {
 
@@ -17,10 +23,15 @@ public final class NeoForgeBreakEvents {
     }
 
     public static void register(IEventBus bus, BreakHandler handler) {
+        //? if mc1 {
         bus.addListener((BlockEvent.BreakEvent event) -> {
+        //?} else {
+        /^bus.addListener((BreakBlockEvent event) -> {
+        ^///?}
             if (event.getLevel() instanceof Level level) {
                 handler.handle(event.getPlayer(), level, event.getPos(), event.getState());
             }
         });
     }
 }
+*/ //?}

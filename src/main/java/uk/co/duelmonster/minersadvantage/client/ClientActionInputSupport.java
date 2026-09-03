@@ -3,14 +3,19 @@ package uk.co.duelmonster.minersadvantage.client;
 import com.mojang.blaze3d.platform.InputConstants;
 import java.lang.reflect.Method;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
 import uk.co.duelmonster.minersadvantage.ModCommon;
 import uk.co.duelmonster.minersadvantage.common.config.MAConfig_Base;
 import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
+import uk.co.duelmonster.minersadvantage.common.network.ComponentTogglePacket;
 import uk.co.duelmonster.minersadvantage.common.network.PlayerStateSyncPacket;
 import uk.co.duelmonster.minersadvantage.common.services.input.ClientInputService;
 
@@ -122,7 +127,7 @@ public final class ClientActionInputSupport {
   /**
    * Convert config key tokens into Minecraft key identifiers.
    */
-  public static InputConstants.Key parseKeyToken(String token) {
+  private static InputConstants.Key parseKeyToken(String token) {
     String mcKeyName = switch (token) {
       case "KP_1" -> "key.keyboard.keypad.1";
       case "KP_2" -> "key.keyboard.keypad.2";
@@ -156,6 +161,54 @@ public final class ClientActionInputSupport {
         key.getType(),
         key.getValue(),
         category);
+  }
+
+  /**
+   * Resolve a spec's default key; a null token means the binding is registered but left unbound.
+   */
+  public static InputConstants.Key resolveDefaultKey(String token) {
+    return token == null ? InputConstants.UNKNOWN : parseKeyToken(token);
+  }
+
+  /**
+   * Build the standard translation key used for a keybinding's display name.
+   */
+  public static String keyMappingTranslationKey(KeyBindings.ClientAction action) {
+    return "key." + ModCommon.MOD_ID + "." + action.name().toLowerCase(Locale.ROOT);
+  }
+
+  /**
+   * Report keybind-driven feature toggles to the player and, in singleplayer, persist the enabled flag.
+   */
+  public static void applyFeatureToggles(List<ComponentTogglePacket> togglePackets) {
+    if (togglePackets.isEmpty()) {
+      return;
+    }
+
+    Minecraft minecraft = Minecraft.getInstance();
+    // Server config is authoritative in multiplayer, so a client keybind must never rewrite it there.
+    boolean persist = minecraft.hasSingleplayerServer()
+        && !MAConfig_Base.getClientRootConfig().client().disableKeybindConfigPersistence();
+
+    MAServerRootConfig serverConfig = MAConfig_Base.getServerRootConfig();
+    for (ComponentTogglePacket packet : togglePackets) {
+      ClientRuntimeCompat.showOverlayMessage(minecraft, describeFeatureToggle(packet));
+      if (persist) {
+        serverConfig = serverConfig.withFeatureEnabled(packet.feature(), packet.enabled());
+      }
+    }
+
+    if (persist) {
+      MAConfig_Base.setServerRootConfig(serverConfig);
+    }
+  }
+
+  private static Component describeFeatureToggle(ComponentTogglePacket packet) {
+    String name = packet.feature().name();
+    String displayName = name.charAt(0) + name.substring(1).toLowerCase(Locale.ROOT);
+    return Component.literal(displayName + ": ")
+        .append(Component.literal(packet.enabled() ? "Enabled" : "Disabled")
+            .withStyle(packet.enabled() ? ChatFormatting.GREEN : ChatFormatting.RED));
   }
 
   /**

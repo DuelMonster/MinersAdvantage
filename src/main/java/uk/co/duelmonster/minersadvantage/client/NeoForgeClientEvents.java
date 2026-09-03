@@ -1,3 +1,5 @@
+//? if neoforge {
+/*
 package uk.co.duelmonster.minersadvantage.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
@@ -28,16 +30,7 @@ import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeRegistry;
 import uk.co.duelmonster.minersadvantage.common.services.input.ClientInputService;
 import uk.co.duelmonster.minersadvantage.common.services.utility.SupremeVantageService;
 
-/**
- * NeoForge client-side event handlers.
- *
- * Registers key mappings and polls them on the client tick.
- */
 @EventBusSubscriber(modid = "minersadvantage", value = Dist.CLIENT)
-/**
- * NeoForgeClientEvents keeps this part of Miners Advantage running without turning server ticks into confetti.
- * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
- */
 public final class NeoForgeClientEvents {
   private static final Map<KeyBindings.ClientAction, KeyMapping> KEY_MAPPINGS = new EnumMap<>(
       KeyBindings.ClientAction.class);
@@ -48,26 +41,14 @@ public final class NeoForgeClientEvents {
   private static final SupremeVantageService supremeVantageService = new SupremeVantageService();
   private static SupremeVantageService.ClientState supremeVantageState = SupremeVantageService.ClientState.defaults();
 
-  /**
-   * NeoForgeClientEvents exists so this code path does one job clearly instead of spreading chaos across callers.
-   * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-   */
   private NeoForgeClientEvents() {
   }
 
   @SubscribeEvent
-  /**
-   * onRegisterKeyMappings exists so this code path does one job clearly instead of spreading chaos across callers.
-   * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-   */
   public static void onRegisterKeyMappings(RegisterKeyMappingsEvent event) {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     for (KeyBindings.KeyBindingSpec spec : KeyBindings.all()) {
-      if (spec.defaultKey() == null) {
-        continue;
-      }
-      String translationKey = "key.minersadvantage." + spec.action().name().toLowerCase();
-      InputConstants.Key key = parseKeyToken(spec.defaultKey());
+      String translationKey = ClientActionInputSupport.keyMappingTranslationKey(spec.action());
+      InputConstants.Key key = ClientActionInputSupport.resolveDefaultKey(spec.defaultKey());
       KeyMapping keyMapping = ClientActionInputSupport.createKeyMapping(translationKey, key, KEY_CATEGORY);
       event.register(keyMapping);
       KEY_MAPPINGS.put(spec.action(), keyMapping);
@@ -75,10 +56,6 @@ public final class NeoForgeClientEvents {
   }
 
   @SubscribeEvent
-  /**
-   * onClientTick exists so this code path does one job clearly instead of spreading chaos across callers.
-   * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-   */
   public static void onClientTick(ClientTickEvent.Post event) {
     Minecraft client = Minecraft.getInstance();
     if (client.player == null || client.level == null) {
@@ -114,10 +91,10 @@ public final class NeoForgeClientEvents {
       }
     }
 
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     for (ComponentTogglePacket packet : result.togglePackets()) {
       ClientPacketDistributor.sendToServer(packet);
     }
+    ClientActionInputSupport.applyFeatureToggles(result.togglePackets());
 
     if (result.illuminatePlace()) {
       sendIlluminationAction(false);
@@ -126,7 +103,6 @@ public final class NeoForgeClientEvents {
       sendIlluminationAction(true);
     }
 
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (result.abortRequested()) {
       long playerId = ClientActionInputSupport.resolveLocalPlayerId();
       ClientPacketDistributor.sendToServer(new AbortWorkersPacket(playerId, "client:keybind"));
@@ -135,7 +111,6 @@ public final class NeoForgeClientEvents {
     boolean activationStateChanged = ClientActionInputSupport.hasActivationStateChanged(lastSyncedState,
         result.state());
 
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (activationStateChanged && (result.shouldSyncConfig() || result.shouldSyncVariables())) {
       syncStateToServer(result.state());
     }
@@ -149,6 +124,19 @@ public final class NeoForgeClientEvents {
     }
 
     double[] cameraPosition = extractCameraCoordinates(event.getCamera());
+    // 26.2 replaced the buffer source and translucent-pass flag with a submit node collector.
+    //? if >=26.2 {
+    /^event.addCustomRenderer((blockOutlineRenderState, submitNodeCollector, poseStack, levelRenderState) -> {
+      ShapePreviewRenderer.renderHeldPreview(
+          inputState,
+          submitNodeCollector,
+          ensurePoseStack(poseStack),
+          cameraPosition[0],
+          cameraPosition[1],
+          cameraPosition[2]);
+      return false;
+    });
+    ^///?} else {
     event.addCustomRenderer((blockOutlineRenderState, bufferSource, poseStack, translucentPass, levelRenderState) -> {
       ShapePreviewRenderer.renderHeldPreview(
           inputState,
@@ -159,6 +147,7 @@ public final class NeoForgeClientEvents {
           cameraPosition[2]);
       return false;
     });
+    //?}
   }
 
   public static ClientInputService.ClientInputState getInputState() {
@@ -174,11 +163,7 @@ public final class NeoForgeClientEvents {
     return mapping != null && mapping.isDown();
   }
 
-  /**
-   * Human-friendly guardrail: o nm ou se sc ro ll exists so this path stays predictable and easier to debug when things get weird.
-   */
   public static boolean onMouseScroll(double scrollY) {
-    // Why this branch exists: make the flow explicit so future debugging is less guesswork and fewer surprises.
     if (scrollY == 0.0d) {
       return false;
     }
@@ -286,9 +271,6 @@ public final class NeoForgeClientEvents {
     ClientRuntimeCompat.showOverlayMessage(minecraft, Component.literal(message.toString()));
   }
 
-  /**
-   * Human-friendly guardrail: s yn cs ta te to se rv er exists so this path stays predictable and easier to debug when things get weird.
-   */
   private static void syncStateToServer(ClientInputService.ClientInputState state) {
     ClientPacketDistributor.sendToServer(ClientActionInputSupport.createPlayerStateSyncPacket(state));
     lastSyncedState = state;
@@ -301,14 +283,6 @@ public final class NeoForgeClientEvents {
       }
     }
     return true;
-  }
-
-  /**
-   * parseKeyToken exists so this code path does one job clearly instead of spreading chaos across callers.
-   * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
-   */
-  private static InputConstants.Key parseKeyToken(String token) {
-    return ClientActionInputSupport.parseKeyToken(token);
   }
 
   private static void sendIlluminationAction(boolean area) {
@@ -327,6 +301,7 @@ public final class NeoForgeClientEvents {
     return poseStack == null ? new PoseStack() : poseStack;
   }
 
+  // Camera accessors vary between loader versions, so coordinates are read defensively.
   private static double[] extractCameraCoordinates(Object camera) {
     if (camera == null) {
       return new double[] { 0.0d, 0.0d, 0.0d };
@@ -342,7 +317,6 @@ public final class NeoForgeClientEvents {
           ((Number) getZ.invoke(camera)).doubleValue()
       };
     } catch (ReflectiveOperationException ignored) {
-      // Fall through to position-object based extraction.
     }
 
     try {
@@ -354,11 +328,9 @@ public final class NeoForgeClientEvents {
             return extractVectorCoordinates(position);
           }
         } catch (NoSuchMethodException ignored) {
-          // Try next method name.
         }
       }
     } catch (ReflectiveOperationException ignored) {
-      // Use safe fallback below.
     }
 
     return new double[] { 0.0d, 0.0d, 0.0d };
@@ -375,7 +347,6 @@ public final class NeoForgeClientEvents {
           ((Number) zMethod.invoke(vector)).doubleValue()
       };
     } catch (ReflectiveOperationException ignored) {
-      // Fall through to fields.
     }
 
     try {
@@ -389,3 +360,4 @@ public final class NeoForgeClientEvents {
     }
   }
 }
+*/ //?}

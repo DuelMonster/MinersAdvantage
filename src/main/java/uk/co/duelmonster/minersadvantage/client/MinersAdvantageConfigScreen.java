@@ -69,6 +69,15 @@ public final class MinersAdvantageConfigScreen {
         .build());
 
     clientCategory.addEntry(entryBuilder.startBooleanToggle(
+        Component.literal("Disable Keybind Config Persistence"),
+        mutable.disableKeybindConfigPersistence)
+        .setDefaultValue(currentClientConfig.client().disableKeybindConfigPersistence())
+        .setTooltip(Component.literal(
+            "When enabled, feature toggle keybinds only apply for the current session and never write to the config file."))
+        .setSaveConsumer(value -> mutable.disableKeybindConfigPersistence = value)
+        .build());
+
+    clientCategory.addEntry(entryBuilder.startBooleanToggle(
         Component.literal("Debug Logging"),
         mutable.debugLogging)
         .setDefaultValue(currentClientConfig.client().debugLogging())
@@ -208,6 +217,7 @@ public final class MinersAdvantageConfigScreen {
         currentServerConfig.common().blockRadius(), 1, 16, gameplayEditable, value -> mutable.blockRadius = value);
 
     builder.setSavingRunnable(() -> saveMutableConfig(mutable, gameplayEditable));
+    builder.setAfterInitConsumer(screen -> applyRootFooterButtons(screen, parent));
     Screen screen = builder.build();
     currentConfigScreen = screen;
     return screen;
@@ -428,6 +438,15 @@ public final class MinersAdvantageConfigScreen {
         .build());
 
     clientCategory.addEntry(entryBuilder.startBooleanToggle(
+        Component.literal("Disable Keybind Config Persistence"),
+        mutable.disableKeybindConfigPersistence)
+        .setDefaultValue(currentClientConfig.client().disableKeybindConfigPersistence())
+        .setTooltip(Component.literal(
+            "When enabled, feature toggle keybinds only apply for the current session and never write to the config file."))
+        .setSaveConsumer(value -> mutable.disableKeybindConfigPersistence = value)
+        .build());
+
+    clientCategory.addEntry(entryBuilder.startBooleanToggle(
         Component.literal("Debug Logging"),
         mutable.debugLogging)
         .setDefaultValue(currentClientConfig.client().debugLogging())
@@ -506,7 +525,7 @@ public final class MinersAdvantageConfigScreen {
   /**
    * Build a feature-specific sub-screen and wire shared footer/save behavior.
    */
-  private static Screen createFeatureConfigScreen(Screen parent, MutableConfig mutable, boolean gameplayEditable,
+  private static Screen createFeatureConfigScreen(Screen parent, boolean gameplayEditable,
       String featureName, Consumer<List<AbstractConfigListEntry<?>>> featureEntries) {
     ConfigBuilder builder = ConfigBuilder.create()
         .setParentScreen(parent)
@@ -521,249 +540,107 @@ public final class MinersAdvantageConfigScreen {
     featureEntries.accept(entries);
     entries.forEach(category::addEntry);
 
-    builder.setSavingRunnable(() -> saveMutableConfig(mutable, gameplayEditable));
-    Screen screen = builder.build();
-    currentConfigScreen = screen;
-    return screen;
+    // No saving runnable: feature edits only reach the in-memory config, and the root screen's Save persists them.
+    builder.setAfterInitConsumer(screen -> applyFeatureBackButton(screen, parent));
+    return builder.build();
   }
 
   /**
-   * Replace default footer with explicit Back/Save buttons.
+   * Replace the default Cancel/Save footer of a feature screen with a single Back button.
    */
-  private static void addFeatureFooterButtons(Screen screen, Screen parent, MutableConfig mutable,
-      boolean gameplayEditable) {
-    int width = getScreenDimension(screen, "width");
-    int height = getScreenDimension(screen, "height");
-    int buttonWidth = 118;
-    int spacing = 8;
-    int totalWidth = (buttonWidth * 2) + spacing;
-    int left = (width - totalWidth) / 2;
-    int y = height - 28;
+  private static void applyFeatureBackButton(Screen screen, Screen parent) {
+    Button anchor = hideDefaultFooterButtons(screen);
+    if (anchor == null) {
+      return;
+    }
 
-    Button backButton = Button.builder(Component.literal("Back"),
+    Button backButton = Button.builder(Component.literal("Back"), ignored -> {
+      // Commit entry values into the in-memory config; nothing is written to disk until the root screen saves.
+      if (screen instanceof AbstractConfigScreen configScreen) {
+        configScreen.saveAll(false);
+      }
+      ClientRuntimeCompat.setScreen(Minecraft.getInstance(), parent);
+    })
+        .bounds((screen.width - 150) / 2, screen.height - 26, 150, 20)
+        .build();
+
+    registerWidgetAlongside(screen, anchor, backButton);
+  }
+
+  /**
+   * Replace the root screen footer so Save stays usable after edits made on feature sub-screens.
+   *
+   * <p>Cloth only enables its own Save button while one of this screen's own entries is edited, which
+   * never happens when the change was made on a feature screen.
+   */
+  private static void applyRootFooterButtons(Screen screen, Screen parent) {
+    Button anchor = hideDefaultFooterButtons(screen);
+    if (anchor == null) {
+      return;
+    }
+
+    int y = screen.height - 26;
+    Button cancelButton = Button.builder(Component.literal("Cancel"),
         ignored -> ClientRuntimeCompat.setScreen(Minecraft.getInstance(), parent))
-        .bounds(left, y, buttonWidth, 20)
+        .bounds(screen.width / 2 - 154, y, 150, 20)
         .build();
 
     Button saveButton = Button.builder(Component.literal("Save"), ignored -> {
       if (screen instanceof AbstractConfigScreen configScreen) {
-        configScreen.saveAll(false);
-      } else {
-        saveMutableConfig(mutable, gameplayEditable);
+        configScreen.saveAll(true);
       }
-      ClientRuntimeCompat.setScreen(Minecraft.getInstance(), parent);
     })
-        .bounds(left + buttonWidth + spacing, y, buttonWidth, 20)
+        .bounds(screen.width / 2 + 4, y, 150, 20)
         .build();
 
-    boolean backAdded = addWidgetReflective(screen, backButton);
-    boolean saveAdded = addWidgetReflective(screen, saveButton);
-    if (backAdded && saveAdded) {
-      hideDefaultFooterButtons(screen, y);
-    }
+    registerWidgetAlongside(screen, anchor, cancelButton);
+    registerWidgetAlongside(screen, anchor, saveButton);
   }
 
   /**
-   * Hide overlapping default footer controls near custom footer row.
+   * Hide the footer controls Cloth adds by default and return one of them as a registration anchor.
    */
-  private static void hideDefaultFooterButtons(Screen screen, int customFooterY) {
-    for (Object child : getScreenChildrenReflective(screen)) {
-      if (!(child instanceof Button button)) {
-        continue;
-      }
-
-      int buttonY = getWidgetY(button);
-      if (Math.abs(buttonY - customFooterY) <= 3) {
+  private static Button hideDefaultFooterButtons(Screen screen) {
+    int footerTop = screen.height - 40;
+    Button anchor = null;
+    for (Object child : screen.children()) {
+      if (child instanceof Button button && button.getY() >= footerTop) {
         button.visible = false;
         button.active = false;
+        anchor = button;
       }
     }
+    return anchor;
   }
 
   /**
-   * Pull child widgets through reflection so this screen stays resilient across API shifts.
+   * Register a widget in every screen list that already holds the anchor widget.
+   *
+   * <p>Matching on field type and list contents keeps this working under obfuscated production mappings,
+   * where the screen's widget-registration methods no longer carry their development names.
    */
-  private static List<?> getScreenChildrenReflective(Screen screen) {
+  private static void registerWidgetAlongside(Screen screen, Button anchor, Button widget) {
     Class<?> current = screen.getClass();
     while (current != null) {
-      try {
-        for (Method method : current.getDeclaredMethods()) {
-          if (method.getParameterCount() != 0 || !List.class.isAssignableFrom(method.getReturnType())) {
-            continue;
-          }
-          method.setAccessible(true);
-          Object result = method.invoke(screen);
-          if (result instanceof List<?> list) {
-            return list;
-          }
-        }
-        current = current.getSuperclass();
-      } catch (ReflectiveOperationException exception) {
-        current = current.getSuperclass();
-      }
-    }
-    return List.of();
-  }
-
-  /**
-   * Read widget Y coordinate using method-first then field fallback.
-   */
-  private static int getWidgetY(Button button) {
-    try {
-      for (Method method : button.getClass().getMethods()) {
-        if (method.getParameterCount() != 0 || method.getReturnType() != int.class) {
+      for (Field field : current.getDeclaredFields()) {
+        if (java.lang.reflect.Modifier.isStatic(field.getModifiers())
+            || !List.class.isAssignableFrom(field.getType())) {
           continue;
         }
-        Object value = method.invoke(button);
-        if (value instanceof Integer y && y > Integer.MIN_VALUE / 2) {
-          return y;
-        }
-      }
-    } catch (ReflectiveOperationException ignored) {
-      // fall back to field lookup below
-    }
 
-    try {
-      Class<?> current = button.getClass();
-      while (current != null) {
-        for (java.lang.reflect.Field field : current.getDeclaredFields()) {
-          if (field.getType() != int.class) {
-            continue;
-          }
-          field.setAccessible(true);
-          int value = field.getInt(button);
-          if (value > Integer.MIN_VALUE / 2) {
-            return value;
-          }
-        }
-        current = current.getSuperclass();
-      }
-    } catch (ReflectiveOperationException ignored) {
-      // If we cannot determine position, return a non-matching value.
-    }
-
-    return Integer.MIN_VALUE;
-  }
-
-  /**
-   * Resolve private screen dimension field (width/height) reflectively.
-   */
-  private static int getScreenDimension(Screen screen, String fieldName) {
-    // Prefer named accessors when present.
-    try {
-      Method method = screen.getClass().getMethod(fieldName);
-      Object value = method.invoke(screen);
-      if (value instanceof Integer dimension && dimension > 0) {
-        return dimension;
-      }
-    } catch (ReflectiveOperationException ignored) {
-      // Fall through to additional strategies.
-    }
-
-    try {
-      String accessor = "width".equals(fieldName) ? "getWidth" : "getHeight";
-      Method method = screen.getClass().getMethod(accessor);
-      Object value = method.invoke(screen);
-      if (value instanceof Integer dimension && dimension > 0) {
-        return dimension;
-      }
-    } catch (ReflectiveOperationException ignored) {
-      // Fall through to field lookup.
-    }
-
-    try {
-      Class<?> current = screen.getClass();
-      while (current != null) {
         try {
-          java.lang.reflect.Field field = current.getDeclaredField(fieldName);
           field.setAccessible(true);
-          int dimension = field.getInt(screen);
-          if (dimension > 0) {
-            return dimension;
+          if (field.get(screen) instanceof List<?> list && list.contains(anchor)) {
+            @SuppressWarnings("unchecked")
+            List<Object> target = (List<Object>) list;
+            target.add(widget);
           }
-          break;
-        } catch (NoSuchFieldException ignored) {
-          current = current.getSuperclass();
+        } catch (ReflectiveOperationException | RuntimeException ignored) {
+          // A screen list we cannot touch simply means one fewer registration; never break the UI over it.
         }
       }
-    } catch (ReflectiveOperationException ignored) {
-      // Fall through to window fallback.
-    }
-
-    Minecraft minecraft = Minecraft.getInstance();
-    if (minecraft.getWindow() != null) {
-      return "width".equals(fieldName)
-          ? minecraft.getWindow().getGuiScaledWidth()
-          : minecraft.getWindow().getGuiScaledHeight();
-    }
-
-    // Last resort conservative defaults to keep UI code alive instead of crashing.
-    return "width".equals(fieldName) ? 320 : 240;
-  }
-
-  /**
-   * Add widget through whichever add-method exists for this runtime.
-   */
-  private static boolean addWidgetReflective(Screen screen, Button button) {
-    Method addMethod = findCompatibleWidgetAddMethod(screen.getClass(), button.getClass());
-    if (addMethod == null) {
-      return false;
-    }
-
-    try {
-      addMethod.setAccessible(true);
-      addMethod.invoke(screen, button);
-      return true;
-    } catch (ReflectiveOperationException | RuntimeException exception) {
-      return false;
-    }
-  }
-
-  /**
-   * Locate a compatible one-arg screen widget insertion method.
-   */
-  private static Method findCompatibleWidgetAddMethod(Class<?> screenClass, Class<?> widgetClass) {
-    String[] candidateNames = {
-        "addRenderableWidget",
-        "addDrawableChild",
-        "addSelectableChild",
-        "addDrawable"
-    };
-
-    Class<?> current = screenClass;
-    while (current != null) {
-      Method[] methods = current.getDeclaredMethods();
-      for (String candidateName : candidateNames) {
-        for (Method method : methods) {
-          if (!candidateName.equals(method.getName())) {
-            continue;
-          }
-          Class<?>[] parameterTypes = method.getParameterTypes();
-          if (parameterTypes.length == 1 && parameterTypes[0].isAssignableFrom(widgetClass)) {
-            return method;
-          }
-        }
-      }
-
-      // Mapping-safe fallback: locate any one-arg instance method that can accept the widget.
-      for (Method method : methods) {
-        if (java.lang.reflect.Modifier.isStatic(method.getModifiers())) {
-          continue;
-        }
-        Class<?>[] parameterTypes = method.getParameterTypes();
-        if (parameterTypes.length != 1 || !parameterTypes[0].isAssignableFrom(widgetClass)) {
-          continue;
-        }
-
-        Class<?> returnType = method.getReturnType();
-        if (returnType == Void.TYPE || returnType == Object.class || returnType.isAssignableFrom(widgetClass)) {
-          return method;
-        }
-      }
-
       current = current.getSuperclass();
     }
-    return null;
   }
 
   /**
@@ -786,7 +663,7 @@ public final class MinersAdvantageConfigScreen {
    * Build Captivation feature settings screen.
    */
   private static Screen createCaptivationScreen(Screen parent, MutableConfig mutable, boolean gameplayEditable) {
-    return createFeatureConfigScreen(parent, mutable, gameplayEditable, "Captivation", entries -> {
+    return createFeatureConfigScreen(parent, gameplayEditable, "Captivation", entries -> {
       ConfigEntryBuilder entryBuilder = ConfigEntryBuilder.create();
       addSectionHeading(entries, entryBuilder, "General");
       addGameplayBoolean(entries, entryBuilder, "Enabled", "Enable or disable Captivation.", mutable.captivationEnabled,
@@ -819,7 +696,7 @@ public final class MinersAdvantageConfigScreen {
    * Build Cropination feature settings screen.
    */
   private static Screen createCropinationScreen(Screen parent, MutableConfig mutable, boolean gameplayEditable) {
-    return createFeatureConfigScreen(parent, mutable, gameplayEditable, "Cropination", entries -> {
+    return createFeatureConfigScreen(parent, gameplayEditable, "Cropination", entries -> {
       ConfigEntryBuilder entryBuilder = ConfigEntryBuilder.create();
       addSectionHeading(entries, entryBuilder, "General");
       addGameplayBoolean(entries, entryBuilder, "Enabled", "Enable or disable Cropination.", mutable.cropinationEnabled,
@@ -842,7 +719,7 @@ public final class MinersAdvantageConfigScreen {
    * Build Cultivation feature settings screen.
    */
   private static Screen createCultivationScreen(Screen parent, MutableConfig mutable, boolean gameplayEditable) {
-    return createFeatureConfigScreen(parent, mutable, gameplayEditable, "Cultivation", entries -> {
+    return createFeatureConfigScreen(parent, gameplayEditable, "Cultivation", entries -> {
       ConfigEntryBuilder entryBuilder = ConfigEntryBuilder.create();
       addSectionHeading(entries, entryBuilder, "General");
       addGameplayBoolean(entries, entryBuilder, "Enabled", "Enable or disable Cultivation.", mutable.cultivationEnabled,
@@ -865,7 +742,7 @@ public final class MinersAdvantageConfigScreen {
    * Build Excavation feature settings screen.
    */
   private static Screen createExcavationScreen(Screen parent, MutableConfig mutable, boolean gameplayEditable) {
-    return createFeatureConfigScreen(parent, mutable, gameplayEditable, "Excavation", entries -> {
+    return createFeatureConfigScreen(parent, gameplayEditable, "Excavation", entries -> {
       ConfigEntryBuilder entryBuilder = ConfigEntryBuilder.create();
       addSectionHeading(entries, entryBuilder, "General");
       addGameplayBoolean(entries, entryBuilder, "Enabled", "Enable or disable Excavation.", mutable.excavationEnabled,
@@ -912,7 +789,7 @@ public final class MinersAdvantageConfigScreen {
    * Build Pathanation feature settings screen.
    */
   private static Screen createPathanationScreen(Screen parent, MutableConfig mutable, boolean gameplayEditable) {
-    return createFeatureConfigScreen(parent, mutable, gameplayEditable, "Pathanation", entries -> {
+    return createFeatureConfigScreen(parent, gameplayEditable, "Pathanation", entries -> {
       ConfigEntryBuilder entryBuilder = ConfigEntryBuilder.create();
       addSectionHeading(entries, entryBuilder, "General");
       addGameplayBoolean(entries, entryBuilder, "Enabled", "Enable or disable Pathanation.", mutable.pathanationEnabled,
@@ -938,7 +815,7 @@ public final class MinersAdvantageConfigScreen {
    * Build Illumination feature settings screen.
    */
   private static Screen createIlluminationScreen(Screen parent, MutableConfig mutable, boolean gameplayEditable) {
-    return createFeatureConfigScreen(parent, mutable, gameplayEditable, "Illumination", entries -> {
+    return createFeatureConfigScreen(parent, gameplayEditable, "Illumination", entries -> {
       ConfigEntryBuilder entryBuilder = ConfigEntryBuilder.create();
       addSectionHeading(entries, entryBuilder, "General");
       addGameplayBoolean(entries, entryBuilder, "Enabled", "Enable or disable Illumination.",
@@ -963,7 +840,8 @@ public final class MinersAdvantageConfigScreen {
           gameplayEditable, value -> mutable.illuminationMaxActiveAgents = value);
       addGameplayBoolean(entries, entryBuilder, "Enforce Agent Limit",
           "When enabled, caps concurrent agents at Max Active Agents; when disabled, no limit is applied.",
-          mutable.illuminationEnforceAgentLimit, currentServerConfig.illumination().enforceAgentLimit(), gameplayEditable,
+          mutable.illuminationEnforceAgentLimit, currentServerConfig.illumination().enforceAgentLimit(),
+          gameplayEditable,
           value -> mutable.illuminationEnforceAgentLimit = value);
     });
   }
@@ -972,7 +850,7 @@ public final class MinersAdvantageConfigScreen {
    * Build Lumbination feature settings screen.
    */
   private static Screen createLumbinationScreen(Screen parent, MutableConfig mutable, boolean gameplayEditable) {
-    return createFeatureConfigScreen(parent, mutable, gameplayEditable, "Lumbination", entries -> {
+    return createFeatureConfigScreen(parent, gameplayEditable, "Lumbination", entries -> {
       ConfigEntryBuilder entryBuilder = ConfigEntryBuilder.create();
       addSectionHeading(entries, entryBuilder, "General");
       addGameplayBoolean(entries, entryBuilder, "Enabled", "Enable or disable Lumbination.", mutable.lumbinationEnabled,
@@ -1032,7 +910,7 @@ public final class MinersAdvantageConfigScreen {
    * Build Shaftanation feature settings screen.
    */
   private static Screen createShaftanationScreen(Screen parent, MutableConfig mutable, boolean gameplayEditable) {
-    return createFeatureConfigScreen(parent, mutable, gameplayEditable, "Shaftanation", entries -> {
+    return createFeatureConfigScreen(parent, gameplayEditable, "Shaftanation", entries -> {
       ConfigEntryBuilder entryBuilder = ConfigEntryBuilder.create();
       addSectionHeading(entries, entryBuilder, "General");
       addGameplayBoolean(entries, entryBuilder, "Enabled", "Enable or disable Shaftanation.",
@@ -1060,7 +938,8 @@ public final class MinersAdvantageConfigScreen {
           gameplayEditable, value -> mutable.shaftanationMaxActiveAgents = value);
       addGameplayBoolean(entries, entryBuilder, "Enforce Agent Limit",
           "When enabled, caps concurrent agents at Max Active Agents; when disabled, no limit is applied.",
-          mutable.shaftanationEnforceAgentLimit, currentServerConfig.shaftanation().enforceAgentLimit(), gameplayEditable,
+          mutable.shaftanationEnforceAgentLimit, currentServerConfig.shaftanation().enforceAgentLimit(),
+          gameplayEditable,
           value -> mutable.shaftanationEnforceAgentLimit = value);
     });
   }
@@ -1069,7 +948,7 @@ public final class MinersAdvantageConfigScreen {
    * Build Substitution feature settings screen.
    */
   private static Screen createSubstitutionScreen(Screen parent, MutableConfig mutable, boolean gameplayEditable) {
-    return createFeatureConfigScreen(parent, mutable, gameplayEditable, "Substitution", entries -> {
+    return createFeatureConfigScreen(parent, gameplayEditable, "Substitution", entries -> {
       ConfigEntryBuilder entryBuilder = ConfigEntryBuilder.create();
       addSectionHeading(entries, entryBuilder, "General");
       addGameplayBoolean(entries, entryBuilder, "Enabled", "Enable or disable Substitution.",
@@ -1113,7 +992,7 @@ public final class MinersAdvantageConfigScreen {
    * Build Veination feature settings screen.
    */
   private static Screen createVeinationScreen(Screen parent, MutableConfig mutable, boolean gameplayEditable) {
-    return createFeatureConfigScreen(parent, mutable, gameplayEditable, "Veination", entries -> {
+    return createFeatureConfigScreen(parent, gameplayEditable, "Veination", entries -> {
       ConfigEntryBuilder entryBuilder = ConfigEntryBuilder.create();
       addSectionHeading(entries, entryBuilder, "General");
       addGameplayBoolean(entries, entryBuilder, "Enabled", "Enable or disable Veination.", mutable.veinationEnabled,
@@ -1159,7 +1038,7 @@ public final class MinersAdvantageConfigScreen {
    * Build Ventilation feature settings screen.
    */
   private static Screen createVentilationScreen(Screen parent, MutableConfig mutable, boolean gameplayEditable) {
-    return createFeatureConfigScreen(parent, mutable, gameplayEditable, "Ventilation", entries -> {
+    return createFeatureConfigScreen(parent, gameplayEditable, "Ventilation", entries -> {
       ConfigEntryBuilder entryBuilder = ConfigEntryBuilder.create();
       addSectionHeading(entries, entryBuilder, "General");
       addGameplayBoolean(entries, entryBuilder, "Enabled", "Enable or disable Ventilation.", mutable.ventilationEnabled,
@@ -1508,6 +1387,7 @@ public final class MinersAdvantageConfigScreen {
     private boolean debugLogging;
     private int outlineForegroundColor;
     private int outlineSeeThroughColor;
+    private boolean disableKeybindConfigPersistence;
 
     private boolean tpsGuard;
     private boolean gatherDrops;
@@ -1627,6 +1507,7 @@ public final class MinersAdvantageConfigScreen {
       this.debugLogging = clientConfig.client().debugLogging();
       this.outlineForegroundColor = clientConfig.client().outlineForegroundColor();
       this.outlineSeeThroughColor = clientConfig.client().outlineSeeThroughColor();
+      this.disableKeybindConfigPersistence = clientConfig.client().disableKeybindConfigPersistence();
 
       MAServerRootConfig config = serverConfig;
       this.tpsGuard = config.common().tpsGuard();
@@ -2100,7 +1981,8 @@ public final class MinersAdvantageConfigScreen {
               disableParticleEffects,
               debugLogging,
               outlineForegroundColor,
-              outlineSeeThroughColor));
+              outlineSeeThroughColor,
+              disableKeybindConfigPersistence));
     }
 
     /**

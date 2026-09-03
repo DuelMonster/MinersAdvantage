@@ -64,15 +64,6 @@ public final class ClientInputHandler {
   }
 
   /**
-   * Convert token key names (KP_1, DELETE, F12, etc.) to Minecraft format.
-   * Returns InputConstants.Key that can be used to construct KeyMapping.
-   */
-  private static InputConstants.Key parseKeyToken(String token) {
-    // Map token names to Minecraft key format (future-you will thank present-you).
-    return ClientActionInputSupport.parseKeyToken(token);
-  }
-
-  /**
    * registerKeyMapping exists so this code path does one job clearly instead of spreading chaos across callers.
    * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
    */
@@ -108,14 +99,8 @@ public final class ClientInputHandler {
    */
   public static void registerKeybindings() {
     for (KeyBindings.KeyBindingSpec spec : KeyBindings.all()) {
-      if (spec.defaultKey() == null) {
-        continue;
-      }
-
-      String translationKey = "key." + uk.co.duelmonster.minersadvantage.ModCommon.MOD_ID + "."
-          + spec.action().name().toLowerCase();
-
-      InputConstants.Key key = parseKeyToken(spec.defaultKey());
+      String translationKey = ClientActionInputSupport.keyMappingTranslationKey(spec.action());
+      InputConstants.Key key = ClientActionInputSupport.resolveDefaultKey(spec.defaultKey());
       KeyMapping keyMapping = ClientActionInputSupport.createKeyMapping(translationKey, key, KEY_CATEGORY);
       registerKeyMapping(keyMapping);
       keyMappings.put(spec.action(), keyMapping);
@@ -196,6 +181,7 @@ public final class ClientInputHandler {
     for (ComponentTogglePacket packet : result.togglePackets()) {
       ClientPlayNetworking.send(packet);
     }
+    ClientActionInputSupport.applyFeatureToggles(result.togglePackets());
 
     if (result.illuminatePlace()) {
       sendIlluminationAction(false);

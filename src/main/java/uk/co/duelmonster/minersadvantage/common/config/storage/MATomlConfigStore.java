@@ -53,7 +53,9 @@ public final class MATomlConfigStore {
             boolValue(clientValues, "disable_particle_effects", fallback.client().disableParticleEffects()),
             boolValue(clientValues, "debug_logging", fallback.client().debugLogging()),
             argbColorValue(clientValues, "outline_foreground_color_argb", fallback.client().outlineForegroundColor()),
-            argbColorValue(clientValues, "outline_see_through_color_argb", fallback.client().outlineSeeThroughColor())),
+            argbColorValue(clientValues, "outline_see_through_color_argb", fallback.client().outlineSeeThroughColor()),
+            boolValue(clientValues, "disable_keybind_config_persistence",
+                fallback.client().disableKeybindConfigPersistence())),
         new CommonConfig(
             boolValue(serverValues, "common.tps_guard", fallback.common().tpsGuard()),
             boolValue(serverValues, "common.gather_drops", fallback.common().gatherDrops()),
@@ -196,6 +198,8 @@ public final class MATomlConfigStore {
     clientValues.put("debug_logging", formatTomlValue(value.client().debugLogging()));
     clientValues.put("outline_foreground_color_argb", formatArgbColor(value.client().outlineForegroundColor()));
     clientValues.put("outline_see_through_color_argb", formatArgbColor(value.client().outlineSeeThroughColor()));
+    clientValues.put("disable_keybind_config_persistence",
+        formatTomlValue(value.client().disableKeybindConfigPersistence()));
 
     Map<String, String> serverValues = new LinkedHashMap<>();
     serverValues.put("common.tps_guard", formatTomlValue(value.common().tpsGuard()));

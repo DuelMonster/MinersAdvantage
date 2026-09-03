@@ -75,12 +75,15 @@ public final class ClientInputService {
 
     toggleFeature(features, packets, FeatureId.CAPTIVATION, ClientAction.CAPTIVATION_TOGGLE, pressedActions);
     toggleFeature(features, packets, FeatureId.CROPINATION, ClientAction.CROPINATION_TOGGLE, pressedActions);
+    toggleFeature(features, packets, FeatureId.CULTIVATION, ClientAction.CULTIVATION_TOGGLE, pressedActions);
     toggleFeature(features, packets, FeatureId.EXCAVATION, ClientAction.EXCAVATION_TOGGLE, pressedActions);
+    toggleFeature(features, packets, FeatureId.PATHANATION, ClientAction.PATHANATION_TOGGLE, pressedActions);
     toggleFeature(features, packets, FeatureId.ILLUMINATION, ClientAction.ILLUMINATION_TOGGLE, pressedActions);
     toggleFeature(features, packets, FeatureId.LUMBINATION, ClientAction.LUMBINATION_TOGGLE, pressedActions);
     toggleFeature(features, packets, FeatureId.SHAFTANATION, ClientAction.SHAFTANATION_TOGGLE, pressedActions);
     toggleFeature(features, packets, FeatureId.SUBSTITUTION, ClientAction.SUBSTITUTION_TOGGLE, pressedActions);
     toggleFeature(features, packets, FeatureId.VEINATION, ClientAction.VEINATION_TOGGLE, pressedActions);
+    toggleFeature(features, packets, FeatureId.VENTILATION, ClientAction.VENTILATION_TOGGLE, pressedActions);
 
     boolean excavationEnabled = features.getOrDefault(FeatureId.EXCAVATION, false);
     boolean excavationToggled = state.excavationToggled();
