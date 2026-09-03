@@ -4,6 +4,23 @@ set -euo pipefail
 repo_root="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$repo_root"
 
+# Runs before the skip switch: node folders own only gradle.properties, everything else there is generated.
+stray_node_sources=()
+for node_dir in "$repo_root"/versions/*/; do
+  [[ -d "${node_dir}src" ]] && stray_node_sources+=("versions/$(basename "$node_dir")/src")
+done
+
+if [[ ${#stray_node_sources[@]} -gt 0 ]]; then
+  echo "Found source directories inside Stonecutter node folders:"
+  for stray_path in "${stray_node_sources[@]}"; do
+    echo "- $stray_path"
+  done
+  echo
+  echo "Sources there bypass Stonecutter preprocessing and drift between nodes."
+  echo "Move them into src/main/java behind Stonecutter conditions (see TECHNICAL.md, Source Layout)."
+  exit 1
+fi
+
 if [[ "${MA_SKIP_COMPILE_MATRIX:-0}" == "1" ]]; then
   echo "Compile matrix validation skipped via MA_SKIP_COMPILE_MATRIX=1."
   exit 0
