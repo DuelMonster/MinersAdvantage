@@ -239,7 +239,8 @@ public final class ModEntry implements ModInitializer {
             serverPlayer.getScoreboardName(), itemId, brokenBlockId, pos);
         veinationRuntime.registerDropAnchor(serverPlayer, pos, veinationConfig);
         AgentManager agentManager = AgentManager.get();
-        if (!agentManager.hasAgentType(serverPlayer, VeinationAgent.class)) {
+        if (agentManager.getAgentsOfType(serverPlayer, VeinationAgent.class).stream()
+            .noneMatch(agent -> agent.owns(pos))) {
           agentManager.addAgent(serverPlayer, new VeinationAgent(serverPlayer, pos, state, playerCommonConfig,
               veinationRuntime, veinationConfig, stack));
         }
@@ -264,7 +265,8 @@ public final class ModEntry implements ModInitializer {
         } else {
           LogUtils.logDebug("Block break trigger feature=Shaftanation player={} item={} block={} pos={} face={}",
               serverPlayer.getScoreboardName(), itemId, brokenBlockId, pos, breakFace == null ? "unknown" : breakFace);
-          if (!agentManager.hasAgentType(serverPlayer, ShaftanationAgent.class)) {
+          if (agentManager.getAgentsOfType(serverPlayer, ShaftanationAgent.class).stream()
+              .noneMatch(agent -> agent.owns(pos))) {
             agentManager.addAgent(serverPlayer,
                 new ShaftanationAgent(serverPlayer, pos, serverPlayer.getDirection(), shaftanationConfig(serverPlayer),
                     commonConfig(serverPlayer), illuminationConfig(serverPlayer).lowestLightLevel(), veinationRuntime,
@@ -280,7 +282,8 @@ public final class ModEntry implements ModInitializer {
             ? illuminationConfig(serverPlayer)
             : null;
         AgentManager agentManager = AgentManager.get();
-        if (!agentManager.hasAgentType(serverPlayer, ExcavationAgent.class)) {
+        if (agentManager.getAgentsOfType(serverPlayer, ExcavationAgent.class).stream()
+            .noneMatch(agent -> agent.owns(pos))) {
           agentManager.addAgent(
               serverPlayer,
               new ExcavationAgent(
@@ -301,7 +304,9 @@ public final class ModEntry implements ModInitializer {
         }
       } else if (isFeatureEnabled(FeatureId.LUMBINATION)) {
         LumbinationConfig lumbinationConfig = lumbinationConfig(serverPlayer);
-        if (isConfiguredAxe(stack, lumbinationConfig) && isConfiguredLog(state, lumbinationConfig)) {
+        if (isConfiguredAxe(stack, lumbinationConfig) && isConfiguredLog(state, lumbinationConfig)
+            && AgentManager.get().getAgentsOfType(serverPlayer, LumbinationAgent.class).stream()
+                .noneMatch(agent -> agent.owns(pos))) {
           LogUtils.logDebug("Block break trigger feature=Lumbination player={} item={} block={} pos={}",
               serverPlayer.getScoreboardName(), itemId, brokenBlockId, pos);
           AgentManager.get().addAgent(serverPlayer,
@@ -1339,7 +1344,8 @@ public final class ModEntry {
         if (isFeatureEnabled(FeatureId.VEINATION) && playerCommonConfig.mineVeins() && veinationGesture && isPickaxeTool(stack) && allowedPickaxe && allowedOre) {
             veinationRuntime.registerDropAnchor(serverPlayer, pos, config);
             AgentManager agentManager = AgentManager.get();
-            if (!agentManager.hasAgentType(serverPlayer, VeinationAgent.class)) {
+          if (agentManager.getAgentsOfType(serverPlayer, VeinationAgent.class).stream()
+            .noneMatch(agent -> agent.owns(pos))) {
                 agentManager.addAgent(serverPlayer, new VeinationAgent(serverPlayer, pos, state, playerCommonConfig, veinationRuntime, config, stack));
             }
         } else if (shaftModeActive) {
@@ -1350,14 +1356,16 @@ public final class ModEntry {
             AgentManager agentManager = AgentManager.get();
             if (verticalFace) {
                 agentManager.addAgent(serverPlayer, new VentilationAgent(serverPlayer, pos, breakFace.getOpposite(), ventilationConfig(serverPlayer), commonConfig(serverPlayer), veinationRuntime, config, stack));
-            } else if (!agentManager.hasAgentType(serverPlayer, ShaftanationAgent.class)) {
+          } else if (agentManager.getAgentsOfType(serverPlayer, ShaftanationAgent.class).stream()
+            .noneMatch(agent -> agent.owns(pos))) {
                 agentManager.addAgent(serverPlayer, new ShaftanationAgent(serverPlayer, pos, serverPlayer.getDirection(), shaftanationConfig(serverPlayer), commonConfig(serverPlayer), illuminationConfig(serverPlayer).lowestLightLevel(), veinationRuntime, config, stack, playerState.selectedShaftanationShapeIndex(), breakFace));
             }
         } else if (!shaftModeActive && excavationActive) {
             ExcavationConfig excavationConfig = excavationConfig(serverPlayer);
             IlluminationConfig excavationIlluminationConfig = isFeatureEnabled(FeatureId.ILLUMINATION) ? illuminationConfig(serverPlayer) : null;
             AgentManager agentManager = AgentManager.get();
-            if (!agentManager.hasAgentType(serverPlayer, ExcavationAgent.class)) {
+          if (agentManager.getAgentsOfType(serverPlayer, ExcavationAgent.class).stream()
+            .noneMatch(agent -> agent.owns(pos))) {
                 agentManager.addAgent(
                     serverPlayer,
                     new ExcavationAgent(
@@ -1380,7 +1388,9 @@ public final class ModEntry {
             }
         } else if (isFeatureEnabled(FeatureId.LUMBINATION)) {
             LumbinationConfig lumbinationConfig = lumbinationConfig(serverPlayer);
-            if (isConfiguredAxe(stack, lumbinationConfig) && isConfiguredLog(state, lumbinationConfig)) {
+            if (isConfiguredAxe(stack, lumbinationConfig) && isConfiguredLog(state, lumbinationConfig)
+                && AgentManager.get().getAgentsOfType(serverPlayer, LumbinationAgent.class).stream()
+                    .noneMatch(agent -> agent.owns(pos))) {
                 AgentManager.get().addAgent(serverPlayer, new LumbinationAgent(serverPlayer, pos, state, lumbinationConfig, commonConfig(serverPlayer)));
             }
         }

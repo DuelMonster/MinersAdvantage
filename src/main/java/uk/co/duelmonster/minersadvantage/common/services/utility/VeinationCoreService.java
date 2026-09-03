@@ -76,6 +76,13 @@ public final class VeinationCoreService {
       return complete;
     }
 
+    /**
+     * Reports whether this cursor already knows about (has visited or seeded) the given position.
+     */
+    public boolean owns(BlockPos pos) {
+      return pos != null && (pos.equals(origin) || visited.contains(pos));
+    }
+
     public List<BlockPos> drainNext(int maxNodes) {
       if (complete) {
         return List.of();

@@ -406,6 +406,21 @@ public class LumbinationAgent extends Agent {
   }
 
   /**
+   * Report whether this agent already claims the given position, so callers can skip spawning a
+   * duplicate worker for a tree already being traversed instead of capping total agents to one.
+   */
+  public boolean owns(BlockPos pos) {
+    if (pos == null) {
+      return false;
+    }
+    return pos.equals(origin)
+        || visitedLogs.contains(pos)
+        || queuedLogs.contains(pos)
+        || visitedLeaves.contains(pos)
+        || queuedLeaves.contains(pos);
+  }
+
+  /**
    * Determine whether candidate block is an allowed trunk/log for this tree run.
    */
   private boolean matchesLog(BlockState state) {

@@ -1,3 +1,7 @@
+## 2.25.0
+
+- Fix Lumbination (and the same underlying issue in Veination, Shaftanation, and Excavation) sometimes only firing once per session: breaking more blocks from a job already being processed queued a brand new agent instead of letting the existing one keep working, which quickly exhausted the per-player agent limit and silently dropped triggers elsewhere until the backlog cleared. Each feature now recognizes when an in-flight agent already owns the position being broken and skips the duplicate, while still allowing multiple concurrent jobs up to the configured Max Active Agents.
+
 ## 2.24.0
 
 - Move agent scheduling settings (max active agents, enforce limit) out of the shared Common config and into each block-affecting feature's own config (Cropination, Cultivation, Excavation, Illumination, Lumbination, Pathanation, Shaftanation, Veination, Ventilation), and expose both controls directly in each feature's settings screen instead of a separate Agent Limits screen. Captivation and Substitution don't affect blocks and no longer expose these controls.

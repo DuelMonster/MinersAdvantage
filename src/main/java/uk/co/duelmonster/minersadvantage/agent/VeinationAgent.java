@@ -101,4 +101,11 @@ public class VeinationAgent extends Agent {
     }
     return false;
   }
+
+  /**
+   * Reports whether this agent already claims the given position (queued or previously discovered).
+   */
+  public boolean owns(BlockPos pos) {
+    return pos != null && (queue.contains(pos) || discoveryCursor.owns(pos));
+  }
 }

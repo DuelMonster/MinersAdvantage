@@ -398,6 +398,24 @@ public class ExcavationAgent extends Agent {
   }
 
   /**
+   * Reports whether this agent already claims the given position (origin, visited, or still queued).
+   */
+  public boolean owns(BlockPos pos) {
+    if (pos == null) {
+      return false;
+    }
+    if (pos.equals(origin) || visited.contains(pos)) {
+      return true;
+    }
+    for (ExcavationTarget target : queue) {
+      if (pos.equals(target.pos())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * Optionally enqueue illumination agent for carved area after excavation completes.
    */
   private void maybeQueueIllumination() {
@@ -410,7 +428,8 @@ public class ExcavationAgent extends Agent {
     }
 
     AgentManager manager = AgentManager.get();
-    if (!manager.hasAgentType(player, IlluminationAgent.class)) {
+    if (manager.getAgentsOfType(player, IlluminationAgent.class).stream()
+        .noneMatch(agent -> carvedPositions.stream().anyMatch(agent::owns))) {
       manager.addAgent(player, new IlluminationAgent(player, carvedPositions, illuminationConfig, commonConfig));
     }
   }

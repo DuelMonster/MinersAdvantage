@@ -125,6 +125,13 @@ public class IlluminationAgent extends Agent {
   }
 
   /**
+   * Reports whether this agent already claims the given position (origin or still queued).
+   */
+  public boolean owns(BlockPos pos) {
+    return pos != null && (pos.equals(origin) || queue.contains(pos));
+  }
+
+  /**
    * Check light threshold and torch-placeability at candidate position.
    */
   private boolean shouldPlaceAt(BlockPos pos) {

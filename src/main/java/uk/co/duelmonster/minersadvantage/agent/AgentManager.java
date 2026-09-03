@@ -239,6 +239,38 @@ public class AgentManager {
     return false;
   }
 
+  /**
+   * Collect active and pending agents of one type for a player so callers can inspect in-flight work
+   * (for example, to avoid starting a duplicate worker for ground already claimed by another instance).
+   */
+  @SuppressWarnings("unchecked")
+  public <T extends Agent> List<T> getAgentsOfType(ServerPlayer player, Class<T> agentType) {
+    if (player == null || agentType == null) {
+      return List.of();
+    }
+
+    List<T> matches = new ArrayList<>();
+    List<Agent> agentList = agents.get(player.getUUID());
+    if (agentList != null) {
+      for (Agent agent : agentList) {
+        if (agentType.isInstance(agent)) {
+          matches.add((T) agent);
+        }
+      }
+    }
+
+    List<Agent> pendingList = pendingAdds.get(player.getUUID());
+    if (pendingList != null) {
+      for (Agent agent : pendingList) {
+        if (agentType.isInstance(agent)) {
+          matches.add((T) agent);
+        }
+      }
+    }
+
+    return matches;
+  }
+
   private boolean isAgentLimitEnforced(Class<? extends Agent> agentType, SyncedClientConfig config) {
     if (agentType == null) {
       return true;

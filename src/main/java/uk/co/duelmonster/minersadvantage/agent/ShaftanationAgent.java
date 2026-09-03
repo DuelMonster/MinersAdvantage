@@ -283,6 +283,24 @@ public class ShaftanationAgent extends Agent {
     logQueueHeightSummary("fallback", floorY);
   }
 
+  /**
+   * Reports whether this agent already claims the given position (origin or still queued).
+   */
+  public boolean owns(BlockPos pos) {
+    if (pos == null) {
+      return false;
+    }
+    if (pos.equals(origin)) {
+      return true;
+    }
+    for (ShaftTarget target : queue) {
+      if (pos.equals(target.pos())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   private void logQueueHeightSummary(String source, int floorY) {
     if (queue.isEmpty()) {
       LogUtils.logDebug(

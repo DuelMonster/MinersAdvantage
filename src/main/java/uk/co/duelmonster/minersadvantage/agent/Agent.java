@@ -386,9 +386,9 @@ public abstract class Agent {
       return false;
     }
 
-    // Only one active VeinationAgent per player at a time; no queue pileups allowed.
+    // Let concurrent VeinationAgents claim distinct veins; only skip if one already owns this position.
     AgentManager agentManager = AgentManager.get();
-    if (agentManager.hasAgentType(player, VeinationAgent.class)) {
+    if (agentManager.getAgentsOfType(player, VeinationAgent.class).stream().anyMatch(agent -> agent.owns(pos))) {
       return true;
     }
 
