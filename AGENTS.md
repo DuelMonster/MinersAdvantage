@@ -12,17 +12,20 @@ This file is the summary an agent must follow; the guides win if they disagree.
 2. **Never commit without the user's confirmation** when the change affects runtime behaviour and has
    not been validated in game. Docs-only commits are exempt.
 3. **Never commit unrelated working-tree changes.** Stage only the files you touched.
+4. **Never add sources under `versions/<node>/src`.** Every Java source, loader-specific ones included,
+   belongs in `src/main/java` behind Stonecutter conditions. Node directories own only `gradle.properties`.
+   `validate-compile-matrix` fails immediately if a node source directory reappears.
 
 ## Commands
 
-| Purpose | Command |
-| --- | --- |
-| Compile every node (required gate) | `.\scripts\validate-compile-matrix.ps1` |
-| Full test suite | `.\scripts\validate-test-suite.ps1` |
+| Purpose                                         | Command                                                                                                                |
+| ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Compile every node (required gate)              | `.\scripts\validate-compile-matrix.ps1`                                                                                |
+| Full test suite                                 | `.\scripts\validate-test-suite.ps1`                                                                                    |
 | Docs / changelog / version / optimization gates | `.\scripts\validate-docs.ps1`, `validate-changelog.ps1`, `validate-version-bump.ps1`, `validate-optimization-pass.ps1` |
-| Build all nodes | `.\gradlew.bat chiseledBuild` |
-| Preview release notes | `.\gradlew.bat :1.21.11-fabric:printReleaseChangelog` |
-| Publish all nodes | `.\gradlew.bat chiseledPublishAll` |
+| Build all nodes                                 | `.\gradlew.bat chiseledBuild`                                                                                          |
+| Preview release notes                           | `.\gradlew.bat :1.21.11-fabric:printReleaseChangelog`                                                                  |
+| Publish all nodes                               | `.\gradlew.bat chiseledPublishAll`                                                                                     |
 
 Compile checks must always cover the **full** loader/version matrix, never a single node.
 See [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md) for the end-to-end release flow.

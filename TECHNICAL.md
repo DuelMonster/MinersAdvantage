@@ -74,6 +74,8 @@ Persistence and parsing are implemented through `MATomlConfigStore`, which reads
 - `MAServerRootConfig`: explicit server gameplay root
 - `SyncedClientConfig`: transport/effective snapshot shape used for runtime sync
 
+`MAServerRootConfig.withFeatureEnabled(FeatureId, boolean)` returns a copy with a single feature's `enabled` flag replaced and every other value preserved. It is the only supported way to flip a feature flag outside the config screen, and it returns the same instance when the value is already correct so no redundant save is triggered.
+
 Gameplay config categories in the server root:
 
 - common
@@ -123,6 +125,12 @@ When `requireMending` and `denyMending` are both true, sanitization keeps `requi
 3. Core dispatch resolves feature/component action against effective config.
 4. Processing-core executes work within per-tick budgets.
 5. Related services (drops, lighting, substitution, sync) are called as needed.
+
+### Feature Toggle Keybinds
+
+`KeyBindings.all()` declares one unbound toggle spec per `FeatureId`. Specs with a `null` default key are still registered, using `InputConstants.UNKNOWN`, so they appear in the vanilla Controls screen without stealing a key.
+
+When a toggle fires, `ClientInputService` flips the in-memory feature state and emits a `ComponentTogglePacket`. Both loader tick handlers then call `ClientActionInputSupport.applyFeatureToggles`, which shows the player an action-bar confirmation and, in single player only, writes the new `enabled` flag through `MAServerRootConfig.withFeatureEnabled`. Persistence is skipped entirely when the client option `disable_keybind_config_persistence` is set, and in multiplayer, where the server config stays authoritative.
 
 ### Multiplayer Authority Model
 
@@ -184,7 +192,27 @@ Configured nodes:
 - `26.2-fabric`
 - `26.2-neoforge`
 
-Node-specific properties live under `versions/<node>/gradle.properties`.
+Node-specific properties live under `versions/<node>/gradle.properties`. That file is the only thing a node directory owns; everything else under `versions/` is generated build output and is not tracked.
+
+### Source Layout
+
+All Java sources, including loader-specific ones, live in the single shared tree at `src/main/java` and are preprocessed by Stonecutter. Never add sources under `versions/<node>/src` — those bypass preprocessing and silently drift between nodes. `validate-compile-matrix` fails immediately if any `versions/<node>/src` directory exists, before it runs any Gradle task and regardless of `MA_SKIP_COMPILE_MATRIX`.
+
+Loader- and version-specific code is expressed with Stonecutter comment conditions:
+
+| Condition           | Meaning                                                 |
+| ------------------- | ------------------------------------------------------- |
+| `//? if fabric {`   | Fabric nodes only.                                      |
+| `//? if neoforge {` | NeoForge nodes only.                                    |
+| `//? if mc1 {`      | Minecraft `1.21.x` nodes only.                          |
+| `//? if mc26 {`     | Minecraft `26.x` nodes only.                            |
+| `//? if >=26.2 {`   | Version predicate, compared against the node's version. |
+
+The `fabric`/`neoforge` and `mc1`/`mc26` constants are declared in [build.gradle.kts](build.gradle.kts); version predicates need no declaration.
+
+A file that only applies to one loader wraps its whole body in a single condition, with a short note in the `else` branch. `FabricNetworkEvents`, `NeoForgeNetworkEvents`, `NeoForgeClientEvents` and `NeoForgeBreakEvents` all follow that shape.
+
+Stonecutter comments out the inactive branch, so an inactive block cannot contain `/* */` comments of its own. Nested inactive branches use `/^ ^/` instead, and loader-specific files avoid Javadoc for the same reason. Editing these files by hand is easier if you keep the branch that is true for the active node uncommented.
 
 ### Build All Nodes
 

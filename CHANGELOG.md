@@ -5,6 +5,7 @@
 - Add a client option, "Disable Keybind Config Persistence" (default off), for players who want feature toggle keybinds to apply for the current session only and never touch the config file.
 - Move the loader-specific Fabric and NeoForge event classes into the shared source tree so every version node is built from the same code. They previously lived in per-node folders that were only partially tracked, which meant the 26.2 copies existed on one machine and would have gone missing from a fresh checkout.
 - Fail compile matrix validation immediately when a source folder reappears inside a version node, so loader-specific code cannot silently bypass Stonecutter preprocessing again.
+- Document the feature toggle keybinds, the new client option, and the shared source layout in the README and technical guide.
 - Replace the Cancel and Save buttons on each feature's config screen with a single Back button. Feature changes are now only written to the config files when Save is clicked on the main config screen, so backing out of a feature screen no longer commits anything on its own.
 - Fix the main config screen's Save button staying greyed out after changing values on a feature screen and returning.
 - Fix opening a second feature screen after returning from the first one sending you back to the previous feature screen instead of the main config screen.

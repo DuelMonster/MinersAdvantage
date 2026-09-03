@@ -107,12 +107,26 @@ Client options stay local. Gameplay options are server-authoritative in multipla
 
 ### Client Config (`minersadvantage-client-config.toml`)
 
-| Option                         | Type    | Default    | Description                                    |
-| ------------------------------ | ------- | ---------- | ---------------------------------------------- |
-| disable_particle_effects       | boolean | false      | Disables feature particle effects when true.   |
-| debug_logging                  | boolean | false      | Enables verbose MinersAdvantage debug logging. |
-| outline_foreground_color_argb  | color   | 0xFF40D9C0 | ARGB color used for foreground outlines.       |
-| outline_see_through_color_argb | color   | 0x4B40D9C0 | ARGB color used for see-through outlines.      |
+| Option                             | Type    | Default    | Description                                                                   |
+| ---------------------------------- | ------- | ---------- | ----------------------------------------------------------------------------- |
+| disable_particle_effects           | boolean | false      | Disables feature particle effects when true.                                  |
+| debug_logging                      | boolean | false      | Enables verbose MinersAdvantage debug logging.                                |
+| outline_foreground_color_argb      | color   | 0xFF40D9C0 | ARGB color used for foreground outlines.                                      |
+| outline_see_through_color_argb     | color   | 0x4B40D9C0 | ARGB color used for see-through outlines.                                     |
+| disable_keybind_config_persistence | boolean | false      | When true, feature toggle keybinds apply for the session only and never save. |
+
+### Feature Toggle Keybinds
+
+Every feature has its own toggle keybinding listed under the MinersAdvantage category of the vanilla
+Controls screen. None of them are bound by default; assign whichever keys you want.
+
+Pressing a toggle flips that feature's `enabled` flag. In single player the new value is written to
+`minersadvantage-server-config.toml`, so it survives a restart and is reflected in the config screen.
+Set `disable_keybind_config_persistence` to `true` if you would rather the toggle only last for the
+current session.
+
+In multiplayer the server config is authoritative and is never rewritten by a client keybind, so the
+toggle applies to the running session only.
 
 ### Common Gameplay (`minersadvantage-server-config.toml`)
 
