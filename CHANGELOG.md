@@ -1,3 +1,9 @@
+## 2.26.0
+
+- Add Minecraft 26.3 targets and update tool checks, keyboard input, and shape previews for its revised APIs.
+- Use NeoForge's banner and square-icon metadata fields, removing the deprecated logo warning.
+- Restore Fabric feature keybind registration and options persistence by selecting the registration API explicitly.
+
 ## 2.25.0
 
 - Add a toggle keybinding for every feature, listed under the MinersAdvantage category of the vanilla Controls screen. None are bound by default, so pick whatever keys suit you; pressing one enables or disables that feature and shows a confirmation above the hotbar. Cultivation, Pathanation and Ventilation gain toggles for the first time, and the existing eight toggles were never actually registered, so none of them could be bound or used before now.

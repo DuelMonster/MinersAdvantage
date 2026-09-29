@@ -1,0 +1,39 @@
+# Enforce LF line endings for text files and mark common binaries
+* text=auto
+*.java text eol=lf
+*.gradle text eol=lf
+*.properties text eol=lf
+*.xml text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.toml text eol=lf
+*.sh text eol=lf
+
+# Binaries
+*.jar binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.class binary
+
+# Ensure .gitattributes itself is consistent
+.gitattributes text eol=lf
+* text eol=lf
+*.bat text eol=crlf
+*.patch text eol=lf
+*.java text eol=lf
+*.gradle text eol=crlf
+*.png binary
+*.gif binary
+*.exe binary
+*.dll binary
+*.jar binary
+*.lzma binary
+*.zip binary
+*.pyd binary
+*.cfg text eol=lf
+*.jks binary
+*.ogg binary

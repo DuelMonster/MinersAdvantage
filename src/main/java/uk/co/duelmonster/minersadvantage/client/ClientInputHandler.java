@@ -79,6 +79,7 @@ public final class ClientInputHandler {
 
       registerMethod = java.util.Arrays.stream(helperClass.getMethods())
           .filter(method -> java.lang.reflect.Modifier.isStatic(method.getModifiers()))
+          .filter(method -> method.getName().startsWith("register"))
           .filter(method -> method.getParameterCount() == 1)
           .filter(method -> method.getParameterTypes()[0] == KeyMapping.class)
           .findFirst()

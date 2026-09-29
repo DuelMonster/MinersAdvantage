@@ -191,6 +191,10 @@ Configured nodes:
 - `26.1.2-neoforge`
 - `26.2-fabric`
 - `26.2-neoforge`
+- `26.3-fabric`
+- `26.3-neoforge`
+
+Minecraft 26.3 moves the RenderPearl pipeline and removes the old axe/hoe/shovel item classes. Its Fabric target uses ItemTags for tool-family checks, RenderPearl pipeline types for previews, and the revised InputConstants key API. The current NeoForge 26.3.0.35-beta toolchain fails while recompiling NeoForm `26.3-1` sources (`HolderSet$1.contents()` visibility conflict), before MinersAdvantage code is compiled.
 
 Node-specific properties live under `versions/<node>/gradle.properties`. That file is the only thing a node directory owns; everything else under `versions/` is generated build output and is not tracked.
 
@@ -234,6 +238,7 @@ Examples:
 ./gradlew :1.21.11-fabric:runClient
 ./gradlew :26.1.2-neoforge:runClient
 ./gradlew :26.2-fabric:runClient
+./gradlew :26.3-fabric:runClient
 ```
 
 ### Run Tests

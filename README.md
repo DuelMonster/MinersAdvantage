@@ -306,11 +306,11 @@ Substitution includes an advanced `selectionRules` profile in runtime config def
 
 ## Compatibility
 
-| Topic              | Status                                                                      |
-| ------------------ | --------------------------------------------------------------------------- |
-| Minecraft versions | `1.21.11`, `26.1.2`, and `26.2` nodes are maintained.                       |
-| Loaders            | Fabric and NeoForge are both first-class targets.                           |
-| Known conflicts    | No hard conflicts are currently documented. If you find one, open an issue. |
+| Topic              | Status                                                                                                 |
+| ------------------ | ------------------------------------------------------------------------------------------------------ |
+| Minecraft versions | `1.21.11`, `26.1.2`, `26.2`, and `26.3` nodes are maintained.                                          |
+| Loaders            | Fabric and NeoForge are both targets.                                                                  |
+| Known conflicts    | NeoForge 26.3 currently fails in NeoForm before MinersAdvantage sources compile; Fabric 26.3 compiles. |
 
 ## Technical Documentation
 

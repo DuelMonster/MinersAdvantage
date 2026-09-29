@@ -1,3 +1,4 @@
+//~ mc26_3_api
 package uk.co.duelmonster.minersadvantage.client;
 
 import java.util.Objects;
@@ -7,26 +8,24 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.lang.reflect.Method;
-import com.mojang.blaze3d.pipeline.BlendFunction;
-import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.renderpearl.api.pipeline.BlendFunction;
+import com.mojang.renderpearl.api.pipeline.RenderPipeline;
 //? if mc1 {
-import com.mojang.blaze3d.platform.DepthTestFunction;
-//?} else {
-/*
-import com.mojang.blaze3d.pipeline.ColorTargetState;
-import com.mojang.blaze3d.pipeline.DepthStencilState;
-import com.mojang.blaze3d.platform.CompareOp;
-*/ //?}
+/*import com.mojang.blaze3d.platform.DepthTestFunction;
+*///?} else {
+import com.mojang.renderpearl.api.pipeline.ColorTargetState;
+import com.mojang.renderpearl.api.pipeline.DepthStencilState;
+import com.mojang.renderpearl.api.pipeline.CompareOp;
+//?}
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.renderpearl.api.vertex.VertexFormat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderPipelines;
 //? if mc26 {
-/*
 import net.minecraft.client.renderer.rendertype.LayeringTransform;
-import net.minecraft.client.renderer.rendertype.OutputTarget;
-*/ //?}
+//?}
+// OutputTarget was removed in 26.3.
 import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
@@ -206,7 +205,7 @@ public final class ShapePreviewRenderer {
    */
   private static RenderType createLinesTranslucentNoDepthTestRenderType() {
     //? if mc1 {
-    RenderPipeline.Snippet snippet = RenderPipeline
+    /*RenderPipeline.Snippet snippet = RenderPipeline
         .builder(RenderPipelines.MATRICES_FOG_SNIPPET)
         .withVertexShader("core/rendertype_lines")
         .withFragmentShader("core/rendertype_lines")
@@ -225,16 +224,15 @@ public final class ShapePreviewRenderer {
         .createRenderSetup();
 
     return RenderType.create("minersadvantage_lines_translucent_no_depth_test", setup);
-    //?} else {
-    /*
+    *///?} else {
     RenderPipeline.Builder builder = RenderPipeline.builder(RenderPipelines.MATRICES_FOG_SNIPPET)
-      .withVertexShader("core/rendertype_lines")
-      .withFragmentShader("core/rendertype_lines")
-      .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
-      .withCull(false);
+        .withVertexShader("core/rendertype_lines")
+        .withFragmentShader("core/rendertype_lines")
+        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+        .withCull(false);
     builder = applyMc26LineVertexFormat(builder);
     RenderPipeline.Snippet snippet = builder
-      .withDepthStencilState(new DepthStencilState(CompareOp.ALWAYS_PASS, false))
+        .withDepthStencilState(new DepthStencilState(CompareOp.ALWAYS_PASS, false))
         .buildSnippet();
 
     RenderPipeline pipeline = RenderPipeline.builder(snippet)
@@ -243,45 +241,62 @@ public final class ShapePreviewRenderer {
 
     RenderSetup setup = RenderSetup.builder(pipeline)
         .setLayeringTransform(LayeringTransform.VIEW_OFFSET_Z_LAYERING)
-        .setOutputTarget(OutputTarget.ITEM_ENTITY_TARGET)
+        /* OutputTarget was removed in 26.3. */
         .createRenderSetup();
 
     return RenderType.create("minersadvantage_lines_translucent_no_depth_test", setup);
-    */ //?}
+    //?}
   }
 
   //? if mc26 {
-  /*
   private static RenderPipeline.Builder applyMc26LineVertexFormat(RenderPipeline.Builder builder) {
     try {
-      Method withVertexBinding = builder.getClass().getMethod("withVertexBinding", int.class, VertexFormat.class);
-      Object boundBuilder = withVertexBinding.invoke(builder, 0, DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH);
-      Class<?> primitiveTopologyClass = Class.forName("com.mojang.blaze3d.PrimitiveTopology");
-      @SuppressWarnings({ "unchecked", "rawtypes" })
-      Object lines = Enum.valueOf((Class<? extends Enum>) primitiveTopologyClass.asSubclass(Enum.class), "LINES");
-      Method withPrimitiveTopology = builder.getClass().getMethod("withPrimitiveTopology", primitiveTopologyClass);
-      Object result = withPrimitiveTopology.invoke(boundBuilder, lines);
-      if (result instanceof RenderPipeline.Builder typedBuilder) {
-        return typedBuilder;
+      Object format = DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH;
+      for (Method withVertexBinding : builder.getClass().getMethods()) {
+        Class<?>[] parameters = withVertexBinding.getParameterTypes();
+        if (!withVertexBinding.getName().equals("withVertexBinding") || parameters.length != 2
+            || parameters[0] != int.class || !parameters[1].isInstance(format)) {
+          continue;
+        }
+        Object boundBuilder = withVertexBinding.invoke(builder, 0, format);
+        for (Method withPrimitiveTopology : boundBuilder.getClass().getMethods()) {
+          Class<?>[] topologyParameters = withPrimitiveTopology.getParameterTypes();
+          if (!withPrimitiveTopology.getName().equals("withPrimitiveTopology") || topologyParameters.length != 1
+              || !topologyParameters[0].isEnum()) {
+            continue;
+          }
+          @SuppressWarnings({ "unchecked", "rawtypes" })
+          Object lines = Enum.valueOf((Class<? extends Enum>) topologyParameters[0].asSubclass(Enum.class), "LINES");
+          Object result = withPrimitiveTopology.invoke(boundBuilder, lines);
+          if (result instanceof RenderPipeline.Builder typedBuilder) {
+            return typedBuilder;
+          }
+        }
       }
     } catch (ReflectiveOperationException ignored) {
     }
 
     try {
-      Class<?> modeClass = Class.forName("com.mojang.blaze3d.vertex.VertexFormat$Mode");
-      @SuppressWarnings({ "unchecked", "rawtypes" })
-      Object lines = Enum.valueOf((Class<? extends Enum>) modeClass.asSubclass(Enum.class), "LINES");
-      Method withVertexFormat = builder.getClass().getMethod("withVertexFormat", VertexFormat.class, modeClass);
-      Object result = withVertexFormat.invoke(builder, DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH, lines);
-      if (result instanceof RenderPipeline.Builder typedBuilder) {
-        return typedBuilder;
+      Object format = DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH;
+      for (Method withVertexFormat : builder.getClass().getMethods()) {
+        Class<?>[] parameters = withVertexFormat.getParameterTypes();
+        if (!withVertexFormat.getName().equals("withVertexFormat") || parameters.length != 2
+            || !parameters[0].isInstance(format) || !parameters[1].isEnum()) {
+          continue;
+        }
+        @SuppressWarnings({ "unchecked", "rawtypes" })
+        Object lines = Enum.valueOf((Class<? extends Enum>) parameters[1].asSubclass(Enum.class), "LINES");
+        Object result = withVertexFormat.invoke(builder, format, lines);
+        if (result instanceof RenderPipeline.Builder typedBuilder) {
+          return typedBuilder;
+        }
       }
     } catch (ReflectiveOperationException ignored) {
     }
 
     return builder;
   }
-  */ //?}
+  //?}
 
   /**
    * Render active held-key preview outlines for excavation/shaft/ventilation contexts.

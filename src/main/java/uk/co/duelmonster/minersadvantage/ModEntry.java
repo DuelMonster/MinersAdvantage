@@ -19,10 +19,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.AxeItem;
-import net.minecraft.world.item.HoeItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.level.block.state.BlockState;
 import uk.co.duelmonster.minersadvantage.agent.AgentManager;
 import uk.co.duelmonster.minersadvantage.agent.CaptivationAgent;
@@ -680,9 +677,9 @@ public final class ModEntry implements ModInitializer {
    */
   private static boolean isSubstitutionTool(ItemStack stack) {
     return isPickaxeTool(stack)
-        || stack.getItem() instanceof AxeItem
-        || stack.getItem() instanceof ShovelItem
-        || stack.getItem() instanceof HoeItem;
+        || isAxeTool(stack)
+        || isShovelTool(stack)
+        || isHoeTool(stack);
   }
 
   /**
@@ -1028,21 +1025,21 @@ public final class ModEntry implements ModInitializer {
    * Identify shovel tool by runtime type.
    */
   private static boolean isShovelTool(ItemStack stack) {
-    return stack.getItem() instanceof ShovelItem;
+    return RegistryPredicates.isShovelTool(stack);
   }
 
   /**
    * Identify axe tool by runtime type.
    */
   private static boolean isAxeTool(ItemStack stack) {
-    return stack.getItem() instanceof AxeItem;
+    return RegistryPredicates.isAxeTool(stack);
   }
 
   /**
    * Identify hoe tool by runtime type.
    */
   private static boolean isHoeTool(ItemStack stack) {
-    return stack.getItem() instanceof HoeItem;
+    return RegistryPredicates.isHoeTool(stack);
   }
 
   /**
@@ -1498,9 +1495,9 @@ public final class ModEntry {
 
     private static boolean isSubstitutionTool(ItemStack stack) {
         return isPickaxeTool(stack)
-            || stack.getItem() instanceof AxeItem
-            || stack.getItem() instanceof ShovelItem
-            || stack.getItem() instanceof HoeItem;
+          || isAxeTool(stack)
+          || isShovelTool(stack)
+          || isHoeTool(stack);
     }
 
     private static boolean isExcavationTool(ItemStack stack) {
@@ -1777,15 +1774,15 @@ public final class ModEntry {
     }
 
     private static boolean isShovelTool(ItemStack stack) {
-        return stack.getItem() instanceof ShovelItem;
+      return RegistryPredicates.isShovelTool(stack);
     }
 
     private static boolean isAxeTool(ItemStack stack) {
-        return stack.getItem() instanceof AxeItem;
+      return RegistryPredicates.isAxeTool(stack);
     }
 
     private static boolean isHoeTool(ItemStack stack) {
-        return stack.getItem() instanceof HoeItem;
+      return RegistryPredicates.isHoeTool(stack);
     }
 
     private static String blockId(BlockState state) {

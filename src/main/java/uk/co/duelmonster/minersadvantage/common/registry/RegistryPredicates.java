@@ -1,3 +1,4 @@
+//~ mc26_3_api
 package uk.co.duelmonster.minersadvantage.common.registry;
 
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -5,10 +6,11 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.world.item.AxeItem;
-import net.minecraft.world.item.HoeItem;
+import net.minecraft.tags.ItemTags;
+// HoeItem is absent on 26.3.
+// ShovelItem is absent on 26.3.
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ShovelItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CropBlock;
@@ -59,21 +61,33 @@ public final class RegistryPredicates {
    * Runtime-safe axe tool check.
    */
   public static boolean isAxeTool(ItemStack stack) {
-    return stack.getItem() instanceof AxeItem;
+    return isAxeTool(stack.getItem());
+  }
+
+  public static boolean isAxeTool(Item item) {
+    return item.getDefaultInstance().is(ItemTags.AXES);
   }
 
   /**
    * Runtime-safe shovel tool check.
    */
   public static boolean isShovelTool(ItemStack stack) {
-    return stack.getItem() instanceof ShovelItem;
+    return isShovelTool(stack.getItem());
+  }
+
+  public static boolean isShovelTool(Item item) {
+    return item.getDefaultInstance().is(ItemTags.SHOVELS);
   }
 
   /**
    * Runtime-safe hoe tool check.
    */
   public static boolean isHoeTool(ItemStack stack) {
-    return stack.getItem() instanceof HoeItem;
+    return isHoeTool(stack.getItem());
+  }
+
+  public static boolean isHoeTool(Item item) {
+    return item.getDefaultInstance().is(ItemTags.HOES);
   }
 
   /**

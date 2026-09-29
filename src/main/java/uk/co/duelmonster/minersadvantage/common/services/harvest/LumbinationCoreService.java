@@ -3,7 +3,6 @@ package uk.co.duelmonster.minersadvantage.common.services.harvest;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.RotatedPillarBlock;
@@ -65,7 +64,7 @@ public final class LumbinationCoreService {
    * In short: one clear job here beats ten confusing side-effects elsewhere.
    */
   public boolean isValidAxe(Item heldItem, LumbinationConfig config) {
-    return heldItem instanceof AxeItem
+    return RegistryPredicates.isAxeTool(heldItem)
         || (config != null
             && config.axes() != null
             && !config.axes().isEmpty()

@@ -21,15 +21,13 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.item.AxeItem;
-import net.minecraft.world.item.HoeItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig;
+import uk.co.duelmonster.minersadvantage.common.registry.RegistryPredicates;
 import uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig.SelectionRule;
 import uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig.SubstitutionAction;
 import uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig.TargetKind;
@@ -1314,10 +1312,10 @@ public class SubstitutionAgent extends Agent {
     if (isPickaxeTool(main)) {
       return ToolKind.PICKAXE;
     }
-    if (main.getItem() instanceof AxeItem) {
+    if (RegistryPredicates.isAxeTool(main)) {
       return ToolKind.AXE;
     }
-    if (main.getItem() instanceof HoeItem) {
+    if (RegistryPredicates.isHoeTool(main)) {
       return ToolKind.HOE;
     }
     return ToolKind.SHOVEL;
@@ -1332,9 +1330,9 @@ public class SubstitutionAgent extends Agent {
     }
     return switch (requiredKind) {
       case PICKAXE -> isPickaxeTool(stack);
-      case AXE -> stack.getItem() instanceof AxeItem;
-      case SHOVEL -> stack.getItem() instanceof ShovelItem;
-      case HOE -> stack.getItem() instanceof HoeItem;
+      case AXE -> RegistryPredicates.isAxeTool(stack);
+      case SHOVEL -> RegistryPredicates.isShovelTool(stack);
+      case HOE -> RegistryPredicates.isHoeTool(stack);
     };
   }
 

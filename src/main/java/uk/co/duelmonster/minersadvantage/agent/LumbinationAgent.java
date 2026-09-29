@@ -6,7 +6,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.HoeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ShearsItem;
 import net.minecraft.world.level.block.Block;
@@ -17,6 +16,7 @@ import uk.co.duelmonster.minersadvantage.common.Functions;
 import uk.co.duelmonster.minersadvantage.common.config.CommonConfig;
 import uk.co.duelmonster.minersadvantage.common.config.LumbinationConfig;
 import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
+import uk.co.duelmonster.minersadvantage.common.registry.RegistryPredicates;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -588,7 +588,7 @@ public class LumbinationAgent extends Agent {
 
     for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
       ItemStack stack = player.getInventory().getItem(slot);
-      if (!stack.isEmpty() && (stack.getItem() instanceof ShearsItem || stack.getItem() instanceof HoeItem)) {
+      if (!stack.isEmpty() && (stack.getItem() instanceof ShearsItem || RegistryPredicates.isHoeTool(stack))) {
         return stack;
       }
     }

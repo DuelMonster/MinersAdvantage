@@ -1,3 +1,7 @@
+// 🏗️ Central build script: runs once for every Stonecutter version node (1.21.11-fabric,
+// 1.21.11-neoforge, etc.). Modstitch reads the node's gradle.properties to decide which
+// platform toolchain (Loom vs ModDevGradle) to activate. One script to rule them all.
+
 import java.io.DataInputStream
 import java.io.File
 import java.net.HttpURLConnection
@@ -6,19 +10,33 @@ import java.util.Comparator
 import java.util.zip.ZipFile
 
 plugins {
+    id("net.neoforged.moddev") version "2.0.147" apply false
+    // Modstitch: the unified build plugin that abstracts Fabric Loom and NeoForge MDG.
+    // Only one platform is "active" per node — determined by modstitch.platform in
+    // the node's versioned gradle.properties.
     id("dev.isxander.modstitch.base") version "0.8.5"
+    // mod-publish-plugin: Modrinth + CurseForge publishing (applied conditionally below)
     id("me.modmuss50.mod-publish-plugin") version "2.2.0" apply false
+    // Maven publish (standard Gradle plugin — no version needed)
     id("maven-publish")
 }
 
-fun prop(name: String, consumer: (String) -> Unit) {
-    (findProperty(name) as? String)?.let(consumer)
+// ────────────────────────────────────────────────────────────
+//  Helper: read a versioned property and pass it to a consumer
+//  only if it exists. Keeps the block below readable.
+// ────────────────────────────────────────────────────────────
+fun prop(name: String, consumer: (prop: String) -> Unit) {
+    (findProperty(name) as? String?)?.let(consumer)
 }
 
+// The Minecraft version for this node (e.g. "1.21.11")
 val minecraft = property("deps.minecraft") as String
+val mcVersion = minecraft.substringBefore(".").toInt()
+// Which loader is this node for? Extracted from the project name (e.g. "1.21.11-fabric" → "fabric")
 val loader = name.substringAfterLast("-")
+val isFabric = loader == "fabric"
 val isNeoForge = loader == "neoforge"
-val javaRelease = if (minecraft.startsWith("26.")) 25 else 21
+val javaRelease = if (mcVersion >= 26) 25 else 21
 val clothConfigVersion = when ("$minecraft-$loader") {
     "1.21.11-fabric" -> "21.11.153"
     "1.21.11-neoforge" -> "21.11.153"
@@ -26,12 +44,18 @@ val clothConfigVersion = when ("$minecraft-$loader") {
     "26.1.2-neoforge" -> "26.1.154"
     "26.2-fabric" -> "26.2.155"
     "26.2-neoforge" -> "26.2.155"
+    "26.3-fabric" -> "26.3.159"
+    "26.3-neoforge" -> "26.3.159"
     else -> error("No Cloth Config version mapping for $minecraft-$loader")
 }
 
+// ────────────────────────────────────────────────────────────
+//  Modstitch core configuration
+// ────────────────────────────────────────────────────────────
 modstitch {
     minecraftVersion = minecraft
 
+    // ── Metadata: populates fabric.mod.json and neoforge.mods.toml templates ──
     metadata {
         modId = "minersadvantage"
         modName = "MinersAdvantage"
@@ -47,8 +71,8 @@ modstitch {
                 "mod_author" to "DuelMonster",
                 "mod_homepage" to "https://github.com/duelmonster/MinersAdvantage",
                 "mod_issue_tracker" to "https://github.com/duelmonster/MinersAdvantage/issues",
-                // Per-node range — a fixed literal here made neoforge.mods.toml (and thus the
-                // built jar) byte-identical across MC version nodes for the same loader.
+            // Per-node ranges — must vary per Stonecutter node or the packaged
+            // neoforge.mods.toml (and thus the built jar) is byte-identical across nodes.
                 "minecraft_version_range" to "[$minecraft,)",
                 "cloth_config_version_range" to "[$clothConfigVersion,)",
                 "neoforge_loader_range" to "[10,)"
@@ -56,10 +80,14 @@ modstitch {
         )
     }
 
+    // ── Fabric Loom platform (active when modstitch.platform=loom) ──
     loom {
+        // Fabric Loader version — intentionally not stored in versioned properties
+        // since Fabric Loader is largely version-independent and rarely needs a per-MC pin.
         fabricLoaderVersion = property("deps.fabric_loader") as String
 
         configureLoom {
+            // Runs for development (matches the VS Code task setup the project already uses)
             runs.named("client") {
                 setConfigName("Fabric Client")
                 ideConfigGenerated(false)
@@ -74,11 +102,15 @@ modstitch {
         }
     }
 
+    // ── NeoForge ModDevGradle platform (active when modstitch.platform=moddevgradle) ──
     moddevgradle {
         prop("deps.neoforge") { neoForgeVersion = it }
+
+        // Registers the default client + server run configurations.
         defaultRuns()
 
         configureNeoForge {
+            // Match the Fabric layout so both loaders use the same run-dir convention.
             runs {
                 named("client") {
                     gameDirectory = project.file("runs/client")
@@ -105,17 +137,55 @@ modstitch {
         }
     }
 
+    // ── Mixin configuration ──
     mixin {
+        // Modstitch's FletchingTable automatically inserts the mixin config file references
+        // into fabric.mod.json ("mixins" array) and neoforge.mods.toml ([[mixins]]).
+        // No manual manifest edits needed.
         addMixinsToModManifest = true
+
+        // One unified mixin config covers both platforms.
+        // Platform-specific mixin classes (MixinTitleScreen) live in the shared package;
+        // loader-only mixins can be registered here with isLoom/isModDevGradle guards.
         configs.register("minersadvantage")
     }
 }
 
+// ────────────────────────────────────────────────────────────
+//  Stonecutter loader constants
+//  These constants let the Stitcher comment processor know which
+//  loader is active, so //? if fabric { … } blocks work correctly.
+// ────────────────────────────────────────────────────────────
 stonecutter {
     constants.match(loader, "fabric", "neoforge")
     constants.match(if (minecraft.startsWith("1.21.")) "mc1" else "mc26", "mc1", "mc26")
+
+    replacements.string(current.parsed >= "26.3", "mc26_3_api") {
+        replace("return item instanceof AxeItem;", "return item.getDefaultInstance().is(ItemTags.AXES);")
+        replace("return item instanceof HoeItem;", "return item.getDefaultInstance().is(ItemTags.HOES);")
+        replace("return item instanceof ShovelItem;", "return item.getDefaultInstance().is(ItemTags.SHOVELS);")
+        replace("import net.minecraft.world.item.AxeItem;", "import net.minecraft.tags.ItemTags;")
+        replace("import net.minecraft.world.item.HoeItem;", "// HoeItem is absent on 26.3.")
+        replace("import net.minecraft.world.item.ShovelItem;", "// ShovelItem is absent on 26.3.")
+        replace("InputConstants.isKeyDown(window, ", "InputConstants.isKeyDown(")
+        replace("org.lwjgl.glfw.GLFW.GLFW_KEY_0", "InputConstants.KEY_0")
+        replace("org.lwjgl.glfw.GLFW.GLFW_KEY_2", "InputConstants.KEY_2")
+        replace("org.lwjgl.glfw.GLFW.GLFW_KEY_7", "InputConstants.KEY_7")
+        replace("org.lwjgl.glfw.GLFW.GLFW_KEY_8", "InputConstants.KEY_8")
+        replace("org.lwjgl.glfw.GLFW.GLFW_KEY_KP_0", "InputConstants.KEY_NUMPAD0")
+        replace("org.lwjgl.glfw.GLFW.GLFW_KEY_KP_2", "InputConstants.KEY_NUMPAD2")
+        replace("org.lwjgl.glfw.GLFW.GLFW_KEY_KP_7", "InputConstants.KEY_NUMPAD7")
+        replace("org.lwjgl.glfw.GLFW.GLFW_KEY_KP_8", "InputConstants.KEY_NUMPAD8")
+        replace("com.mojang.blaze3d.pipeline.", "com.mojang.renderpearl.api.pipeline.")
+        replace("com.mojang.blaze3d.platform.CompareOp", "com.mojang.renderpearl.api.pipeline.CompareOp")
+        replace("com.mojang.blaze3d.vertex.VertexFormat", "com.mojang.renderpearl.api.vertex.VertexFormat")
+        replace("import net.minecraft.client.renderer.rendertype.OutputTarget;", "// OutputTarget was removed in 26.3.")
+        replace(".setOutputTarget(OutputTarget.ITEM_ENTITY_TARGET)", "/* OutputTarget was removed in 26.3. */")
+    }
 }
 
+// Java bytecode target per release line.
+// 1.21.x stays on Java 21; 26.x requires Java 25.
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(javaRelease))
@@ -213,6 +283,12 @@ if (tasks.findByName("compile") == null) {
     }
 }
 
+// ────────────────────────────────────────────────────────────
+//  Task: copyRelatedMods (copy dependency mods to run directories)
+//  This copies jars from related_mods/{loader}/ into runs/client/mods
+//  and runs/server/mods so that the development environment has the
+//  required mod dependencies available.
+// ────────────────────────────────────────────────────────────
 tasks.register("copyRelatedMods") {
     group = "run"
     description = "Copy related_mods jars to run directory mods folders."
@@ -234,9 +310,11 @@ tasks.register("copyRelatedMods") {
             val clientModsDir = File(nodeVersionDir, "runs/client/mods")
             val serverModsDir = File(nodeVersionDir, "runs/server/mods")
 
+            // Ensure directories exist
             clientModsDir.mkdirs()
             serverModsDir.mkdirs()
 
+            // Copy all jars from the loader-specific related_mods directory to both run directories
             val jarFiles = loaderModsDir.listFiles { file: File -> file.isFile && file.extension == "jar" }
             jarFiles?.forEach { jar: File ->
                 jar.copyTo(File(clientModsDir, jar.name), overwrite = true)
@@ -246,6 +324,7 @@ tasks.register("copyRelatedMods") {
     }
 }
 
+// Configure dependencies after all tasks are created (delayed configuration)
 afterEvaluate {
     tasks.matching { it.name.matches(Regex("run.*")) }.configureEach {
         dependsOn("copyRelatedMods")
@@ -350,6 +429,10 @@ if (isNeoForge) {
     }
 }
 
+// ────────────────────────────────────────────────────────────
+//  Version string for the built artifact
+//  e.g.  0.15.0+1.21.11-fabric
+// ────────────────────────────────────────────────────────────
 version = "${property("mod_version")}+${minecraft}-${loader}"
 base.archivesName.set("MinersAdvantage_${property("mod_version")}+${minecraft}-${loader}")
 
@@ -364,11 +447,13 @@ publishing {
     }
 
     repositories {
+        // Local Maven repository (always available, no token required)
         maven {
             name = "local"
             url = uri(rootProject.layout.buildDirectory.dir("maven-local"))
         }
 
+        // Modrinth Maven (publish JARs as Maven artifacts for dependency use)
         val modrinthToken = System.getenv("MODRINTH_TOKEN")
         if (!modrinthToken.isNullOrBlank()) {
             maven {
@@ -381,6 +466,7 @@ publishing {
             }
         }
 
+        // GitHub Packages (optional — needs GITHUB_ACTOR + GITHUB_TOKEN env vars)
         val ghToken = System.getenv("GITHUB_TOKEN")
         val ghActor = System.getenv("GITHUB_ACTOR")
         if (!ghToken.isNullOrBlank() && !ghActor.isNullOrBlank()) {
@@ -396,6 +482,19 @@ publishing {
     }
 }
 
+// ────────────────────────────────────────────────────────────
+//  Modrinth + CurseForge publishing via mod-publish-plugin
+//  Only applied when the publishing API keys are available.
+//  Tasks do NOT run during a normal build; invoke them explicitly:
+//    ./gradlew :versions/1.21.11-fabric:publishModrinth
+//    ./gradlew :versions/1.21.11-neoforge:publishCurseForge
+//    ./gradlew chiseledPublishAll   (publishes all nodes)
+// ────────────────────────────────────────────────────────────
+
+// Determine the production JAR task name for this node.
+// Older Fabric Loom nodes expose "remapJar" as the final artifact; newer ones
+// (and all NeoForge nodes) use plain "jar". Check at configuration time so that
+// both old and new Loom versions are handled correctly.
 val prodJarTask: String = if (tasks.findByName("remapJar") != null) "remapJar" else "jar"
 
 // `mod_version` can be bumped several times between publishes, so release notes must span every
@@ -581,6 +680,14 @@ if (tasks.findByName("publishMods") == null) {
     }
 }
 
+// ────────────────────────────────────────────────────────────
+//  Release-packaging task (kept for backward compatibility with
+//  the CI release workflow — copies the final JAR to releases/)
+// ────────────────────────────────────────────────────────────
+
+// Register cleanReleases on the root project once (the first node to configure
+// creates it; subsequent nodes simply look it up). This guarantees it runs
+// exactly once — before any node copies its JAR into releases/.
 val cleanReleasesTask = if (rootProject.tasks.findByName("cleanReleases") == null) {
     rootProject.tasks.register("cleanReleases") {
         group = "release"

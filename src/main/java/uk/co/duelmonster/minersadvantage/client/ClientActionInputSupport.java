@@ -1,3 +1,4 @@
+//~ mc26_3_api
 package uk.co.duelmonster.minersadvantage.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
@@ -60,16 +61,16 @@ public final class ClientActionInputSupport {
     }
 
     com.mojang.blaze3d.platform.Window window = minecraft.getWindow();
-    addPressedDigit(window, pressed, '0', org.lwjgl.glfw.GLFW.GLFW_KEY_0, org.lwjgl.glfw.GLFW.GLFW_KEY_KP_0);
-    addPressedDigit(window, pressed, '2', org.lwjgl.glfw.GLFW.GLFW_KEY_2, org.lwjgl.glfw.GLFW.GLFW_KEY_KP_2);
-    addPressedDigit(window, pressed, '7', org.lwjgl.glfw.GLFW.GLFW_KEY_7, org.lwjgl.glfw.GLFW.GLFW_KEY_KP_7);
-    addPressedDigit(window, pressed, '8', org.lwjgl.glfw.GLFW.GLFW_KEY_8, org.lwjgl.glfw.GLFW.GLFW_KEY_KP_8);
+    addPressedDigit(window, pressed, '0', InputConstants.KEY_0, InputConstants.KEY_NUMPAD0);
+    addPressedDigit(window, pressed, '2', InputConstants.KEY_2, InputConstants.KEY_NUMPAD2);
+    addPressedDigit(window, pressed, '7', InputConstants.KEY_7, InputConstants.KEY_NUMPAD7);
+    addPressedDigit(window, pressed, '8', InputConstants.KEY_8, InputConstants.KEY_NUMPAD8);
     return pressed;
   }
 
   private static void addPressedDigit(com.mojang.blaze3d.platform.Window window, Set<Character> pressed, char digit,
       int primaryKey, int keypadKey) {
-    if (InputConstants.isKeyDown(window, primaryKey) || InputConstants.isKeyDown(window, keypadKey)) {
+    if (InputConstants.isKeyDown(primaryKey) || InputConstants.isKeyDown(keypadKey)) {
       pressed.add(digit);
     }
   }

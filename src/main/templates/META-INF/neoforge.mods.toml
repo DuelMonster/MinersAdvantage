@@ -9,7 +9,8 @@ version="${mod_version}"
 displayName="${mod_name}"
 description='''${mod_description}'''
 authors="${mod_author}"
-logoFile="assets/${mod_id}/icon.png"
+bannerFile="assets/${mod_id}/MinersAdvantage_Banner.png"
+iconFile="assets/${mod_id}/icon.png"
 
 [[mixins]]
 config="minersadvantage.mixins.json"
