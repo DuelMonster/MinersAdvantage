@@ -1,5 +1,6 @@
 ## 2.27.0
 
+- Prefer a hotbar sword when attacking mobs, and leave a sword or axe already in the main hand untouched.
 - Fix NeoForge startup failures caused by registering the break hook against an abstract event.
 
 ## 2.26.0

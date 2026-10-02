@@ -61,7 +61,7 @@ Shaftanation digs straight mining corridors using configurable width, height, de
 
 ### Substitution
 
-Substitution evaluates the block/entity context and swaps to the best tool in your hotbar, then can optionally switch back. The rule profile supports action-aware target matching and advanced expression-based prioritization for players who like precise control.
+Substitution evaluates the block/entity context and swaps to the best tool in your hotbar, then can optionally switch back. When attacking an entity, it selects a sword by default without being distracted by the block under the target; a sword or axe already in your main hand is left alone. The rule profile supports action-aware target matching and advanced expression-based prioritization for players who like precise control.
 
 ### Veination
 
@@ -292,7 +292,7 @@ Substitution includes an advanced `selectionRules` profile in runtime config def
 | action           | enum    | `BREAK`, `INTERACT`, `ATTACK`, `STAT_CHANGE`, or `ANY`.                  |
 | targetKind       | enum    | `BLOCK_TAG`, `ENTITY_TYPE`, or `ANY`.                                    |
 | targetId         | string  | Tag/entity identifier for the selected target kind.                      |
-| requiredToolKind | string  | Tool family hint (for example `pickaxe`, `axe`, `shovel`, `hoe`).        |
+| requiredToolKind | string  | Tool family hint (for example `pickaxe`, `axe`, `shovel`, `hoe`, `sword`). |
 | targetPriority   | int     | Priority for choosing among target matches.                              |
 | toolPriority     | int     | Priority for choosing among tool candidates.                             |
 | preferSilkTouch  | boolean | Prefer silk-touch style outcomes for the rule.                           |

@@ -269,7 +269,8 @@ public class SubstitutionAgent extends Agent {
     PICKAXE,
     AXE,
     SHOVEL,
-    HOE
+    HOE,
+    SWORD
   }
 
   private final BlockState targetState;
@@ -360,15 +361,24 @@ public class SubstitutionAgent extends Agent {
         config.allowMending(),
         config.switchBack());
 
-    if (targetState == null || targetState.isAir()) {
-      return finish("no substitution target state");
-    }
-
     if (!config.enabled()) {
       return finish("substitution disabled");
     }
 
-    if (blockBlacklist.contains(BuiltInRegistries.BLOCK.getKey(targetState.getBlock()).toString())) {
+    ItemStack mainHandStack = player.getMainHandItem();
+    if (shouldSkipAttackSwap(
+        action,
+        mainHandStack.is(ItemTags.SWORDS),
+        RegistryPredicates.isAxeTool(mainHandStack))) {
+      return finish("main-hand weapon already valid");
+    }
+
+    if (targetState == null || (action != SubstitutionAction.ATTACK && targetState.isAir())) {
+      return finish("no substitution target state");
+    }
+
+    if (action != SubstitutionAction.ATTACK
+        && blockBlacklist.contains(BuiltInRegistries.BLOCK.getKey(targetState.getBlock()).toString())) {
       return finish("target block blacklisted");
     }
 
@@ -533,11 +543,16 @@ public class SubstitutionAgent extends Agent {
    * Compute target suitability score for required tool kind.
    */
   private MatchRating targetMatch(ToolKind requiredKind, ItemStack held) {
+    if (action == SubstitutionAction.ATTACK) {
+      return MatchRating.match(new double[] { 1.0 });
+    }
+
     boolean tagMatch = switch (requiredKind) {
       case PICKAXE -> targetState.is(BlockTags.MINEABLE_WITH_PICKAXE);
       case AXE -> targetState.is(BlockTags.MINEABLE_WITH_AXE);
       case SHOVEL -> targetState.is(BlockTags.MINEABLE_WITH_SHOVEL);
       case HOE -> targetState.is(BlockTags.MINEABLE_WITH_HOE);
+      case SWORD -> false;
     };
 
     boolean inferredFromHeld = !tagMatch && matchesToolKind(held, requiredKind);
@@ -569,7 +584,9 @@ public class SubstitutionAgent extends Agent {
       return MatchRating.noMatch();
     }
 
-    boolean canDropCorrectly = !targetState.requiresCorrectToolForDrops() || stack.isCorrectToolForDrops(targetState);
+    boolean canDropCorrectly = action == SubstitutionAction.ATTACK
+        || !targetState.requiresCorrectToolForDrops()
+        || stack.isCorrectToolForDrops(targetState);
     if (!canDropCorrectly) {
       return MatchRating.noMatch();
     }
@@ -591,9 +608,11 @@ public class SubstitutionAgent extends Agent {
       return MatchRating.noMatch();
     }
 
-    double destroySpeed = stack.getDestroySpeed(targetState);
+    double destroySpeed = action == SubstitutionAction.ATTACK ? 0.0 : stack.getDestroySpeed(targetState);
     double normalizedSpeed = Math.max(0.0, destroySpeed - 1.0);
-    double enchantRating = enchantPreferenceRating(silkLevel, fortuneLevel, rule);
+    double enchantRating = action == SubstitutionAction.ATTACK
+        ? 0.0
+        : enchantPreferenceRating(silkLevel, fortuneLevel, rule);
     double durabilityRating = durabilityRating(stack);
 
     return MatchRating.match(new double[] {
@@ -845,6 +864,7 @@ public class SubstitutionAgent extends Agent {
       case "axe" -> Optional.of(ToolKind.AXE);
       case "shovel" -> Optional.of(ToolKind.SHOVEL);
       case "hoe" -> Optional.of(ToolKind.HOE);
+      case "sword" -> Optional.of(ToolKind.SWORD);
       default -> Optional.empty();
     };
   }
@@ -1296,6 +1316,10 @@ public class SubstitutionAgent extends Agent {
    * Infer needed tool kind from block tags, then fallback to held-tool family.
    */
   private ToolKind inferRequiredToolKind(ItemStack main, BlockState state) {
+    if (action == SubstitutionAction.ATTACK) {
+      return ToolKind.SWORD;
+    }
+
     if (state.is(BlockTags.MINEABLE_WITH_PICKAXE)) {
       return ToolKind.PICKAXE;
     }
@@ -1333,7 +1357,16 @@ public class SubstitutionAgent extends Agent {
       case AXE -> RegistryPredicates.isAxeTool(stack);
       case SHOVEL -> RegistryPredicates.isShovelTool(stack);
       case HOE -> RegistryPredicates.isHoeTool(stack);
+      case SWORD -> stack.is(ItemTags.SWORDS);
     };
+  }
+
+  /**
+   * Leave an already equipped sword or axe alone during combat; the hotbar does not need a committee meeting.
+   */
+  static boolean shouldSkipAttackSwap(SubstitutionAction action, boolean mainHandSword, boolean mainHandAxe) {
+    return action == SubstitutionAction.ATTACK
+        && (mainHandSword || mainHandAxe);
   }
 
   /**

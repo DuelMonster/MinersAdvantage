@@ -118,6 +118,8 @@ Substitution supports rule-based selection profiles using `SelectionRule` entrie
 - expression fields (`targetExpression`, `toolExpression`)
 - enchant gating (`minSilkTouch`, `minFortune`, `requireMending`, `denyMending`)
 
+Entity attacks default to sword candidates and ignore the block beneath the target for tool eligibility. If the player's main hand already contains a sword or an axe, substitution exits without changing the selected slot.
+
 When `requireMending` and `denyMending` are both true, sanitization keeps `requireMending` and clears `denyMending`.
 
 ## Runtime Data Flow
