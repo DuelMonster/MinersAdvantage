@@ -1,7 +1,7 @@
 # Agent Instructions — MinersAdvantage
 
 Multi-loader Minecraft mod built with Stonecutter + Modstitch. One shared source tree in `src/main/java`
-is preprocessed into six nodes: `1.21.11`, `26.1.2`, `26.2` × `fabric`, `neoforge`.
+is preprocessed into eight nodes: `1.21.11`, `26.1.2`, `26.2`, and `26.3` × `fabric`, `neoforge`.
 
 Authoritative rules live in [.brainbox/rules](.brainbox/rules) and [.brainbox/guides](.brainbox/guides).
 This file is the summary an agent must follow; the guides win if they disagree.
@@ -15,6 +15,13 @@ This file is the summary an agent must follow; the guides win if they disagree.
 4. **Never add sources under `versions/<node>/src`.** Every Java source, loader-specific ones included,
    belongs in `src/main/java` behind Stonecutter conditions. Node directories own only `gradle.properties`.
    `validate-compile-matrix` fails immediately if a node source directory reappears.
+
+## Source Layout
+
+- Shared gameplay and services live under `common`; loader-neutral client behavior lives under `client`.
+- Fabric adapters live under `platform/fabric`, with client entrypoints under `platform/fabric/client`.
+- NeoForge adapters live under `platform/neoforge`, with client and event adapters in their respective subpackages.
+- Minecraft API differences stay behind Stonecutter conditions or narrowly scoped compatibility helpers.
 
 ## Commands
 

@@ -823,7 +823,8 @@ public final class ShapePreviewRenderer {
 
       heldKeyMethod = findHeldKeyMethod("uk.co.duelmonster.minersadvantage.client.ClientInputHandler");
       if (heldKeyMethod == null) {
-        heldKeyMethod = findHeldKeyMethod("uk.co.duelmonster.minersadvantage.client.NeoForgeClientEvents");
+        heldKeyMethod = findHeldKeyMethod(
+            "uk.co.duelmonster.minersadvantage.platform.neoforge.client.NeoForgeClientEvents");
       }
 
       heldKeyMethodInitialized = true;

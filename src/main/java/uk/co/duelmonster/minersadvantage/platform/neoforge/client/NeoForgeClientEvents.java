@@ -1,12 +1,11 @@
 //? if neoforge {
-/*
-package uk.co.duelmonster.minersadvantage.client;
+package uk.co.duelmonster.minersadvantage.platform.neoforge.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
-import java.util.HashSet;
 import java.lang.reflect.Method;
 import java.util.EnumMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import net.minecraft.client.KeyMapping;
@@ -20,18 +19,22 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.ExtractBlockOutlineRenderStateEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import uk.co.duelmonster.minersadvantage.client.ClientActionInputSupport;
+import uk.co.duelmonster.minersadvantage.client.ClientRuntimeCompat;
+import uk.co.duelmonster.minersadvantage.client.KeyBindings;
+import uk.co.duelmonster.minersadvantage.client.ShapePreviewRenderer;
+import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 import uk.co.duelmonster.minersadvantage.common.network.AbortWorkersPacket;
 import uk.co.duelmonster.minersadvantage.common.network.ComponentTogglePacket;
 import uk.co.duelmonster.minersadvantage.common.network.IlluminationActionPacket;
 import uk.co.duelmonster.minersadvantage.common.network.SupremeVantagePacket;
-import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeBootstrap;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeRegistry;
 import uk.co.duelmonster.minersadvantage.common.services.input.ClientInputService;
 import uk.co.duelmonster.minersadvantage.common.services.utility.SupremeVantageService;
 
 @EventBusSubscriber(modid = "minersadvantage", value = Dist.CLIENT)
-public final class NeoForgeClientEvents {
+public class NeoForgeClientEvents {
   private static final Map<KeyBindings.ClientAction, KeyMapping> KEY_MAPPINGS = new EnumMap<>(
       KeyBindings.ClientAction.class);
   private static final ClientInputService INPUT_SERVICE = new ClientInputService();
@@ -41,7 +44,7 @@ public final class NeoForgeClientEvents {
   private static final SupremeVantageService supremeVantageService = new SupremeVantageService();
   private static SupremeVantageService.ClientState supremeVantageState = SupremeVantageService.ClientState.defaults();
 
-  private NeoForgeClientEvents() {
+  public NeoForgeClientEvents() {
   }
 
   @SubscribeEvent
@@ -126,7 +129,7 @@ public final class NeoForgeClientEvents {
     double[] cameraPosition = extractCameraCoordinates(event.getCamera());
     // 26.2 replaced the buffer source and translucent-pass flag with a submit node collector.
     //? if >=26.2 {
-    /^event.addCustomRenderer((blockOutlineRenderState, submitNodeCollector, poseStack, levelRenderState) -> {
+    event.addCustomRenderer((blockOutlineRenderState, submitNodeCollector, poseStack, levelRenderState) -> {
       ShapePreviewRenderer.renderHeldPreview(
           inputState,
           submitNodeCollector,
@@ -136,7 +139,7 @@ public final class NeoForgeClientEvents {
           cameraPosition[2]);
       return false;
     });
-    ^///?} else {
+    //?} else {
     event.addCustomRenderer((blockOutlineRenderState, bufferSource, poseStack, translucentPass, levelRenderState) -> {
       ShapePreviewRenderer.renderHeldPreview(
           inputState,
@@ -301,7 +304,6 @@ public final class NeoForgeClientEvents {
     return poseStack == null ? new PoseStack() : poseStack;
   }
 
-  // Camera accessors vary between loader versions, so coordinates are read defensively.
   private static double[] extractCameraCoordinates(Object camera) {
     if (camera == null) {
       return new double[] { 0.0d, 0.0d, 0.0d };
@@ -360,4 +362,7 @@ public final class NeoForgeClientEvents {
     }
   }
 }
+//?} else {
+/*
+// This class is NeoForge-only (client-side event registration).
 */ //?}

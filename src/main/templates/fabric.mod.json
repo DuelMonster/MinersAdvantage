@@ -9,13 +9,11 @@
   "icon": "assets/${mod_id}/icon.png",
   "environment": "*",
   "entrypoints": {
-    "main": ["uk.co.duelmonster.minersadvantage.ModEntry"],
-    "client": ["uk.co.duelmonster.minersadvantage.client.FabricClientEntrypoint"],
-    "modmenu": ["uk.co.duelmonster.minersadvantage.client.ModMenuEntrypoint"]
+    "main": ["uk.co.duelmonster.minersadvantage.platform.fabric.FabricModEntrypoint"],
+    "client": ["uk.co.duelmonster.minersadvantage.platform.fabric.client.FabricClientEntrypoint"],
+    "modmenu": ["uk.co.duelmonster.minersadvantage.platform.fabric.client.ModMenuEntrypoint"]
   },
-  "mixins": [
-    "minersadvantage.mixins.json"
-  ],
+  "mixins": ["minersadvantage.mixins.json"],
   "depends": {
     "minecraft": ">=1.21.11",
     "fabricloader": ">=0.19.2",

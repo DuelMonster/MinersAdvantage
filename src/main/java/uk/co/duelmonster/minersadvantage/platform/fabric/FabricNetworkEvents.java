@@ -1,5 +1,5 @@
 //? if fabric {
-package uk.co.duelmonster.minersadvantage.client;
+package uk.co.duelmonster.minersadvantage.platform.fabric;
 
 import java.lang.reflect.Method;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;

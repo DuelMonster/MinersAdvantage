@@ -18,7 +18,7 @@ public final class ClientMouseScrollBridge {
         return ClientInputHandler.onMouseScroll(scrollY);
         //?} else {
         /*
-        return NeoForgeClientEvents.onMouseScroll(scrollY);
+        return uk.co.duelmonster.minersadvantage.platform.neoforge.client.NeoForgeClientEvents.onMouseScroll(scrollY);
         */ //?}
     }
 }

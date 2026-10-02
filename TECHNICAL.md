@@ -16,8 +16,12 @@ The codebase prioritizes:
 ### Namespace Layout
 
 - `uk.co.duelmonster.minersadvantage.common`: shared gameplay logic, config, networking contracts, services, and orchestration.
-- `uk.co.duelmonster.minersadvantage.fabric`: Fabric bootstrap and integration adapters.
-- `uk.co.duelmonster.minersadvantage.neoforge`: NeoForge bootstrap and integration adapters.
+- `uk.co.duelmonster.minersadvantage.client`: loader-neutral client behavior and UI.
+- `uk.co.duelmonster.minersadvantage.platform.fabric`: Fabric lifecycle, networking, and integration adapters.
+- `uk.co.duelmonster.minersadvantage.platform.fabric.client`: Fabric client and ModMenu entrypoints.
+- `uk.co.duelmonster.minersadvantage.platform.neoforge`: NeoForge lifecycle and networking adapters.
+- `uk.co.duelmonster.minersadvantage.platform.neoforge.client`: NeoForge client event and input adapters.
+- `uk.co.duelmonster.minersadvantage.platform.neoforge.event`: NeoForge event adapters.
 
 ### Component Model
 
@@ -194,13 +198,15 @@ Configured nodes:
 - `26.3-fabric`
 - `26.3-neoforge`
 
-Minecraft 26.3 moves the RenderPearl pipeline and removes the old axe/hoe/shovel item classes. Its Fabric target uses ItemTags for tool-family checks, RenderPearl pipeline types for previews, and the revised InputConstants key API. The current NeoForge 26.3.0.35-beta toolchain fails while recompiling NeoForm `26.3-1` sources (`HolderSet$1.contents()` visibility conflict), before MinersAdvantage code is compiled.
+Minecraft 26.3 moves the RenderPearl pipeline and removes the old axe/hoe/shovel item classes. Its targets use ItemTags for tool-family checks, RenderPearl pipeline types for previews, and the revised InputConstants key API. A previous NeoForge 26.3.0.35-beta rebuild failed while recompiling upstream NeoForm `26.3-1` sources (`HolderSet$1.contents()` visibility conflict), before MinersAdvantage code was compiled. In the current workspace, all eight compile-matrix nodes and `chiseledBuild` pass.
 
 Node-specific properties live under `versions/<node>/gradle.properties`. That file is the only thing a node directory owns; everything else under `versions/` is generated build output and is not tracked.
 
 ### Source Layout
 
-All Java sources, including loader-specific ones, live in the single shared tree at `src/main/java` and are preprocessed by Stonecutter. Never add sources under `versions/<node>/src` — those bypass preprocessing and silently drift between nodes. `validate-compile-matrix` fails immediately if any `versions/<node>/src` directory exists, before it runs any Gradle task and regardless of `MA_SKIP_COMPILE_MATRIX`.
+All Java sources, including loader-specific ones, live in the single shared tree at `src/main/java` and are preprocessed by Stonecutter. Organize shared behavior under `common`, loader-neutral client code under `client`, and platform integrations under `platform/fabric` or `platform/neoforge`. Keep client-specific adapters in the matching `platform/<loader>/client` package.
+
+The configured Java source sets do not include `versions/<node>/src`; node-local Java placed there would not be compiled or packaged. Keep all eight loader/version combinations in the shared source model; node directories own only `gradle.properties`. `validate-compile-matrix` fails immediately if any `versions/<node>/src` directory exists, before it runs any Gradle task and regardless of `MA_SKIP_COMPILE_MATRIX`.
 
 Loader- and version-specific code is expressed with Stonecutter comment conditions:
 
@@ -212,7 +218,10 @@ Loader- and version-specific code is expressed with Stonecutter comment conditio
 | `//? if mc26 {`     | Minecraft `26.x` nodes only.                            |
 | `//? if >=26.2 {`   | Version predicate, compared against the node's version. |
 
+The Fabric and NeoForge entrypoints delegate to a shared runtime surface, while client initialization and loader-owned networking/event adapters sit in the corresponding `platform/<loader>` packages. The main source set excludes the opposite loader's platform package; Stonecutter's generated inactive branches alone do not keep raw Java sources out of javac.
+
 The `fabric`/`neoforge` and `mc1`/`mc26` constants are declared in [build.gradle.kts](build.gradle.kts); version predicates need no declaration.
+The `mc26_3_api` replacements are defined in that Gradle DSL, which produces the 26.3 tool-tag and input/render API variants while retaining their earlier APIs on older nodes. The unused duplicate JSON rules file has been removed.
 
 A file that only applies to one loader wraps its whole body in a single condition, with a short note in the `else` branch. `FabricNetworkEvents`, `NeoForgeNetworkEvents`, `NeoForgeClientEvents` and `NeoForgeBreakEvents` all follow that shape.
 

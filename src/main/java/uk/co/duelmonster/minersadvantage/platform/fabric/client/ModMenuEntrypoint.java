@@ -1,8 +1,9 @@
-package uk.co.duelmonster.minersadvantage.client;
+package uk.co.duelmonster.minersadvantage.platform.fabric.client;
 
 //? if fabric {
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
+import uk.co.duelmonster.minersadvantage.client.MinersAdvantageConfigScreen;
 
 /**
  * ModMenuEntrypoint keeps this part of MinersAdvantage running without turning server ticks into confetti.

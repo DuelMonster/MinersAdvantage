@@ -96,7 +96,7 @@ public final class ClientInputHandler {
   //? if fabric {
   /**
    * Register keybindings on Fabric client startup.
-   * Called from FabricClientEntrypoint.onInitializeClient().
+   * Called from the Fabric client entrypoint during client startup.
    */
   public static void registerKeybindings() {
     for (KeyBindings.KeyBindingSpec spec : KeyBindings.all()) {
@@ -128,7 +128,7 @@ public final class ClientInputHandler {
   }
   //?} else {
   /*
-  // NeoForge keybinding registration and polling are implemented in NeoForgeClientEvents.
+  // NeoForge keybinding registration and polling are implemented in the platform client adapter.
   */ //?}
 
   //? if fabric {
@@ -394,7 +394,7 @@ public final class ClientInputHandler {
   }
   //?} else {
   /*
-  // NeoForge tick handler is in NeoForgeClientEvents
+  // NeoForge tick handling is implemented in the platform client adapter.
   */ //?}
 }
 //?} else {

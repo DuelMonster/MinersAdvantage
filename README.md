@@ -23,7 +23,7 @@ If you have ever thought "I only wanted a few stacks of stone, why am I still he
 - Veination: mines complete ore veins with configurable controls.
 - Ventilation: digs vertical shafts (up or down) with optional ladder placement.
 - Server-aware syncing: gameplay settings are synchronized and can be server-authoritative in multiplayer.
-- Multi-loader + multi-version support: Fabric and NeoForge builds are produced from one shared codebase.
+- Multi-loader + multi-version support: Fabric and NeoForge builds are produced from one shared codebase across `1.21.11`, `26.1.2`, `26.2`, and `26.3`.
 
 ## How It Works
 
@@ -310,7 +310,8 @@ Substitution includes an advanced `selectionRules` profile in runtime config def
 | ------------------ | ------------------------------------------------------------------------------------------------------ |
 | Minecraft versions | `1.21.11`, `26.1.2`, `26.2`, and `26.3` nodes are maintained.                                          |
 | Loaders            | Fabric and NeoForge are both targets.                                                                  |
-| Known conflicts    | NeoForge 26.3 currently fails in NeoForm before MinersAdvantage sources compile; Fabric 26.3 compiles. |
+| Build              | Current compile matrix and `chiseledBuild` pass for all eight nodes.                                |
+| Prior 26.3 issue   | A NeoForm rebuild previously failed upstream in `HolderSet`; the current local build passes.         |
 
 ## Technical Documentation
 

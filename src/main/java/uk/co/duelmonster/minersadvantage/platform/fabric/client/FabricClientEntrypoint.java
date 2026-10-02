@@ -1,5 +1,5 @@
 //? if fabric {
-package uk.co.duelmonster.minersadvantage.client;
+package uk.co.duelmonster.minersadvantage.platform.fabric.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.lang.reflect.Proxy;
@@ -8,7 +8,11 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.event.Event;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.phys.Vec3;
+import uk.co.duelmonster.minersadvantage.client.ClientInputHandler;
+import uk.co.duelmonster.minersadvantage.client.ClientRuntimeCompat;
+import uk.co.duelmonster.minersadvantage.client.ShapePreviewRenderer;
 import uk.co.duelmonster.minersadvantage.common.log.LogUtils;
+import uk.co.duelmonster.minersadvantage.platform.fabric.FabricNetworkEvents;
 
 /**
  * Fabric client-side initialization entry point.
@@ -19,9 +23,9 @@ import uk.co.duelmonster.minersadvantage.common.log.LogUtils;
  * - Client tick listener setup (M3)
  * - Config screen factory registration (M6)
  *
- * Server-side initialization happens in ModEntry (the main Fabric ModInitializer).
+ * Server startup is handled by the Fabric entrypoint, which delegates to the shared ModEntry runtime.
  */
-public final class FabricClientEntrypoint implements ClientModInitializer {
+public class FabricClientEntrypoint implements ClientModInitializer {
   private static long lastOutlineCallbackLogNanos;
   private static long lastOutlineCallbackSkipLogNanos;
   private static boolean clientFeaturesInitialized;
@@ -66,7 +70,7 @@ public final class FabricClientEntrypoint implements ClientModInitializer {
   }
 
   /**
-   * r eg is te ro ut li ne re nd er ho ok exists so this path stays predictable and easier to debug when things get weird.
+   * registerOutlineRenderHook exists so this path stays predictable and easier to debug when things get weird.
    */
   private static void registerOutlineRenderHook() {
     if (outlineHookRegistered) {
@@ -199,7 +203,6 @@ public final class FabricClientEntrypoint implements ClientModInitializer {
 
     throw new NoSuchMethodException("No zero-arg PoseStack accessor on " + context.getClass().getName());
   }
-
 }
 //?} else {
 /*

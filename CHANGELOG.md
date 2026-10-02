@@ -1,3 +1,7 @@
+## 2.27.0
+
+- Fix NeoForge startup failures caused by registering the break hook against an abstract event.
+
 ## 2.26.0
 
 - Add Minecraft 26.3 targets and update tool checks, keyboard input, and shape previews for its revised APIs.

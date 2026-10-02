@@ -223,6 +223,9 @@ val generateModMetadataSource = tasks.register("generateModMetadataSource") {
 sourceSets {
     named("main") {
         java.srcDir(generatedModMetadataDir)
+        java.exclude(
+            if (isFabric) "**/platform/neoforge/**" else "**/platform/fabric/**"
+        )
     }
 }
 

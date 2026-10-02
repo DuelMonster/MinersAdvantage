@@ -17,7 +17,7 @@ public final class ClientPreviewStateBridge {
         return ClientInputHandler.getInputState();
         //?} else {
         /*
-        return NeoForgeClientEvents.getInputState();
+        return uk.co.duelmonster.minersadvantage.platform.neoforge.client.NeoForgeClientEvents.getInputState();
         */ //?}
     }
 }

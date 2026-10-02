@@ -70,7 +70,6 @@ import uk.co.duelmonster.minersadvantage.common.registry.RegistryPredicates;
 import uk.co.duelmonster.minersadvantage.common.services.utility.VeinationRuntimeService;
 
 //? if fabric {
-import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -79,13 +78,13 @@ import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
-import uk.co.duelmonster.minersadvantage.client.FabricNetworkEvents;
+import uk.co.duelmonster.minersadvantage.platform.fabric.FabricNetworkEvents;
 
 /**
  * ModEntry keeps this part of MinersAdvantage running without turning server ticks into confetti.
  * It's here to make the behavior obvious, reliable, and slightly less mysterious at 2 AM.
  */
-public final class ModEntry implements ModInitializer {
+public final class ModEntry {
   private final MinersAdvantageCore core = new MinersAdvantageCore();
   private final ToolEventHandler toolEvents = new CommonEventHandlerImpl(core);
   private final VeinationRuntimeService veinationRuntime = new VeinationRuntimeService();
@@ -94,11 +93,10 @@ public final class ModEntry implements ModInitializer {
   /**
    * Bootstrap core services and register all Fabric-side gameplay/network/event hooks.
    */
-  @Override
   /**
    * o ni ni ti al iz e exists so this path stays predictable and easier to debug when things get weird.
    */
-  public void onInitialize() {
+  public void initialize() {
     LogUtils.applyConfiguredLogging();
     LogUtils.logInfo("Initializing {} {} debugLogging={}", ModCommon.MOD_NAME, ModCommon.MOD_VERSION,
         LogUtils.isDebugLoggingEnabled());
@@ -1068,7 +1066,7 @@ public final class ModEntry implements ModInitializer {
 /*
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.fml.ModContainer;import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
@@ -1079,9 +1077,9 @@ import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.minecraft.world.level.Level;
-import uk.co.duelmonster.minersadvantage.client.NeoForgeNetworkEvents;
+import uk.co.duelmonster.minersadvantage.platform.neoforge.NeoForgeNetworkEvents;
+import uk.co.duelmonster.minersadvantage.platform.neoforge.event.NeoForgeBreakEvents;
 
-@Mod("minersadvantage")
 public final class ModEntry {
     private final MinersAdvantageCore core = new MinersAdvantageCore();
     private final ToolEventHandler toolEvents = new CommonEventHandlerImpl(core);

@@ -1,13 +1,12 @@
 //? if neoforge {
-/*
-package uk.co.duelmonster.minersadvantage.client;
+package uk.co.duelmonster.minersadvantage.platform.neoforge;
 
+import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
-import net.minecraft.server.level.ServerPlayer;
 import uk.co.duelmonster.minersadvantage.common.MinersAdvantageCore;
 import uk.co.duelmonster.minersadvantage.common.network.AbortWorkersPacket;
 import uk.co.duelmonster.minersadvantage.common.network.ComponentTogglePacket;
@@ -44,32 +43,55 @@ public final class NeoForgeNetworkEvents {
         NeoForgeNetworkEvents::handleSupremeVantagePacket);
   }
 
-  private static void handleComponentTogglePacket(ComponentTogglePacket payload, IPayloadContext context) {
-    core.handleComponentTogglePacket(payload);
-  }
-
-  private static void handleAbortWorkersPacket(AbortWorkersPacket payload, IPayloadContext context) {
-    core.handleAbortPacket(payload);
-  }
-
-  private static void handlePlayerStateSyncPacket(PlayerStateSyncPacket payload, IPayloadContext context) {
-    core.handlePlayerStateSyncPacket(payload);
-  }
-
-  private static void handleFeatureDispatchPacket(FeatureDispatchPacket payload, IPayloadContext context) {
-    core.handleFeatureDispatchPacket(payload);
-  }
-
-  private static void handleIlluminationActionPacket(IlluminationActionPacket payload, IPayloadContext context) {
-    if (context.player() instanceof ServerPlayer player) {
-      core.handleIlluminationActionPacket(player, payload);
+    private static void handleComponentTogglePacket(ComponentTogglePacket packet, IPayloadContext context) {
+        context.enqueueWork(() -> {
+            if (context.player() != null) {
+                core.handleComponentTogglePacket(packet);
+            }
+        });
     }
-  }
 
-  private static void handleSupremeVantagePacket(SupremeVantagePacket payload, IPayloadContext context) {
-    if (context.player() instanceof ServerPlayer player) {
-      core.handleSupremeVantagePacket(player, payload);
+    private static void handleAbortWorkersPacket(AbortWorkersPacket packet, IPayloadContext context) {
+        context.enqueueWork(() -> {
+            if (context.player() != null) {
+                core.handleAbortPacket(packet);
+            }
+        });
     }
-  }
+
+    private static void handlePlayerStateSyncPacket(PlayerStateSyncPacket packet, IPayloadContext context) {
+        context.enqueueWork(() -> {
+            if (context.player() != null) {
+                core.handlePlayerStateSyncPacket(packet);
+            }
+        });
+    }
+
+    private static void handleFeatureDispatchPacket(FeatureDispatchPacket packet, IPayloadContext context) {
+        context.enqueueWork(() -> {
+            if (context.player() != null) {
+                core.handleFeatureDispatchPacket(packet);
+            }
+        });
+    }
+
+    private static void handleIlluminationActionPacket(IlluminationActionPacket packet, IPayloadContext context) {
+        context.enqueueWork(() -> {
+            if (context.player() instanceof ServerPlayer serverPlayer) {
+                core.handleIlluminationActionPacket(serverPlayer, packet);
+            }
+        });
+    }
+
+    private static void handleSupremeVantagePacket(SupremeVantagePacket packet, IPayloadContext context) {
+        context.enqueueWork(() -> {
+            if (context.player() instanceof ServerPlayer serverPlayer) {
+                core.handleSupremeVantagePacket(serverPlayer, packet);
+            }
+        });
+    }
 }
+//?} else {
+/*
+// This class is NeoForge-only.
 */ //?}
