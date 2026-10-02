@@ -64,8 +64,7 @@ See [.brainbox/guides/CHANGELOG_RULE.md](.brainbox/guides/CHANGELOG_RULE.md).
 
 See [.brainbox/rules/documentation.rules.md](.brainbox/rules/documentation.rules.md).
 
-- Keep `README.md`, `TECHNICAL.md` and, when throughput or replay policy changes,
-  `TUNING_MATRIX.md` in step with code changes in the same commit.
+- Keep `README.md` and `TECHNICAL.md` in step with code changes in the same commit.
 - Pad Markdown tables so they stay readable as raw text.
 
 ## Comments

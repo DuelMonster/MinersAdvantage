@@ -159,7 +159,7 @@ Restart from clean commit 299d0cd9bf2a22a15a6abe49e422bf190bb37f83 and re-apply 
 - d:/Mod_Source/MinersAdvantage/src/main/java/uk/co/duelmonster/minersadvantage/common/network/packets/PacketProcessSupport.java — packet processing hot path.
 - d:/Mod_Source/MinersAdvantage/src/main/java/uk/co/duelmonster/minersadvantage/common/services/utility/SupremeVantageService.java — deterministic reward progression runtime path.
 - d:/Mod_Source/MinersAdvantage/README.md — public config/perf semantics.
-- d:/Mod_Source/MinersAdvantage/TUNING_MATRIX.md — scenario matrices and loader parity guidance.
+- d:/Mod_Source/MinersAdvantage/TECHNICAL.md — scenario matrices and loader parity guidance.
 - d:/Mod_Source/MinersAdvantage/versions/1.21.11-neoforge/src/main/java/uk/co/duelmonster/minersadvantage/client/NeoForgeClientEvents.java — adapter-only NeoForge hooks.
 - d:/Mod_Source/MinersAdvantage/versions/26.1.2-neoforge/src/main/java/uk/co/duelmonster/minersadvantage/client/NeoForgeClientEvents.java — adapter-only NeoForge hooks.
 

@@ -18,7 +18,6 @@ Use this before publishing jars and creating a release note.
 4. Confirm docs parity across:
    - [README.md](README.md)
    - [TECHNICAL.md](TECHNICAL.md)
-   - [TUNING_MATRIX.md](TUNING_MATRIX.md) when throughput or replay policy language changed.
 
 ## Validation Gates
 
