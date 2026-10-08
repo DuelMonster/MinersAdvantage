@@ -41,7 +41,7 @@ Cultivation focuses on automatic tilling with hydration-driven farming checks so
 
 ### Excavation
 
-Excavation breaks matching blocks in a configurable volume with per-tick processing limits, block-variant handling, and list filtering logic. It supports hold/toggle style usage and cooperates with other systems like Illumination and Veination when those shared options are enabled.
+Excavation breaks matching blocks in a configurable volume with per-tick processing limits, block-variant handling, and list filtering logic. Its Shapeless shape follows connected matching blocks inside the selected bounds, with the block face—not your viewing angle—setting the processing orientation. UP/DOWN hits use a steady world-axis layout. Full Ellipsoid can grow from a one-block-wide or one-block-high starting tip rather than giving up after the trigger block. Excavation supports hold/toggle style usage and cooperates with other systems like Illumination and Veination when those shared options are enabled.
 
 ### Pathanation
 
@@ -69,7 +69,7 @@ Veination expands ore mining into full vein extraction with distance limits and 
 
 ### Ventilation
 
-Ventilation creates vertical access shafts with configurable dimensions and throughput. Optional ladder placement helps turn that shaft into an actually usable route instead of a stylish pit.
+Ventilation creates vertical access shafts with configurable dimensions and throughput. Optional ladder placement helps turn that shaft into an actually usable route instead of a stylish pit. When configured to illuminate automatically, its bottom torch uses Illumination's light-level threshold, so a well-lit shaft does not get an unnecessary torch.
 
 ### Multiplayer Sync and Enforcement
 

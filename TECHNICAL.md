@@ -159,11 +159,16 @@ The runtime design keeps packet payload handling loader-neutral in common servic
 
 Shape selection and preview/dispatch behavior share geometry sizing context so held-key preview and server execution footprints remain aligned. Addon extension details are documented in [SHAPE_API.md](SHAPE_API.md).
 
+Shapeless Excavation builds its bounded flood-fill envelope from the initiating block face. Horizontal faces orient depth and cross-section directly from that face; UP/DOWN faces use the fixed world X/Z plane and vertical depth, without consulting player look or facing. Full Ellipsoid's first depth layer may consist only of the already-broken origin; the empty-layer guard skips only that intentional starting tip, and continues to stop excavation at later empty layers.
+
+Agent-driven block breaks are marked in a thread-local scope around `gameMode.destroyBlock`. Fabric and NeoForge break dispatch ignore those nested events, preventing an automated Ventilation break from being reinterpreted as a fresh player-triggered Shaftanation action. Ventilation separately queues its bottom target through `IlluminationAgent`, which applies the normal configured light threshold.
+
 ## Testing and Verification
 
 Unit tests target deterministic service behavior and parity-critical logic, including:
 
 - queue and tick budget behavior
+- face-only Shapeless orientation and degenerate Full Ellipsoid starting layers
 - substitution ranking/policy outcomes
 - illumination placement decisions
 - farming/harvest decision outputs

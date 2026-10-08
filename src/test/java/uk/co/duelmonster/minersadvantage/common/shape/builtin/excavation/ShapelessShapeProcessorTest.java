@@ -1,5 +1,6 @@
 package uk.co.duelmonster.minersadvantage.common.shape.builtin.excavation;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -117,6 +118,26 @@ class ShapelessShapeProcessorTest {
                 false
             )
         );
+    }
+
+    @Test
+    void horizontalEnvelopeDepthFollowsOnlyTheHitFace() {
+        assertArrayEquals(new int[] {0, 0, 1}, offset(ExcavationFaceGeometry.FaceDirection.NORTH, 1, 0, 0));
+        assertArrayEquals(new int[] {0, 0, -1}, offset(ExcavationFaceGeometry.FaceDirection.SOUTH, 1, 0, 0));
+        assertArrayEquals(new int[] {-1, 0, 0}, offset(ExcavationFaceGeometry.FaceDirection.EAST, 1, 0, 0));
+        assertArrayEquals(new int[] {1, 0, 0}, offset(ExcavationFaceGeometry.FaceDirection.WEST, 1, 0, 0));
+    }
+
+    @Test
+    void verticalHitFacesUseStableWorldAxes() {
+        assertArrayEquals(new int[] {0, -1, 0}, offset(ExcavationFaceGeometry.FaceDirection.UP, 1, 0, 0));
+        assertArrayEquals(new int[] {0, 1, 0}, offset(ExcavationFaceGeometry.FaceDirection.DOWN, 1, 0, 0));
+        assertArrayEquals(new int[] {-1, 0, 1}, offset(ExcavationFaceGeometry.FaceDirection.UP, 0, -1, 1));
+        assertArrayEquals(new int[] {-1, 0, 1}, offset(ExcavationFaceGeometry.FaceDirection.DOWN, 0, -1, 1));
+    }
+
+    private static int[] offset(ExcavationFaceGeometry.FaceDirection face, int depth, int width, int height) {
+        return ExcavationFaceGeometry.offsetFor(face, depth, width, height);
     }
 
     /**

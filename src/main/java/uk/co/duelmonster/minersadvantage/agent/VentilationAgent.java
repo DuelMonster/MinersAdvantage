@@ -10,6 +10,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LadderBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import uk.co.duelmonster.minersadvantage.common.config.CommonConfig;
+import uk.co.duelmonster.minersadvantage.common.config.IlluminationConfig;
 import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 import uk.co.duelmonster.minersadvantage.common.config.VeinationConfig;
 import uk.co.duelmonster.minersadvantage.common.config.VentilationConfig;
@@ -17,6 +18,7 @@ import uk.co.duelmonster.minersadvantage.common.services.utility.VeinationRuntim
 
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 /**
@@ -38,6 +40,7 @@ public class VentilationAgent extends Agent {
   private final CommonConfig commonConfig;
   private final VeinationRuntimeService veinationRuntime;
   private final VeinationConfig veinationConfig;
+  private final IlluminationConfig illuminationConfig;
   private ItemStack veinationTriggerTool;
   private int ladderPlacements = 0;
   private BlockPos lowestDugPos;
@@ -94,6 +97,23 @@ public class VentilationAgent extends Agent {
       VeinationRuntimeService veinationRuntime,
       VeinationConfig veinationConfig,
       ItemStack veinationTriggerTool) {
+    this(player, origin, direction, config, commonConfig, veinationRuntime, veinationConfig, veinationTriggerTool,
+        MAServerRootConfig.defaults().illumination());
+  }
+
+  /**
+   * Full constructor that also receives effective Illumination settings for the bottom torch.
+   */
+  public VentilationAgent(
+      ServerPlayer player,
+      BlockPos origin,
+      Direction direction,
+      VentilationConfig config,
+      CommonConfig commonConfig,
+      VeinationRuntimeService veinationRuntime,
+      VeinationConfig veinationConfig,
+      ItemStack veinationTriggerTool,
+      IlluminationConfig illuminationConfig) {
     super(player);
     this.origin = origin;
     this.direction = direction == Direction.UP ? Direction.UP : Direction.DOWN;
@@ -107,6 +127,7 @@ public class VentilationAgent extends Agent {
     this.commonConfig = commonConfig;
     this.veinationRuntime = veinationRuntime;
     this.veinationConfig = veinationConfig;
+    this.illuminationConfig = illuminationConfig;
     this.veinationTriggerTool = veinationTriggerTool == null ? ItemStack.EMPTY : veinationTriggerTool.copy();
 
     for (int depth = 1; depth <= ventDepth; depth++) {
@@ -176,7 +197,7 @@ public class VentilationAgent extends Agent {
         bottomTorchProcessed = true;
         if (lowestDugPos != null) {
           ladderQueue.remove(lowestDugPos);
-          placeTorchWithInventory(lowestDugPos, Direction.UP);
+          maybeQueueBottomIllumination();
         }
         count++;
       }
@@ -194,6 +215,21 @@ public class VentilationAgent extends Agent {
           : (queue.isEmpty() ? "ventilation queue exhausted" : "ventilation target reached"));
     }
     return false;
+  }
+
+  private void maybeQueueBottomIllumination() {
+    if ((commonConfig != null && !commonConfig.autoIlluminate())
+        || illuminationConfig == null
+        || !illuminationConfig.enabled()) {
+      return;
+    }
+
+    AgentManager manager = AgentManager.get();
+    if (manager.getAgentsOfType(player, IlluminationAgent.class).stream()
+        .noneMatch(agent -> agent.owns(lowestDugPos))) {
+      manager.addAgent(player,
+          new IlluminationAgent(player, List.of(lowestDugPos), illuminationConfig, commonConfig));
+    }
   }
 
   /**

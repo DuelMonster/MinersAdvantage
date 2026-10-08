@@ -8,9 +8,11 @@ import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeIds;
 
 class ExcavationAgentTest {
   @Test
-  void isEmptyLayerAbortEnabledForShape_shouldDisableAbortForSingleLayerOnly() {
-    assertFalse(ExcavationAgent.isEmptyLayerAbortEnabledForShape(MAShapeIds.EXCAVATION_SINGLE_LAYER));
-    assertTrue(ExcavationAgent.isEmptyLayerAbortEnabledForShape(MAShapeIds.EXCAVATION_DEEP_CUBOID));
-    assertTrue(ExcavationAgent.isEmptyLayerAbortEnabledForShape(MAShapeIds.EXCAVATION_SHAPELESS));
+  void shouldAbortOnEmptyShapeLayer_onlySkipsIntentionalInitialEllipsoidTip() {
+    assertFalse(ExcavationAgent.shouldAbortOnEmptyShapeLayer(MAShapeIds.EXCAVATION_SINGLE_LAYER, 0));
+    assertFalse(ExcavationAgent.shouldAbortOnEmptyShapeLayer(MAShapeIds.EXCAVATION_FULL_ELLIPSOID, 0));
+    assertTrue(ExcavationAgent.shouldAbortOnEmptyShapeLayer(MAShapeIds.EXCAVATION_FULL_ELLIPSOID, 1));
+    assertTrue(ExcavationAgent.shouldAbortOnEmptyShapeLayer(MAShapeIds.EXCAVATION_DEEP_CUBOID, 0));
+    assertTrue(ExcavationAgent.shouldAbortOnEmptyShapeLayer(MAShapeIds.EXCAVATION_SHAPELESS, 0));
   }
 }

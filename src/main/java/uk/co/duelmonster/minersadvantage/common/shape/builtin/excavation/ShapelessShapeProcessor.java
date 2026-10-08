@@ -1,8 +1,8 @@
 package uk.co.duelmonster.minersadvantage.common.shape.builtin.excavation;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.Vec3;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeContext;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeProcessor;
 
@@ -32,7 +32,12 @@ public final class ShapelessShapeProcessor implements MAShapeProcessor {
       return out;
     }
 
-    Set<BlockPos> envelope = facingAwareEnvelope(context);
+    Set<BlockPos> envelope = faceOrientedEnvelope(
+        context.origin(),
+        context.hitFace(),
+        context.width(),
+        context.height(),
+        context.depth());
     if (envelope.isEmpty()) {
       return out;
     }
@@ -85,73 +90,33 @@ public final class ShapelessShapeProcessor implements MAShapeProcessor {
     return out;
   }
 
-  private static Set<BlockPos> facingAwareEnvelope(MAShapeContext context) {
+  private static Set<BlockPos> faceOrientedEnvelope(
+      BlockPos origin,
+      Direction hitFace,
+      int width,
+      int height,
+      int depth) {
     LinkedHashSet<BlockPos> envelope = new LinkedHashSet<>();
 
-    int width = Math.max(1, context.width());
-    int height = Math.max(1, context.height());
-    int depth = Math.max(1, context.depth());
+    int safeWidth = Math.max(1, width);
+    int safeHeight = Math.max(1, height);
+    int safeDepth = Math.max(1, depth);
 
     ExcavationFaceGeometry.FaceDirection faceDirection = ExcavationFaceGeometry
-        .fromMinecraftDirection(context.hitFace());
-    ExcavationFaceGeometry.FaceDirection playerFacingDirection = ExcavationFaceGeometry
-        .fromMinecraftDirection(context.playerFacing());
-    ExcavationFaceGeometry.IntRange widthRange = resolveWidthRange(context, faceDirection, playerFacingDirection,
-        width);
-    ExcavationFaceGeometry.IntRange heightRange = ExcavationFaceGeometry.rightBiasedCenteredRange(height);
+        .fromMinecraftDirection(hitFace);
+    ExcavationFaceGeometry.IntRange widthRange = ExcavationFaceGeometry.rightBiasedCenteredRange(safeWidth);
+    ExcavationFaceGeometry.IntRange heightRange = ExcavationFaceGeometry.rightBiasedCenteredRange(safeHeight);
 
-    for (int d = 0; d < depth; d++) {
+    for (int d = 0; d < safeDepth; d++) {
       for (int h = heightRange.min(); h <= heightRange.max(); h++) {
         for (int w = widthRange.min(); w <= widthRange.max(); w++) {
-          int[] offset = ExcavationFaceGeometry.offsetFor(faceDirection, playerFacingDirection, d, w, h);
-          envelope.add(context.origin().offset(offset[0], offset[1], offset[2]).immutable());
+          int[] offset = ExcavationFaceGeometry.offsetFor(faceDirection, d, w, h);
+          envelope.add(origin.offset(offset[0], offset[1], offset[2]).immutable());
         }
       }
     }
 
     return envelope;
-  }
-
-  private static ExcavationFaceGeometry.IntRange resolveWidthRange(
-      MAShapeContext context,
-      ExcavationFaceGeometry.FaceDirection faceDirection,
-      ExcavationFaceGeometry.FaceDirection playerFacingDirection,
-      int width) {
-    ExcavationFaceGeometry.IntRange centered = ExcavationFaceGeometry.rightBiasedCenteredRange(width);
-    if (context.player() == null) {
-      return centered;
-    }
-
-    Vec3 look = context.player().getLookAngle();
-    double horizontalLengthSquared = (look.x * look.x) + (look.z * look.z);
-    if (horizontalLengthSquared < 1.0e-6D) {
-      return centered;
-    }
-
-    double inverseLength = 1.0D / Math.sqrt(horizontalLengthSquared);
-    double awayX = look.x * inverseLength;
-    double awayZ = look.z * inverseLength;
-
-    int[] widthAxis = ExcavationFaceGeometry.offsetFor(faceDirection, playerFacingDirection, 0, 1, 0);
-    double axisLengthSquared = (widthAxis[0] * widthAxis[0]) + (widthAxis[2] * widthAxis[2]);
-    if (axisLengthSquared < 1.0e-6D) {
-      return centered;
-    }
-
-    double axisInverseLength = 1.0D / Math.sqrt(axisLengthSquared);
-    double axisX = widthAxis[0] * axisInverseLength;
-    double axisZ = widthAxis[2] * axisInverseLength;
-    double awayProjection = (awayX * axisX) + (awayZ * axisZ);
-
-    // Keep cardinal-facing behavior centered and only bias range when heading is truly diagonal.
-    if (Math.abs(awayProjection) < 0.25D) {
-      return centered;
-    }
-
-    if (awayProjection > 0.0D) {
-      return new ExcavationFaceGeometry.IntRange(0, width - 1);
-    }
-    return new ExcavationFaceGeometry.IntRange(-(width - 1), 0);
   }
 
   /**

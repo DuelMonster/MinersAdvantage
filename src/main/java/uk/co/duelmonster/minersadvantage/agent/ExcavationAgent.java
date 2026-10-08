@@ -347,7 +347,7 @@ public class ExcavationAgent extends Agent {
         if (target.layer() != activeShapeLayer) {
           if (activeShapeLayer != Integer.MIN_VALUE
               && !activeShapeLayerHasNonAir
-              && abortOnEmptyShapeLayer()) {
+              && shouldAbortOnEmptyShapeLayer(selectedShapeId, activeShapeLayer)) {
             excavationEmptyLayerAborted = true;
             queue.clear();
             break;
@@ -478,12 +478,9 @@ public class ExcavationAgent extends Agent {
     }
   }
 
-  private boolean abortOnEmptyShapeLayer() {
-    return isEmptyLayerAbortEnabledForShape(selectedShapeId);
-  }
-
-  static boolean isEmptyLayerAbortEnabledForShape(String shapeId) {
-    return !MAShapeIds.EXCAVATION_SINGLE_LAYER.equals(shapeId);
+  static boolean shouldAbortOnEmptyShapeLayer(String shapeId, int layer) {
+    return !MAShapeIds.EXCAVATION_SINGLE_LAYER.equals(shapeId)
+        && !(MAShapeIds.EXCAVATION_FULL_ELLIPSOID.equals(shapeId) && layer == 0);
   }
 
   /**

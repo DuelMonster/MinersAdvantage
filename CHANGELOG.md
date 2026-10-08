@@ -1,3 +1,10 @@
+## 2.28.0
+
+- Stop Ventilation's automated block breaks from triggering Shaftanation at unrelated positions.
+- Check the configured light threshold before placing Ventilation's bottom torch through Illumination.
+- Keep Shapeless Excavation orientation tied to the hit face, regardless of player angle.
+- Let Full Ellipsoid Excavation continue past its one-block starting tip and work with one-block-wide or one-block-high layers.
+
 ## 2.27.0
 
 - Prefer a hotbar sword when attacking mobs, and leave a sword or axe already in the main hand untouched.

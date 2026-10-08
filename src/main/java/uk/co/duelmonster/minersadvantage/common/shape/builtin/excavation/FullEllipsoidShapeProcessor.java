@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeContext;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeProcessor;
 
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -18,14 +19,6 @@ public final class FullEllipsoidShapeProcessor implements MAShapeProcessor {
      * c om pu te exists so this path stays predictable and easier to debug when things get weird.
      */
     public Set<BlockPos> compute(MAShapeContext context) {
-        ExcavationFaceGeometry.ComputeState state = ExcavationFaceGeometry.begin(context);
-        var widthRange = ExcavationFaceGeometry.rightBiasedCenteredRange(context.width());
-        var heightRange = ExcavationFaceGeometry.rightBiasedCenteredRange(context.height());
-
-        // Clamp radii so tiny configs still produce a meaningful shape instead of divide-by-zero chaos.
-        double rx = Math.max(0.5d, context.width() / 2.0d);
-        double ry = Math.max(0.5d, context.height() / 2.0d);
-
         int totalDepth = Math.max(1, context.depth());
         var crossSections = ExcavationFaceGeometry.depthCrossSectionTracker(
             "full_ellipsoid",
@@ -34,29 +27,71 @@ public final class FullEllipsoidShapeProcessor implements MAShapeProcessor {
             0
         );
 
+        Set<BlockPos> positions = computePositions(
+            context.origin(),
+            ExcavationFaceGeometry.fromMinecraftDirection(context.hitFace()),
+            ExcavationFaceGeometry.fromMinecraftDirection(context.playerFacing()),
+            context.width(),
+            context.height(),
+            totalDepth,
+            crossSections);
+        crossSections.log();
+        return positions;
+    }
+
+    private static Set<BlockPos> computePositions(
+        BlockPos origin,
+        ExcavationFaceGeometry.FaceDirection hitFace,
+        ExcavationFaceGeometry.FaceDirection playerFacing,
+        int width,
+        int height,
+        int depth,
+        ExcavationFaceGeometry.DepthCrossSectionTracker crossSections) {
+        LinkedHashSet<BlockPos> out = new LinkedHashSet<>();
+        int safeWidth = Math.max(1, width);
+        int safeHeight = Math.max(1, height);
+        int totalDepth = Math.max(1, depth);
+        var widthRange = ExcavationFaceGeometry.rightBiasedCenteredRange(safeWidth);
+        var heightRange = ExcavationFaceGeometry.rightBiasedCenteredRange(safeHeight);
+
         for (int d = 0; d < totalDepth; d++) {
-            // True full-ellipsoid depth profile: 1 at both ends and 0 at the center.
-            double dz;
-            if (totalDepth <= 1) {
-                dz = 0.0d;
-            } else {
-                double t = (2.0d * d) / (totalDepth - 1);
-                dz = Math.abs(t - 1.0d);
-            }
+            double dz = normalizedDepth(d, totalDepth);
 
             for (int y = heightRange.min(); y <= heightRange.max(); y++) {
-                double ny = y / ry;
+                double ny = normalizedOffset(y, safeHeight);
                 for (int w = widthRange.min(); w <= widthRange.max(); w++) {
-                    double nx = w / rx;
-                    if ((nx * nx) + (ny * ny) + (dz * dz) <= 1.0d) {
-                        ExcavationFaceGeometry.addOffset(state, d, w, y);
-                        crossSections.record(d, w, y);
+                    double nx = normalizedOffset(w, safeWidth);
+                    if (isInsideEllipsoid(nx, ny, dz)) {
+                        ExcavationFaceGeometry.addOffset(out, origin, hitFace, playerFacing, d, w, y);
+                        if (crossSections != null) {
+                            crossSections.record(d, w, y);
+                        }
                     }
                 }
             }
         }
 
-        crossSections.log();
-        return state.out();
+        return out;
+    }
+
+    static double normalizedOffset(int offset, int dimension) {
+        double radius = Math.max(0.5d, Math.max(1, dimension) / 2.0d);
+        return offset / radius;
+    }
+
+    static double normalizedDepth(int depthIndex, int totalDepth) {
+        int safeDepth = Math.max(1, totalDepth);
+        if (safeDepth <= 1) {
+            return 0.0d;
+        }
+
+        double position = (2.0d * depthIndex) / (safeDepth - 1);
+        return Math.abs(position - 1.0d);
+    }
+
+    static boolean isInsideEllipsoid(double normalizedWidth, double normalizedHeight, double normalizedDepth) {
+        return (normalizedWidth * normalizedWidth)
+            + (normalizedHeight * normalizedHeight)
+            + (normalizedDepth * normalizedDepth) <= 1.0d;
     }
 }

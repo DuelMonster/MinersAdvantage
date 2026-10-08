@@ -21,6 +21,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
+import uk.co.duelmonster.minersadvantage.agent.Agent;
 import uk.co.duelmonster.minersadvantage.agent.AgentManager;
 import uk.co.duelmonster.minersadvantage.agent.CaptivationAgent;
 import uk.co.duelmonster.minersadvantage.agent.CropinationAgent;
@@ -210,7 +211,7 @@ public final class ModEntry {
     });
 
     PlayerBlockBreakEvents.AFTER.register((level, player, pos, state, blockEntity) -> {
-      if (level.isClientSide() || !(player instanceof ServerPlayer serverPlayer)) {
+      if (level.isClientSide() || Agent.isAutomatedBlockBreak() || !(player instanceof ServerPlayer serverPlayer)) {
         return;
       }
       ItemStack stack = SubstitutionAgent.effectiveBreakHandStack(serverPlayer, InteractionHand.MAIN_HAND);
@@ -256,7 +257,8 @@ public final class ModEntry {
           agentManager.addAgent(serverPlayer,
               new VentilationAgent(serverPlayer, pos, breakFace != null ? breakFace.getOpposite() : Direction.DOWN,
                   ventilationConfig(serverPlayer), commonConfig(serverPlayer), veinationRuntime, veinationConfig,
-                  stack));
+                  stack,
+                  isFeatureEnabled(FeatureId.ILLUMINATION) ? illuminationConfig(serverPlayer) : null));
         } else {
           LogUtils.logDebug("Block break trigger feature=Shaftanation player={} item={} block={} pos={} face={}",
               serverPlayer.getScoreboardName(), itemId, brokenBlockId, pos, breakFace == null ? "unknown" : breakFace);
@@ -1316,7 +1318,7 @@ public final class ModEntry {
     }
 
     private void handleBlockBreak(net.minecraft.world.entity.player.Player player, Level level, BlockPos pos, BlockState state) {
-        if (player == null || level == null || level.isClientSide()) {
+        if (player == null || level == null || level.isClientSide() || Agent.isAutomatedBlockBreak()) {
             return;
         }
 
@@ -1350,7 +1352,7 @@ public final class ModEntry {
             boolean verticalFace = breakFace == Direction.UP || breakFace == Direction.DOWN;
             AgentManager agentManager = AgentManager.get();
             if (verticalFace) {
-                agentManager.addAgent(serverPlayer, new VentilationAgent(serverPlayer, pos, breakFace.getOpposite(), ventilationConfig(serverPlayer), commonConfig(serverPlayer), veinationRuntime, config, stack));
+                agentManager.addAgent(serverPlayer, new VentilationAgent(serverPlayer, pos, breakFace.getOpposite(), ventilationConfig(serverPlayer), commonConfig(serverPlayer), veinationRuntime, config, stack, isFeatureEnabled(FeatureId.ILLUMINATION) ? illuminationConfig(serverPlayer) : null));
           } else if (agentManager.getAgentsOfType(serverPlayer, ShaftanationAgent.class).stream()
             .noneMatch(agent -> agent.owns(pos))) {
                 agentManager.addAgent(serverPlayer, new ShaftanationAgent(serverPlayer, pos, serverPlayer.getDirection(), shaftanationConfig(serverPlayer), commonConfig(serverPlayer), illuminationConfig(serverPlayer).lowestLightLevel(), veinationRuntime, config, stack, playerState.selectedShaftanationShapeIndex(), breakFace));

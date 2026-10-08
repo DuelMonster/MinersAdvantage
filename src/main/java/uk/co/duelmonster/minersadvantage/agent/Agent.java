@@ -24,6 +24,7 @@ import uk.co.duelmonster.minersadvantage.common.log.LogUtils;
 import uk.co.duelmonster.minersadvantage.common.services.utility.VeinationRuntimeService;
 
 import java.lang.reflect.Method;
+import java.util.function.Supplier;
 
 /**
  * Base class for all runtime agents that do feature work over multiple ticks.
@@ -31,6 +32,7 @@ import java.lang.reflect.Method;
  */
 public abstract class Agent {
   private static volatile boolean useItemOnLookupWarned = false;
+  private static final ThreadLocal<Integer> automatedBreakDepth = new ThreadLocal<>();
   private int ticksUntilNextProcessingWindow = 0;
 
   protected record BreakOutcome(boolean broken, ItemStack toolAfterBreak) {
@@ -62,6 +64,28 @@ public abstract class Agent {
    */
   public boolean isComplete() {
     return complete;
+  }
+
+  /**
+   * Report whether the current thread is dispatching a block break initiated by an agent.
+   */
+  public static boolean isAutomatedBlockBreak() {
+    Integer depth = automatedBreakDepth.get();
+    return depth != null && depth > 0;
+  }
+
+  static <T> T duringAutomatedBlockBreak(Supplier<T> action) {
+    Integer previousDepth = automatedBreakDepth.get();
+    automatedBreakDepth.set(previousDepth == null ? 1 : previousDepth + 1);
+    try {
+      return action.get();
+    } finally {
+      if (previousDepth == null) {
+        automatedBreakDepth.remove();
+      } else {
+        automatedBreakDepth.set(previousDepth);
+      }
+    }
   }
 
   /**
@@ -355,7 +379,7 @@ public abstract class Agent {
       player.setItemInHand(InteractionHand.MAIN_HAND, configuredTool.copy());
     }
 
-    boolean broken = player.gameMode.destroyBlock(pos);
+    boolean broken = duringAutomatedBlockBreak(() -> player.gameMode.destroyBlock(pos));
     ItemStack usedTool = player.getMainHandItem().copy();
 
     if (canForcePreferredTool && player.getInventory().getSelectedSlot() == selectedSlotAtStart) {
