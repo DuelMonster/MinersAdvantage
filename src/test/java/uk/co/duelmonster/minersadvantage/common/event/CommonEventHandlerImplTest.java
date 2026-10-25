@@ -8,8 +8,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import uk.co.duelmonster.minersadvantage.common.MinersAdvantageCore;
-import uk.co.duelmonster.minersadvantage.common.network.ComponentTogglePacket;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
+import uk.co.duelmonster.minersadvantage.common.network.ComponentTogglePacket;
 import uk.co.duelmonster.minersadvantage.common.orchestration.FeatureDispatchContext;
 import uk.co.duelmonster.minersadvantage.testutil.TestRuntimeAssumptions;
 
@@ -32,13 +32,16 @@ class CommonEventHandlerImplTest {
    */
   void routesPickaxeStoneToShaftanation() {
     Assumptions.assumeTrue(TestRuntimeAssumptions.canInitializeSoundEvents());
-    CommonEventHandlerImpl handler = new CommonEventHandlerImpl(new MinersAdvantageCore());
+    MinersAdvantageCore core = new MinersAdvantageCore();
+    core.bootstrap();
+    CommonEventHandlerImpl handler = new CommonEventHandlerImpl(core);
     AtomicReference<FeatureDispatchContext> captured = new AtomicReference<>();
     FeatureEventHandler.setDispatchObserverForTesting(captured::set);
 
     handler.onPickaxeUse(1, 2, 3, "minecraft:stone");
 
     assertEquals(FeatureId.SHAFTANATION, captured.get().feature());
+    core.shutdown();
   }
 
   @Test
@@ -47,13 +50,16 @@ class CommonEventHandlerImplTest {
    */
   void routesHoeCropToCropination() {
     Assumptions.assumeTrue(TestRuntimeAssumptions.canInitializeSoundEvents());
-    CommonEventHandlerImpl handler = new CommonEventHandlerImpl(new MinersAdvantageCore());
+    MinersAdvantageCore core = new MinersAdvantageCore();
+    core.bootstrap();
+    CommonEventHandlerImpl handler = new CommonEventHandlerImpl(core);
     AtomicReference<FeatureDispatchContext> captured = new AtomicReference<>();
     FeatureEventHandler.setDispatchObserverForTesting(captured::set);
 
     handler.onHoeUse(1, 2, 3, "minecraft:wheat_crop");
 
     assertEquals(FeatureId.CROPINATION, captured.get().feature());
+    core.shutdown();
   }
 
   @Test
@@ -61,7 +67,7 @@ class CommonEventHandlerImplTest {
     Assumptions.assumeTrue(TestRuntimeAssumptions.canInitializeSoundEvents());
     MinersAdvantageCore core = new MinersAdvantageCore();
     core.bootstrap();
-    core.handleComponentTogglePacket(new ComponentTogglePacket(FeatureId.CAPTIVATION, false));
+    core.components().get(FeatureId.CAPTIVATION).disable();
 
     CommonEventHandlerImpl handler = new CommonEventHandlerImpl(core);
     AtomicReference<FeatureDispatchContext> captured = new AtomicReference<>();
@@ -78,7 +84,7 @@ class CommonEventHandlerImplTest {
     Assumptions.assumeTrue(TestRuntimeAssumptions.canInitializeSoundEvents());
     MinersAdvantageCore core = new MinersAdvantageCore();
     core.bootstrap();
-    core.handleComponentTogglePacket(new ComponentTogglePacket(FeatureId.SHAFTANATION, false));
+    core.components().get(FeatureId.SHAFTANATION).disable();
 
     CommonEventHandlerImpl handler = new CommonEventHandlerImpl(core);
     AtomicReference<FeatureDispatchContext> captured = new AtomicReference<>();
@@ -87,6 +93,25 @@ class CommonEventHandlerImplTest {
     handler.onPickaxeUse(1, 2, 3, "minecraft:stone");
 
     assertNull(captured.get());
+    core.shutdown();
+  }
+
+  @Test
+  void itemPickupDispatchRetainsPerPlayerOwnership() {
+    Assumptions.assumeTrue(TestRuntimeAssumptions.canInitializeSoundEvents());
+    MinersAdvantageCore core = new MinersAdvantageCore();
+    core.bootstrap();
+    core.handleComponentTogglePacket(7L, new ComponentTogglePacket(FeatureId.CAPTIVATION, false), false);
+
+    CommonEventHandlerImpl handler = new CommonEventHandlerImpl(core);
+    AtomicReference<FeatureDispatchContext> captured = new AtomicReference<>();
+    FeatureEventHandler.setDispatchObserverForTesting(captured::set);
+
+    handler.onItemPickup(7L, "minecraft:diamond", false);
+    assertNull(captured.get());
+
+    handler.onItemPickup(8L, "minecraft:diamond", false);
+    assertEquals(8L, captured.get().playerId());
     core.shutdown();
   }
 }

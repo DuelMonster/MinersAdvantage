@@ -78,7 +78,7 @@ Persistence and parsing are implemented through `MATomlConfigStore`, which reads
 - `MAServerRootConfig`: explicit server gameplay root
 - `SyncedClientConfig`: transport/effective snapshot shape used for runtime sync
 
-`MAServerRootConfig.withFeatureEnabled(FeatureId, boolean)` returns a copy with a single feature's `enabled` flag replaced and every other value preserved. It is the only supported way to flip a feature flag outside the config screen, and it returns the same instance when the value is already correct so no redundant save is triggered.
+`MAServerRootConfig.withFeatureEnabled(FeatureId, boolean)` returns a copy with a single server-wide feature flag replaced and every other value preserved. It is the supported way to change that config flag outside the config screen; multiplayer keybind preferences are held separately in per-player runtime state.
 
 Gameplay config categories in the server root:
 
@@ -136,19 +136,22 @@ When `requireMending` and `denyMending` are both true, sanitization keeps `requi
 
 `KeyBindings.all()` declares one unbound toggle spec per `FeatureId`. Specs with a `null` default key are still registered, using `InputConstants.UNKNOWN`, so they appear in the vanilla Controls screen without stealing a key.
 
-When a toggle fires, `ClientInputService` flips the in-memory feature state and emits a `ComponentTogglePacket`. Both loader tick handlers then call `ClientActionInputSupport.applyFeatureToggles`, which shows the player an action-bar confirmation and, in single player only, writes the new `enabled` flag through `MAServerRootConfig.withFeatureEnabled`. Persistence is skipped entirely when the client option `disable_keybind_config_persistence` is set, and in multiplayer, where the server config stays authoritative.
+When a toggle fires, `ClientInputService` flips the in-memory feature state and emits a `ComponentTogglePacket`. Both loader tick handlers then call `ClientActionInputSupport.applyFeatureToggles`, which shows the player an action-bar confirmation and, in single player only, writes the new `enabled` flag through `MAServerRootConfig.withFeatureEnabled`. Persistence is skipped when the client option `disable_keybind_config_persistence` is set and always skipped in multiplayer.
+
+In multiplayer, the loader receiver takes the player identity from the authenticated connection and stores the preference in that player's `PlayerStateService.PlayerState`; the packet cannot name another player. A player's preference gates their feature actions and only that player's active agents are cleared when they disable a feature. Client preference state is reset for a new connection, matching the server's session-only state. The server's configured feature flag remains the global gate, so a player toggle cannot enable a feature disabled by the server. Integrated singleplayer retains its existing global component-toggle and optional config-persistence behavior.
 
 ### Multiplayer Authority Model
 
 - Client-local options remain editable on the client.
 - Gameplay options are server-authoritative in multiplayer contexts.
+- Feature keybind preferences are per-player and session-only in multiplayer; server-disabled features remain disabled for all players.
 - Effective runtime snapshots are synchronized per player through typed sync pathways.
 
 ## Networking and Sync
 
 Networking is loader-wired and covers:
 
-- component toggle and abort flows
+- authenticated per-player component-toggle and abort flows
 - player config synchronization
 - feature dispatch packets
 - SupremeVantage packet transport

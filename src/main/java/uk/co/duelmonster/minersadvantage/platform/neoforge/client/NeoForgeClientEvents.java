@@ -41,6 +41,7 @@ public class NeoForgeClientEvents {
   private static final KeyMapping.Category KEY_CATEGORY = ClientActionInputSupport.createKeyCategory();
   private static ClientInputService.ClientInputState inputState = ClientInputService.ClientInputState.defaults();
   private static ClientInputService.ClientInputState lastSyncedState = ClientInputService.ClientInputState.defaults();
+  private static java.util.UUID activePlayerId;
   private static final SupremeVantageService supremeVantageService = new SupremeVantageService();
   private static SupremeVantageService.ClientState supremeVantageState = SupremeVantageService.ClientState.defaults();
 
@@ -62,7 +63,15 @@ public class NeoForgeClientEvents {
   public static void onClientTick(ClientTickEvent.Post event) {
     Minecraft client = Minecraft.getInstance();
     if (client.player == null || client.level == null) {
+      activePlayerId = null;
       return;
+    }
+
+    java.util.UUID currentPlayerId = client.player.getUUID();
+    if (!currentPlayerId.equals(activePlayerId)) {
+      inputState = ClientActionInputSupport.initialInputState(client.hasSingleplayerServer());
+      lastSyncedState = inputState;
+      activePlayerId = currentPlayerId;
     }
 
     Set<KeyBindings.ClientAction> pressedSet = ClientActionInputSupport.collectPressedActions(KEY_MAPPINGS);

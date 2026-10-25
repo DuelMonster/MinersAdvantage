@@ -3,6 +3,7 @@ package uk.co.duelmonster.minersadvantage.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import java.lang.reflect.Method;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -29,6 +30,18 @@ public final class ClientActionInputSupport {
    * Utility class only; no instances needed unless someone enjoys unnecessary object allocation.
    */
   private ClientActionInputSupport() {
+  }
+
+  /**
+   * Start each multiplayer connection with fresh player preferences; integrated singleplayer mirrors its saved config.
+   */
+  public static ClientInputService.ClientInputState initialInputState(boolean singleplayer) {
+    EnumMap<FeatureId, Boolean> features = new EnumMap<>(FeatureId.class);
+    MAServerRootConfig serverConfig = MAConfig_Base.getServerRootConfig();
+    for (FeatureId feature : FeatureId.values()) {
+      features.put(feature, !singleplayer || serverConfig.isFeatureEnabled(feature));
+    }
+    return new ClientInputService.ClientInputState(features, false, false, 0, 0);
   }
 
   /**

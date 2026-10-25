@@ -1,2 +1,2 @@
-Last Bumped Date: 2026-10-08
-Next Version: 2.29.0
+Last Bumped Date: 2026-10-25
+Next Version: 2.30.0

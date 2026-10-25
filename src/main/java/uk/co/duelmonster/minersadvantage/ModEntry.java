@@ -118,7 +118,7 @@ public final class ModEntry {
 
       rememberBreakFace(serverPlayer, pos, direction);
 
-      if (!isFeatureEnabled(FeatureId.SUBSTITUTION)) {
+      if (!isFeatureEnabled(FeatureId.SUBSTITUTION, serverPlayer)) {
         LogUtils.logDebug("Substitution skipped trigger=AttackBlock player={} hand={} pos={} reason=feature-disabled",
             serverPlayer.getScoreboardName(), hand, pos);
         return InteractionResult.PASS;
@@ -148,7 +148,7 @@ public final class ModEntry {
         return InteractionResult.PASS;
       }
 
-      if (!isFeatureEnabled(FeatureId.SUBSTITUTION)) {
+      if (!isFeatureEnabled(FeatureId.SUBSTITUTION, serverPlayer)) {
         LogUtils.logDebug("Substitution skipped trigger=AttackEntity player={} hand={} reason=feature-disabled",
             serverPlayer.getScoreboardName(), hand);
         return InteractionResult.PASS;
@@ -219,8 +219,10 @@ public final class ModEntry {
       String brokenBlockId = blockId(state);
       long playerId = playerId(serverPlayer);
       var playerState = core.playerStateService().getPlayerState(playerId);
-      boolean shaftModeActive = isFeatureEnabled(FeatureId.SHAFTANATION) && playerState.shaftVentToggled();
-      boolean excavationActive = isFeatureEnabled(FeatureId.EXCAVATION) && playerState.isExcavationActive();
+      boolean shaftModeActive = isFeatureEnabled(FeatureId.SHAFTANATION, serverPlayer)
+          && playerState.shaftVentToggled();
+      boolean excavationActive = isFeatureEnabled(FeatureId.EXCAVATION, serverPlayer)
+          && playerState.isExcavationActive();
       CommonConfig playerCommonConfig = commonConfig(serverPlayer);
       VeinationConfig veinationConfig = veinationConfig(serverPlayer);
       boolean veinationGesture = veinationConfig.oreHarvestWithoutSneak() ? !player.isShiftKeyDown()
@@ -229,7 +231,7 @@ public final class ModEntry {
 
       boolean allowedOre = veinationRuntime.isOreAllowed(veinationConfig, state);
 
-      if (isFeatureEnabled(FeatureId.VEINATION) && playerCommonConfig.mineVeins() && veinationGesture
+      if (isFeatureEnabled(FeatureId.VEINATION, serverPlayer) && playerCommonConfig.mineVeins() && veinationGesture
           && isPickaxeTool(stack) && allowedPickaxe && allowedOre) {
         LogUtils.logDebug("Block break trigger feature=Veination player={} item={} block={} pos={}",
             serverPlayer.getScoreboardName(), itemId, brokenBlockId, pos);
@@ -252,13 +254,15 @@ public final class ModEntry {
         boolean verticalFace = breakFace == Direction.UP || breakFace == Direction.DOWN;
         AgentManager agentManager = AgentManager.get();
         if (verticalFace) {
-          LogUtils.logDebug("Block break trigger feature=Ventilation player={} item={} block={} pos={} face={}",
-              serverPlayer.getScoreboardName(), itemId, brokenBlockId, pos, breakFace);
-          agentManager.addAgent(serverPlayer,
-              new VentilationAgent(serverPlayer, pos, breakFace != null ? breakFace.getOpposite() : Direction.DOWN,
-                  ventilationConfig(serverPlayer), commonConfig(serverPlayer), veinationRuntime, veinationConfig,
-                  stack,
-                  isFeatureEnabled(FeatureId.ILLUMINATION) ? illuminationConfig(serverPlayer) : null));
+          if (isFeatureEnabled(FeatureId.VENTILATION, serverPlayer)) {
+            LogUtils.logDebug("Block break trigger feature=Ventilation player={} item={} block={} pos={} face={}",
+                serverPlayer.getScoreboardName(), itemId, brokenBlockId, pos, breakFace);
+            agentManager.addAgent(serverPlayer,
+                new VentilationAgent(serverPlayer, pos, breakFace.getOpposite(),
+                    ventilationConfig(serverPlayer), commonConfig(serverPlayer), veinationRuntime, veinationConfig,
+                    stack,
+                    isFeatureEnabled(FeatureId.ILLUMINATION, serverPlayer) ? illuminationConfig(serverPlayer) : null));
+          }
         } else {
           LogUtils.logDebug("Block break trigger feature=Shaftanation player={} item={} block={} pos={} face={}",
               serverPlayer.getScoreboardName(), itemId, brokenBlockId, pos, breakFace == null ? "unknown" : breakFace);
@@ -275,7 +279,7 @@ public final class ModEntry {
             serverPlayer.getScoreboardName(), itemId, brokenBlockId, pos);
         ExcavationConfig excavationConfig = excavationConfig(serverPlayer);
         CommonConfig commonConfig = commonConfig(serverPlayer);
-        IlluminationConfig excavationIlluminationConfig = isFeatureEnabled(FeatureId.ILLUMINATION)
+        IlluminationConfig excavationIlluminationConfig = isFeatureEnabled(FeatureId.ILLUMINATION, serverPlayer)
             ? illuminationConfig(serverPlayer)
             : null;
         AgentManager agentManager = AgentManager.get();
@@ -299,7 +303,7 @@ public final class ModEntry {
                   playerState.selectedExcavationShapeIndex(),
                   consumeBreakFace(serverPlayer, pos)));
         }
-      } else if (isFeatureEnabled(FeatureId.LUMBINATION)) {
+      } else if (isFeatureEnabled(FeatureId.LUMBINATION, serverPlayer)) {
         LumbinationConfig lumbinationConfig = lumbinationConfig(serverPlayer);
         if (isConfiguredAxe(stack, lumbinationConfig) && isConfiguredLog(state, lumbinationConfig)
             && AgentManager.get().getAgentsOfType(serverPlayer, LumbinationAgent.class).stream()
@@ -326,7 +330,7 @@ public final class ModEntry {
       String targetBlockId = blockId(state);
 
       if (isHoeTool(stack)) {
-        if (RegistryPredicates.isCropBlock(state)) {
+        if (RegistryPredicates.isCropBlock(state) && isFeatureEnabled(FeatureId.CROPINATION, serverPlayer)) {
           LogUtils.logDebug("Use block trigger feature=Cropination player={} item={} block={} pos={}",
               serverPlayer.getScoreboardName(), itemId, targetBlockId, pos);
           CommonConfig commonConfig = commonConfig(serverPlayer);
@@ -334,7 +338,7 @@ public final class ModEntry {
               cropinationConfig(serverPlayer), commonConfig));
           return InteractionResult.SUCCESS;
         }
-        if (RegistryPredicates.isDirtLike(state)) {
+        if (RegistryPredicates.isDirtLike(state) && isFeatureEnabled(FeatureId.CULTIVATION, serverPlayer)) {
           LogUtils.logDebug("Use block trigger feature=Cultivation player={} item={} block={} pos={}",
               serverPlayer.getScoreboardName(), itemId, targetBlockId, pos);
           CommonConfig commonConfig = commonConfig(serverPlayer);
@@ -344,7 +348,8 @@ public final class ModEntry {
         }
       }
 
-      if (isShovelTool(stack) && state.is(BlockTags.DIRT)) {
+      if (isShovelTool(stack) && state.is(BlockTags.DIRT)
+          && isFeatureEnabled(FeatureId.PATHANATION, serverPlayer)) {
         LogUtils.logDebug("Use block trigger feature=Pathanation player={} item={} block={} pos={}",
             serverPlayer.getScoreboardName(), itemId, targetBlockId, pos);
         AgentManager.get().addAgent(serverPlayer, new PathanationAgent(serverPlayer, pos, serverPlayer.getDirection(),
@@ -363,7 +368,7 @@ public final class ModEntry {
         if (tickCount % 20 == 0) {
           for (ServerPlayer serverPlayer : playersSnapshot) {
             SubstitutionAgent.processSwitchBack(serverPlayer);
-            if (isFeatureEnabled(FeatureId.CAPTIVATION)
+            if (isFeatureEnabled(FeatureId.CAPTIVATION, serverPlayer)
                 && !AgentManager.get().hasAgentType(serverPlayer, CaptivationAgent.class)) {
               AgentManager.get().addAgent(serverPlayer,
                   new CaptivationAgent(serverPlayer, captivationConfig(serverPlayer)));
@@ -527,6 +532,7 @@ public final class ModEntry {
     long playerId = playerId(player);
     LogUtils.logInfo("Player logout player={} id={}", player.getScoreboardName(), playerId);
     SubstitutionAgent.clearRestoreState(player);
+    AgentManager.get().clearAgents(player);
     core.workerRuntimeService().abortAllForPlayerWithStats(playerId);
     core.playerStateService().clearPlayerState(playerId);
   }
@@ -551,8 +557,8 @@ public final class ModEntry {
             dropItemId, itemEntity.getItem().getCount());
         boolean gatherDrops = commonConfig(serverPlayer).gatherDrops();
         veinationRuntime.handleItemEntityJoin(level, entity, serverPlayer, veinationConfig(serverPlayer), gatherDrops);
-        if (isFeatureEnabled(FeatureId.CAPTIVATION)) {
-          toolEvents.onItemPickup(dropItemId, false);
+        if (isFeatureEnabled(FeatureId.CAPTIVATION, serverPlayer)) {
+          toolEvents.onItemPickup(playerId(serverPlayer), dropItemId, false);
         }
         core.workerRuntimeService().interceptLiveDropForPlayer(
             playerId(serverPlayer),
@@ -631,23 +637,23 @@ public final class ModEntry {
   /**
    * Route generic tool-use telemetry to the matching tool event sink.
    */
-  private void routeToolUse(ItemStack stack, BlockPos pos, BlockState state) {
+  private void routeToolUse(long playerId, ItemStack stack, BlockPos pos, BlockState state) {
     String blockId = blockId(state);
 
     if (isPickaxeTool(stack)) {
-      toolEvents.onPickaxeUse(pos.getX(), pos.getY(), pos.getZ(), blockId);
+      toolEvents.onPickaxeUse(playerId, pos.getX(), pos.getY(), pos.getZ(), blockId);
       return;
     }
     if (isShovelTool(stack)) {
-      toolEvents.onShovelUse(pos.getX(), pos.getY(), pos.getZ(), blockId);
+      toolEvents.onShovelUse(playerId, pos.getX(), pos.getY(), pos.getZ(), blockId);
       return;
     }
     if (isHoeTool(stack)) {
-      toolEvents.onHoeUse(pos.getX(), pos.getY(), pos.getZ(), blockId);
+      toolEvents.onHoeUse(playerId, pos.getX(), pos.getY(), pos.getZ(), blockId);
       return;
     }
     if (isAxeTool(stack)) {
-      toolEvents.onAxeUse(pos.getX(), pos.getY(), pos.getZ(), blockId);
+      toolEvents.onAxeUse(playerId, pos.getX(), pos.getY(), pos.getZ(), blockId);
     }
   }
 
@@ -1045,9 +1051,8 @@ public final class ModEntry {
   /**
    * Check whether a feature component exists and is enabled.
    */
-  private boolean isFeatureEnabled(FeatureId featureId) {
-    var component = core.components().get(featureId);
-    return component != null && component.isEnabled();
+  private boolean isFeatureEnabled(FeatureId featureId, ServerPlayer player) {
+    return player != null && core.isFeatureEnabledForPlayer(playerId(player), featureId);
   }
 
   /**
@@ -1130,6 +1135,7 @@ public final class ModEntry {
         long playerId = playerId(player);
         LogUtils.logInfo("Player logout player={} id={}", player.getScoreboardName(), playerId);
         SubstitutionAgent.clearRestoreState(player);
+        AgentManager.get().clearAgents(player);
         core.workerRuntimeService().abortAllForPlayerWithStats(playerId);
         core.playerStateService().clearPlayerState(playerId);
     }
@@ -1140,6 +1146,7 @@ public final class ModEntry {
         }
         for (ServerPlayer player : level.players()) {
             SubstitutionAgent.clearRestoreState(player);
+            AgentManager.get().clearAgents(player);
             core.workerRuntimeService().abortAllForPlayerWithStats(player.getUUID().getLeastSignificantBits());
             core.playerStateService().clearPlayerState(player.getUUID().getLeastSignificantBits());
         }
@@ -1156,8 +1163,8 @@ public final class ModEntry {
                 String itemId = itemId(itemEntity.getItem());
                 boolean gatherDrops = commonConfig(serverPlayer).gatherDrops();
                 veinationRuntime.handleItemEntityJoin(level, entity, serverPlayer, veinationConfig(serverPlayer), gatherDrops);
-              if (isFeatureEnabled(FeatureId.CAPTIVATION)) {
-                toolEvents.onItemPickup(itemId, false);
+              if (isFeatureEnabled(FeatureId.CAPTIVATION, serverPlayer)) {
+                toolEvents.onItemPickup(playerId(serverPlayer), itemId, false);
               }
                 core.workerRuntimeService().interceptLiveDropForPlayer(
                     playerId(serverPlayer),
@@ -1185,7 +1192,8 @@ public final class ModEntry {
         }
         BlockState state = event.getFinalState() != null ? event.getFinalState() : event.getState();
         LogUtils.logDebug("NeoForge tool modification player={} item={} block={} pos={}", event.getPlayer().getScoreboardName(), itemId(event.getHeldItemStack()), blockId(state), event.getPos());
-        routeToolUse(event.getHeldItemStack(), event.getPos(), state);
+        long playerId = event.getPlayer() instanceof ServerPlayer serverPlayer ? playerId(serverPlayer) : 0L;
+        routeToolUse(playerId, event.getHeldItemStack(), event.getPos(), state);
     }
 
     private void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
@@ -1204,19 +1212,22 @@ public final class ModEntry {
         ItemStack stack = event.getItemStack();
 
         if (isHoeTool(stack)) {
-            if (RegistryPredicates.isCropBlock(state)) {
+            if (RegistryPredicates.isCropBlock(state)
+                && isFeatureEnabled(FeatureId.CROPINATION, serverPlayer)) {
                 CommonConfig playerCommonConfig = commonConfig(serverPlayer);
                 AgentManager.get().addAgent(serverPlayer, new CropinationAgent(serverPlayer, pos, playerCommonConfig.blockRadius(), cropinationConfig(serverPlayer), playerCommonConfig));
                 return;
             }
-            if (RegistryPredicates.isDirtLike(state)) {
+            if (RegistryPredicates.isDirtLike(state)
+                && isFeatureEnabled(FeatureId.CULTIVATION, serverPlayer)) {
                 CommonConfig playerCommonConfig = commonConfig(serverPlayer);
                 AgentManager.get().addAgent(serverPlayer, new CultivationAgent(serverPlayer, pos, playerCommonConfig.blockRadius(), cultivationConfig(serverPlayer), playerCommonConfig));
                 return;
             }
         }
 
-        if (isShovelTool(stack) && state.is(BlockTags.DIRT)) {
+        if (isShovelTool(stack) && state.is(BlockTags.DIRT)
+            && isFeatureEnabled(FeatureId.PATHANATION, serverPlayer)) {
             AgentManager.get().addAgent(serverPlayer, new PathanationAgent(serverPlayer, pos, serverPlayer.getDirection(), pathanationConfig(serverPlayer), commonConfig(serverPlayer)));
             return;
         }
@@ -1231,7 +1242,7 @@ public final class ModEntry {
             return;
         }
 
-        if (!isFeatureEnabled(FeatureId.SUBSTITUTION)) {
+        if (!isFeatureEnabled(FeatureId.SUBSTITUTION, serverPlayer)) {
             LogUtils.logDebug("Substitution skipped trigger=NeoAttackEntity player={} hand={} reason=feature-disabled", serverPlayer.getScoreboardName(), InteractionHand.MAIN_HAND);
             return;
         }
@@ -1301,7 +1312,8 @@ public final class ModEntry {
             rememberBreakFace(serverPlayer, event.getPos(), event.getFace());
         }
 
-        if (event.getEntity() instanceof ServerPlayer serverPlayer && isFeatureEnabled(FeatureId.SUBSTITUTION)) {
+        if (event.getEntity() instanceof ServerPlayer serverPlayer
+            && isFeatureEnabled(FeatureId.SUBSTITUTION, serverPlayer)) {
             ItemStack stack = event.getItemStack();
             BlockState state = event.getLevel().getBlockState(event.getPos());
             if (!SubstitutionAgent.shouldQueueStartSubstitution(serverPlayer, event.getHand(), SubstitutionAction.BREAK, event.getPos())) {
@@ -1329,8 +1341,10 @@ public final class ModEntry {
         ItemStack stack = SubstitutionAgent.effectiveBreakHandStack(serverPlayer, InteractionHand.MAIN_HAND);
         long id = playerId(serverPlayer);
         var playerState = core.playerStateService().getPlayerState(id);
-        boolean shaftModeActive = isFeatureEnabled(FeatureId.SHAFTANATION) && playerState.shaftVentToggled();
-        boolean excavationActive = isFeatureEnabled(FeatureId.EXCAVATION) && playerState.isExcavationActive();
+        boolean shaftModeActive = isFeatureEnabled(FeatureId.SHAFTANATION, serverPlayer)
+            && playerState.shaftVentToggled();
+        boolean excavationActive = isFeatureEnabled(FeatureId.EXCAVATION, serverPlayer)
+            && playerState.isExcavationActive();
         CommonConfig playerCommonConfig = commonConfig(serverPlayer);
         VeinationConfig config = veinationConfig(serverPlayer);
         boolean veinationGesture = config.oreHarvestWithoutSneak() ? !serverPlayer.isShiftKeyDown() : serverPlayer.isShiftKeyDown();
@@ -1338,7 +1352,8 @@ public final class ModEntry {
         boolean allowedOre = veinationRuntime.isOreAllowed(config, state);
         Direction breakFace = consumeBreakFace(serverPlayer, pos);
 
-        if (isFeatureEnabled(FeatureId.VEINATION) && playerCommonConfig.mineVeins() && veinationGesture && isPickaxeTool(stack) && allowedPickaxe && allowedOre) {
+        if (isFeatureEnabled(FeatureId.VEINATION, serverPlayer) && playerCommonConfig.mineVeins()
+            && veinationGesture && isPickaxeTool(stack) && allowedPickaxe && allowedOre) {
             veinationRuntime.registerDropAnchor(serverPlayer, pos, config);
             AgentManager agentManager = AgentManager.get();
           if (agentManager.getAgentsOfType(serverPlayer, VeinationAgent.class).stream()
@@ -1346,20 +1361,39 @@ public final class ModEntry {
                 agentManager.addAgent(serverPlayer, new VeinationAgent(serverPlayer, pos, state, playerCommonConfig, veinationRuntime, config, stack));
             }
         } else if (shaftModeActive) {
-          if (breakFace == null) {
-            return;
-          }
+            if (breakFace == null) {
+                return;
+            }
             boolean verticalFace = breakFace == Direction.UP || breakFace == Direction.DOWN;
             AgentManager agentManager = AgentManager.get();
             if (verticalFace) {
-                agentManager.addAgent(serverPlayer, new VentilationAgent(serverPlayer, pos, breakFace.getOpposite(), ventilationConfig(serverPlayer), commonConfig(serverPlayer), veinationRuntime, config, stack, isFeatureEnabled(FeatureId.ILLUMINATION) ? illuminationConfig(serverPlayer) : null));
-          } else if (agentManager.getAgentsOfType(serverPlayer, ShaftanationAgent.class).stream()
-            .noneMatch(agent -> agent.owns(pos))) {
+                if (isFeatureEnabled(FeatureId.VENTILATION, serverPlayer)) {
+                    agentManager.addAgent(
+                        serverPlayer,
+                        new VentilationAgent(
+                            serverPlayer,
+                            pos,
+                            breakFace.getOpposite(),
+                            ventilationConfig(serverPlayer),
+                            commonConfig(serverPlayer),
+                            veinationRuntime,
+                            config,
+                            stack,
+                            isFeatureEnabled(FeatureId.ILLUMINATION, serverPlayer)
+                                ? illuminationConfig(serverPlayer)
+                                : null
+                        )
+                    );
+                }
+            } else if (agentManager.getAgentsOfType(serverPlayer, ShaftanationAgent.class).stream()
+                .noneMatch(agent -> agent.owns(pos))) {
                 agentManager.addAgent(serverPlayer, new ShaftanationAgent(serverPlayer, pos, serverPlayer.getDirection(), shaftanationConfig(serverPlayer), commonConfig(serverPlayer), illuminationConfig(serverPlayer).lowestLightLevel(), veinationRuntime, config, stack, playerState.selectedShaftanationShapeIndex(), breakFace));
             }
         } else if (!shaftModeActive && excavationActive) {
             ExcavationConfig excavationConfig = excavationConfig(serverPlayer);
-            IlluminationConfig excavationIlluminationConfig = isFeatureEnabled(FeatureId.ILLUMINATION) ? illuminationConfig(serverPlayer) : null;
+            IlluminationConfig excavationIlluminationConfig = isFeatureEnabled(FeatureId.ILLUMINATION, serverPlayer)
+                ? illuminationConfig(serverPlayer)
+                : null;
             AgentManager agentManager = AgentManager.get();
           if (agentManager.getAgentsOfType(serverPlayer, ExcavationAgent.class).stream()
             .noneMatch(agent -> agent.owns(pos))) {
@@ -1383,7 +1417,7 @@ public final class ModEntry {
                     )
                 );
             }
-        } else if (isFeatureEnabled(FeatureId.LUMBINATION)) {
+        } else if (isFeatureEnabled(FeatureId.LUMBINATION, serverPlayer)) {
             LumbinationConfig lumbinationConfig = lumbinationConfig(serverPlayer);
             if (isConfiguredAxe(stack, lumbinationConfig) && isConfiguredLog(state, lumbinationConfig)
                 && AgentManager.get().getAgentsOfType(serverPlayer, LumbinationAgent.class).stream()
@@ -1429,7 +1463,8 @@ public final class ModEntry {
                 if (tickCount % 20 == 0) {
                     for (ServerPlayer serverPlayer : level.players()) {
                         SubstitutionAgent.processSwitchBack(serverPlayer);
-                        if (isFeatureEnabled(FeatureId.CAPTIVATION) && !AgentManager.get().hasAgentType(serverPlayer, CaptivationAgent.class)) {
+                        if (isFeatureEnabled(FeatureId.CAPTIVATION, serverPlayer)
+                            && !AgentManager.get().hasAgentType(serverPlayer, CaptivationAgent.class)) {
                             AgentManager.get().addAgent(serverPlayer, new CaptivationAgent(serverPlayer, captivationConfig(serverPlayer)));
                         }
                     }
@@ -1469,23 +1504,23 @@ public final class ModEntry {
       return cachedFace;
     }
 
-    private void routeToolUse(ItemStack stack, BlockPos pos, BlockState state) {
+    private void routeToolUse(long playerId, ItemStack stack, BlockPos pos, BlockState state) {
         String blockId = blockId(state);
 
         if (isPickaxeTool(stack)) {
-            toolEvents.onPickaxeUse(pos.getX(), pos.getY(), pos.getZ(), blockId);
+            toolEvents.onPickaxeUse(playerId, pos.getX(), pos.getY(), pos.getZ(), blockId);
             return;
         }
         if (isShovelTool(stack)) {
-            toolEvents.onShovelUse(pos.getX(), pos.getY(), pos.getZ(), blockId);
+            toolEvents.onShovelUse(playerId, pos.getX(), pos.getY(), pos.getZ(), blockId);
             return;
         }
         if (isHoeTool(stack)) {
-            toolEvents.onHoeUse(pos.getX(), pos.getY(), pos.getZ(), blockId);
+            toolEvents.onHoeUse(playerId, pos.getX(), pos.getY(), pos.getZ(), blockId);
             return;
         }
         if (isAxeTool(stack)) {
-            toolEvents.onAxeUse(pos.getX(), pos.getY(), pos.getZ(), blockId);
+            toolEvents.onAxeUse(playerId, pos.getX(), pos.getY(), pos.getZ(), blockId);
         }
     }
 
@@ -1764,9 +1799,8 @@ public final class ModEntry {
         return veinationConfig();
     }
 
-    private boolean isFeatureEnabled(FeatureId featureId) {
-        var component = core.components().get(featureId);
-        return component != null && component.isEnabled();
+    private boolean isFeatureEnabled(FeatureId featureId, ServerPlayer player) {
+        return player != null && core.isFeatureEnabledForPlayer(playerId(player), featureId);
     }
 
     private static boolean isPickaxeTool(ItemStack stack) {

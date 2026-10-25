@@ -42,6 +42,7 @@ import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 public final class ClientInputHandler {
   private static ClientInputService.ClientInputState inputState = ClientInputService.ClientInputState.defaults();
   private static ClientInputService.ClientInputState lastSyncedState = ClientInputService.ClientInputState.defaults();
+  private static java.util.UUID activePlayerId;
   private static MAClientRootConfig lastSyncedClientConfig;
   private static MAServerRootConfig lastSyncedServerConfig;
   private static final SupremeVantageService supremeVantageService = new SupremeVantageService();
@@ -140,7 +141,15 @@ public final class ClientInputHandler {
     logScreenTransition(client);
     // Skip feature input processing until an actual world is loaded.
     if (client.player == null || client.level == null) {
+      activePlayerId = null;
       return;
+    }
+
+    java.util.UUID currentPlayerId = client.player.getUUID();
+    if (!currentPlayerId.equals(activePlayerId)) {
+      inputState = ClientActionInputSupport.initialInputState(client.hasSingleplayerServer());
+      lastSyncedState = inputState;
+      activePlayerId = currentPlayerId;
     }
 
     ensureSyncSnapshotsInitialized();

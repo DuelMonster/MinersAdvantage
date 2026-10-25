@@ -82,14 +82,22 @@ public final class FabricNetworkEvents {
       return;
     }
 
-    ServerPlayNetworking.registerGlobalReceiver(ComponentTogglePacket.TYPE,
-        (payload, context) -> context.server().execute(() -> core.handleComponentTogglePacket(payload)));
+    ServerPlayNetworking.registerGlobalReceiver(ComponentTogglePacket.TYPE, (payload, context) -> {
+      var player = context.player();
+      long playerId = player.getUUID().getLeastSignificantBits();
+      var singleplayerProfile = context.server().getSingleplayerProfile();
+      boolean singleplayerOwner = singleplayerProfile != null
+          && singleplayerProfile.id().equals(player.getUUID());
+      context.server().execute(() -> core.handleComponentTogglePacket(playerId, payload, singleplayerOwner));
+    });
     ServerPlayNetworking.registerGlobalReceiver(AbortWorkersPacket.TYPE,
         (payload, context) -> context.server().execute(() -> core.handleAbortPacket(payload)));
     ServerPlayNetworking.registerGlobalReceiver(PlayerStateSyncPacket.TYPE,
         (payload, context) -> context.server().execute(() -> core.handlePlayerStateSyncPacket(payload)));
-    ServerPlayNetworking.registerGlobalReceiver(FeatureDispatchPacket.TYPE,
-        (payload, context) -> context.server().execute(() -> core.handleFeatureDispatchPacket(payload)));
+    ServerPlayNetworking.registerGlobalReceiver(FeatureDispatchPacket.TYPE, (payload, context) -> {
+      long playerId = context.player().getUUID().getLeastSignificantBits();
+      context.server().execute(() -> core.handleFeatureDispatchPacket(playerId, payload));
+    });
     ServerPlayNetworking.registerGlobalReceiver(IlluminationActionPacket.TYPE,
         (payload, context) -> context.server()
             .execute(() -> core.handleIlluminationActionPacket(context.player(), payload)));

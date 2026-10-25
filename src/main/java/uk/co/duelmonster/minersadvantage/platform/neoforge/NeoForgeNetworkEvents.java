@@ -2,6 +2,7 @@
 package uk.co.duelmonster.minersadvantage.platform.neoforge;
 
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
@@ -45,8 +46,12 @@ public final class NeoForgeNetworkEvents {
 
     private static void handleComponentTogglePacket(ComponentTogglePacket packet, IPayloadContext context) {
         context.enqueueWork(() -> {
-            if (context.player() != null) {
-                core.handleComponentTogglePacket(packet);
+            if (context.player() instanceof ServerPlayer player) {
+                var singleplayerProfile = ((ServerLevel) player.level()).getServer().getSingleplayerProfile();
+                core.handleComponentTogglePacket(
+                    player.getUUID().getLeastSignificantBits(),
+                    packet,
+                    singleplayerProfile != null && singleplayerProfile.id().equals(player.getUUID()));
             }
         });
     }
@@ -69,8 +74,8 @@ public final class NeoForgeNetworkEvents {
 
     private static void handleFeatureDispatchPacket(FeatureDispatchPacket packet, IPayloadContext context) {
         context.enqueueWork(() -> {
-            if (context.player() != null) {
-                core.handleFeatureDispatchPacket(packet);
+            if (context.player() instanceof ServerPlayer player) {
+                core.handleFeatureDispatchPacket(player.getUUID().getLeastSignificantBits(), packet);
             }
         });
     }

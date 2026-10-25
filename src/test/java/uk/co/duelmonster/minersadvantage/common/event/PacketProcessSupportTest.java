@@ -37,7 +37,7 @@ class PacketProcessSupportTest {
     Assumptions.assumeTrue(TestRuntimeAssumptions.canInitializeSoundEvents());
     MinersAdvantageCore core = new MinersAdvantageCore();
     core.bootstrap();
-    core.handleComponentTogglePacket(new ComponentTogglePacket(FeatureId.CAPTIVATION, false));
+    core.components().get(FeatureId.CAPTIVATION).disable();
 
     AtomicReference<FeatureDispatchContext> captured = new AtomicReference<>();
     FeatureEventHandler.setDispatchObserverForTesting(captured::set);
@@ -56,12 +56,12 @@ class PacketProcessSupportTest {
     Assumptions.assumeTrue(TestRuntimeAssumptions.canInitializeSoundEvents());
     MinersAdvantageCore core = new MinersAdvantageCore();
     core.bootstrap();
-    core.handleComponentTogglePacket(new ComponentTogglePacket(FeatureId.CAPTIVATION, false));
+    core.components().get(FeatureId.CAPTIVATION).disable();
 
     AtomicReference<FeatureDispatchContext> captured = new AtomicReference<>();
     FeatureEventHandler.setDispatchObserverForTesting(captured::set);
 
-    core.handleFeatureDispatchPacket(
+    core.handleFeatureDispatchPacket(42L,
         new FeatureDispatchPacket(FeatureId.CAPTIVATION, 1, 2, 3, "minecraft:diamond", "minecraft:stick"));
 
     assertNull(captured.get());
@@ -80,7 +80,7 @@ class PacketProcessSupportTest {
     AtomicReference<FeatureDispatchContext> captured = new AtomicReference<>();
     FeatureEventHandler.setDispatchObserverForTesting(captured::set);
 
-    core.handleFeatureDispatchPacket(new FeatureDispatchPacket(
+    core.handleFeatureDispatchPacket(42L, new FeatureDispatchPacket(
         FeatureId.EXCAVATION,
         4,
         5,
@@ -96,6 +96,32 @@ class PacketProcessSupportTest {
     assertEquals(6, context.blockZ());
     assertEquals("minecraft:stone", context.blockId());
     assertEquals("minecraft:iron_pickaxe", context.toolId());
+    assertEquals(42L, context.playerId());
+    core.shutdown();
+  }
+
+  @Test
+  void coreFeatureDispatchHonorsOnlyTheSendingPlayersToggle() {
+    Assumptions.assumeTrue(TestRuntimeAssumptions.canInitializeSoundEvents());
+    MinersAdvantageCore core = new MinersAdvantageCore();
+    core.bootstrap();
+    core.handleComponentTogglePacket(42L, new ComponentTogglePacket(FeatureId.CAPTIVATION, false), false);
+
+    AtomicReference<FeatureDispatchContext> captured = new AtomicReference<>();
+    FeatureEventHandler.setDispatchObserverForTesting(captured::set);
+
+    FeatureDispatchPacket packet = new FeatureDispatchPacket(
+        FeatureId.CAPTIVATION,
+        1,
+        2,
+        3,
+        "minecraft:diamond",
+        "minecraft:stick");
+    core.handleFeatureDispatchPacket(42L, packet);
+    assertNull(captured.get());
+
+    core.handleFeatureDispatchPacket(43L, packet);
+    assertNotNull(captured.get());
     core.shutdown();
   }
 }

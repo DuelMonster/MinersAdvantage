@@ -26,7 +26,22 @@ public final class FeatureEventHandler {
    * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
    */
   public static void onToolUse(FeatureId feature, int blockX, int blockY, int blockZ, String blockId, String toolId) {
-    FeatureDispatchBus.setContext(new FeatureDispatchContext(feature, blockX, blockY, blockZ, blockId, toolId, 0L));
+    onToolUse(feature, blockX, blockY, blockZ, blockId, toolId, 0L);
+  }
+
+  /**
+   * Preserve the authenticated owner while routing a feature event into component context.
+   */
+  public static void onToolUse(
+      FeatureId feature,
+      int blockX,
+      int blockY,
+      int blockZ,
+      String blockId,
+      String toolId,
+      long playerId) {
+    FeatureDispatchBus.setContext(
+        new FeatureDispatchContext(feature, blockX, blockY, blockZ, blockId, toolId, playerId));
     try {
       handleFeatureDispatch(feature);
     } finally {

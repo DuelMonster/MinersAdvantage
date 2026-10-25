@@ -24,13 +24,13 @@ public final class CommonEventHandlerImpl implements ToolEventHandler {
    * onPickaxeUse exists so this code path does one job clearly instead of spreading chaos across callers.
    * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
    */
-  public void onPickaxeUse(int blockX, int blockY, int blockZ, String blockId) {
+  public void onPickaxeUse(long playerId, int blockX, int blockY, int blockZ, String blockId) {
     if (RegistryPredicates.isStoneLikeBlockId(blockId)) {
-      dispatchIfEnabled(FeatureId.SHAFTANATION, blockX, blockY, blockZ, blockId, "pickaxe");
+      dispatchIfEnabled(playerId, FeatureId.SHAFTANATION, blockX, blockY, blockZ, blockId, "pickaxe");
       return;
     }
     if (RegistryPredicates.isOreLikeBlockId(blockId)) {
-      dispatchIfEnabled(FeatureId.EXCAVATION, blockX, blockY, blockZ, blockId, "pickaxe");
+      dispatchIfEnabled(playerId, FeatureId.EXCAVATION, blockX, blockY, blockZ, blockId, "pickaxe");
     }
   }
 
@@ -39,9 +39,9 @@ public final class CommonEventHandlerImpl implements ToolEventHandler {
    * onShovelUse exists so this code path does one job clearly instead of spreading chaos across callers.
    * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
    */
-  public void onShovelUse(int blockX, int blockY, int blockZ, String blockId) {
+  public void onShovelUse(long playerId, int blockX, int blockY, int blockZ, String blockId) {
     if (RegistryPredicates.isDirtLikeBlockId(blockId)) {
-      dispatchIfEnabled(FeatureId.EXCAVATION, blockX, blockY, blockZ, blockId, "shovel");
+      dispatchIfEnabled(playerId, FeatureId.EXCAVATION, blockX, blockY, blockZ, blockId, "shovel");
     }
   }
 
@@ -50,11 +50,11 @@ public final class CommonEventHandlerImpl implements ToolEventHandler {
    * onHoeUse exists so this code path does one job clearly instead of spreading chaos across callers.
    * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
    */
-  public void onHoeUse(int blockX, int blockY, int blockZ, String blockId) {
+  public void onHoeUse(long playerId, int blockX, int blockY, int blockZ, String blockId) {
     if (RegistryPredicates.isCropBlockId(blockId)) {
-      dispatchIfEnabled(FeatureId.CROPINATION, blockX, blockY, blockZ, blockId, "hoe");
+      dispatchIfEnabled(playerId, FeatureId.CROPINATION, blockX, blockY, blockZ, blockId, "hoe");
     } else if (RegistryPredicates.isDirtLikeBlockId(blockId)) {
-      dispatchIfEnabled(FeatureId.CULTIVATION, blockX, blockY, blockZ, blockId, "hoe");
+      dispatchIfEnabled(playerId, FeatureId.CULTIVATION, blockX, blockY, blockZ, blockId, "hoe");
     }
   }
 
@@ -63,9 +63,9 @@ public final class CommonEventHandlerImpl implements ToolEventHandler {
    * onAxeUse exists so this code path does one job clearly instead of spreading chaos across callers.
    * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
    */
-  public void onAxeUse(int blockX, int blockY, int blockZ, String blockId) {
+  public void onAxeUse(long playerId, int blockX, int blockY, int blockZ, String blockId) {
     if (RegistryPredicates.isLogLikeBlockId(blockId)) {
-      dispatchIfEnabled(FeatureId.LUMBINATION, blockX, blockY, blockZ, blockId, "axe");
+      dispatchIfEnabled(playerId, FeatureId.LUMBINATION, blockX, blockY, blockZ, blockId, "axe");
     }
   }
 
@@ -74,29 +74,30 @@ public final class CommonEventHandlerImpl implements ToolEventHandler {
    * onItemPickup exists so this code path does one job clearly instead of spreading chaos across callers.
    * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
    */
-  public void onItemPickup(String itemId, boolean isDirectPickup) {
-    if (!isFeatureEnabled(FeatureId.CAPTIVATION)) {
+  public void onItemPickup(long playerId, String itemId, boolean isDirectPickup) {
+    if (!isFeatureEnabled(playerId, FeatureId.CAPTIVATION)) {
       return;
     }
     // Captivation handles item pickup events (future-you will thank present-you).
-    FeatureEventHandler.onToolUse(FeatureId.CAPTIVATION, 0, 0, 0, "item:" + itemId, "hand");
+    FeatureEventHandler.onToolUse(FeatureId.CAPTIVATION, 0, 0, 0, "item:" + itemId, "hand", playerId);
   }
 
-  private boolean isFeatureEnabled(FeatureId featureId) {
-    return core.isFeatureEnabled(featureId);
+  private boolean isFeatureEnabled(long playerId, FeatureId featureId) {
+    return core.isFeatureEnabledForPlayer(playerId, featureId);
   }
 
   private void dispatchIfEnabled(
+      long playerId,
       FeatureId featureId,
       int blockX,
       int blockY,
       int blockZ,
       String blockId,
       String toolType) {
-    if (!isFeatureEnabled(featureId)) {
+    if (!isFeatureEnabled(playerId, featureId)) {
       return;
     }
-    FeatureEventHandler.onToolUse(featureId, blockX, blockY, blockZ, blockId, toolType);
+    FeatureEventHandler.onToolUse(featureId, blockX, blockY, blockZ, blockId, toolType, playerId);
   }
 
   @Override

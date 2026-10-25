@@ -4,7 +4,7 @@ import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Predicate;
+import java.util.function.BiPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.player.Player;
@@ -21,7 +21,7 @@ import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 public final class PacketProcessSupport {
   private static final String FALLBACK_ID = "minecraft:air";
   private static final Map<Integer, String> BLOCK_ID_CACHE = new ConcurrentHashMap<>();
-  private static volatile Predicate<FeatureId> featureEnabledResolver = featureId -> true;
+  private static volatile BiPredicate<Long, FeatureId> featureEnabledResolver = (playerId, featureId) -> true;
   private static final ClassValue<ResolvedMethods> RESOLVED_METHODS = new ClassValue<>() {
     @Override
     protected ResolvedMethods computeValue(Class<?> type) {
@@ -33,8 +33,8 @@ public final class PacketProcessSupport {
   private PacketProcessSupport() {
   }
 
-  public static void setFeatureEnabledResolver(Predicate<FeatureId> resolver) {
-    featureEnabledResolver = resolver == null ? featureId -> true : resolver;
+  public static void setFeatureEnabledResolver(BiPredicate<Long, FeatureId> resolver) {
+    featureEnabledResolver = resolver == null ? (playerId, featureId) -> true : resolver;
   }
 
   /**
@@ -97,7 +97,9 @@ public final class PacketProcessSupport {
    * In short: one clear job here beats ten confusing side-effects elsewhere.
    */
   private static void dispatchFeature(Object player, FeatureId feature, BlockPos pos, int stateId, String blockIdHint) {
-    if (!featureEnabledResolver.test(feature)) {
+    UUID playerUuid = resolveUuid(player);
+    long playerId = playerUuid == null ? 0L : playerUuid.getLeastSignificantBits();
+    if (!featureEnabledResolver.test(playerId, feature)) {
       return;
     }
     BlockPos safePos = pos == null ? BlockPos.ZERO : pos;
@@ -110,7 +112,8 @@ public final class PacketProcessSupport {
         safePos.getY(),
         safePos.getZ(),
         blockId,
-        toolId);
+        toolId,
+        playerId);
   }
 
   /**

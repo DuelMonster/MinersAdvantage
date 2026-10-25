@@ -120,13 +120,15 @@ Client options stay local. Gameplay options are server-authoritative in multipla
 Every feature has its own toggle keybinding listed under the MinersAdvantage category of the vanilla
 Controls screen. None of them are bound by default; assign whichever keys you want.
 
-Pressing a toggle flips that feature's `enabled` flag. In single player the new value is written to
+Pressing a toggle changes your feature preference. In single player the new value is written to
 `minersadvantage-server-config.toml`, so it survives a restart and is reflected in the config screen.
 Set `disable_keybind_config_persistence` to `true` if you would rather the toggle only last for the
 current session.
 
-In multiplayer the server config is authoritative and is never rewritten by a client keybind, so the
-toggle applies to the running session only.
+In multiplayer, the server config is authoritative and is never rewritten by a client keybind.
+Your toggle lasts for your current connection and does not change the feature for anyone else. A
+feature disabled in the server config stays disabled for everybody; keybinds are preferences, not
+admin credentials wearing a funny hat.
 
 ### Common Gameplay (`minersadvantage-server-config.toml`)
 

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
+import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 
 /**
  * PlayerStateServiceTest keeps this part of MinersAdvantage running without turning server ticks into confetti.
@@ -35,5 +36,16 @@ class PlayerStateServiceTest {
         assertNotNull(state);
         assertEquals(999L, state.playerId());
         assertEquals(false, state.hungerGuardActive());
+        assertEquals(true, state.isFeatureEnabled(FeatureId.CAPTIVATION));
+    }
+
+    @Test
+    void featureTogglePreferencesAreIndependentPerPlayer() {
+        PlayerStateService service = new PlayerStateService();
+
+        service.updateFeatureEnabled(1L, FeatureId.CAPTIVATION, false);
+
+        assertEquals(false, service.getPlayerState(1L).isFeatureEnabled(FeatureId.CAPTIVATION));
+        assertEquals(true, service.getPlayerState(2L).isFeatureEnabled(FeatureId.CAPTIVATION));
     }
 }

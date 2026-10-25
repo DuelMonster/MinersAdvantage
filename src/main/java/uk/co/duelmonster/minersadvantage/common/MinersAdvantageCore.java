@@ -112,7 +112,7 @@ public final class MinersAdvantageCore {
   public void bootstrap() {
     LogUtils.logInfo("Bootstrapping core components");
     MAShapeBootstrap.ensureInitialized();
-    PacketProcessSupport.setFeatureEnabledResolver(this::isFeatureEnabled);
+    PacketProcessSupport.setFeatureEnabledResolver(this::isFeatureEnabledForPlayer);
     tickOrchestrator.setTpsGuardActive(defaultConfig.common().tpsGuard());
     tickOrchestrator.setProcessingDelay(defaultConfig.common().enableTickDelay(), defaultConfig.common().tickDelay());
     registerFeaturesFromConfig(defaultConfig);
@@ -279,7 +279,7 @@ public final class MinersAdvantageCore {
    * handleComponentTogglePacket exists so this code path does one job clearly instead of spreading chaos across callers.
    * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
    */
-  public boolean handleComponentTogglePacket(ComponentTogglePacket packet) {
+  public boolean handleComponentTogglePacket(long playerId, ComponentTogglePacket packet, boolean singleplayer) {
     LogUtils.logDebug("Handling component toggle feature={} enabled={}", packet.feature(), packet.enabled());
     ComponentLifecycle component = components.get(packet.feature());
     if (component == null) {
@@ -287,13 +287,18 @@ public final class MinersAdvantageCore {
       return false;
     }
 
-    if (packet.enabled()) {
-      component.enable();
-    } else {
-      component.disable();
-      clearAgentsForFeature(packet.feature());
+    playerStateService.updateFeatureEnabled(playerId, packet.feature(), packet.enabled());
+    if (singleplayer) {
+      if (packet.enabled()) {
+        component.enable();
+      } else {
+        component.disable();
+        clearAgentsForFeature(packet.feature());
+      }
+    } else if (!packet.enabled()) {
+      clearAgentsForPlayerFeature(playerId, packet.feature());
     }
-    return component.isEnabled();
+    return isFeatureEnabledForPlayer(playerId, packet.feature());
   }
 
   private void clearAgentsForFeature(FeatureId featureId) {
@@ -302,13 +307,35 @@ public final class MinersAdvantageCore {
       case CROPINATION -> AgentManager.get().clearAgentsOfType(CropinationAgent.class);
       case CULTIVATION -> AgentManager.get().clearAgentsOfType(CultivationAgent.class);
       case EXCAVATION -> AgentManager.get().clearAgentsOfType(ExcavationAgent.class);
-      case ILLUMINATION -> AgentManager.get().clearAgentsOfType(IlluminationAgent.class);
+      case ILLUMINATION -> {
+        AgentManager.get().clearAgentsOfType(IlluminationAgent.class);
+        AgentManager.get().clearAgentsOfType(IlluminationPlaceAgent.class);
+      }
       case LUMBINATION -> AgentManager.get().clearAgentsOfType(LumbinationAgent.class);
       case PATHANATION -> AgentManager.get().clearAgentsOfType(PathanationAgent.class);
       case SHAFTANATION -> AgentManager.get().clearAgentsOfType(ShaftanationAgent.class);
       case SUBSTITUTION -> AgentManager.get().clearAgentsOfType(SubstitutionAgent.class);
       case VEINATION -> AgentManager.get().clearAgentsOfType(VeinationAgent.class);
       case VENTILATION -> AgentManager.get().clearAgentsOfType(VentilationAgent.class);
+    }
+  }
+
+  private void clearAgentsForPlayerFeature(long playerId, FeatureId featureId) {
+    switch (featureId) {
+      case CAPTIVATION -> AgentManager.get().clearAgentsOfType(playerId, CaptivationAgent.class);
+      case CROPINATION -> AgentManager.get().clearAgentsOfType(playerId, CropinationAgent.class);
+      case CULTIVATION -> AgentManager.get().clearAgentsOfType(playerId, CultivationAgent.class);
+      case EXCAVATION -> AgentManager.get().clearAgentsOfType(playerId, ExcavationAgent.class);
+      case ILLUMINATION -> {
+        AgentManager.get().clearAgentsOfType(playerId, IlluminationAgent.class);
+        AgentManager.get().clearAgentsOfType(playerId, IlluminationPlaceAgent.class);
+      }
+      case LUMBINATION -> AgentManager.get().clearAgentsOfType(playerId, LumbinationAgent.class);
+      case PATHANATION -> AgentManager.get().clearAgentsOfType(playerId, PathanationAgent.class);
+      case SHAFTANATION -> AgentManager.get().clearAgentsOfType(playerId, ShaftanationAgent.class);
+      case SUBSTITUTION -> AgentManager.get().clearAgentsOfType(playerId, SubstitutionAgent.class);
+      case VEINATION -> AgentManager.get().clearAgentsOfType(playerId, VeinationAgent.class);
+      case VENTILATION -> AgentManager.get().clearAgentsOfType(playerId, VentilationAgent.class);
     }
   }
 
@@ -342,7 +369,8 @@ public final class MinersAdvantageCore {
             packet.excavationToggled(),
             packet.shaftVentToggled(),
             packet.selectedExcavationShapeIndex(),
-            packet.selectedShaftanationShapeIndex()));
+            packet.selectedShaftanationShapeIndex(),
+            current.featureEnabled()));
     SyncCoreService.PlayerSyncState state = syncCoreService.synchronize(
         packet.playerId(),
         packet.clientConfig(),
@@ -365,8 +393,8 @@ public final class MinersAdvantageCore {
    * handleFeatureDispatchPacket exists so this code path does one job clearly instead of spreading chaos across callers.
    * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
    */
-  public void handleFeatureDispatchPacket(FeatureDispatchPacket packet) {
-    if (!isFeatureEnabled(packet.feature())) {
+  public void handleFeatureDispatchPacket(long playerId, FeatureDispatchPacket packet) {
+    if (!isFeatureEnabledForPlayer(playerId, packet.feature())) {
       return;
     }
     LogUtils.logDebug(
@@ -383,7 +411,8 @@ public final class MinersAdvantageCore {
         packet.blockY(),
         packet.blockZ(),
         packet.blockId(),
-        packet.toolId());
+        packet.toolId(),
+        playerId);
   }
 
   /**
@@ -394,8 +423,7 @@ public final class MinersAdvantageCore {
       return false;
     }
 
-    ComponentLifecycle component = components.get(FeatureId.ILLUMINATION);
-    if (component == null || !component.isEnabled()) {
+    if (!isFeatureEnabledForPlayer(player.getUUID().getLeastSignificantBits(), FeatureId.ILLUMINATION)) {
       return false;
     }
 
@@ -1024,6 +1052,13 @@ public final class MinersAdvantageCore {
   public boolean isFeatureEnabled(FeatureId featureId) {
     ComponentLifecycle component = components.get(featureId);
     return component != null && component.isEnabled();
+  }
+
+  /**
+   * Resolve a player's temporary keybind preference behind the server-wide feature policy.
+   */
+  public boolean isFeatureEnabledForPlayer(long playerId, FeatureId featureId) {
+    return isFeatureEnabled(featureId) && playerStateService.getPlayerState(playerId).isFeatureEnabled(featureId);
   }
 
 }

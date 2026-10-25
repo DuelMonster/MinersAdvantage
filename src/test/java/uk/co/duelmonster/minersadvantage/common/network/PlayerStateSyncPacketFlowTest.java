@@ -44,15 +44,49 @@ class PlayerStateSyncPacketFlowTest {
   /**
    * c om po ne nt to gg le pa ck et en ab le sa nd di sa bl es re gi st er ed fe at ur es exists so this path stays predictable and easier to debug when things get weird.
    */
-  void componentTogglePacketEnablesAndDisablesRegisteredFeatures() {
+  void componentTogglePacketChangesOnlyTheAuthenticatedPlayersPreference() {
     Assumptions.assumeTrue(isSlf4jAvailable());
     Assumptions.assumeTrue(TestRuntimeAssumptions.canInitializeSoundEvents());
     MinersAdvantageCore core = new MinersAdvantageCore();
     core.bootstrap();
 
-    assertTrue(core.handleComponentTogglePacket(new ComponentTogglePacket(FeatureId.CAPTIVATION, false)) == false);
-    assertTrue(core.handleComponentTogglePacket(new ComponentTogglePacket(FeatureId.CAPTIVATION, true)));
+    assertFalse(core.handleComponentTogglePacket(17L, new ComponentTogglePacket(FeatureId.CAPTIVATION, false), false));
+    assertTrue(core.components().get(FeatureId.CAPTIVATION).isEnabled());
+    assertFalse(core.isFeatureEnabledForPlayer(17L, FeatureId.CAPTIVATION));
+    assertTrue(core.isFeatureEnabledForPlayer(18L, FeatureId.CAPTIVATION));
+    assertFalse(core.handleComponentTogglePacket(18L, new ComponentTogglePacket(FeatureId.CAPTIVATION, false), false));
+    assertFalse(core.isFeatureEnabledForPlayer(18L, FeatureId.CAPTIVATION));
+    assertTrue(core.handleComponentTogglePacket(17L, new ComponentTogglePacket(FeatureId.CAPTIVATION, true), false));
     assertEquals("ComponentTogglePacket", PacketRegistry.getPacketName(PacketRegistry.COMPONENT_TOGGLE));
+
+    core.shutdown();
+  }
+
+  @Test
+  void playerToggleCannotOverrideServerDisabledFeature() {
+    Assumptions.assumeTrue(isSlf4jAvailable());
+    Assumptions.assumeTrue(TestRuntimeAssumptions.canInitializeSoundEvents());
+    MinersAdvantageCore core = new MinersAdvantageCore();
+    core.bootstrap();
+    core.components().get(FeatureId.CAPTIVATION).disable();
+
+    assertFalse(core.handleComponentTogglePacket(19L, new ComponentTogglePacket(FeatureId.CAPTIVATION, true), false));
+    assertFalse(core.isFeatureEnabledForPlayer(19L, FeatureId.CAPTIVATION));
+
+    core.shutdown();
+  }
+
+  @Test
+  void singleplayerToggleStillControlsTheLocalFeatureComponent() {
+    Assumptions.assumeTrue(isSlf4jAvailable());
+    Assumptions.assumeTrue(TestRuntimeAssumptions.canInitializeSoundEvents());
+    MinersAdvantageCore core = new MinersAdvantageCore();
+    core.bootstrap();
+
+    assertFalse(core.handleComponentTogglePacket(20L, new ComponentTogglePacket(FeatureId.CAPTIVATION, false), true));
+    assertFalse(core.components().get(FeatureId.CAPTIVATION).isEnabled());
+    assertTrue(core.handleComponentTogglePacket(20L, new ComponentTogglePacket(FeatureId.CAPTIVATION, true), true));
+    assertTrue(core.components().get(FeatureId.CAPTIVATION).isEnabled());
 
     core.shutdown();
   }

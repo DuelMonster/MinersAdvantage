@@ -52,6 +52,26 @@ class AgentManagerTest {
   }
 
   @Test
+  void clearAgentsOfTypeForPlayerPreservesOtherPlayersAndAgentTypes() throws ReflectiveOperationException {
+    AgentManager manager = AgentManager.get();
+    Map<UUID, List<Agent>> active = agentsMap();
+    Map<UUID, List<Agent>> pending = pendingMap();
+
+    UUID targetPlayer = UUID.randomUUID();
+    UUID otherPlayer = UUID.randomUUID();
+    active.put(targetPlayer,
+        new ArrayList<>(List.of(allocateCaptivationAgent(), allocateSubstitutionAgent())));
+    pending.put(targetPlayer, new ArrayList<>(List.of(allocateCaptivationAgent())));
+    active.put(otherPlayer, new ArrayList<>(List.of(allocateCaptivationAgent())));
+
+    manager.clearAgentsOfType(targetPlayer.getLeastSignificantBits(), CaptivationAgent.class);
+
+    assertTrue(active.get(targetPlayer).stream().allMatch(SubstitutionAgent.class::isInstance));
+    assertFalse(pending.containsKey(targetPlayer));
+    assertTrue(active.get(otherPlayer).stream().allMatch(CaptivationAgent.class::isInstance));
+  }
+
+  @Test
   void canQueueAgent_allowsUnlimitedAgentsWhenLimitEnforcementDisabled() {
     AgentManager manager = AgentManager.get();
     manager.setAgentLimitEnforced(SubstitutionAgent.class, false);

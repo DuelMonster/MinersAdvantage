@@ -134,6 +134,38 @@ public class AgentManager {
   }
 
   /**
+   * Clear one agent type for one player while leaving every other player's work untouched.
+   */
+  public void clearAgentsOfType(long playerId, Class<? extends Agent> agentType) {
+    if (agentType == null) {
+      return;
+    }
+
+    UUID playerUuid = findPlayerUuid(playerId);
+    if (playerUuid == null) {
+      return;
+    }
+
+    clearAgentsOfType(agents, playerUuid, agentType);
+    clearAgentsOfType(pendingAdds, playerUuid, agentType);
+  }
+
+  private static void clearAgentsOfType(
+      Map<UUID, List<Agent>> playerAgents,
+      UUID playerUuid,
+      Class<? extends Agent> agentType) {
+    List<Agent> agentList = playerAgents.get(playerUuid);
+    if (agentList == null) {
+      return;
+    }
+
+    agentList.removeIf(agentType::isInstance);
+    if (agentList.isEmpty()) {
+      playerAgents.remove(playerUuid, agentList);
+    }
+  }
+
+  /**
    * Internal clear helper used by both clear entry points.
    */
   private void clearAgents(UUID playerUuid, String playerLabel) {

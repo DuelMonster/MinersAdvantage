@@ -1,3 +1,7 @@
+## 2.29.0
+
+- Make multiplayer feature toggle keybinds affect only the player who presses them, while keeping server-disabled features unavailable to everyone.
+
 ## 2.28.0
 
 - Stop Ventilation's automated block breaks from triggering Shaftanation at unrelated positions.

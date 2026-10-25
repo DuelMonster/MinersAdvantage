@@ -1,7 +1,9 @@
 package uk.co.duelmonster.minersadvantage.common.services.core;
 
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
+import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 
 /**
  * PlayerStateService keeps this part of MinersAdvantage running without turning server ticks into confetti.
@@ -22,7 +24,12 @@ public final class PlayerStateService {
       boolean excavationToggled,
       boolean shaftVentToggled,
       int selectedExcavationShapeIndex,
-      int selectedShaftanationShapeIndex) {
+      int selectedShaftanationShapeIndex,
+      Map<FeatureId, Boolean> featureEnabled) {
+    public PlayerState {
+      featureEnabled = featureEnabled == null ? Map.of() : Map.copyOf(featureEnabled);
+    }
+
     /**
      * i se xc av at io na ct iv e exists so this path stays predictable and easier to debug when things get weird.
      */
@@ -35,7 +42,35 @@ public final class PlayerStateService {
      */
     public PlayerState(long playerId, boolean hungerGuardActive, long lastHarvestTick, int recentHarvests,
         boolean excavationToggled, boolean shaftVentToggled) {
-      this(playerId, hungerGuardActive, lastHarvestTick, recentHarvests, excavationToggled, shaftVentToggled, 0, 0);
+      this(playerId, hungerGuardActive, lastHarvestTick, recentHarvests, excavationToggled, shaftVentToggled, 0, 0,
+          Map.of());
+    }
+
+    public PlayerState(long playerId, boolean hungerGuardActive, long lastHarvestTick, int recentHarvests,
+        boolean excavationToggled, boolean shaftVentToggled, int selectedExcavationShapeIndex,
+        int selectedShaftanationShapeIndex) {
+      this(playerId, hungerGuardActive, lastHarvestTick, recentHarvests, excavationToggled, shaftVentToggled,
+          selectedExcavationShapeIndex, selectedShaftanationShapeIndex, Map.of());
+    }
+
+    public boolean isFeatureEnabled(FeatureId featureId) {
+      return featureId != null && featureEnabled.getOrDefault(featureId, true);
+    }
+
+    private PlayerState withFeatureEnabled(FeatureId featureId, boolean enabled) {
+      EnumMap<FeatureId, Boolean> nextFeatureEnabled = new EnumMap<>(FeatureId.class);
+      nextFeatureEnabled.putAll(featureEnabled);
+      nextFeatureEnabled.put(featureId, enabled);
+      return new PlayerState(
+          playerId,
+          hungerGuardActive,
+          lastHarvestTick,
+          recentHarvests,
+          excavationToggled,
+          shaftVentToggled,
+          selectedExcavationShapeIndex,
+          selectedShaftanationShapeIndex,
+          nextFeatureEnabled);
     }
   }
 
@@ -61,6 +96,17 @@ public final class PlayerStateService {
    */
   public void clearPlayerState(long playerId) {
     states.remove(playerId);
+  }
+
+  /**
+   * Record a keybind preference without changing the server-wide feature configuration.
+   */
+  public void updateFeatureEnabled(long playerId, FeatureId featureId, boolean enabled) {
+    if (featureId == null) {
+      return;
+    }
+    PlayerState current = getPlayerState(playerId);
+    states.put(playerId, current.withFeatureEnabled(featureId, enabled));
   }
 
   /**
