@@ -1,6 +1,8 @@
 ## 2.29.0
 
 - Make multiplayer feature toggle keybinds affect only the player who presses them, while keeping server-disabled features unavailable to everyone.
+- Bind abort and player-state sync requests to the authenticated player, and enforce agent limits independently per player.
+- Keep client-only settings local and avoid relocating unattributed drops using another nearby player's Veination anchor.
 
 ## 2.28.0
 

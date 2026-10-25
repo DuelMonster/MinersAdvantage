@@ -38,4 +38,17 @@ class SyncCoreServiceTest {
         assertFalse(state.effectiveConfig().substitution().ignoreIfValidTool());
         assertFalse(state.effectiveConfig().substitution().ignorePassiveMobs());
     }
+
+    @Test
+    void clearingPlayerSnapshotResetsTheNextRevision() {
+        SyncCoreService service = new SyncCoreService();
+        PolicyCoreService policy = new PolicyCoreService();
+
+        service.synchronize(42L, MAClientRootConfig.defaults(), MAServerRootConfig.defaults(), policy);
+        service.clearPlayerState(42L);
+
+        assertEquals(0L, service.getPlayerState(42L).revision());
+        assertEquals(1L, service.synchronize(
+            42L, MAClientRootConfig.defaults(), MAServerRootConfig.defaults(), policy).revision());
+    }
 }

@@ -1,6 +1,7 @@
 package uk.co.duelmonster.minersadvantage.common.network;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Assumptions;
@@ -32,13 +33,31 @@ class AbortWorkersPacketFlowTest {
         runtime.captureDrop(second.workerId(), "xp", 4);
         runtime.captureDrop(other.workerId(), "item", 1);
 
-        WorkerRuntimeService.AbortResult result = core.handleAbortPacket(new AbortWorkersPacket(101L, "test"));
+        WorkerRuntimeService.AbortResult result = core.handleAbortPacket(101L, new AbortWorkersPacket(202L, "test"));
 
         assertEquals(2, result.cancelledWorkers());
         assertEquals(2, result.flushedDrops());
         assertEquals(1, runtime.activeWorkerCount());
         assertTrue(runtime.isWorkerActive(other.workerId()));
         assertEquals(2, runtime.drainSpawnQueue().size());
+    }
+
+    @Test
+    void abortPacketUsesAuthenticatedPlayerInsteadOfPacketTarget() {
+        Assumptions.assumeTrue(TestRuntimeAssumptions.canInitializeSoundEvents());
+        MinersAdvantageCore core = new MinersAdvantageCore();
+        WorkerRuntimeService runtime = core.workerRuntimeService();
+        WorkerRuntimeService.WorkerHandle authenticatedPlayerWorker =
+            runtime.startWorker(101L, FeatureId.EXCAVATION, 2);
+        WorkerRuntimeService.WorkerHandle packetTargetWorker =
+            runtime.startWorker(202L, FeatureId.CROPINATION, 2);
+
+        WorkerRuntimeService.AbortResult result =
+            core.handleAbortPacket(101L, new AbortWorkersPacket(202L, "spoofed"));
+
+        assertEquals(1, result.cancelledWorkers());
+        assertFalse(runtime.isWorkerActive(authenticatedPlayerWorker.workerId()));
+        assertTrue(runtime.isWorkerActive(packetTargetWorker.workerId()));
     }
 
     @Test

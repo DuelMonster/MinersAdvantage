@@ -42,8 +42,9 @@ public class AgentManager {
     }
 
     SyncedClientConfig config = MAConfig_Base.getPlayerConfig(player.getUUID());
-    int activeTypeCount = countAgentsOfType(agent.getClass(), agents);
-    int pendingTypeCount = countAgentsOfType(agent.getClass(), pendingAdds);
+    UUID playerUuid = player.getUUID();
+    int activeTypeCount = countAgentsOfType(agent.getClass(), agents, playerUuid);
+    int pendingTypeCount = countAgentsOfType(agent.getClass(), pendingAdds, playerUuid);
     if (!canQueueAgent(agent.getClass(), activeTypeCount, pendingTypeCount, config)) {
       LogUtils.logDebug(
           "Skipped queueing {} for player={} reason=max-active-agent-limit reached activeTypeCount={} maxActiveAgents={} limitEnforced={}",
@@ -56,11 +57,11 @@ public class AgentManager {
     }
 
     Map<UUID, List<Agent>> target = ticking.get() ? pendingAdds : agents;
-    List<Agent> agentList = target.computeIfAbsent(player.getUUID(), k -> new ArrayList<>());
+    List<Agent> agentList = target.computeIfAbsent(playerUuid, k -> new ArrayList<>());
     agentList.add(agent);
     if (!(agent instanceof CaptivationAgent)) {
-      int activeCount = agents.getOrDefault(player.getUUID(), List.of()).size();
-      int pendingCount = pendingAdds.getOrDefault(player.getUUID(), List.of()).size();
+      int activeCount = agents.getOrDefault(playerUuid, List.of()).size();
+      int pendingCount = pendingAdds.getOrDefault(playerUuid, List.of()).size();
       LogUtils.logDebug("Queued {} for player={} activeAgents={} pendingAgents={}", agent.getClass().getSimpleName(),
           player.getScoreboardName(), activeCount, pendingCount);
     }
@@ -327,20 +328,22 @@ public class AgentManager {
     return Math.max(1, effectiveConfig.maxActiveAgentsForType(agentType));
   }
 
-  private static int countAgentsOfType(Class<? extends Agent> agentType, Map<UUID, List<Agent>> map) {
-    if (agentType == null || map == null || map.isEmpty()) {
+  static int countAgentsOfType(
+      Class<? extends Agent> agentType,
+      Map<UUID, List<Agent>> map,
+      UUID playerUuid) {
+    if (agentType == null || map == null || playerUuid == null) {
       return 0;
     }
 
     int count = 0;
-    for (List<Agent> agentList : map.values()) {
-      if (agentList == null || agentList.isEmpty()) {
-        continue;
-      }
-      for (Agent agent : agentList) {
-        if (agentType.isInstance(agent)) {
-          count++;
-        }
+    List<Agent> agentList = map.get(playerUuid);
+    if (agentList == null) {
+      return 0;
+    }
+    for (Agent agent : agentList) {
+      if (agentType.isInstance(agent)) {
+        count++;
       }
     }
     return count;

@@ -143,20 +143,24 @@ In multiplayer, the loader receiver takes the player identity from the authentic
 ### Multiplayer Authority Model
 
 - Client-local options remain editable on the client.
+- Client-only options are never sent to the server or merged into server-global configuration.
 - Gameplay options are server-authoritative in multiplayer contexts.
 - Feature keybind preferences are per-player and session-only in multiplayer; server-disabled features remain disabled for all players.
-- Effective runtime snapshots are synchronized per player through typed sync pathways.
+- Toggle, abort, and player-state sync requests use the authenticated connection identity. Player-state sync carries only player-owned toggles and shape selections; the server config remains authoritative.
+- Effective gameplay snapshots are synchronized per player through typed sync pathways and are cleared on logout.
 
 ## Networking and Sync
 
 Networking is loader-wired and covers:
 
-- authenticated per-player component-toggle and abort flows
-- player config synchronization
+- authenticated per-player component-toggle, abort, and player-state flows
+- per-player toggle and shape-selection synchronization (client-only config is not sent)
 - feature dispatch packets
 - SupremeVantage packet transport
 
 The runtime design keeps packet payload handling loader-neutral in common services while adapters own registration and platform hooks.
+
+Veination's drop-anchor handling requires the item entity's owner/thrower identity to match the nearby player. If ownership is missing or cannot be resolved, the event does not relocate the item to an inferred player's anchor.
 
 ## Shape and Geometry Surfaces
 

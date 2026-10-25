@@ -1,5 +1,6 @@
 package uk.co.duelmonster.minersadvantage.agent;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -89,6 +90,19 @@ class AgentManagerTest {
 
     assertTrue(manager.canQueueAgent(SubstitutionAgent.class, 3, 0, MAConfig_Base.getGlobalConfig()));
     assertFalse(manager.canQueueAgent(SubstitutionAgent.class, 4, 0, MAConfig_Base.getGlobalConfig()));
+  }
+
+  @Test
+  void countAgentsOfType_countsOnlyTheRequestedPlayer() throws ReflectiveOperationException {
+    Map<UUID, List<Agent>> active = agentsMap();
+    UUID targetPlayer = UUID.randomUUID();
+    UUID otherPlayer = UUID.randomUUID();
+    active.put(targetPlayer, new ArrayList<>(List.of(allocateCaptivationAgent())));
+    active.put(otherPlayer,
+        new ArrayList<>(List.of(allocateCaptivationAgent(), allocateCaptivationAgent())));
+
+    assertEquals(1, AgentManager.countAgentsOfType(CaptivationAgent.class, active, targetPlayer));
+    assertEquals(2, AgentManager.countAgentsOfType(CaptivationAgent.class, active, otherPlayer));
   }
 
   private static void clearMaps() throws ReflectiveOperationException {

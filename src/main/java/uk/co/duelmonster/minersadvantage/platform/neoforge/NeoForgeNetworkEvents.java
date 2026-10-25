@@ -58,16 +58,16 @@ public final class NeoForgeNetworkEvents {
 
     private static void handleAbortWorkersPacket(AbortWorkersPacket packet, IPayloadContext context) {
         context.enqueueWork(() -> {
-            if (context.player() != null) {
-                core.handleAbortPacket(packet);
+            if (context.player() instanceof ServerPlayer player) {
+                core.handleAbortPacket(player.getUUID().getLeastSignificantBits(), packet);
             }
         });
     }
 
     private static void handlePlayerStateSyncPacket(PlayerStateSyncPacket packet, IPayloadContext context) {
         context.enqueueWork(() -> {
-            if (context.player() != null) {
-                core.handlePlayerStateSyncPacket(packet);
+            if (context.player() instanceof ServerPlayer player) {
+                core.handlePlayerStateSyncPacket(player.getUUID().getLeastSignificantBits(), packet);
             }
         });
     }

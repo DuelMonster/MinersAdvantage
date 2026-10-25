@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assumptions;
 import uk.co.duelmonster.minersadvantage.common.MinersAdvantageCore;
 import uk.co.duelmonster.minersadvantage.common.config.CaptivationConfig;
+import uk.co.duelmonster.minersadvantage.common.config.ClientConfig;
 import uk.co.duelmonster.minersadvantage.common.config.MAClientRootConfig;
 import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 import uk.co.duelmonster.minersadvantage.common.config.MAConfig_Base;
@@ -38,6 +39,31 @@ class PlayerStateSyncPacketFlowTest {
 
     assertEquals(1L, state.revision());
     assertEquals("PlayerStateSyncPacket", PacketRegistry.getPacketName(PacketRegistry.PLAYER_STATE_SYNC));
+  }
+
+  @Test
+  void playerStateSyncUsesAuthenticatedIdentityAndIgnoresClientConfig() {
+    Assumptions.assumeTrue(isSlf4jAvailable());
+    Assumptions.assumeTrue(TestRuntimeAssumptions.canInitializeSoundEvents());
+    MinersAdvantageCore core = new MinersAdvantageCore();
+    MAClientRootConfig previousClientConfig = MAConfig_Base.getClientRootConfig();
+    MAServerRootConfig previousServerConfig = MAConfig_Base.getServerRootConfig();
+    MAClientRootConfig untrustedClientConfig = new MAClientRootConfig(
+        new ClientConfig(true, !previousClientConfig.client().debugLogging(), 0xFF010203, 0xFF040506, true));
+    PlayerStateSyncPacket packet = new PlayerStateSyncPacket(
+        999L,
+        untrustedClientConfig,
+        MAServerRootConfig.defaults(),
+        true,
+        false);
+
+    var state = core.handlePlayerStateSyncPacket(77L, packet);
+
+    assertEquals(77L, state.playerId());
+    assertEquals(MAClientRootConfig.defaults(), state.clientConfig());
+    assertEquals(previousServerConfig, state.serverConfig());
+    assertEquals(previousClientConfig, MAConfig_Base.getClientRootConfig());
+    assertEquals(previousServerConfig, MAConfig_Base.getServerRootConfig());
   }
 
   @Test

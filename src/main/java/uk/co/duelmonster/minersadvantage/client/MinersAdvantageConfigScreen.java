@@ -26,6 +26,7 @@ import uk.co.duelmonster.minersadvantage.common.config.CommonConfig;
 import uk.co.duelmonster.minersadvantage.common.config.MAConfig_Base;
 import uk.co.duelmonster.minersadvantage.common.log.LogUtils;
 import uk.co.duelmonster.minersadvantage.common.network.PlayerStateSyncPacket;
+import uk.co.duelmonster.minersadvantage.common.services.input.ClientInputService;
 import uk.co.duelmonster.minersadvantage.common.services.utility.TorchPlacement;
 
 /**
@@ -656,7 +657,7 @@ public final class MinersAdvantageConfigScreen {
     } else {
       currentServerConfig = MAConfig_Base.getServerRootConfig();
     }
-    sendClientSync(currentClientConfig);
+    sendClientSync();
   }
 
   /**
@@ -1324,21 +1325,20 @@ public final class MinersAdvantageConfigScreen {
   }
 
   /**
-   * sendClientSync exists so this code path does one job clearly instead of spreading chaos across callers.
-   * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
+   * Request a server-config refresh without sending local client settings.
    */
-  private static void sendClientSync(MAClientRootConfig updatedConfig) {
+  private static void sendClientSync() {
     Minecraft minecraft = Minecraft.getInstance();
     if (minecraft.getConnection() == null || minecraft.player == null) {
       return;
     }
 
-    long playerId = minecraft.player == null ? 0L : minecraft.player.getUUID().getLeastSignificantBits();
+    ClientInputService.ClientInputState state = ClientPreviewStateBridge.currentState();
     PlayerStateSyncPacket packet = new PlayerStateSyncPacket(
-        playerId,
-        updatedConfig,
-        MAServerRootConfig.defaults());
-
+        state.excavationToggled(),
+        state.shaftVentToggled(),
+        state.selectedExcavationShapeIndex(),
+        state.selectedShaftanationShapeIndex());
     if (invokeStaticSingleArgMethod(
         "net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking",
         "send",
@@ -1352,9 +1352,6 @@ public final class MinersAdvantageConfigScreen {
         packet);
   }
 
-  /**
-   * Invoke optional static networking helper method with one argument.
-   */
   private static boolean invokeStaticSingleArgMethod(String className, String methodName, Object argument) {
     try {
       Class<?> owner = Class.forName(className);
@@ -1372,7 +1369,7 @@ public final class MinersAdvantageConfigScreen {
         return true;
       }
     } catch (ReflectiveOperationException | LinkageError ignored) {
-      // Optional cross-loader client sync should never crash the config UI.
+      // Optional cross-loader state refresh should not break the config UI.
     }
 
     return false;

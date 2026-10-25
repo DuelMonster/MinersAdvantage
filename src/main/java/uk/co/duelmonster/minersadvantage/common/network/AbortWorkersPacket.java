@@ -12,6 +12,10 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 public record AbortWorkersPacket(
     long playerId,
     String source) implements CustomPacketPayload {
+  public AbortWorkersPacket(String source) {
+    this(0L, source);
+  }
+
   public static final Type<AbortWorkersPacket> TYPE = createType();
   public static final StreamCodec<RegistryFriendlyByteBuf, AbortWorkersPacket> STREAM_CODEC = createStreamCodec();
 
@@ -43,8 +47,6 @@ public record AbortWorkersPacket(
   private static StreamCodec<RegistryFriendlyByteBuf, AbortWorkersPacket> createStreamCodec() {
     try {
       return StreamCodec.composite(
-          ByteBufCodecs.VAR_LONG,
-          AbortWorkersPacket::playerId,
           ByteBufCodecs.STRING_UTF8,
           AbortWorkersPacket::source,
           AbortWorkersPacket::new);

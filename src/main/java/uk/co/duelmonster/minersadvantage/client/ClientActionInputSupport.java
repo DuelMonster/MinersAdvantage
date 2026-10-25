@@ -329,9 +329,6 @@ public final class ClientActionInputSupport {
    */
   public static PlayerStateSyncPacket createPlayerStateSyncPacket(ClientInputService.ClientInputState state) {
     return new PlayerStateSyncPacket(
-        resolveLocalPlayerId(),
-        MAConfig_Base.getClientRootConfig(),
-        MAServerRootConfig.defaults(),
         state.excavationToggled(),
         state.shaftVentToggled(),
         state.selectedExcavationShapeIndex(),

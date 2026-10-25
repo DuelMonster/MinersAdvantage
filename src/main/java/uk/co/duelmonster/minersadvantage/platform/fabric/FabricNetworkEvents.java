@@ -90,10 +90,15 @@ public final class FabricNetworkEvents {
           && singleplayerProfile.id().equals(player.getUUID());
       context.server().execute(() -> core.handleComponentTogglePacket(playerId, payload, singleplayerOwner));
     });
-    ServerPlayNetworking.registerGlobalReceiver(AbortWorkersPacket.TYPE,
-        (payload, context) -> context.server().execute(() -> core.handleAbortPacket(payload)));
+    ServerPlayNetworking.registerGlobalReceiver(AbortWorkersPacket.TYPE, (payload, context) -> {
+      long playerId = context.player().getUUID().getLeastSignificantBits();
+      context.server().execute(() -> core.handleAbortPacket(playerId, payload));
+    });
     ServerPlayNetworking.registerGlobalReceiver(PlayerStateSyncPacket.TYPE,
-        (payload, context) -> context.server().execute(() -> core.handlePlayerStateSyncPacket(payload)));
+        (payload, context) -> {
+          long playerId = context.player().getUUID().getLeastSignificantBits();
+          context.server().execute(() -> core.handlePlayerStateSyncPacket(playerId, payload));
+        });
     ServerPlayNetworking.registerGlobalReceiver(FeatureDispatchPacket.TYPE, (payload, context) -> {
       long playerId = context.player().getUUID().getLeastSignificantBits();
       context.server().execute(() -> core.handleFeatureDispatchPacket(playerId, payload));

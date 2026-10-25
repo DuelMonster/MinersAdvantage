@@ -60,4 +60,11 @@ public final class SyncCoreService {
             )
         );
     }
+
+    /**
+     * Release the cached snapshot for a disconnected player.
+     */
+    public void clearPlayerState(long playerId) {
+        perPlayerState.remove(playerId);
+    }
 }

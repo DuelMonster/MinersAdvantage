@@ -522,7 +522,7 @@ public final class ModEntry {
     LogUtils.logInfo("Player login player={} id={}", player.getScoreboardName(), playerId);
     MAClientRootConfig clientConfig = MAConfig_Base.getClientRootConfig();
     MAServerRootConfig serverConfig = MAConfig_Base.getServerRootConfig();
-    core.handlePlayerStateSyncPacket(new PlayerStateSyncPacket(playerId, clientConfig, serverConfig));
+    core.handlePlayerStateSyncPacket(playerId, new PlayerStateSyncPacket(playerId, clientConfig, serverConfig));
   }
 
   /**
@@ -534,7 +534,7 @@ public final class ModEntry {
     SubstitutionAgent.clearRestoreState(player);
     AgentManager.get().clearAgents(player);
     core.workerRuntimeService().abortAllForPlayerWithStats(playerId);
-    core.playerStateService().clearPlayerState(playerId);
+    core.clearPlayerSessionState(player);
   }
 
   /**
@@ -1125,7 +1125,7 @@ public final class ModEntry {
         LogUtils.logInfo("Player login player={} id={}", player.getScoreboardName(), playerId);
         MAClientRootConfig clientConfig = MAConfig_Base.getClientRootConfig();
         MAServerRootConfig serverConfig = MAConfig_Base.getServerRootConfig();
-        core.handlePlayerStateSyncPacket(new PlayerStateSyncPacket(playerId, clientConfig, serverConfig));
+        core.handlePlayerStateSyncPacket(playerId, new PlayerStateSyncPacket(playerId, clientConfig, serverConfig));
     }
 
     private void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
@@ -1137,7 +1137,7 @@ public final class ModEntry {
         SubstitutionAgent.clearRestoreState(player);
         AgentManager.get().clearAgents(player);
         core.workerRuntimeService().abortAllForPlayerWithStats(playerId);
-        core.playerStateService().clearPlayerState(playerId);
+        core.clearPlayerSessionState(player);
     }
 
     private void onLevelUnload(LevelEvent.Unload event) {
@@ -1148,7 +1148,7 @@ public final class ModEntry {
             SubstitutionAgent.clearRestoreState(player);
             AgentManager.get().clearAgents(player);
             core.workerRuntimeService().abortAllForPlayerWithStats(player.getUUID().getLeastSignificantBits());
-            core.playerStateService().clearPlayerState(player.getUUID().getLeastSignificantBits());
+            core.clearPlayerSessionState(player);
         }
     }
 

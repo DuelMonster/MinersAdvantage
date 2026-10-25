@@ -1,5 +1,8 @@
 package uk.co.duelmonster.minersadvantage.common.services.utility;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -30,6 +33,35 @@ import uk.co.duelmonster.minersadvantage.common.registry.RegistryPredicates;
  * It keeps per-player state tidy so gameplay feels responsive instead of recomputing everything every tick.
  */
 public final class VeinationRuntimeService {
+  private static final ClassValue<DropOwnerAccess> DROP_OWNER_ACCESS = new ClassValue<>() {
+    @Override
+    protected DropOwnerAccess computeValue(Class<?> type) {
+      List<Method> methods = new ArrayList<>();
+      for (Method method : type.getMethods()) {
+        if (isDropOwnerName(method.getName()) && method.getParameterCount() == 0
+            && canContainDropOwner(method.getReturnType())) {
+          methods.add(method);
+        }
+      }
+
+      List<Field> fields = new ArrayList<>();
+      for (Class<?> current = type; current != null && current != Object.class; current = current.getSuperclass()) {
+        for (Field field : current.getDeclaredFields()) {
+          if (isDropOwnerName(field.getName()) && canContainDropOwner(field.getType())
+              && !Modifier.isStatic(field.getModifiers())) {
+            try {
+              field.setAccessible(true);
+              fields.add(field);
+            } catch (RuntimeException ignored) {
+              // An inaccessible owner field leaves the drop unattributed.
+            }
+          }
+        }
+      }
+      return new DropOwnerAccess(List.copyOf(methods), List.copyOf(fields));
+    }
+  };
+
   private final VeinationCoreService coreService = new VeinationCoreService();
   private final Set<Item> allowedPickaxes = new HashSet<>();
   private final Map<UUID, DropAnchor> dropAnchors = new HashMap<>();
@@ -127,6 +159,10 @@ public final class VeinationRuntimeService {
       return;
     }
 
+    if (!hasMatchingDropOwner(resolveDropOwner((ItemEntity) entity), nearestPlayer.getUUID())) {
+      return;
+    }
+
     Date now = new Date();
     if (now.getTime() - anchor.timestamp().getTime() > 2000L) {
       dropAnchors.remove(nearestPlayer.getUUID());
@@ -143,6 +179,54 @@ public final class VeinationRuntimeService {
     entity.setDeltaMovement(0.0D, 0.0D, 0.0D);
     entity.teleportTo(anchorPos.getX() + 0.5D, anchorPos.getY() + 0.5D, anchorPos.getZ() + 0.5D);
     dropAnchors.put(nearestPlayer.getUUID(), new DropAnchor(anchorPos, now));
+  }
+
+  static boolean hasMatchingDropOwner(UUID dropOwnerId, UUID playerId) {
+    return dropOwnerId != null && playerId != null && playerId.equals(dropOwnerId);
+  }
+
+  private static UUID resolveDropOwner(ItemEntity item) {
+    DropOwnerAccess access = DROP_OWNER_ACCESS.get(item.getClass());
+    for (Method method : access.methods()) {
+      try {
+        UUID ownerId = extractDropOwner(method.invoke(item));
+        if (ownerId != null) {
+          return ownerId;
+        }
+      } catch (ReflectiveOperationException | RuntimeException ignored) {
+        // Continue to another recognized owner accessor.
+      }
+    }
+    for (Field field : access.fields()) {
+      try {
+        UUID ownerId = extractDropOwner(field.get(item));
+        if (ownerId != null) {
+          return ownerId;
+        }
+      } catch (IllegalAccessException | RuntimeException ignored) {
+        // Continue to another recognized owner field.
+      }
+    }
+    return null;
+  }
+
+  private static boolean isDropOwnerName(String name) {
+    String normalized = name.toLowerCase(Locale.ROOT);
+    return normalized.contains("owner") || normalized.contains("thrower") || normalized.contains("dropper");
+  }
+
+  private static boolean canContainDropOwner(Class<?> type) {
+    return UUID.class.isAssignableFrom(type) || Entity.class.isAssignableFrom(type);
+  }
+
+  private static UUID extractDropOwner(Object value) {
+    if (value instanceof UUID ownerId) {
+      return ownerId;
+    }
+    if (value instanceof Entity owner) {
+      return owner.getUUID();
+    }
+    return null;
   }
 
   /**
@@ -258,5 +342,8 @@ public final class VeinationRuntimeService {
    * Tiny cache entry for recently computed vein-size counts tied to a player.
    */
   private record CachedVeinCount(Date timestamp, int oreCount) {
+  }
+
+  private record DropOwnerAccess(List<Method> methods, List<Field> fields) {
   }
 }

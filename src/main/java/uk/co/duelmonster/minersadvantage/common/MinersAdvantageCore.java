@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.function.Function;
@@ -39,6 +40,7 @@ import uk.co.duelmonster.minersadvantage.common.config.CultivationConfig;
 import uk.co.duelmonster.minersadvantage.common.config.ExcavationConfig;
 import uk.co.duelmonster.minersadvantage.common.config.IlluminationConfig;
 import uk.co.duelmonster.minersadvantage.common.config.LumbinationConfig;
+import uk.co.duelmonster.minersadvantage.common.config.MAClientRootConfig;
 import uk.co.duelmonster.minersadvantage.common.config.MAConfig_Base;
 import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 import uk.co.duelmonster.minersadvantage.common.config.PathanationConfig;
@@ -74,6 +76,7 @@ import uk.co.duelmonster.minersadvantage.common.services.policy.PolicyCoreServic
 import uk.co.duelmonster.minersadvantage.common.services.processing.WorkerRuntimeService;
 import uk.co.duelmonster.minersadvantage.common.services.sync.SyncCoreService;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeBootstrap;
+import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeRegistry;
 import uk.co.duelmonster.minersadvantage.common.services.utility.SupremeVantageService;
 
 /**
@@ -270,9 +273,19 @@ public final class MinersAdvantageCore {
    * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
    */
   public WorkerRuntimeService.AbortResult handleAbortPacket(AbortWorkersPacket packet) {
-    LogUtils.logDebug("Handling abort packet playerId={}", packet.playerId());
-    AgentManager.get().clearAgents(packet.playerId());
-    return workerRuntimeService().abortAllForPlayerWithStats(packet.playerId());
+    return handleAbortPacket(packet == null ? 0L : packet.playerId(), packet);
+  }
+
+  /**
+   * Handle an abort request for the authenticated connection owner.
+   */
+  public WorkerRuntimeService.AbortResult handleAbortPacket(long authenticatedPlayerId, AbortWorkersPacket packet) {
+    if (packet == null) {
+      return new WorkerRuntimeService.AbortResult(0, 0);
+    }
+    LogUtils.logDebug("Handling abort packet playerId={} source={}", authenticatedPlayerId, packet.source());
+    AgentManager.get().clearAgents(authenticatedPlayerId);
+    return workerRuntimeService().abortAllForPlayerWithStats(authenticatedPlayerId);
   }
 
   /**
@@ -344,41 +357,53 @@ public final class MinersAdvantageCore {
    * Think of it as a guardrail for correctness, minus the dramatic cliff scene.
    */
   public SyncCoreService.PlayerSyncState handlePlayerStateSyncPacket(PlayerStateSyncPacket packet) {
+    return handlePlayerStateSyncPacket(packet == null ? 0L : packet.playerId(), packet);
+  }
+
+  /**
+   * Synchronize player-owned state using the authenticated connection identity.
+   */
+  public SyncCoreService.PlayerSyncState handlePlayerStateSyncPacket(long authenticatedPlayerId,
+      PlayerStateSyncPacket packet) {
+    if (packet == null) {
+      throw new IllegalArgumentException("Player state sync packet must not be null");
+    }
+    int selectedExcavationShapeIndex = clampShapeIndex(
+        FeatureId.EXCAVATION, packet.selectedExcavationShapeIndex());
+    int selectedShaftanationShapeIndex = clampShapeIndex(
+        FeatureId.SHAFTANATION, packet.selectedShaftanationShapeIndex());
     MAServerRootConfig authoritativeServerConfig = MAConfig_Base.getServerRootConfig();
-    PlayerStateService.PlayerState current = playerStateService.getPlayerState(packet.playerId());
-    SyncCoreService.PlayerSyncState previousSyncState = syncCoreService.getPlayerState(packet.playerId());
+    PlayerStateService.PlayerState current = playerStateService.getPlayerState(authenticatedPlayerId);
+    SyncCoreService.PlayerSyncState previousSyncState = syncCoreService.getPlayerState(authenticatedPlayerId);
     boolean unchangedState = current.excavationToggled() == packet.excavationToggled()
         && current.shaftVentToggled() == packet.shaftVentToggled()
-        && current.selectedExcavationShapeIndex() == packet.selectedExcavationShapeIndex()
-        && current.selectedShaftanationShapeIndex() == packet.selectedShaftanationShapeIndex();
-    boolean unchangedClientConfig = previousSyncState.clientConfig().equals(packet.clientConfig());
+        && current.selectedExcavationShapeIndex() == selectedExcavationShapeIndex
+        && current.selectedShaftanationShapeIndex() == selectedShaftanationShapeIndex;
     boolean unchangedServerConfig = previousSyncState.serverConfig().equals(authoritativeServerConfig);
-    if (unchangedState && unchangedClientConfig && unchangedServerConfig) {
+    if (previousSyncState.revision() > 0L && unchangedState && unchangedServerConfig) {
       return previousSyncState;
     }
 
-    LogUtils.logDebug("Synchronizing player state playerId={} commonConfig={}", packet.playerId(),
+    LogUtils.logDebug("Synchronizing player state playerId={} commonConfig={}", authenticatedPlayerId,
         authoritativeServerConfig.common());
     playerStateService.updatePlayerState(
-        packet.playerId(),
+        authenticatedPlayerId,
         new PlayerStateService.PlayerState(
-            packet.playerId(),
+            authenticatedPlayerId,
             current.hungerGuardActive(),
             current.lastHarvestTick(),
             current.recentHarvests(),
             packet.excavationToggled(),
             packet.shaftVentToggled(),
-            packet.selectedExcavationShapeIndex(),
-            packet.selectedShaftanationShapeIndex(),
+            selectedExcavationShapeIndex,
+            selectedShaftanationShapeIndex,
             current.featureEnabled()));
     SyncCoreService.PlayerSyncState state = syncCoreService.synchronize(
-        packet.playerId(),
-        packet.clientConfig(),
+        authenticatedPlayerId,
+        MAClientRootConfig.defaults(),
         authoritativeServerConfig,
         policyCoreService);
-    boolean configChanged = !previousSyncState.clientConfig().equals(state.clientConfig())
-        || !previousSyncState.serverConfig().equals(state.serverConfig());
-    MAConfig_Base.setClientRootConfig(state.clientConfig());
+    boolean configChanged = !previousSyncState.serverConfig().equals(state.serverConfig());
     MAConfig_Base.setServerRootConfig(state.serverConfig());
     if (configChanged) {
       reloadComponentsFromConfig(MAConfig_Base.getGlobalConfig());
@@ -387,6 +412,30 @@ public final class MinersAdvantageCore {
     tickOrchestrator.setProcessingDelay(state.serverConfig().common().enableTickDelay(),
         state.serverConfig().common().tickDelay());
     return state;
+  }
+
+  private static int clampShapeIndex(FeatureId featureId, int index) {
+    int shapeCount = MAShapeRegistry.size(featureId);
+    if (shapeCount == 0) {
+      return 0;
+    }
+    return Math.max(0, Math.min(index, shapeCount - 1));
+  }
+
+  /**
+   * Release player-owned sync and configuration snapshots when a player disconnects.
+   */
+  public void clearPlayerSessionState(ServerPlayer player) {
+    if (player == null) {
+      return;
+    }
+    clearPlayerSessionState(player.getUUID().getLeastSignificantBits(), player.getUUID());
+  }
+
+  void clearPlayerSessionState(long playerId, UUID playerUuid) {
+    playerStateService.clearPlayerState(playerId);
+    syncCoreService.clearPlayerState(playerId);
+    MAConfig_Base.clearPlayerConfig(playerUuid);
   }
 
   /**

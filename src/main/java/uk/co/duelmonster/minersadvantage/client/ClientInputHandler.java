@@ -201,8 +201,7 @@ public final class ClientInputHandler {
     }
 
     if (result.abortRequested()) {
-      long playerId = ClientActionInputSupport.resolveLocalPlayerId();
-      ClientPlayNetworking.send(new AbortWorkersPacket(playerId, "client:keybind"));
+      ClientPlayNetworking.send(new AbortWorkersPacket("client:keybind"));
     }
 
     boolean activationStateChanged = ClientActionInputSupport.hasActivationStateChanged(lastSyncedState,
