@@ -1,5 +1,6 @@
 package uk.co.duelmonster.minersadvantage.client;
 
+import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 import uk.co.duelmonster.minersadvantage.common.services.input.ClientInputService;
 
 /**
@@ -18,6 +19,18 @@ public final class ClientPreviewStateBridge {
         //?} else {
         /*
         return uk.co.duelmonster.minersadvantage.platform.neoforge.client.NeoForgeClientEvents.getInputState();
+        */ //?}
+    }
+
+    public static void applyFeatureConfigChanges(
+            MAServerRootConfig previousConfig,
+            MAServerRootConfig updatedConfig) {
+        //? if fabric {
+        ClientInputHandler.applyFeatureConfigChanges(previousConfig, updatedConfig);
+        //?} else {
+        /*
+        uk.co.duelmonster.minersadvantage.platform.neoforge.client.NeoForgeClientEvents
+                .applyFeatureConfigChanges(previousConfig, updatedConfig);
         */ //?}
     }
 }

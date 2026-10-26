@@ -57,7 +57,7 @@ Lumbination traverses trunk and leaf space to identify the full tree and remove 
 
 ### Shaftanation
 
-Shaftanation digs straight mining corridors using configurable width, height, depth, and per-tick pace. You choose the shaft shape budget, it performs the repetitive labor.
+Shaftanation digs straight mining corridors using configurable width, height, depth, and per-tick pace. You choose the shaft shape budget, it performs the repetitive labor. In singleplayer, changing its Enabled setting in the config screen updates the current session immediately; in multiplayer the server remains authoritative.
 
 ### Substitution
 
@@ -70,6 +70,10 @@ Veination expands ore mining into full vein extraction with distance limits and 
 ### Ventilation
 
 Ventilation creates vertical access shafts with configurable dimensions and throughput. Optional ladder placement helps turn that shaft into an actually usable route instead of a stylish pit. When configured to illuminate automatically, its bottom torch uses Illumination's light-level threshold, so a well-lit shaft does not get an unnecessary torch.
+
+### Tool Preservation
+
+Tool Preservation keeps MinersAdvantage harvesting from spending the last uses of your tools. It is enabled by default and reserves 20 remaining durability uses: low-durability tools will not start Veination, Excavation, Lumbination, Shaftanation, or Ventilation, and an active harvest worker stops before its next block break when the reserve is reached. The warning is briefly throttled so a held input does not flood chat. Ordinary vanilla block breaking is not affected.
 
 ### Multiplayer Sync and Enforcement
 
@@ -132,17 +136,19 @@ admin credentials wearing a funny hat.
 
 ### Common Gameplay (`minersadvantage-server-config.toml`)
 
-| Option                     | Type    | Default | Range                                | Description                                                        |
-| -------------------------- | ------- | ------- | ------------------------------------ | ------------------------------------------------------------------ |
-| common.tps_guard           | boolean | true    | -                                    | Reduces aggressive behavior under low TPS conditions.              |
-| common.gather_drops        | boolean | false   | -                                    | Enables drop gathering helpers where applicable.                   |
-| common.auto_illuminate     | boolean | true    | -                                    | Allows compatible features to trigger Illumination behavior.       |
-| common.mine_veins          | boolean | true    | -                                    | Allows compatible features to trigger Veination behavior.          |
-| common.ticks_per_block     | int     | 1       | input: 1 to 200, effective: 1 to 40  | Shared per-agent cadence; each agent runs once every N ticks.      |
-| common.max_blocks_per_tick | int     | 1       | input: 1 to 1024, effective: 1 to 64 | Shared burst cap applied when an agent processing window executes. |
-| common.enable_tick_delay   | boolean | true    | -                                    | Enables tick-delay pacing.                                         |
-| common.tick_delay          | int     | 5       | input: 0 to 200, effective: 0 to 40  | Extra ticks between processing windows when tick delay is enabled. |
-| common.block_radius        | int     | 3       | input: 1 to 128, effective: 1 to 16  | Shared search radius for relevant feature operations.              |
+| Option                              | Type    | Default | Range                                 | Description                                                        |
+| ----------------------------------- | ------- | ------- | ------------------------------------- | ------------------------------------------------------------------ |
+| common.tps_guard                    | boolean | true    | -                                     | Reduces aggressive behavior under low TPS conditions.              |
+| common.gather_drops                 | boolean | false   | -                                     | Enables drop gathering helpers where applicable.                   |
+| common.auto_illuminate              | boolean | true    | -                                     | Allows compatible features to trigger Illumination behavior.       |
+| common.mine_veins                   | boolean | true    | -                                     | Allows compatible features to trigger Veination behavior.          |
+| common.tool_preservation_enabled    | boolean | true    | -                                     | Stops MA harvesting at/below reserve; vanilla mining is unaffected. |
+| common.tool_preservation_reserve    | int     | 20      | input: 1 to 1024                      | Remaining durability at which MA harvesting stops.                 |
+| common.ticks_per_block              | int     | 1       | input: 1 to 200, effective: 1 to 40   | Shared per-agent cadence; each agent runs once every N ticks.      |
+| common.max_blocks_per_tick          | int     | 1       | input: 1 to 1024, effective: 1 to 64  | Shared burst cap applied when an agent processing window executes. |
+| common.enable_tick_delay             | boolean | true    | -                                     | Enables tick-delay pacing.                                         |
+| common.tick_delay                   | int     | 5       | input: 0 to 200, effective: 0 to 40   | Extra ticks between processing windows when tick delay is enabled. |
+| common.block_radius                 | int     | 3       | input: 1 to 128, effective: 1 to 16   | Shared search radius for relevant feature operations.              |
 
 Effective per-feature worker budget is `min(common.max_blocks_per_tick, <feature>.processes_per_tick)` and cadence is driven by `common.ticks_per_block`.
 

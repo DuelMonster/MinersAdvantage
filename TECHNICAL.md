@@ -72,13 +72,15 @@ Configuration is stored as split TOML roots:
 
 Persistence and parsing are implemented through `MATomlConfigStore`, which reads/writes flattened key-value TOML and applies parsing fallback + clamping rules.
 
+Common gameplay configuration includes Tool Preservation. Its server-authoritative enable flag defaults to `true`, and its configurable reserve defaults to 20 remaining durability uses (clamped to 1–1024). Harvest triggers check the effective tool before queuing a supported MA harvesting agent; the shared automated-break boundary checks it again before every supported harvesting agent's block break. When the reserve is reached, that agent finishes without breaking another block. These checks do not cancel or alter ordinary player-initiated block breaking. Warnings are localized and throttled per player.
+
 ### Runtime Config Models
 
 - `MAClientRootConfig`: explicit client root
 - `MAServerRootConfig`: explicit server gameplay root
 - `SyncedClientConfig`: transport/effective snapshot shape used for runtime sync
 
-`MAServerRootConfig.withFeatureEnabled(FeatureId, boolean)` returns a copy with a single server-wide feature flag replaced and every other value preserved. It is the supported way to change that config flag outside the config screen; multiplayer keybind preferences are held separately in per-player runtime state.
+`MAServerRootConfig.withFeatureEnabled(FeatureId, boolean)` returns a copy with a single server-wide feature flag replaced and every other value preserved. In singleplayer, config-screen changes to feature enabled flags are also synchronized into the active player's input state; keybind preferences remain separate per-player runtime state in multiplayer, where the server remains authoritative.
 
 Gameplay config categories in the server root:
 

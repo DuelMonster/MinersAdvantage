@@ -21,6 +21,7 @@ import net.minecraft.world.phys.Vec3;
 import uk.co.duelmonster.minersadvantage.common.config.CommonConfig;
 import uk.co.duelmonster.minersadvantage.common.config.VeinationConfig;
 import uk.co.duelmonster.minersadvantage.common.log.LogUtils;
+import uk.co.duelmonster.minersadvantage.common.services.harvest.ToolPreservationService;
 import uk.co.duelmonster.minersadvantage.common.services.utility.VeinationRuntimeService;
 
 import java.lang.reflect.Method;
@@ -41,13 +42,22 @@ public abstract class Agent {
   protected final ServerPlayer player;
   protected final Level world;
   protected boolean complete = false;
+  private final CommonConfig toolPreservationConfig;
 
   /**
    * Bind this agent to player and world context once at construction time.
    */
   public Agent(ServerPlayer player) {
+    this(player, null);
+  }
+
+  /**
+   * Bind a harvesting agent to the common durability policy that governs its automated breaks.
+   */
+  protected Agent(ServerPlayer player, CommonConfig toolPreservationConfig) {
     this.player = player;
     this.world = player.level();
+    this.toolPreservationConfig = toolPreservationConfig;
     if (!(this instanceof CaptivationAgent)) {
       LogUtils.logDebug("Created {} for player={} dimension={}", getClass().getSimpleName(), player.getScoreboardName(),
           player.level().dimension());
@@ -349,19 +359,32 @@ public abstract class Agent {
    * Break a block through player game mode while optionally forcing a tool snapshot for enchant parity.
    */
   protected BreakOutcome breakBlockWithTool(BlockPos pos, ItemStack preferredTool) {
+    ItemStack configuredTool = preferredTool == null ? ItemStack.EMPTY : preferredTool;
+    boolean forceTool = !configuredTool.isEmpty();
+    ItemStack effectiveTool = forceTool ? configuredTool : player.getMainHandItem();
+    if (complete) {
+      return new BreakOutcome(false, effectiveTool.copy());
+    }
     if (player.gameMode == null) {
-      return new BreakOutcome(false, preferredTool == null ? ItemStack.EMPTY : preferredTool.copy());
+      return new BreakOutcome(false, effectiveTool.copy());
     }
 
     BlockState beforeBreak = world.getBlockState(pos);
     int breakEffectData = Block.getId(beforeBreak);
 
-    ItemStack configuredTool = preferredTool == null ? ItemStack.EMPTY : preferredTool;
-    boolean forceTool = !configuredTool.isEmpty();
     int selectedSlotAtStart = player.getInventory().getSelectedSlot();
     ItemStack mainHandBeforeForce = player.getMainHandItem().copy();
+    boolean canForcePreferredTool = forceTool
+        && player.getInventory().getSelectedSlot() == selectedSlotAtStart
+        && ItemStack.isSameItemSameComponents(mainHandBeforeForce, configuredTool);
+    effectiveTool = canForcePreferredTool ? configuredTool : mainHandBeforeForce;
 
-    ItemStack effectiveTool = forceTool ? configuredTool : player.getMainHandItem();
+    if (ToolPreservationService.isProtected(effectiveTool, toolPreservationConfig)) {
+      ToolPreservationService.warn(player);
+      finish("tool preservation reserve reached");
+      return new BreakOutcome(false, effectiveTool.copy());
+    }
+
     if (!beforeBreak.isAir()) {
       if (beforeBreak.getDestroySpeed(world, pos) < 0.0F) {
         return new BreakOutcome(false, effectiveTool.copy());
@@ -370,10 +393,6 @@ public abstract class Agent {
         return new BreakOutcome(false, effectiveTool.copy());
       }
     }
-
-    boolean canForcePreferredTool = forceTool
-        && player.getInventory().getSelectedSlot() == selectedSlotAtStart
-        && ItemStack.isSameItemSameComponents(mainHandBeforeForce, configuredTool);
 
     if (canForcePreferredTool) {
       player.setItemInHand(InteractionHand.MAIN_HAND, configuredTool.copy());

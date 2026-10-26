@@ -68,6 +68,7 @@ import uk.co.duelmonster.minersadvantage.common.feature.utility.SubstitutionComp
 import uk.co.duelmonster.minersadvantage.common.log.LogUtils;
 import uk.co.duelmonster.minersadvantage.common.network.PlayerStateSyncPacket;
 import uk.co.duelmonster.minersadvantage.common.registry.RegistryPredicates;
+import uk.co.duelmonster.minersadvantage.common.services.harvest.ToolPreservationService;
 import uk.co.duelmonster.minersadvantage.common.services.utility.VeinationRuntimeService;
 
 //? if fabric {
@@ -233,6 +234,10 @@ public final class ModEntry {
 
       if (isFeatureEnabled(FeatureId.VEINATION, serverPlayer) && playerCommonConfig.mineVeins() && veinationGesture
           && isPickaxeTool(stack) && allowedPickaxe && allowedOre) {
+        if (ToolPreservationService.isProtected(stack, playerCommonConfig)) {
+          ToolPreservationService.warn(serverPlayer);
+          return;
+        }
         LogUtils.logDebug("Block break trigger feature=Veination player={} item={} block={} pos={}",
             serverPlayer.getScoreboardName(), itemId, brokenBlockId, pos);
         veinationRuntime.registerDropAnchor(serverPlayer, pos, veinationConfig);
@@ -252,6 +257,11 @@ public final class ModEntry {
           return;
         }
         boolean verticalFace = breakFace == Direction.UP || breakFace == Direction.DOWN;
+        if ((!verticalFace || isFeatureEnabled(FeatureId.VENTILATION, serverPlayer))
+            && ToolPreservationService.isProtected(stack, playerCommonConfig)) {
+          ToolPreservationService.warn(serverPlayer);
+          return;
+        }
         AgentManager agentManager = AgentManager.get();
         if (verticalFace) {
           if (isFeatureEnabled(FeatureId.VENTILATION, serverPlayer)) {
@@ -275,6 +285,10 @@ public final class ModEntry {
           }
         }
       } else if (!shaftModeActive && excavationActive) {
+        if (ToolPreservationService.isProtected(stack, playerCommonConfig)) {
+          ToolPreservationService.warn(serverPlayer);
+          return;
+        }
         LogUtils.logDebug("Block break trigger feature=Excavation player={} item={} block={} pos={}",
             serverPlayer.getScoreboardName(), itemId, brokenBlockId, pos);
         ExcavationConfig excavationConfig = excavationConfig(serverPlayer);
@@ -308,6 +322,10 @@ public final class ModEntry {
         if (isConfiguredAxe(stack, lumbinationConfig) && isConfiguredLog(state, lumbinationConfig)
             && AgentManager.get().getAgentsOfType(serverPlayer, LumbinationAgent.class).stream()
                 .noneMatch(agent -> agent.owns(pos))) {
+          if (ToolPreservationService.isProtected(stack, playerCommonConfig)) {
+            ToolPreservationService.warn(serverPlayer);
+            return;
+          }
           LogUtils.logDebug("Block break trigger feature=Lumbination player={} item={} block={} pos={}",
               serverPlayer.getScoreboardName(), itemId, brokenBlockId, pos);
           AgentManager.get().addAgent(serverPlayer,
@@ -1354,6 +1372,10 @@ public final class ModEntry {
 
         if (isFeatureEnabled(FeatureId.VEINATION, serverPlayer) && playerCommonConfig.mineVeins()
             && veinationGesture && isPickaxeTool(stack) && allowedPickaxe && allowedOre) {
+            if (ToolPreservationService.isProtected(stack, playerCommonConfig)) {
+                ToolPreservationService.warn(serverPlayer);
+                return;
+            }
             veinationRuntime.registerDropAnchor(serverPlayer, pos, config);
             AgentManager agentManager = AgentManager.get();
           if (agentManager.getAgentsOfType(serverPlayer, VeinationAgent.class).stream()
@@ -1365,6 +1387,11 @@ public final class ModEntry {
                 return;
             }
             boolean verticalFace = breakFace == Direction.UP || breakFace == Direction.DOWN;
+            if ((!verticalFace || isFeatureEnabled(FeatureId.VENTILATION, serverPlayer))
+                && ToolPreservationService.isProtected(stack, playerCommonConfig)) {
+                ToolPreservationService.warn(serverPlayer);
+                return;
+            }
             AgentManager agentManager = AgentManager.get();
             if (verticalFace) {
                 if (isFeatureEnabled(FeatureId.VENTILATION, serverPlayer)) {
@@ -1390,6 +1417,10 @@ public final class ModEntry {
                 agentManager.addAgent(serverPlayer, new ShaftanationAgent(serverPlayer, pos, serverPlayer.getDirection(), shaftanationConfig(serverPlayer), commonConfig(serverPlayer), illuminationConfig(serverPlayer).lowestLightLevel(), veinationRuntime, config, stack, playerState.selectedShaftanationShapeIndex(), breakFace));
             }
         } else if (!shaftModeActive && excavationActive) {
+            if (ToolPreservationService.isProtected(stack, playerCommonConfig)) {
+                ToolPreservationService.warn(serverPlayer);
+                return;
+            }
             ExcavationConfig excavationConfig = excavationConfig(serverPlayer);
             IlluminationConfig excavationIlluminationConfig = isFeatureEnabled(FeatureId.ILLUMINATION, serverPlayer)
                 ? illuminationConfig(serverPlayer)
@@ -1422,6 +1453,10 @@ public final class ModEntry {
             if (isConfiguredAxe(stack, lumbinationConfig) && isConfiguredLog(state, lumbinationConfig)
                 && AgentManager.get().getAgentsOfType(serverPlayer, LumbinationAgent.class).stream()
                     .noneMatch(agent -> agent.owns(pos))) {
+                if (ToolPreservationService.isProtected(stack, playerCommonConfig)) {
+                    ToolPreservationService.warn(serverPlayer);
+                    return;
+                }
                 AgentManager.get().addAgent(serverPlayer, new LumbinationAgent(serverPlayer, pos, state, lumbinationConfig, commonConfig(serverPlayer)));
             }
         }

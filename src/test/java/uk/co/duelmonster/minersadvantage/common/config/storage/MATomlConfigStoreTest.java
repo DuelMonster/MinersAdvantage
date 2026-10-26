@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import uk.co.duelmonster.minersadvantage.common.config.CommonConfig;
 import uk.co.duelmonster.minersadvantage.common.config.SubstitutionConfig;
 import uk.co.duelmonster.minersadvantage.common.config.SyncedClientConfig;
 import uk.co.duelmonster.minersadvantage.common.services.utility.TorchPlacement;
@@ -31,7 +32,7 @@ class MATomlConfigStoreTest {
   void saveThenLoadRoundTripsCoreValues() {
     SyncedClientConfig saved = new SyncedClientConfig(
         SyncedClientConfig.defaults().client(),
-        SyncedClientConfig.defaults().common(),
+        new CommonConfig(true, false, true, true, 1, 1, true, 5, 3, false, 37),
         SyncedClientConfig.defaults().captivation(),
         SyncedClientConfig.defaults().cropination(),
         SyncedClientConfig.defaults().cultivation(),
@@ -89,6 +90,8 @@ class MATomlConfigStoreTest {
     assertEquals(0.6D, loaded.veination().increasedHarvestingTimePerOreModifier());
     assertEquals(java.util.List.of("minecraft:diamond_ore"), loaded.veination().ores());
     assertEquals(java.util.List.of("minecraft:wooden_pickaxe"), loaded.veination().pickaxeBlacklist());
+    assertFalse(loaded.common().toolPreservationEnabled());
+    assertEquals(37, loaded.common().toolPreservationReserve());
   }
 
   /**
@@ -99,6 +102,8 @@ class MATomlConfigStoreTest {
     Files.writeString(
         tempDir.resolve("minersadvantage-server-config.toml"),
         """
+            common.tool_preservation_enabled = invalid
+            common.tool_preservation_reserve = 5000
             veination.max_vein_distance = -100
             veination.harvest_time_modifier = 999
             shaftanation.torch_placement = \"invalid_mode\"
@@ -115,6 +120,8 @@ class MATomlConfigStoreTest {
     assertEquals(10.0D, loaded.veination().increasedHarvestingTimePerOreModifier());
     assertEquals(TorchPlacement.FLOOR, loaded.shaftanation().torchPlacement());
     assertFalse(loaded.client().disableParticleEffects());
+    assertTrue(loaded.common().toolPreservationEnabled());
+    assertEquals(1024, loaded.common().toolPreservationReserve());
 
     MATomlConfigStore.save(tempDir, loaded);
     String writtenServer = Files.readString(tempDir.resolve("minersadvantage-server-config.toml"),

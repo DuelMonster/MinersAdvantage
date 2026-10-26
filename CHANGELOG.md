@@ -1,3 +1,8 @@
+## 2.30.0
+
+- Add default-on Tool Preservation to keep MinersAdvantage harvesting from using tools at or below a configurable durability reserve, without changing vanilla mining.
+- Apply singleplayer feature-enabled changes from the config screen to the active session immediately.
+
 ## 2.29.0
 
 - Make multiplayer feature toggle keybinds affect only the player who presses them, while keeping server-disabled features unavailable to everyone.

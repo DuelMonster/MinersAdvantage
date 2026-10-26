@@ -220,6 +220,24 @@ public final class ClientInputHandler {
     return inputState;
   }
 
+  public static void applyFeatureConfigChanges(
+      MAServerRootConfig previousConfig,
+      MAServerRootConfig updatedConfig) {
+    Minecraft client = Minecraft.getInstance();
+    if (client.player == null || !client.hasSingleplayerServer()) {
+      return;
+    }
+
+    ClientInputService.FeatureConfigResult result = new ClientInputService().synchronizeFeatureSettings(
+        inputState,
+        previousConfig,
+        updatedConfig);
+    inputState = result.state();
+    for (ComponentTogglePacket packet : result.togglePackets()) {
+      ClientPlayNetworking.send(packet);
+    }
+  }
+
   /**
    * o nm ou se sc ro ll exists so this path stays predictable and easier to debug when things get weird.
    */

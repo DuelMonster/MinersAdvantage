@@ -65,7 +65,9 @@ public final class PolicyCoreService {
         maxBlocksPerTick,
         config.enableTickDelay(),
         clampRange(config.tickDelay(), 0, 40),
-        clampRange(config.blockRadius(), 1, 16));
+        clampRange(config.blockRadius(), 1, 16),
+        config.toolPreservationEnabled(),
+        clampRange(config.toolPreservationReserve(), 1, 1024));
   }
 
   /**

@@ -23,6 +23,7 @@ import uk.co.duelmonster.minersadvantage.client.ClientActionInputSupport;
 import uk.co.duelmonster.minersadvantage.client.ClientRuntimeCompat;
 import uk.co.duelmonster.minersadvantage.client.KeyBindings;
 import uk.co.duelmonster.minersadvantage.client.ShapePreviewRenderer;
+import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 import uk.co.duelmonster.minersadvantage.common.network.AbortWorkersPacket;
 import uk.co.duelmonster.minersadvantage.common.network.ComponentTogglePacket;
@@ -46,6 +47,24 @@ public class NeoForgeClientEvents {
   private static SupremeVantageService.ClientState supremeVantageState = SupremeVantageService.ClientState.defaults();
 
   public NeoForgeClientEvents() {
+  }
+
+  public static void applyFeatureConfigChanges(
+      MAServerRootConfig previousConfig,
+      MAServerRootConfig updatedConfig) {
+    Minecraft client = Minecraft.getInstance();
+    if (client.player == null || !client.hasSingleplayerServer()) {
+      return;
+    }
+
+    ClientInputService.FeatureConfigResult result = INPUT_SERVICE.synchronizeFeatureSettings(
+        inputState,
+        previousConfig,
+        updatedConfig);
+    inputState = result.state();
+    for (ComponentTogglePacket packet : result.togglePackets()) {
+      ClientPacketDistributor.sendToServer(packet);
+    }
   }
 
   @SubscribeEvent

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import uk.co.duelmonster.minersadvantage.client.KeyBindings.ClientAction;
+import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 import uk.co.duelmonster.minersadvantage.common.network.ComponentTogglePacket;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeRegistry;
@@ -64,6 +65,57 @@ public final class ClientInputService {
       boolean abortRequested,
       boolean shouldSyncVariables,
       boolean shouldSyncConfig) {
+  }
+
+  /**
+   * Result of aligning changed config-level feature flags with the current player's input state.
+   */
+  public record FeatureConfigResult(ClientInputState state, List<ComponentTogglePacket> togglePackets) {
+  }
+
+  /**
+   * Apply only feature enablement changes made in the local gameplay config, preserving other player preferences.
+   */
+  public FeatureConfigResult synchronizeFeatureSettings(
+      ClientInputState state,
+      MAServerRootConfig previousConfig,
+      MAServerRootConfig updatedConfig) {
+    if (state == null || previousConfig == null || updatedConfig == null) {
+      throw new IllegalArgumentException("Input state and both server configs are required");
+    }
+
+    EnumMap<FeatureId, Boolean> features = new EnumMap<>(state.featureEnabled());
+    List<ComponentTogglePacket> packets = new ArrayList<>();
+    boolean excavationToggled = state.excavationToggled();
+    boolean shaftVentToggled = state.shaftVentToggled();
+
+    for (FeatureId feature : FeatureId.values()) {
+      boolean previousEnabled = previousConfig.isFeatureEnabled(feature);
+      boolean updatedEnabled = updatedConfig.isFeatureEnabled(feature);
+      if (previousEnabled == updatedEnabled) {
+        continue;
+      }
+
+      boolean currentEnabled = features.getOrDefault(feature, previousEnabled);
+      features.put(feature, updatedEnabled);
+      if (currentEnabled != updatedEnabled) {
+        packets.add(new ComponentTogglePacket(feature, updatedEnabled));
+      }
+
+      if (!updatedEnabled && feature == FeatureId.EXCAVATION) {
+        excavationToggled = false;
+      } else if (!updatedEnabled && feature == FeatureId.SHAFTANATION) {
+        shaftVentToggled = false;
+      }
+    }
+
+    ClientInputState updatedState = new ClientInputState(
+        features,
+        excavationToggled,
+        shaftVentToggled,
+        state.selectedExcavationShapeIndex(),
+        state.selectedShaftanationShapeIndex());
+    return new FeatureConfigResult(updatedState, List.copyOf(packets));
   }
 
   public ClientInputResult process(

@@ -67,6 +67,7 @@
   "minersadvantage.server.enforce_ventilation_settings.comment": "When enabled, the Server side Ventilation feature settings will be enforced upon all Players connected to the server.",
 
   "minersadvantage.common.comment": "Common configuration for MinersAdvantage",
+  "minersadvantage.tool_preservation.unusable": "Tool too worn: MinersAdvantage harvesting stopped to prevent it breaking.",
   "minersadvantage.common.tps_guard": "TPS Guard",
   "minersadvantage.common.tps_guard.comment": "The TPS (Ticks per Second) Guard can be used to help reduce block ghosting [Default = true]",
   "minersadvantage.common.gather_drops": "Gather Drops",
@@ -85,6 +86,10 @@
   "minersadvantage.common.tick_delay.comment": "The number of Ticks that will be ignored before the next block is harvested.",
   "minersadvantage.common.radius": "Block Radius",
   "minersadvantage.common.radius.comment": "The Radius of blocks to check for connected blocks.",
+  "minersadvantage.common.tool_preservation_enabled": "Tool Preservation",
+  "minersadvantage.common.tool_preservation_enabled.comment": "Prevent MinersAdvantage harvest features from using tools at or below the durability reserve.",
+  "minersadvantage.common.tool_preservation_reserve": "Tool Durability Reserve",
+  "minersadvantage.common.tool_preservation_reserve.comment": "Remaining durability to keep in reserve before MinersAdvantage harvest features stop.",
   "minersadvantage.common.limit": "Block Limit",
   "minersadvantage.common.limit.comment": "The Maximum number of blocks allowed to be mined.",
   "minersadvantage.common.break_at_tool_speeds": "Break Blocks at Tool Speeds",

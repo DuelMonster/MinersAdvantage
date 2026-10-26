@@ -114,7 +114,7 @@ public class VentilationAgent extends Agent {
       VeinationConfig veinationConfig,
       ItemStack veinationTriggerTool,
       IlluminationConfig illuminationConfig) {
-    super(player);
+    super(player, commonConfig == null ? new CommonConfig() : commonConfig);
     this.origin = origin;
     this.direction = direction == Direction.UP ? Direction.UP : Direction.DOWN;
     this.config = config == null ? MAServerRootConfig.defaults().ventilation() : config;

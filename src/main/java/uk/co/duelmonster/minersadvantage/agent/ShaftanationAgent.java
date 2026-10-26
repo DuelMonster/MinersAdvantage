@@ -186,7 +186,7 @@ public class ShaftanationAgent extends Agent {
       ItemStack veinationTriggerTool,
       int selectedShapeIndex,
       Direction hitFace) {
-    super(player);
+    super(player, commonConfig == null ? new CommonConfig() : commonConfig);
     this.origin = origin;
     this.direction = direction != null && direction.getAxis().isHorizontal() ? direction : player.getDirection();
     this.config = config == null ? MAServerRootConfig.defaults().shaftanation() : config;

@@ -44,7 +44,9 @@ public record SyncedClientConfig(
             MAConfig_Defaults.Common.maxBlocksPerTick,
             MAConfig_Defaults.Common.enableTickDelay,
             MAConfig_Defaults.Common.tickDelay,
-            MAConfig_Defaults.Common.blockRadius),
+            MAConfig_Defaults.Common.blockRadius,
+            MAConfig_Defaults.Common.toolPreservationEnabled,
+            MAConfig_Defaults.Common.toolPreservationReserve),
         new CaptivationConfig(
             MAConfig_Defaults.Captivation.enabled,
             MAConfig_Defaults.Captivation.allowInGUI,

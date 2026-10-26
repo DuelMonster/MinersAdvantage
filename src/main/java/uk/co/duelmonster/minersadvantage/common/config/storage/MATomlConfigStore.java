@@ -65,7 +65,11 @@ public final class MATomlConfigStore {
             intValue(serverValues, "common.max_blocks_per_tick", fallback.common().maxBlocksPerTick(), 1, 1024),
             boolValue(serverValues, "common.enable_tick_delay", fallback.common().enableTickDelay()),
             intValue(serverValues, "common.tick_delay", fallback.common().tickDelay(), 0, 200),
-            intValue(serverValues, "common.block_radius", fallback.common().blockRadius(), 1, 128)),
+            intValue(serverValues, "common.block_radius", fallback.common().blockRadius(), 1, 128),
+            boolValue(serverValues, "common.tool_preservation_enabled",
+                fallback.common().toolPreservationEnabled()),
+            intValue(serverValues, "common.tool_preservation_reserve",
+                fallback.common().toolPreservationReserve(), 1, 1024)),
         new CaptivationConfig(
             boolValue(serverValues, "captivation.enabled", fallback.captivation().enabled()),
             boolValue(serverValues, "captivation.allow_in_gui", fallback.captivation().allowInGUI()),
@@ -211,6 +215,10 @@ public final class MATomlConfigStore {
     serverValues.put("common.enable_tick_delay", formatTomlValue(value.common().enableTickDelay()));
     serverValues.put("common.tick_delay", formatTomlValue(value.common().tickDelay()));
     serverValues.put("common.block_radius", formatTomlValue(value.common().blockRadius()));
+    serverValues.put("common.tool_preservation_enabled",
+        formatTomlValue(value.common().toolPreservationEnabled()));
+    serverValues.put("common.tool_preservation_reserve",
+        formatTomlValue(value.common().toolPreservationReserve()));
 
     serverValues.put("captivation.enabled", formatTomlValue(value.captivation().enabled()));
     serverValues.put("captivation.allow_in_gui", formatTomlValue(value.captivation().allowInGUI()));

@@ -54,7 +54,7 @@ public class VeinationAgent extends Agent {
       VeinationRuntimeService runtime,
       VeinationConfig config,
       ItemStack breakTool) {
-    super(player);
+    super(player, commonConfig == null ? new CommonConfig() : commonConfig);
     this.runtime = runtime;
     this.config = config;
     this.ticksPerBlock = commonConfig == null ? 1 : Math.max(1, commonConfig.ticksPerBlock());

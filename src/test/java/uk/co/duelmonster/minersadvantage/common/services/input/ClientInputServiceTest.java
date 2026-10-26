@@ -8,6 +8,7 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import uk.co.duelmonster.minersadvantage.client.KeyBindings.ClientAction;
+import uk.co.duelmonster.minersadvantage.common.config.MAServerRootConfig;
 import uk.co.duelmonster.minersadvantage.common.feature.FeatureId;
 import uk.co.duelmonster.minersadvantage.common.shape.api.MAShapeBootstrap;
 
@@ -123,6 +124,49 @@ class ClientInputServiceTest {
         );
 
         assertTrue(result.state().shaftVentToggled());
+    }
+
+    @Test
+    void appliesGuiFeatureEnablementToCurrentPlayerState() {
+        ClientInputService service = new ClientInputService();
+        MAServerRootConfig disabled = MAServerRootConfig.defaults()
+            .withFeatureEnabled(FeatureId.SHAFTANATION, false);
+        ClientInputService.ClientInputState state = new ClientInputService.ClientInputState(
+            java.util.Map.of(FeatureId.SHAFTANATION, false),
+            false,
+            false);
+
+        ClientInputService.FeatureConfigResult result = service.synchronizeFeatureSettings(
+            state,
+            disabled,
+            MAServerRootConfig.defaults());
+
+        assertTrue(result.state().featureEnabled().get(FeatureId.SHAFTANATION));
+        assertEquals(1, result.togglePackets().size());
+        assertEquals(FeatureId.SHAFTANATION, result.togglePackets().getFirst().feature());
+        assertTrue(result.togglePackets().getFirst().enabled());
+    }
+
+    @Test
+    void disablingShaftFromConfigClearsItsActiveHoldWithoutChangingOtherFeaturePreferences() {
+        ClientInputService service = new ClientInputService();
+        MAServerRootConfig enabled = MAServerRootConfig.defaults();
+        MAServerRootConfig disabled = enabled.withFeatureEnabled(FeatureId.SHAFTANATION, false);
+        ClientInputService.ClientInputState state = new ClientInputService.ClientInputState(
+            java.util.Map.of(FeatureId.SHAFTANATION, true, FeatureId.EXCAVATION, false),
+            false,
+            true);
+
+        ClientInputService.FeatureConfigResult result = service.synchronizeFeatureSettings(
+            state,
+            enabled,
+            disabled);
+
+        assertFalse(result.state().featureEnabled().get(FeatureId.SHAFTANATION));
+        assertFalse(result.state().shaftVentToggled());
+        assertFalse(result.state().featureEnabled().get(FeatureId.EXCAVATION));
+        assertEquals(1, result.togglePackets().size());
+        assertFalse(result.togglePackets().getFirst().enabled());
     }
 
     @Test

@@ -79,7 +79,11 @@ public class AgentManager {
         int removedNonCaptivation = 0;
         for (int i = agentList.size() - 1; i >= 0; i--) {
           Agent agent = agentList.get(i);
-          if (!world.dimension().equals(agent.world.dimension()) || !agent.tick()) {
+          if (!world.dimension().equals(agent.world.dimension())) {
+            continue;
+          }
+          boolean finished = agent.tick();
+          if (!finished && !agent.isComplete()) {
             continue;
           }
 

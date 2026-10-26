@@ -209,7 +209,7 @@ public class ExcavationAgent extends Agent {
       IlluminationConfig illuminationConfig,
       int selectedShapeIndex,
       net.minecraft.core.Direction hitFace) {
-    super(player);
+    super(player, commonConfig == null ? new CommonConfig() : commonConfig);
     this.origin = origin;
     this.originState = originState == null ? Blocks.AIR.defaultBlockState() : originState;
     this.config = config == null ? MAServerRootConfig.defaults().excavation() : config;

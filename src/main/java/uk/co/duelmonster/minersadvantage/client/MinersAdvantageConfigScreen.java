@@ -198,6 +198,14 @@ public final class MinersAdvantageConfigScreen {
     addGameplayBoolean(generalCategory, entryBuilder, "Mine Veins", "Permit connected ore mining logic.",
         mutable.mineVeins, currentServerConfig.common().mineVeins(), gameplayEditable,
         value -> mutable.mineVeins = value);
+    addGameplayBoolean(generalCategory, entryBuilder, "Tool Preservation",
+        "Keep MinersAdvantage harvesting from using tools at or below the durability reserve.",
+        mutable.toolPreservationEnabled, currentServerConfig.common().toolPreservationEnabled(), gameplayEditable,
+        value -> mutable.toolPreservationEnabled = value);
+    addGameplayInt(generalCategory, entryBuilder, "Tool Durability Reserve",
+        "Remaining tool durability reserved for regular use; MinersAdvantage harvesting stops at this level.",
+        mutable.toolPreservationReserve, currentServerConfig.common().toolPreservationReserve(), 1, 1024,
+        gameplayEditable, value -> mutable.toolPreservationReserve = value);
     addGameplayInt(generalCategory, entryBuilder, "Ticks Per Block",
         "Process each agent every N ticks. Higher values spread work over time.",
         mutable.ticksPerBlock, currentServerConfig.common().ticksPerBlock(), 1, 40, gameplayEditable,
@@ -500,6 +508,14 @@ public final class MinersAdvantageConfigScreen {
     addGameplayBoolean(generalCategory, entryBuilder, "Mine Veins", "Permit connected ore mining logic.",
         mutable.mineVeins, currentServerConfig.common().mineVeins(), gameplayEditable,
         value -> mutable.mineVeins = value);
+    addGameplayBoolean(generalCategory, entryBuilder, "Tool Preservation",
+        "Keep MinersAdvantage harvesting from using tools at or below the durability reserve.",
+        mutable.toolPreservationEnabled, currentServerConfig.common().toolPreservationEnabled(), gameplayEditable,
+        value -> mutable.toolPreservationEnabled = value);
+    addGameplayInt(generalCategory, entryBuilder, "Tool Durability Reserve",
+        "Remaining tool durability reserved for regular use; MinersAdvantage harvesting stops at this level.",
+        mutable.toolPreservationReserve, currentServerConfig.common().toolPreservationReserve(), 1, 1024,
+        gameplayEditable, value -> mutable.toolPreservationReserve = value);
     addGameplayInt(generalCategory, entryBuilder, "Ticks Per Block",
         "Process each agent every N ticks. Higher values spread work over time.",
         mutable.ticksPerBlock, currentServerConfig.common().ticksPerBlock(), 1, 40, gameplayEditable,
@@ -652,8 +668,10 @@ public final class MinersAdvantageConfigScreen {
     MAConfig_Base.setClientRootConfig(currentClientConfig);
     LogUtils.applyConfiguredLogging();
     if (gameplayEditable) {
+      MAServerRootConfig previousServerConfig = currentServerConfig;
       currentServerConfig = mutable.toServerRootConfig(currentServerConfig);
       MAConfig_Base.setServerRootConfig(currentServerConfig);
+      ClientPreviewStateBridge.applyFeatureConfigChanges(previousServerConfig, currentServerConfig);
     } else {
       currentServerConfig = MAConfig_Base.getServerRootConfig();
     }
@@ -1395,6 +1413,8 @@ public final class MinersAdvantageConfigScreen {
     private boolean enableTickDelay;
     private int tickDelay;
     private int blockRadius;
+    private boolean toolPreservationEnabled;
+    private int toolPreservationReserve;
 
     private boolean captivationEnabled;
     private boolean captivationAllowInGui;
@@ -1516,6 +1536,8 @@ public final class MinersAdvantageConfigScreen {
       this.enableTickDelay = config.common().enableTickDelay();
       this.tickDelay = config.common().tickDelay();
       this.blockRadius = config.common().blockRadius();
+      this.toolPreservationEnabled = config.common().toolPreservationEnabled();
+      this.toolPreservationReserve = config.common().toolPreservationReserve();
 
       this.captivationEnabled = config.captivation().enabled();
       this.captivationAllowInGui = config.captivation().allowInGUI();
@@ -1996,7 +2018,9 @@ public final class MinersAdvantageConfigScreen {
           maxBlocksPerTick,
           enableTickDelay,
           tickDelay,
-          blockRadius);
+          blockRadius,
+          toolPreservationEnabled,
+          toolPreservationReserve);
 
       return new MAServerRootConfig(
           updatedCommon,

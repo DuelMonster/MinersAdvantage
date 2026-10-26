@@ -84,6 +84,15 @@ public class Functions {
   }
 
   /**
+   * Send an already-localized component using the version-compatible player message path.
+   */
+  public static void NotifyClient(Player player, Component message) {
+    if (player != null && message != null) {
+      sendPlayerMessage(player, message);
+    }
+  }
+
+  /**
    * NotifyClient exists to keep this step focused, predictable, and debuggable.
    * In short: one clear job here beats ten confusing side-effects elsewhere.
    */
