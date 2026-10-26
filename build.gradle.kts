@@ -196,6 +196,7 @@ val generatedModMetadataDir = layout.buildDirectory.dir("generated/sources/maVer
 val modVersionForGeneratedMetadata = providers.gradleProperty("mod_version").get()
 
 val generateModMetadataSource = tasks.register("generateModMetadataSource") {
+    inputs.property("modVersion", modVersionForGeneratedMetadata)
     val outDir = generatedModMetadataDir.get().asFile
     outputs.dir(outDir)
     doLast {
@@ -292,39 +293,37 @@ if (tasks.findByName("compile") == null) {
 //  and runs/server/mods so that the development environment has the
 //  required mod dependencies available.
 // ────────────────────────────────────────────────────────────
+val relatedModsDisabled = (findProperty("dmNoRelatedMods") as? String)?.toBoolean() == true
+val relatedModsRoot = rootProject.layout.projectDirectory.dir("related_mods")
+val relatedModsLoader = name.substringAfterLast("-")
+val relatedModsVersion = name.substringBeforeLast("-")
+val relatedModsSource = relatedModsRoot.dir("$relatedModsLoader/$relatedModsVersion")
+val clientRunMods = layout.projectDirectory.dir("runs/client/mods")
+val serverRunMods = layout.projectDirectory.dir("runs/server/mods")
+val relatedModJars = relatedModsSource.asFileTree.matching {
+    include("*.jar")
+}
+
+val copyRelatedModsClient = tasks.register<Copy>("copyRelatedModsClient") {
+    group = "run"
+    description = "Copy related_mods jars to the client run directory."
+    enabled = !relatedModsDisabled
+    from(relatedModJars)
+    into(clientRunMods)
+}
+
+val copyRelatedModsServer = tasks.register<Copy>("copyRelatedModsServer") {
+    group = "run"
+    description = "Copy related_mods jars to the server run directory."
+    enabled = !relatedModsDisabled
+    from(relatedModJars)
+    into(serverRunMods)
+}
+
 tasks.register("copyRelatedMods") {
     group = "run"
-    description = "Copy related_mods jars to run directory mods folders."
-
-    doLast {
-        val disableRelatedMods =
-            ((findProperty("dmNoRelatedMods") as? String)?.toBoolean() == true)
-        if (disableRelatedMods) {
-            return@doLast
-        }
-
-        val actualRoot = rootProject.projectDir
-        val nodeVersionDir = project.projectDir
-        val projectLoader = project.name.substringAfterLast("-")
-        val projectVersion = project.name.substringBeforeLast("-")
-        val loaderModsDir = File(actualRoot, "related_mods/$projectLoader/$projectVersion")
-
-        if (loaderModsDir.exists() && loaderModsDir.isDirectory) {
-            val clientModsDir = File(nodeVersionDir, "runs/client/mods")
-            val serverModsDir = File(nodeVersionDir, "runs/server/mods")
-
-            // Ensure directories exist
-            clientModsDir.mkdirs()
-            serverModsDir.mkdirs()
-
-            // Copy all jars from the loader-specific related_mods directory to both run directories
-            val jarFiles = loaderModsDir.listFiles { file: File -> file.isFile && file.extension == "jar" }
-            jarFiles?.forEach { jar: File ->
-                jar.copyTo(File(clientModsDir, jar.name), overwrite = true)
-                jar.copyTo(File(serverModsDir, jar.name), overwrite = true)
-            }
-        }
-    }
+    description = "Copy related_mods jars to client and server run directories."
+    dependsOn(copyRelatedModsClient, copyRelatedModsServer)
 }
 
 // Configure dependencies after all tasks are created (delayed configuration)
@@ -425,10 +424,6 @@ if (isNeoForge) {
         it.name == "prepareServerRun"
     }.configureEach {
         finalizedBy("sanitizeVscodeLaunchJson")
-    }
-
-    gradle.buildFinished {
-        sanitizeVscodeLaunchJsonFile()
     }
 }
 

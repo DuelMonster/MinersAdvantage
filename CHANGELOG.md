@@ -2,6 +2,7 @@
 
 - Add default-on Tool Preservation to keep MinersAdvantage harvesting from using tools at or below a configurable durability reserve, without changing vanilla mining.
 - Apply singleplayer feature-enabled changes from the config screen to the active session immediately.
+- Keep development run preparation compatible with Gradle configuration-cache requirements.
 
 ## 2.29.0
 
